@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EventDrop
 
-## Getting Started
+EventDrop, bir etkinliğe katılan insanların kendi telefonlarıyla cektikleri fotograf ve videolari, QR kod ile ayni ortak albume yukleyebildigi hafif bir web uygulamasidir.
 
-First, run the development server:
+## Proje Nedir?
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Uygulamanin temel amaci, dugun, dogum gunu, sirket etkinligi gibi gunubirlik organizasyonlarda katilimcilarin medya iceriklerini tek bir ortak noktada toplamasidir. Kullanici QR kodu okutur, ilgili etkinlik albumune gider, fotograflarini veya videolarini yukler ve ortak galeride diger icerikleri goruntuleyebilir.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Kim Kullanir?
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Dugun davetlileri
+- Dogum gunu katilimcilari
+- Sirket etkinligi ziyaretcileri
+- Kisa sureli topluluk bulusmalarina gelen misafirler
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Temel Akis
 
-## Learn More
+1. Etkinlik icin ozel bir QR kod uretilir.
+2. Katilimci QR kodu telefonuyla okutur.
+3. Acilan sayfada ortak albume fotograf ve/veya video yukler.
+4. Yuklenen icerikler ortak galeride goruntulenir.
+5. Katilimcilar istedikleri icerikleri indirebilir ve kendi aralarinda paylasabilir.
 
-To learn more about Next.js, take a look at the following resources:
+## Urun Kurallari
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Her etkinlik tek bir ortak album mantigiyla calisir.
+- Yuklenen medya dosyalari 48 saat sonra otomatik olarak silinmelidir.
+- Album klasorleri tarih bazli isimlendirilmelidir.
+- Dosya isimleri tarih bilgisini tasimalidir.
+- Sistem mobil kullanim icin hizli ve sade olmalidir.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Isimlendirme Kurali
 
-## Deploy on Vercel
+Album klasorleri icin temel format:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`DD-MM-YYYY`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Dosyalar icin yalnizca `DD-MM-YYYY` kullanmak tek basina yeterli olmayacagi icin cakisma riski olusur. Bu nedenle uygulama icin onerilen pratik format:
+
+`DD-MM-YYYY-HH-mm-ss-random`
+
+Bu sayede tarih kurali korunur ve ayni gun yuklenen birden fazla dosya benzersiz kalir.
+
+## Teknik Yon
+
+Bu proje icin sade ve makul teknoloji yaklasimi:
+
+- Next.js arayuzu
+- Supabase Storage ile medya saklama
+- Supabase Database ile etkinlik ve yukleme kayitlari
+- Supabase Cron veya zamanlanmis bir cleanup gorevi ile 48 saat sonra otomatik silme
+- Vercel veya benzeri basit bir hosting ortami
+
+## Deploy Yaklasimi
+
+MVP icin en sade secenek:
+
+- Uygulama: Vercel
+- Veri ve dosyalar: Supabase
+
+Bunun nedeni, mevcut projenin zaten Next.js tabanli olmasi ve Supabase ile dosya/veri mantigina uygun olmasidir.
+
+Daha dusuk maliyetli alternatif olarak Cloudflare da dusunulebilir; ancak bu urunde dosya yukleme, veritabani, galeri, zamanlanmis silme ve basit yonetim akisinin bir arada kolay kurulmasi acisindan Vercel + Supabase kombinasyonu daha dogrudan bir ilk kurulum saglar.
+
+Kaynaklar:
+
+- [Vercel plan docs](https://vercel.com/docs/plans)
+- [Cloudflare Pages pricing docs](https://developers.cloudflare.com/pages/functions/pricing/)
+- [Cloudflare Pages limits docs](https://developers.cloudflare.com/pages/platform/limits/)
+- [Supabase Cron docs](https://supabase.com/docs/guides/cron)
+- [Supabase scheduled Edge Functions docs](https://supabase.com/docs/guides/functions/schedule-functions)
+- [Supabase Storage docs](https://supabase.com/docs/guides/storage)
+
+## Bu Repoda Beklenen Ana Sayfalar
+
+- `/` : urun tanitim veya etkinlik giris sayfasi
+- `/event/[id]` : etkinlige medya yukleme sayfasi
+- `/event/[id]/gallery` : ortak galeri ve indirme sayfasi
+
+## Sonraki Dokumanlar
+
+README sonrasi proje icin tutulan dokumanlar:
+
+- `docs/PRODUCT.md`
+- `docs/SETUP.md`
+- `docs/ARCHITECTURE.md`
+- `docs/DB_SCHEMA.md`
+- `docs/DEPLOYMENT.md`
+- `docs/OPERATIONS.md`
+
+## Not
+
+Bu README, mevcut proje yapisi ve urun hedefi baz alinarak hazirlanmistir. Dosya isimlendirme konusunda benzersizlik ihtiyaci nedeniyle uygulama seviyesinde `DD-MM-YYYY` formatinin zaman ve kisa rastgele ek ile genisletilecegi varsayilmistir.
