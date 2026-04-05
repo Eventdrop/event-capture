@@ -1,15 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f1e8;
-  --foreground: #211b14;
+  --background: #f5f1e8;
+  --foreground: #102236;
+  --surface: #ffffff;
+  --line: #d4dfee;
+  --brand-blue: #0f3d66;
+  --brand-orange: #f58220;
+  --brand-red: #d94141;
+  --brand-gold: #f2c94c;
+  --soft-blue: #edf4fb;
+  --sand: #e7dcc8;
+  --canal: #cfe1ef;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-mono: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", monospace;
+  --font-sans: var(--font-ibm-plex-sans);
+  --font-mono: var(--font-ibm-plex-mono);
 }
 
 * {
@@ -24,6 +33,14 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  background-image:
+    radial-gradient(circle at top left, rgba(245, 130, 32, 0.08), transparent 26%),
+    radial-gradient(circle at top right, rgba(15, 61, 102, 0.08), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 40%);
+}
+
+::selection {
+  background: rgba(245, 130, 32, 0.24);
 }
 
 a,
@@ -35,6 +52,13 @@ input {
     color 160ms ease,
     opacity 160ms ease,
     transform 160ms ease;
+}
+
+.dutch-grid {
+  background-image:
+    linear-gradient(rgba(15, 61, 102, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 61, 102, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 button:focus-visible,

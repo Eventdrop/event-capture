@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import {
@@ -16,15 +17,18 @@ import { normalizeEventRecord } from '@/lib/events'
 import { supabase } from '@/lib/supabase'
 
 export default function Page() {
+  const { t, locale } = useLanguage()
   const params = useParams()
   const eventIdentifier = params.id as string
 
   const [items, setItems] = useState<UploadRecord[]>([])
   const [eventName, setEventName] = useState('Shared Event Gallery')
   const [selected, setSelected] = useState<string[]>([])
-  const [statusMessage, setStatusMessage] = useState(
-    'Loading this event gallery...'
-  )
+  const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
+
+  useEffect(() => {
+    setStatusMessage(t.gallery.loading)
+  }, [t.gallery.loading])
 
   useEffect(() => {
     const load = async () => {
@@ -47,7 +51,7 @@ export default function Page() {
       const normalizedEvent = normalizeEventRecord(event)
 
       if (!normalizedEvent) {
-        setStatusMessage('This event gallery could not be found.')
+        setStatusMessage(t.gallery.notFound)
         return
       }
 
@@ -59,7 +63,7 @@ export default function Page() {
 
       if (uploadsError) {
         console.error('Failed to load uploads', uploadsError)
-        setStatusMessage('The gallery could not be loaded right now.')
+        setStatusMessage(t.gallery.loadError)
         return
       }
 
@@ -75,13 +79,13 @@ export default function Page() {
       )
       setStatusMessage(
         activeUploads.length === 0
-          ? 'No uploads are live in this gallery yet.'
-          : `Showing ${activeUploads.length} upload${activeUploads.length > 1 ? 's' : ''}.`
+          ? t.gallery.noUploads
+          : `${activeUploads.length} ${t.gallery.showing}`
       )
     }
 
     void load()
-  }, [eventIdentifier])
+  }, [eventIdentifier, t.gallery.loadError, t.gallery.noUploads, t.gallery.notFound, t.gallery.showing])
 
   const selectedItems = useMemo(
     () => items.filter((item) => selected.includes(item.id)),
@@ -116,7 +120,7 @@ export default function Page() {
     } catch (error) {
       console.error('Download failed', error)
       setStatusMessage(
-        error instanceof Error ? error.message : 'Download failed unexpectedly.'
+        error instanceof Error ? error.message : t.gallery.loadError
       )
     }
   }
@@ -128,33 +132,32 @@ export default function Page() {
 
     setStatusMessage(
       selectedItems.length > 0
-        ? `${selectedItems.length} file${selectedItems.length > 1 ? 's' : ''} downloaded.`
-        : 'Choose at least one item before downloading.'
+        ? `${selectedItems.length} ${t.gallery.downloaded}`
+        : t.gallery.chooseBeforeDownload
     )
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f6f2ea_0%,_#f0ebe2_100%)] text-stone-900">
-      <SiteHeader currentLabel="Shared Gallery" />
+    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#f0ebe2_55%,_#edf4fb_100%)] text-stone-900">
+      <SiteHeader currentLabel={t.gallery.badge} />
 
       <main className="flex-1 p-6">
         <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur sm:flex-row sm:items-start sm:justify-between">
+        <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-[#D4DFEE] bg-white/84 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
-              Shared gallery
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6A84A3]">
+              {t.gallery.badge}
             </p>
 
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950">
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-stone-950">
               {eventName}
             </h1>
 
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-stone-600">
-              Browse guest uploads, select favourites, and download anything you
-              want to keep before the 48-hour retention window ends.
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-[#33516F]">
+              {t.gallery.intro}
             </p>
 
-            <p className="mt-3 text-sm text-stone-500">{statusMessage}</p>
+            <p className="mt-3 text-sm text-[#597594]">{statusMessage}</p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -164,24 +167,24 @@ export default function Page() {
               className={`rounded-full px-5 py-3 text-sm font-semibold ${
                 selected.length === 0
                   ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                  : 'bg-stone-950 text-stone-50 hover:bg-stone-800'
+                  : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
               }`}
             >
-              Download Selected ({selected.length})
+              {t.gallery.downloadSelected} ({selected.length})
             </button>
 
             <Link
               href={`/event/${eventIdentifier}`}
-              className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 hover:bg-stone-50"
+              className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-5 py-3 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
             >
-              Back to Upload
+              {t.gallery.backToUpload}
             </Link>
           </div>
         </div>
 
         {items.length === 0 ? (
-          <div className="rounded-[2rem] border border-stone-200 bg-white p-10 text-center text-stone-500 shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
-            No active uploads are visible yet.
+          <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-10 text-center text-[#597594] shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
+            {t.gallery.noUploads}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -220,18 +223,18 @@ export default function Page() {
                       onClick={() => toggleSelect(item.id)}
                       className={`absolute left-3 top-3 rounded-full px-3 py-2 text-xs font-semibold ${
                         isSelected
-                          ? 'bg-stone-950 text-stone-50'
+                          ? 'bg-[#0F3D66] text-stone-50'
                           : 'bg-white/90 text-stone-900'
                       }`}
                     >
-                      {isSelected ? 'Selected' : 'Select'}
+                      {isSelected ? t.gallery.selected : t.gallery.select}
                     </button>
 
                     <button
                       onClick={() => handleDownload(item.file_url, downloadName)}
-                      className="absolute bottom-3 right-3 rounded-full bg-stone-950/85 px-3 py-2 text-xs font-semibold text-stone-50"
+                      className="absolute bottom-3 right-3 rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-stone-50"
                     >
-                      Download
+                      {t.gallery.download}
                     </button>
                   </div>
 
@@ -240,12 +243,12 @@ export default function Page() {
                       {downloadName}
                     </p>
                     <p className="text-xs uppercase tracking-[0.18em] text-stone-500">
-                      {mediaKind === 'video' ? 'Video' : 'Photo'}
+                      {mediaKind === 'video' ? t.gallery.video : t.gallery.photo}
                     </p>
                     <p className="text-xs text-stone-400">
                       {item.created_at
-                        ? new Date(item.created_at).toLocaleString()
-                        : 'Upload time unavailable'}
+                        ? new Date(item.created_at).toLocaleString(locale)
+                        : t.gallery.uploadTimeUnavailable}
                     </p>
                   </div>
                 </article>

@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
+import { useLanguage } from '@/app/_components/language-provider'
 import { brand } from '@/lib/brand'
 import {
   buildEventInsertPayload,
@@ -21,14 +22,13 @@ function formatEventLabel(event: NormalizedEvent) {
 }
 
 export default function AdminPage() {
+  const { t } = useLanguage()
   const [authenticated, setAuthenticated] = useState(false)
   const [configured, setConfigured] = useState(true)
   const [loadingSession, setLoadingSession] = useState(true)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [statusMessage, setStatusMessage] = useState(
-    'Enter your admin username and password.'
-  )
+  const [statusMessage, setStatusMessage] = useState(t.admin.loginPrompt)
   const [submitting, setSubmitting] = useState(false)
   const [events, setEvents] = useState<NormalizedEvent[]>([])
   const [eventName, setEventName] = useState('')
@@ -46,7 +46,11 @@ export default function AdminPage() {
   const getGalleryShareUrl = (event: NormalizedEvent) =>
     `${publicBaseUrl}${getEventGalleryRoute(getEventIdentifier(event))}`
 
-  const loadEvents = async () => {
+  useEffect(() => {
+    setStatusMessage(t.admin.loginPrompt)
+  }, [t.admin.loginPrompt])
+
+  const loadEvents = useCallback(async () => {
     const response = await fetch('/api/admin/events', {
       cache: 'no-store',
     })
@@ -58,7 +62,7 @@ export default function AdminPage() {
     }
 
     if (!response.ok) {
-      throw new Error(payload.error || 'Could not load events.')
+      throw new Error(payload.error || t.admin.loadError)
     }
 
     const normalized = (payload.events || [])
@@ -66,7 +70,7 @@ export default function AdminPage() {
       .filter((item): item is NormalizedEvent => Boolean(item))
 
     setEvents(normalized)
-  }
+  }, [t.admin.loadError])
 
   useEffect(() => {
     const loadSession = async () => {
@@ -84,24 +88,24 @@ export default function AdminPage() {
 
         if (payload.authenticated) {
           await loadEvents()
-          setStatusMessage('Admin panel unlocked.')
+          setStatusMessage(t.admin.unlocked)
         } else if (payload.configured === false) {
-          setStatusMessage('Admin login is not configured on the server.')
+          setStatusMessage(t.admin.notConfigured)
         }
       } catch (error) {
         console.error('Failed to load admin session', error)
-        setStatusMessage('Could not read the admin session.')
+        setStatusMessage(t.admin.loadError)
       } finally {
         setLoadingSession(false)
       }
     }
 
     void loadSession()
-  }, [])
+  }, [loadEvents, t.admin.loadError, t.admin.notConfigured, t.admin.unlocked])
 
   const handleLogin = async () => {
     if (!username.trim() || !password) {
-      setStatusMessage('Enter both username and password.')
+      setStatusMessage(t.admin.missingCredentials)
       return
     }
 
@@ -125,17 +129,17 @@ export default function AdminPage() {
       }
 
       if (!response.ok) {
-        throw new Error(payload.error || 'Admin login failed.')
+        throw new Error(payload.error || t.admin.invalidCredentials)
       }
 
       setAuthenticated(true)
       setPassword('')
       await loadEvents()
-      setStatusMessage('Signed in. You can now create a new event album.')
+      setStatusMessage(t.admin.unlocked)
     } catch (error) {
       console.error('Admin auth failed', error)
       setStatusMessage(
-        error instanceof Error ? error.message : 'Admin login failed.'
+        error instanceof Error ? error.message : t.admin.invalidCredentials
       )
     } finally {
       setSubmitting(false)
@@ -149,12 +153,12 @@ export default function AdminPage() {
 
     setAuthenticated(false)
     setEvents([])
-    setStatusMessage('Signed out from the hidden admin panel.')
+    setStatusMessage(t.admin.signedOut)
   }
 
   const createEventRecord = async () => {
     if (!eventName.trim() || !albumName.trim()) {
-      setStatusMessage('Enter both the event name and the album name.')
+      setStatusMessage(t.admin.createError)
       return
     }
 
@@ -186,7 +190,7 @@ export default function AdminPage() {
       }
 
       if (!response.ok) {
-        throw new Error(result.error || 'Event creation failed.')
+        throw new Error(result.error || t.admin.createError)
       }
 
       const normalized = normalizeEventRecord(result.event)
@@ -198,11 +202,11 @@ export default function AdminPage() {
       setEventName('')
       setAlbumName('')
       setEventDate('')
-      setStatusMessage('Event album created successfully.')
+      setStatusMessage(t.admin.createSuccess)
     } catch (error) {
       console.error('Event creation failed', error)
       setStatusMessage(
-        error instanceof Error ? error.message : 'Event creation failed.'
+        error instanceof Error ? error.message : t.admin.createError
       )
     } finally {
       setSubmitting(false)
@@ -215,15 +219,12 @@ export default function AdminPage() {
       setStatusMessage(successMessage)
     } catch (error) {
       console.error('Clipboard copy failed', error)
-      setStatusMessage('Could not copy the link on this device.')
+      setStatusMessage(t.admin.loadError)
     }
   }
 
   const handleDeleteEvent = async (eventId: string) => {
-    const confirmed = window.confirm(
-      'Delete this event? This should remove the event record and may also remove related uploads depending on your database rules.'
-    )
-
+    const confirmed = window.confirm(t.admin.deleteConfirm)
     if (!confirmed) return
 
     setSubmitting(true)
@@ -240,15 +241,15 @@ export default function AdminPage() {
       const payload = (await response.json()) as { ok?: boolean; error?: string }
 
       if (!response.ok) {
-        throw new Error(payload.error || 'Event deletion failed.')
+        throw new Error(payload.error || t.admin.deleteError)
       }
 
       setEvents((prev) => prev.filter((event) => event.id !== eventId))
-      setStatusMessage('Event deleted successfully.')
+      setStatusMessage(t.admin.deleteSuccess)
     } catch (error) {
       console.error('Delete event failed', error)
       setStatusMessage(
-        error instanceof Error ? error.message : 'Event deletion failed.'
+        error instanceof Error ? error.message : t.admin.deleteError
       )
     } finally {
       setSubmitting(false)
@@ -256,84 +257,90 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f6f2ea_0%,_#efe8dc_100%)]">
-      <SiteHeader currentLabel="Restricted Admin" />
+    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f6f4ee_0%,_#edf4fb_100%)]">
+      <SiteHeader currentLabel={t.common.restrictedAdmin} />
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-6 py-10 md:px-10">
-        <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
-              Hidden admin access
+        <section className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
+          <div className="rounded-[2.2rem] border border-[#D4DFEE] bg-white/85 p-7 shadow-[0_18px_54px_rgba(15,61,102,0.08)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
+              {t.common.hiddenAdminAccess}
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950">
-              This page is private and not linked from the public homepage.
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#0B2742]">
+              {t.admin.title}
             </h1>
-            <p className="mt-4 text-sm leading-7 text-stone-600">
-              Use a private username and password to manage the latest public album
-              that appears on the homepage for guest uploads.
+            <p className="mt-4 text-sm leading-7 text-[#33516F]">
+              {t.common.hiddenAdminDescription}
             </p>
 
-            <div className="mt-8 space-y-3 rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5 text-sm text-stone-700">
-              <p className="font-semibold text-stone-900">{brand.name}</p>
+            <div className="mt-8 space-y-3 rounded-[1.7rem] border border-[#D4DFEE] bg-[#F7FAFD] p-5 text-sm text-[#33516F]">
+              <p className="font-semibold text-[#0B2742]">{brand.name}</p>
               <p>{brand.email}</p>
               <p>{brand.phone}</p>
               <p>{brand.location}</p>
             </div>
 
-            <p className="mt-6 text-sm text-stone-500">{statusMessage}</p>
+            <div className="mt-6 rounded-[1.7rem] bg-[#0F3D66] p-5 text-white">
+              <p className="text-xs uppercase tracking-[0.18em] text-[#C9DDF2]">
+                {t.admin.hiddenRouteNote}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-[#EEF6FF]">
+                {statusMessage}
+              </p>
+            </div>
           </div>
 
-          <div className="rounded-[2rem] border border-stone-200 bg-stone-950 p-6 text-stone-50 shadow-[0_18px_50px_rgba(35,24,12,0.22)]">
+          <div className="rounded-[2.2rem] border border-[#D4DFEE] bg-[#0F3D66] p-7 text-white shadow-[0_22px_60px_rgba(15,61,102,0.18)]">
             {loadingSession ? (
-              <p className="text-sm text-stone-300">Checking admin session...</p>
+              <p className="text-sm text-[#DDEAF7]">{t.admin.checkingSession}</p>
             ) : authenticated ? (
               <div className="space-y-6">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
-                      Admin access
+                    <p className="text-xs uppercase tracking-[0.18em] text-[#BFD4EA]">
+                      {t.admin.adminAccess}
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-stone-50">
-                      Restricted mode enabled
+                    <p className="mt-2 text-lg font-semibold text-white">
+                      {t.admin.enabled}
                     </p>
                   </div>
 
                   <button
                     onClick={handleLogout}
-                    className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-stone-50 hover:bg-white/10"
+                    className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
                   >
-                    Sign Out
+                    {t.common.signOut}
                   </button>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-medium text-stone-200">
-                      Event Name
+                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                      {t.admin.eventName}
                     </label>
                     <input
                       value={eventName}
                       onChange={(event) => setEventName(event.target.value)}
-                      placeholder="Aylin & Marco Wedding"
-                      className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-stone-400"
+                      placeholder="Kingsday Canal Wedding"
+                      className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-[#ADC3DA]"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-stone-200">
-                      Album Name
+                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                      {t.admin.albumName}
                     </label>
                     <input
                       value={albumName}
                       onChange={(event) => setAlbumName(event.target.value)}
-                      placeholder="Golden Hour Album"
-                      className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-stone-400"
+                      placeholder="Orange Night Album"
+                      className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-[#ADC3DA]"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-stone-200">
-                      Event Date
+                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                      {t.common.eventDate}
                     </label>
                     <input
                       type="date"
@@ -349,37 +356,37 @@ export default function AdminPage() {
                   disabled={submitting}
                   className={`rounded-full px-5 py-3 text-sm font-semibold ${
                     submitting
-                      ? 'cursor-not-allowed bg-stone-500 text-stone-200'
-                      : 'bg-amber-300 text-stone-950 hover:bg-amber-200'
+                      ? 'cursor-not-allowed bg-[#7A8EA5] text-[#DCE6F0]'
+                      : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
                   }`}
                 >
-                  {submitting ? 'Saving...' : 'Create Event Album'}
+                  {submitting ? t.admin.saving : t.admin.createButton}
                 </button>
               </div>
             ) : (
               <div className="space-y-6">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-stone-200">
-                    Username
+                  <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                    {t.admin.username}
                   </label>
                   <input
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
                     placeholder="admin"
-                    className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-stone-400"
+                    className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-[#ADC3DA]"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-stone-200">
-                    Password
+                  <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                    {t.admin.password}
                   </label>
                   <input
                     type="password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="••••••••"
-                    className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-stone-400"
+                    className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-[#ADC3DA]"
                   />
                 </div>
 
@@ -388,135 +395,125 @@ export default function AdminPage() {
                   disabled={submitting}
                   className={`rounded-full px-5 py-3 text-sm font-semibold ${
                     submitting
-                      ? 'cursor-not-allowed bg-stone-500 text-stone-200'
-                      : 'bg-amber-300 text-stone-950 hover:bg-amber-200'
+                      ? 'cursor-not-allowed bg-[#7A8EA5] text-[#DCE6F0]'
+                      : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
                   }`}
                 >
-                  {submitting ? 'Checking...' : 'Unlock Admin'}
+                  {submitting ? t.admin.checking : t.admin.unlock}
                 </button>
 
-                <p className="text-sm leading-7 text-stone-300">
-                  {configured
-                    ? 'Use the private admin username and password configured for this environment.'
-                    : 'Admin login is not configured on the server yet.'}
+                <p className="text-sm leading-7 text-[#DDEAF7]">
+                  {configured ? t.admin.configuredHint : t.admin.notConfigured}
                 </p>
               </div>
             )}
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur">
+        <section className="rounded-[2.2rem] border border-[#D4DFEE] bg-white/85 p-7 shadow-[0_18px_54px_rgba(15,61,102,0.08)]">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
-                Event list
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
+                {t.admin.recentAlbums}
               </p>
-              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-stone-950">
-                Recent shared albums
+              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[#0B2742]">
+                {t.admin.recentAlbums}
               </h2>
             </div>
 
             {latestEvent ? (
               <Link
                 href={getEventRoute(getEventIdentifier(latestEvent))}
-                className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-stone-50 hover:bg-stone-800"
+                className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-5 py-3 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
               >
-                Open latest public album
+                {t.common.latestPublicAlbum}
               </Link>
             ) : null}
           </div>
 
           {!authenticated ? (
-            <p className="mt-6 text-sm text-stone-500">
-              Unlock the admin panel to list, create, or delete event albums.
-            </p>
+            <p className="mt-6 text-sm text-[#597594]">{t.admin.unlockToManage}</p>
           ) : events.length === 0 ? (
-            <p className="mt-6 text-sm text-stone-500">
-              No event records found yet. Create the first album and it will become
-              the public homepage upload target.
-            </p>
+            <p className="mt-6 text-sm text-[#597594]">{t.admin.noEvents}</p>
           ) : (
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
               {events.map((event) => (
                 <article
                   key={event.id}
-                  className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5"
+                  className="rounded-[1.8rem] border border-[#D4DFEE] bg-[#F8FBFE] p-5"
                 >
-                  <p className="text-lg font-semibold text-stone-950">
+                  <p className="text-lg font-semibold text-[#0B2742]">
                     {formatEventLabel(event)}
                   </p>
-                  <p className="mt-2 break-all text-sm text-stone-500">
-                    Event ID: {event.id}
+                  <p className="mt-2 break-all text-sm text-[#6A84A3]">
+                    {t.common.eventId}: {event.id}
                   </p>
                   {event.slug ? (
-                    <p className="mt-1 break-all text-sm text-stone-500">
+                    <p className="mt-1 break-all text-sm text-[#6A84A3]">
                       Public slug: {event.slug}
                     </p>
                   ) : null}
                   {event.eventDate ? (
-                    <p className="mt-2 text-sm text-stone-600">
-                      Event date: {event.eventDate}
+                    <p className="mt-2 text-sm text-[#33516F]">
+                      {t.common.eventDate}: {event.eventDate}
                     </p>
                   ) : null}
 
-                  <div className="mt-4 rounded-[1.25rem] border border-stone-200 bg-white p-4">
+                  <div className="mt-4 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
                     <div className="flex justify-center">
                       <QRCodeSVG value={getEventShareUrl(event)} size={160} />
                     </div>
-                    <p className="mt-3 text-center text-xs uppercase tracking-[0.18em] text-stone-500">
-                      Guest upload QR
+                    <p className="mt-3 text-center text-xs uppercase tracking-[0.18em] text-[#6A84A3]">
+                      {t.admin.qrLabel}
                     </p>
                   </div>
 
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <Link
                       href={getEventRoute(getEventIdentifier(event))}
-                      className="inline-flex items-center justify-center rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-stone-50 hover:bg-stone-800"
+                      className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
                     >
-                      Upload page
+                      {t.common.uploadPage}
                     </Link>
 
                     <Link
                       href={getEventGalleryRoute(getEventIdentifier(event))}
-                      className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-stone-100"
+                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                     >
-                      Gallery
+                      {t.common.gallery}
                     </Link>
 
                     <button
                       onClick={() =>
-                        copyToClipboard(
-                          getEventShareUrl(event),
-                          'Guest upload link copied.'
-                        )
+                        copyToClipboard(getEventShareUrl(event), t.admin.uploadCopied)
                       }
-                      className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-stone-100"
+                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                     >
-                      Copy upload link
+                      {t.common.copyUploadLink}
                     </button>
 
                     <button
                       onClick={() =>
                         copyToClipboard(
                           getGalleryShareUrl(event),
-                          'Gallery link copied.'
+                          t.admin.galleryCopied
                         )
                       }
-                      className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-stone-100"
+                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                     >
-                      Copy gallery link
+                      {t.common.copyGalleryLink}
                     </button>
 
                     <button
                       onClick={() => handleDeleteEvent(event.id)}
                       disabled={submitting}
-                      className="inline-flex items-center justify-center rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex items-center justify-center rounded-full border border-[#F1B6B6] bg-[#FFF1F1] px-4 py-2 text-sm font-semibold text-[#B52E2E] hover:bg-[#FFE3E3] disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      Delete event
+                      {t.common.deleteEvent}
                     </button>
                   </div>
 
-                  <p className="mt-4 break-all text-xs text-stone-500">
+                  <p className="mt-4 break-all text-xs text-[#6A84A3]">
                     Share URL: {getEventShareUrl(event)}
                   </p>
                 </article>
