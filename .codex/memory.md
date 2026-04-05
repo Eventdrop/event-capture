@@ -31,6 +31,7 @@
 - Avoid overly complex infrastructure choices unless needed
 - Public homepage should surface the latest created album as the main upload entry point
 - Admin should stay hidden from the public homepage and be protected by username and password
+- The current hidden admin route is `/control-room-7x`
 
 ## Documentation State
 

@@ -67,7 +67,7 @@ Uygulama varsayilan olarak:
 ## Current Routes
 
 - `/`
-- `/admin`
+- `/control-room-7x`
 - `/event/[id]`
 - `/event/[id]/gallery`
 
@@ -82,7 +82,7 @@ Ayrica medya dosyalari icin bir storage bucket gerekir:
 
 - `event-uploads`
 
-Admin girisi artik uygulama ici gizli bir panel olarak calisir ve `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` degiskenleri ile korunur.
+Admin girisi artik uygulama ici gizli bir panel olarak calisir ve `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` degiskenleri ile korunur. Varsayilan gizli rota bu repoda `/control-room-7x` olarak tutulur.
 
 Detayli alanlar icin [DB_SCHEMA.md](/Users/3worksmedia/event-capture/docs/DB_SCHEMA.md) dosyasina bak.
 

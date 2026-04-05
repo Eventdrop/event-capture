@@ -83,7 +83,7 @@ Kaynaklar:
 ## Bu Repoda Beklenen Ana Sayfalar
 
 - `/` : son olusturulan ortak albumu gosteren public giris ve upload baslangic sayfasi
-- `/admin` : gizli admin girisi ve etkinlik/album olusturma sayfasi
+- `/control-room-7x` : gizli admin girisi ve etkinlik/album olusturma sayfasi
 - `/event/[id]` : etkinlige medya yukleme sayfasi
 - `/event/[id]/gallery` : ortak galeri ve indirme sayfasi
 
