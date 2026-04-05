@@ -71,6 +71,15 @@ Kaynaklar:
 - [Supabase scheduled Edge Functions docs](https://supabase.com/docs/guides/functions/schedule-functions)
 - [Supabase Storage docs](https://supabase.com/docs/guides/storage)
 
+## Development Workflow
+
+- Her zaman yapilan degisiklik once `develop` branch'ine pushlanmalidir.
+- `develop`, preview veya staging ortami olarak kullanilmalidir.
+- `develop` branch'ine giden her degisiklik preview ortaminda deploy edilmelidir.
+- `develop` uzerindeki testler ve kontroller basarili olduktan sonra degisiklik `main` icin merge edilmelidir.
+- `main` icin pull request acilmali ve code review yapilmalidir.
+- `main` branch'ine deploy olan her degisiklik production'a anlik olarak gitmelidir.
+
 ## Bu Repoda Beklenen Ana Sayfalar
 
 - `/` : urun tanitim veya etkinlik giris sayfasi
