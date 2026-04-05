@@ -61,6 +61,7 @@ Uygulama varsayilan olarak:
 ## Current Routes
 
 - `/`
+- `/admin`
 - `/event/[id]`
 - `/event/[id]/gallery`
 
@@ -74,6 +75,8 @@ Supabase tarafinda en az su iki yapi gerekir:
 Ayrica medya dosyalari icin bir storage bucket gerekir:
 
 - `event-uploads`
+
+Admin girisi icin Supabase Auth aktif olmali ve en az bir admin kullanicisi tanimli olmalidir.
 
 Detayli alanlar icin [DB_SCHEMA.md](/Users/3worksmedia/event-capture/docs/DB_SCHEMA.md) dosyasina bak.
 

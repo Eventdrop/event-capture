@@ -83,6 +83,7 @@ Kaynaklar:
 ## Bu Repoda Beklenen Ana Sayfalar
 
 - `/` : urun tanitim veya etkinlik giris sayfasi
+- `/admin` : admin girisi ve etkinlik/album olusturma sayfasi
 - `/event/[id]` : etkinlige medya yukleme sayfasi
 - `/event/[id]/gallery` : ortak galeri ve indirme sayfasi
 

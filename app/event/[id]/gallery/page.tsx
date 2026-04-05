@@ -4,18 +4,16 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { SiteFooter } from '@/app/_components/site-footer'
+import { SiteHeader } from '@/app/_components/site-header'
 import {
   getDownloadFileName,
   inferMediaKind,
   isExpired,
   type UploadRecord,
 } from '@/lib/eventdrop'
+import { normalizeEventRecord } from '@/lib/events'
 import { supabase } from '@/lib/supabase'
-
-type EventRecord = {
-  id: string
-  name: string
-}
 
 export default function Page() {
   const params = useParams()
@@ -37,7 +35,7 @@ export default function Page() {
             .select('*')
             .eq('event_id', eventId)
             .order('created_at', { ascending: false }),
-          supabase.from('events').select('id, name').eq('id', eventId).single(),
+          supabase.from('events').select('*').eq('id', eventId).single(),
         ])
 
       if (uploadsError) {
@@ -55,7 +53,12 @@ export default function Page() {
       )
 
       setItems(activeUploads)
-      setEventName((event as EventRecord | null)?.name || 'Shared Event Gallery')
+      const normalizedEvent = normalizeEventRecord(event)
+      setEventName(
+        normalizedEvent
+          ? `${normalizedEvent.name} · ${normalizedEvent.albumName}`
+          : 'Shared Event Gallery'
+      )
       setStatusMessage(
         activeUploads.length === 0
           ? 'No uploads are live in this gallery yet.'
@@ -117,8 +120,11 @@ export default function Page() {
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,_#f6f2ea_0%,_#f0ebe2_100%)] p-6 text-stone-900">
-      <div className="mx-auto max-w-7xl">
+    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f6f2ea_0%,_#f0ebe2_100%)] text-stone-900">
+      <SiteHeader currentLabel="Shared Gallery" />
+
+      <main className="flex-1 p-6">
+        <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
@@ -233,7 +239,10 @@ export default function Page() {
             })}
           </div>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+
+      <SiteFooter />
+    </div>
   )
 }

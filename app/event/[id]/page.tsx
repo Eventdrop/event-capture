@@ -4,20 +4,18 @@ import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { QRCodeSVG } from 'qrcode.react'
+import { SiteFooter } from '@/app/_components/site-footer'
+import { SiteHeader } from '@/app/_components/site-header'
 import {
   addHours,
   buildStoragePath,
   getMediaKind,
   getPublicFileUrl,
 } from '@/lib/eventdrop'
+import { normalizeEventRecord } from '@/lib/events'
 import { supabase } from '@/lib/supabase'
 
 const BUCKET_NAME = 'event-uploads'
-
-type EventRecord = {
-  id: string
-  name: string
-}
 
 export default function Page() {
   const params = useParams()
@@ -42,7 +40,7 @@ export default function Page() {
 
       const { data: event, error } = await supabase
         .from('events')
-        .select('id, name')
+        .select('*')
         .eq('id', eventId)
         .single()
 
@@ -54,7 +52,12 @@ export default function Page() {
       }
 
       setEventMissing(false)
-      setEventName((event as EventRecord | null)?.name || 'Shared Event Album')
+      const normalizedEvent = normalizeEventRecord(event)
+      setEventName(
+        normalizedEvent
+          ? `${normalizedEvent.name} · ${normalizedEvent.albumName}`
+          : 'Shared Event Album'
+      )
       setMessage('Guests can add photos and videos to this shared gallery.')
     }
 
@@ -249,8 +252,11 @@ export default function Page() {
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,_#f6f2ea_0%,_#efe8dc_100%)] p-6 text-stone-900">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f6f2ea_0%,_#efe8dc_100%)] text-stone-900">
+      <SiteHeader currentLabel="Guest Upload" />
+
+      <main className="flex-1 p-6">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
             Shared upload page
@@ -395,7 +401,10 @@ export default function Page() {
             </p>
           </div>
         </section>
-      </div>
-    </main>
+        </div>
+      </main>
+
+      <SiteFooter />
+    </div>
   )
 }
