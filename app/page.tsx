@@ -34,17 +34,17 @@ export default function Home() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/event/demo-event"
+                href="/admin"
                 className="inline-flex items-center justify-center rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold text-stone-50 transition hover:bg-stone-800"
               >
-                Open demo event
+                Open admin panel
               </Link>
 
               <Link
                 href="/admin"
                 className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white/70 px-6 py-3 text-sm font-semibold text-stone-900 transition hover:bg-white"
               >
-                Open admin panel
+                Create your first event
               </Link>
             </div>
 

@@ -5,7 +5,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { brand } from '@/lib/brand'
-import { buildEventInsertPayload, normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
+import { QRCodeSVG } from 'qrcode.react'
+import {
+  buildEventInsertPayload,
+  getEventGalleryRoute,
+  getEventRoute,
+  normalizeEventRecord,
+  type NormalizedEvent,
+} from '@/lib/events'
 import { supabase } from '@/lib/supabase'
 
 type SessionUser = {
@@ -37,6 +44,12 @@ export default function AdminPage() {
     process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
 
   const latestEvent = useMemo(() => events[0] || null, [events])
+
+  const getEventIdentifier = (event: NormalizedEvent) => event.slug || event.id
+  const getEventShareUrl = (event: NormalizedEvent) =>
+    `${publicBaseUrl}${getEventRoute(getEventIdentifier(event))}`
+  const getGalleryShareUrl = (event: NormalizedEvent) =>
+    `${publicBaseUrl}${getEventGalleryRoute(getEventIdentifier(event))}`
 
   useEffect(() => {
     const loadSession = async () => {
@@ -190,6 +203,42 @@ export default function AdminPage() {
       console.error('Event creation failed', error)
       setStatusMessage(
         error instanceof Error ? error.message : 'Event creation failed.'
+      )
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const copyToClipboard = async (value: string, successMessage: string) => {
+    try {
+      await navigator.clipboard.writeText(value)
+      setStatusMessage(successMessage)
+    } catch (error) {
+      console.error('Clipboard copy failed', error)
+      setStatusMessage('Could not copy the link on this device.')
+    }
+  }
+
+  const handleDeleteEvent = async (eventId: string) => {
+    const confirmed = window.confirm(
+      'Delete this event? This should remove the event record and may also remove related uploads depending on your database rules.'
+    )
+
+    if (!confirmed) return
+
+    setSubmitting(true)
+
+    try {
+      const { error } = await supabase.from('events').delete().eq('id', eventId)
+
+      if (error) throw error
+
+      setEvents((prev) => prev.filter((event) => event.id !== eventId))
+      setStatusMessage('Event deleted successfully.')
+    } catch (error) {
+      console.error('Delete event failed', error)
+      setStatusMessage(
+        error instanceof Error ? error.message : 'Event deletion failed.'
       )
     } finally {
       setSubmitting(false)
@@ -388,7 +437,7 @@ export default function AdminPage() {
 
             {latestEvent ? (
               <Link
-                href={`/event/${latestEvent.id}`}
+                href={getEventRoute(getEventIdentifier(latestEvent))}
                 className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-stone-50 hover:bg-stone-800"
               >
                 Open latest event
@@ -414,30 +463,76 @@ export default function AdminPage() {
                   <p className="mt-2 break-all text-sm text-stone-500">
                     Event ID: {event.id}
                   </p>
+                  {event.slug ? (
+                    <p className="mt-1 break-all text-sm text-stone-500">
+                      Public slug: {event.slug}
+                    </p>
+                  ) : null}
                   {event.eventDate ? (
                     <p className="mt-2 text-sm text-stone-600">
                       Event date: {event.eventDate}
                     </p>
                   ) : null}
 
-                  <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                  <div className="mt-4 rounded-[1.25rem] border border-stone-200 bg-white p-4">
+                    <div className="flex justify-center">
+                      <QRCodeSVG value={getEventShareUrl(event)} size={160} />
+                    </div>
+                    <p className="mt-3 text-center text-xs uppercase tracking-[0.18em] text-stone-500">
+                      Guest upload QR
+                    </p>
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <Link
-                      href={`/event/${event.id}`}
+                      href={getEventRoute(getEventIdentifier(event))}
                       className="inline-flex items-center justify-center rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-stone-50 hover:bg-stone-800"
                     >
                       Upload page
                     </Link>
 
                     <Link
-                      href={`/event/${event.id}/gallery`}
+                      href={getEventGalleryRoute(getEventIdentifier(event))}
                       className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-stone-100"
                     >
                       Gallery
                     </Link>
+
+                    <button
+                      onClick={() =>
+                        copyToClipboard(
+                          getEventShareUrl(event),
+                          'Guest upload link copied.'
+                        )
+                      }
+                      className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-stone-100"
+                    >
+                      Copy upload link
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        copyToClipboard(
+                          getGalleryShareUrl(event),
+                          'Gallery link copied.'
+                        )
+                      }
+                      className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-stone-100"
+                    >
+                      Copy gallery link
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteEvent(event.id)}
+                      disabled={submitting}
+                      className="inline-flex items-center justify-center rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Delete event
+                    </button>
                   </div>
 
                   <p className="mt-4 break-all text-xs text-stone-500">
-                    Share URL: {publicBaseUrl ? `${publicBaseUrl}/event/${event.id}` : `/event/${event.id}`}
+                    Share URL: {getEventShareUrl(event)}
                   </p>
                 </article>
               ))}

@@ -62,3 +62,11 @@ export function normalizeEventRecord(
     expiresAt: record.expires_at || null,
   }
 }
+
+export function getEventRoute(identifier: string) {
+  return `/event/${identifier}`
+}
+
+export function getEventGalleryRoute(identifier: string) {
+  return `/event/${identifier}/gallery`
+}

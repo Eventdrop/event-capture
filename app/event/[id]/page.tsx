@@ -20,9 +20,10 @@ const BUCKET_NAME = 'event-uploads'
 export default function Page() {
   const params = useParams()
   const router = useRouter()
-  const eventId = params.id as string
+  const eventIdentifier = params.id as string
   const inputRef = useRef<HTMLInputElement | null>(null)
 
+  const [resolvedEventId, setResolvedEventId] = useState('')
   const [eventName, setEventName] = useState('Shared Event Album')
   const [message, setMessage] = useState('Choose photos or videos to get started.')
   const [uploading, setUploading] = useState(false)
@@ -36,13 +37,25 @@ export default function Page() {
 
   useEffect(() => {
     const loadEvent = async () => {
-      if (!eventId) return
+      if (!eventIdentifier) return
 
-      const { data: event, error } = await supabase
+      const idLookup = await supabase
         .from('events')
         .select('*')
-        .eq('id', eventId)
+        .eq('id', eventIdentifier)
         .single()
+
+      const slugLookup =
+        idLookup.error && !idLookup.data
+          ? await supabase
+              .from('events')
+              .select('*')
+              .eq('slug', eventIdentifier)
+              .single()
+          : null
+
+      const event = idLookup.data || slugLookup?.data || null
+      const error = idLookup.error && !idLookup.data ? slugLookup?.error || idLookup.error : null
 
       if (error) {
         console.error('Failed to load event', error)
@@ -58,16 +71,17 @@ export default function Page() {
           ? `${normalizedEvent.name} · ${normalizedEvent.albumName}`
           : 'Shared Event Album'
       )
+      setResolvedEventId(normalizedEvent?.id || '')
       setMessage('Guests can add photos and videos to this shared gallery.')
     }
 
     void loadEvent()
-  }, [eventId])
+  }, [eventIdentifier])
 
   const uploadUrl = useMemo(() => {
     const base = process.env.NEXT_PUBLIC_APP_URL || pageOrigin
-    return base ? `${base}/event/${eventId}` : ''
-  }, [eventId, pageOrigin])
+    return base ? `${base}/event/${eventIdentifier}` : ''
+  }, [eventIdentifier, pageOrigin])
 
   const acceptedFiles = useMemo(
     () => selectedFiles.filter((file) => getMediaKind(file) !== null),
@@ -190,6 +204,11 @@ export default function Page() {
       return
     }
 
+    if (!resolvedEventId) {
+      setMessage('This event is not ready for uploads yet.')
+      return
+    }
+
     setUploading(true)
     setMessage(
       `Uploading ${acceptedFiles.length} item${acceptedFiles.length > 1 ? 's' : ''}...`
@@ -228,7 +247,7 @@ export default function Page() {
         const fileUrl = getPublicFileUrl(supabaseUrl, BUCKET_NAME, storagePath)
 
         await createUploadRecord({
-          eventId,
+          eventId: resolvedEventId,
           fileUrl,
           storagePath,
           fileName,
@@ -240,7 +259,7 @@ export default function Page() {
 
       setMessage('Upload complete. Opening shared gallery...')
       resetSelection()
-      router.push(`/event/${eventId}/gallery`)
+      router.push(`/event/${eventIdentifier}/gallery`)
     } catch (error) {
       console.error('Upload failed', error)
       setMessage(
@@ -343,13 +362,13 @@ export default function Page() {
                 type="button"
                 onClick={handleUpload}
                 disabled={uploading || eventMissing}
-                className={`w-full rounded-full px-5 py-3 text-sm font-semibold sm:w-auto ${
+                className={`w-full rounded-full px-5 py-4 text-base font-semibold shadow-sm sm:w-auto ${
                   uploading || eventMissing
                     ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                    : 'bg-stone-950 text-stone-50 hover:bg-stone-800'
+                    : 'bg-amber-300 text-stone-950 hover:bg-amber-200'
                 }`}
               >
-                {uploading ? 'Uploading...' : 'Upload to Album'}
+                {uploading ? 'Uploading...' : 'Upload to Shared Album'}
               </button>
 
               <button
@@ -362,7 +381,7 @@ export default function Page() {
               </button>
 
               <Link
-                href={`/event/${eventId}/gallery`}
+                href={`/event/${eventIdentifier}/gallery`}
                 className="w-full rounded-full border border-stone-300 bg-white px-5 py-3 text-center text-sm font-semibold text-stone-900 hover:bg-stone-50 sm:w-auto"
               >
                 View Gallery
@@ -389,7 +408,7 @@ export default function Page() {
 
           <div className="mt-8 rounded-[1.75rem] border border-white/10 bg-white p-5 text-stone-950">
             <div className="flex justify-center rounded-[1.5rem] border border-stone-200 bg-white p-4">
-              <QRCodeSVG value={uploadUrl || eventId} size={220} />
+              <QRCodeSVG value={uploadUrl || eventIdentifier} size={220} />
             </div>
 
             <p className="mt-4 text-center text-xs uppercase tracking-[0.18em] text-stone-500">
@@ -397,7 +416,7 @@ export default function Page() {
             </p>
 
             <p className="mt-3 break-all text-center text-sm leading-6 text-stone-700">
-              {uploadUrl || `Event ID: ${eventId}`}
+              {uploadUrl || `Event ID: ${eventIdentifier}`}
             </p>
           </div>
         </section>

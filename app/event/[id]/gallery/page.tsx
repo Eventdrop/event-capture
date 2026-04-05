@@ -17,7 +17,7 @@ import { supabase } from '@/lib/supabase'
 
 export default function Page() {
   const params = useParams()
-  const eventId = params.id as string
+  const eventIdentifier = params.id as string
 
   const [items, setItems] = useState<UploadRecord[]>([])
   const [eventName, setEventName] = useState('Shared Event Gallery')
@@ -28,15 +28,34 @@ export default function Page() {
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: uploads, error: uploadsError }, { data: event, error: eventError }] =
-        await Promise.all([
-          supabase
-            .from('uploads')
-            .select('*')
-            .eq('event_id', eventId)
-            .order('created_at', { ascending: false }),
-          supabase.from('events').select('*').eq('id', eventId).single(),
-        ])
+      const idLookup = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', eventIdentifier)
+        .single()
+
+      const slugLookup =
+        idLookup.error && !idLookup.data
+          ? await supabase
+              .from('events')
+              .select('*')
+              .eq('slug', eventIdentifier)
+              .single()
+          : null
+
+      const event = idLookup.data || slugLookup?.data || null
+      const normalizedEvent = normalizeEventRecord(event)
+
+      if (!normalizedEvent) {
+        setStatusMessage('This event gallery could not be found.')
+        return
+      }
+
+      const { data: uploads, error: uploadsError } = await supabase
+        .from('uploads')
+        .select('*')
+        .eq('event_id', normalizedEvent.id)
+        .order('created_at', { ascending: false })
 
       if (uploadsError) {
         console.error('Failed to load uploads', uploadsError)
@@ -44,16 +63,11 @@ export default function Page() {
         return
       }
 
-      if (eventError) {
-        console.error('Failed to load event', eventError)
-      }
-
       const activeUploads = ((uploads || []) as UploadRecord[]).filter(
         (upload) => !isExpired(upload.expires_at)
       )
 
       setItems(activeUploads)
-      const normalizedEvent = normalizeEventRecord(event)
       setEventName(
         normalizedEvent
           ? `${normalizedEvent.name} · ${normalizedEvent.albumName}`
@@ -67,7 +81,7 @@ export default function Page() {
     }
 
     void load()
-  }, [eventId])
+  }, [eventIdentifier])
 
   const selectedItems = useMemo(
     () => items.filter((item) => selected.includes(item.id)),
@@ -157,7 +171,7 @@ export default function Page() {
             </button>
 
             <Link
-              href={`/event/${eventId}`}
+              href={`/event/${eventIdentifier}`}
               className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 hover:bg-stone-50"
             >
               Back to Upload
