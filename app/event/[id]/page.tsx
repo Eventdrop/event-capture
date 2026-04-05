@@ -1,134 +1,242 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useParams, useRouter } from 'next/navigation'
 import { QRCodeSVG } from 'qrcode.react'
+import { SiteFooter } from '@/app/_components/site-footer'
+import { SiteHeader } from '@/app/_components/site-header'
+import {
+  addHours,
+  buildStoragePath,
+  getMediaKind,
+  getPublicFileUrl,
+} from '@/lib/eventdrop'
+import { normalizeEventRecord } from '@/lib/events'
+import { supabase } from '@/lib/supabase'
+
+const BUCKET_NAME = 'event-uploads'
 
 export default function Page() {
   const params = useParams()
-  const eventId = params.id as string
-
+  const router = useRouter()
+  const eventIdentifier = params.id as string
   const inputRef = useRef<HTMLInputElement | null>(null)
 
-  const [eventName, setEventName] = useState('Event Upload')
-  const [message, setMessage] = useState('')
+  const [resolvedEventId, setResolvedEventId] = useState('')
+  const [eventName, setEventName] = useState('Shared Event Album')
+  const [message, setMessage] = useState('Choose photos or videos to get started.')
   const [uploading, setUploading] = useState(false)
   const [pageOrigin, setPageOrigin] = useState('')
-  const [selectedCount, setSelectedCount] = useState(0)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [eventMissing, setEventMissing] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setPageOrigin(window.location.origin)
-    }
+    setPageOrigin(window.location.origin)
   }, [])
 
   useEffect(() => {
     const loadEvent = async () => {
-      if (!eventId) return
+      if (!eventIdentifier) return
 
-      const { data: event, error } = await supabase
+      const idLookup = await supabase
         .from('events')
-        .select('name')
-        .eq('id', eventId)
+        .select('*')
+        .eq('id', eventIdentifier)
         .single()
+
+      const slugLookup =
+        idLookup.error && !idLookup.data
+          ? await supabase
+              .from('events')
+              .select('*')
+              .eq('slug', eventIdentifier)
+              .single()
+          : null
+
+      const event = idLookup.data || slugLookup?.data || null
+      const error = idLookup.error && !idLookup.data ? slugLookup?.error || idLookup.error : null
 
       if (error) {
         console.error('Failed to load event', error)
-        setEventName('Event Upload')
+        setEventMissing(true)
+        setMessage('This event could not be found. Check the QR code or event link.')
         return
       }
 
-      setEventName(event?.name || 'Event Upload')
+      setEventMissing(false)
+      const normalizedEvent = normalizeEventRecord(event)
+      setEventName(
+        normalizedEvent
+          ? `${normalizedEvent.name} · ${normalizedEvent.albumName}`
+          : 'Shared Event Album'
+      )
+      setResolvedEventId(normalizedEvent?.id || '')
+      setMessage('Guests can add photos and videos to this shared gallery.')
     }
 
     void loadEvent()
-  }, [eventId])
+  }, [eventIdentifier])
 
   const uploadUrl = useMemo(() => {
     const base = process.env.NEXT_PUBLIC_APP_URL || pageOrigin
-    return base ? `${base}/event/${eventId}` : ''
-  }, [eventId, pageOrigin])
+    return base ? `${base}/event/${eventIdentifier}` : ''
+  }, [eventIdentifier, pageOrigin])
 
-  const isImageFile = (file: File) => {
-    if (file.type && file.type.startsWith('image/')) return true
+  const acceptedFiles = useMemo(
+    () => selectedFiles.filter((file) => getMediaKind(file) !== null),
+    [selectedFiles]
+  )
 
-    const name = (file.name || '').toLowerCase()
-    return (
-      name.endsWith('.jpg') ||
-      name.endsWith('.jpeg') ||
-      name.endsWith('.png') ||
-      name.endsWith('.webp') ||
-      name.endsWith('.heic') ||
-      name.endsWith('.heif')
-    )
-  }
+  const selectionSummary = useMemo(() => {
+    if (acceptedFiles.length === 0) return null
 
-  const getSafeExtension = (file: File) => {
-    const originalName = file.name || ''
-    const extFromName = originalName.includes('.')
-      ? originalName.split('.').pop()?.toLowerCase()
-      : ''
+    const photoCount = acceptedFiles.filter(
+      (file) => getMediaKind(file) === 'photo'
+    ).length
+    const videoCount = acceptedFiles.filter(
+      (file) => getMediaKind(file) === 'video'
+    ).length
 
-    if (extFromName) return extFromName
-    if (file.type.includes('jpeg')) return 'jpg'
-    if (file.type.includes('png')) return 'png'
-    if (file.type.includes('webp')) return 'webp'
-    if (file.type.includes('heic')) return 'heic'
-    if (file.type.includes('heif')) return 'heif'
-
-    return 'jpg'
-  }
+    return {
+      total: acceptedFiles.length,
+      photoCount,
+      videoCount,
+    }
+  }, [acceptedFiles])
 
   const resetSelection = () => {
     if (inputRef.current) {
       inputRef.current.value = ''
     }
-    setSelectedCount(0)
-    setMessage('')
+
+    setSelectedFiles([])
+    setMessage('Selection cleared.')
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []).filter(isImageFile)
-    setSelectedCount(files.length)
+    const files = Array.from(event.target.files || [])
+    setSelectedFiles(files)
 
-    if (files.length === 0) {
-      setMessage('Select one or more photos to upload.')
+    const validFiles = files.filter((file) => getMediaKind(file) !== null)
+    const ignoredFiles = files.length - validFiles.length
+
+    if (validFiles.length === 0) {
+      setMessage('Choose JPG, PNG, WEBP, HEIC, MP4, MOV, or WEBM files.')
       return
     }
 
-    setMessage(`${files.length} photo${files.length > 1 ? 's' : ''} selected.`)
+    const photoCount = validFiles.filter(
+      (file) => getMediaKind(file) === 'photo'
+    ).length
+    const videoCount = validFiles.filter(
+      (file) => getMediaKind(file) === 'video'
+    ).length
+
+    const parts = [
+      `${validFiles.length} file${validFiles.length > 1 ? 's' : ''} selected`,
+      photoCount ? `${photoCount} photo${photoCount > 1 ? 's' : ''}` : '',
+      videoCount ? `${videoCount} video${videoCount > 1 ? 's' : ''}` : '',
+    ].filter(Boolean)
+
+    const ignoredNote =
+      ignoredFiles > 0
+        ? ` ${ignoredFiles} unsupported file${ignoredFiles > 1 ? 's were' : ' was'} ignored.`
+        : ''
+
+    setMessage(`${parts.join(' • ')}.${ignoredNote}`)
+  }
+
+  const createUploadRecord = async (payload: {
+    eventId: string
+    fileUrl: string
+    storagePath: string
+    fileName: string
+    mediaType: 'photo' | 'video'
+    mimeType: string
+    expiresAt: string
+  }) => {
+    const richInsert = {
+      event_id: payload.eventId,
+      file_url: payload.fileUrl,
+      storage_path: payload.storagePath,
+      file_name: payload.fileName,
+      media_type: payload.mediaType,
+      mime_type: payload.mimeType,
+      expires_at: payload.expiresAt,
+      type: payload.mediaType,
+    }
+
+    const fallbackInsert = {
+      event_id: payload.eventId,
+      file_url: payload.fileUrl,
+      type: payload.mediaType,
+    }
+
+    const { error: richError } = await supabase.from('uploads').insert([richInsert])
+
+    if (!richError) return
+
+    const message = richError.message.toLowerCase()
+    const needsFallback =
+      message.includes('column') ||
+      message.includes('schema cache') ||
+      message.includes('could not find')
+
+    if (!needsFallback) {
+      throw new Error(`Database error: ${richError.message}`)
+    }
+
+    const { error: fallbackError } = await supabase
+      .from('uploads')
+      .insert([fallbackInsert])
+
+    if (fallbackError) {
+      throw new Error(`Database error: ${fallbackError.message}`)
+    }
   }
 
   const handleUpload = async () => {
-    setMessage('Upload button clicked')
+    if (uploading || eventMissing) return
 
-    if (uploading) return
+    if (acceptedFiles.length === 0) {
+      setMessage('Select at least one supported photo or video before uploading.')
+      return
+    }
 
-    const files = Array.from(inputRef.current?.files || []).filter(isImageFile)
-
-    if (files.length === 0) {
-      setMessage('Select at least one photo before uploading.')
+    if (!resolvedEventId) {
+      setMessage('This event is not ready for uploads yet.')
       return
     }
 
     setUploading(true)
-    setMessage(`Uploading ${files.length} photo${files.length > 1 ? 's' : ''}...`)
+    setMessage(
+      `Uploading ${acceptedFiles.length} item${acceptedFiles.length > 1 ? 's' : ''}...`
+    )
 
     try {
-      for (const file of files) {
-        const ext = getSafeExtension(file)
-        const safeName = `${eventId}/${Date.now()}-${Math.floor(
-          Math.random() * 100000
-        )}.${ext}`
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+
+      if (!supabaseUrl) {
+        throw new Error('NEXT_PUBLIC_SUPABASE_URL is missing.')
+      }
+
+      for (const file of acceptedFiles) {
+        const mediaType = getMediaKind(file)
+
+        if (!mediaType) continue
+
+        const now = new Date()
+        const { fileName, storagePath } = buildStoragePath(file, now)
+        const expiresAt = addHours(now, 48).toISOString()
 
         setMessage(`Uploading ${file.name}...`)
 
         const { error: storageError } = await supabase.storage
-          .from('event-uploads')
-          .upload(safeName, file, {
+          .from(BUCKET_NAME)
+          .upload(storagePath, file, {
             cacheControl: '3600',
-            upsert: true,
+            upsert: false,
             contentType: file.type || undefined,
           })
 
@@ -136,24 +244,22 @@ export default function Page() {
           throw new Error(`Storage error: ${storageError.message}`)
         }
 
-        const fileUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/event-uploads/${safeName}`
+        const fileUrl = getPublicFileUrl(supabaseUrl, BUCKET_NAME, storagePath)
 
-        const { error: dbError } = await supabase.from('uploads').insert([
-          {
-            event_id: eventId,
-            file_url: fileUrl,
-            type: 'photo',
-          },
-        ])
-
-        if (dbError) {
-          throw new Error(`Database error: ${dbError.message}`)
-        }
+        await createUploadRecord({
+          eventId: resolvedEventId,
+          fileUrl,
+          storagePath,
+          fileName,
+          mediaType,
+          mimeType: file.type || '',
+          expiresAt,
+        })
       }
 
-      setMessage('Upload complete.')
+      setMessage('Upload complete. Opening shared gallery...')
       resetSelection()
-      window.location.href = `/event/${eventId}/gallery`
+      router.push(`/event/${eventIdentifier}/gallery`)
     } catch (error) {
       console.error('Upload failed', error)
       setMessage(
@@ -165,86 +271,159 @@ export default function Page() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
-      <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border bg-white p-6 shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold">{eventName}</h1>
+    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f6f2ea_0%,_#efe8dc_100%)] text-stone-900">
+      <SiteHeader currentLabel="Guest Upload" />
 
-          <p className="mb-6 text-sm text-gray-600">
-            Select photos, then tap upload.
+      <main className="flex-1 p-6">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+        <section className="rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
+            Shared upload page
           </p>
 
-          <div className="space-y-4">
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950">
+            {eventName}
+          </h1>
+
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
+            Guests can upload photos and short videos to this album. Files are
+            intended to stay available for 48 hours before cleanup.
+          </p>
+
+          <div className="mt-8 grid gap-4 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5 md:grid-cols-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-stone-500">
+                Upload
+              </p>
+              <p className="mt-2 text-sm leading-6 text-stone-700">
+                Photos and videos from guest phones.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-stone-500">
+                Naming
+              </p>
+              <p className="mt-2 text-sm leading-6 text-stone-700">
+                Files are stored under date-based folders using the DD-MM-YYYY
+                pattern.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-stone-500">
+                Retention
+              </p>
+              <p className="mt-2 text-sm leading-6 text-stone-700">
+                Expired media should be cleaned automatically after 48 hours.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 space-y-4">
+            <label
+              htmlFor="event-media"
+              className="block text-sm font-medium text-stone-700"
+            >
+              Select media
+            </label>
+
             <input
               ref={inputRef}
+              id="event-media"
               type="file"
-              name="photos"
+              name="media"
               multiple
-              accept="image/*"
+              accept="image/*,video/mp4,video/quicktime,video/webm"
               onChange={handleFileChange}
-              disabled={uploading}
-              className="block w-full rounded-xl border bg-white p-4 text-sm"
+              disabled={uploading || eventMissing}
+              className="block w-full rounded-2xl border border-stone-300 bg-white px-4 py-4 text-sm text-stone-700"
             />
 
-            <div className="min-h-6 text-sm text-gray-700">
-              {selectedCount > 0 ? (
-                <p>
-                  Ready to upload: {selectedCount} photo
-                  {selectedCount > 1 ? 's' : ''}
+            <div className="rounded-2xl border border-stone-200 bg-white px-4 py-4 text-sm text-stone-700">
+              {selectionSummary ? (
+                <p className="font-medium text-stone-900">
+                  Ready to upload {selectionSummary.total} item
+                  {selectionSummary.total > 1 ? 's' : ''}
+                  {selectionSummary.photoCount
+                    ? ` • ${selectionSummary.photoCount} photo${selectionSummary.photoCount > 1 ? 's' : ''}`
+                    : ''}
+                  {selectionSummary.videoCount
+                    ? ` • ${selectionSummary.videoCount} video${selectionSummary.videoCount > 1 ? 's' : ''}`
+                    : ''}
                 </p>
               ) : null}
-              <p className="break-words">{message}</p>
+
+              <p className="mt-2 break-words leading-6">{message}</p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={handleUpload}
-                disabled={uploading}
-                className={`w-full rounded-xl px-4 py-3 text-sm font-medium sm:w-auto ${
-                  uploading
-                    ? 'cursor-not-allowed bg-gray-300 text-gray-600'
-                    : 'bg-black text-white'
+                disabled={uploading || eventMissing}
+                className={`w-full rounded-full px-5 py-4 text-base font-semibold shadow-sm sm:w-auto ${
+                  uploading || eventMissing
+                    ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                    : 'bg-amber-300 text-stone-950 hover:bg-amber-200'
                 }`}
               >
-                {uploading ? 'Uploading...' : 'Upload Photos'}
+                {uploading ? 'Uploading...' : 'Upload to Shared Album'}
               </button>
 
               <button
                 type="button"
                 onClick={resetSelection}
                 disabled={uploading}
-                className="w-full rounded-xl border bg-white px-4 py-3 text-sm font-medium text-black sm:w-auto"
+                className="w-full rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 hover:bg-stone-50 sm:w-auto"
               >
                 Clear Selection
               </button>
 
-              <a
-                href={`/event/${eventId}/gallery`}
-                className="w-full rounded-xl border bg-white px-4 py-3 text-center text-sm font-medium text-black sm:w-auto"
+              <Link
+                href={`/event/${eventIdentifier}/gallery`}
+                className="w-full rounded-full border border-stone-300 bg-white px-5 py-3 text-center text-sm font-semibold text-stone-900 hover:bg-stone-50 sm:w-auto"
               >
                 View Gallery
-              </a>
+              </Link>
             </div>
           </div>
         </section>
 
-        <section className="flex flex-col items-center justify-center rounded-2xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-2 text-xl font-bold">Share with QR Code</h2>
+        <section className="flex flex-col justify-between rounded-[2rem] border border-stone-200 bg-stone-950 p-6 text-stone-50 shadow-[0_18px_50px_rgba(35,24,12,0.22)]">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-300">
+              Share the upload link
+            </p>
 
-          <p className="mb-6 text-center text-sm text-gray-600">
-            Guests can open this upload page by scanning the code.
-          </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight">
+              Let guests join by scanning a QR code.
+            </h2>
 
-          <div className="rounded-2xl border bg-white p-4">
-            <QRCodeSVG value={uploadUrl} size={220} />
+            <p className="mt-3 text-sm leading-7 text-stone-300">
+              Put this on a welcome card, event sign, or reception table so
+              everyone can drop their best moments into the same album.
+            </p>
           </div>
 
-          <p className="mt-4 break-all text-center text-xs text-gray-500">
-            {uploadUrl}
-          </p>
+          <div className="mt-8 rounded-[1.75rem] border border-white/10 bg-white p-5 text-stone-950">
+            <div className="flex justify-center rounded-[1.5rem] border border-stone-200 bg-white p-4">
+              <QRCodeSVG value={uploadUrl || eventIdentifier} size={220} />
+            </div>
+
+            <p className="mt-4 text-center text-xs uppercase tracking-[0.18em] text-stone-500">
+              Album Link
+            </p>
+
+            <p className="mt-3 break-all text-center text-sm leading-6 text-stone-700">
+              {uploadUrl || `Event ID: ${eventIdentifier}`}
+            </p>
+          </div>
         </section>
-      </div>
-    </main>
+        </div>
+      </main>
+
+      <SiteFooter />
+    </div>
   )
 }

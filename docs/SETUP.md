@@ -32,6 +32,11 @@ Asagidaki degiskenler gerekir:
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+SUPABASE_SERVICE_ROLE_KEY=
+CRON_SECRET=
+ADMIN_USERNAME=
+ADMIN_PASSWORD=
+ADMIN_SESSION_SECRET=
 ```
 
 ## Create Local Env File
@@ -42,6 +47,11 @@ Kok dizinde `.env.local` olustur:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+CRON_SECRET=replace-with-a-long-random-secret
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=replace-with-a-strong-password
+ADMIN_SESSION_SECRET=replace-with-a-long-random-secret
 ```
 
 ## Run Development Server
@@ -57,6 +67,7 @@ Uygulama varsayilan olarak:
 ## Current Routes
 
 - `/`
+- `/control-room-7x`
 - `/event/[id]`
 - `/event/[id]/gallery`
 
@@ -70,6 +81,8 @@ Supabase tarafinda en az su iki yapi gerekir:
 Ayrica medya dosyalari icin bir storage bucket gerekir:
 
 - `event-uploads`
+
+Admin girisi artik uygulama ici gizli bir panel olarak calisir ve `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` degiskenleri ile korunur. Varsayilan gizli rota bu repoda `/control-room-7x` olarak tutulur.
 
 Detayli alanlar icin [DB_SCHEMA.md](/Users/3worksmedia/event-capture/docs/DB_SCHEMA.md) dosyasina bak.
 

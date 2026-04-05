@@ -38,7 +38,7 @@ Urunun ana amaci, etkinlik organizatorunun profesyonel ekipman veya karmasik uyg
 - Ortak galeriyi takip eder
 - Gerekirse album omrunu veya silme kurallarini degistirir
 
-Not: Mevcut kod yapisinda host paneli henuz bulunmuyor. Bu rol urun vizyonu icin tanimlanmistir.
+Not: Uygulamada gizli bir admin paneli bulunur. Admin kullanici adi ve sifre ile giris yapar; olusturulan son album ana sayfada public upload girisi olarak gorunur.
 
 ## Product Flow
 
