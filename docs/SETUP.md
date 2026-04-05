@@ -34,6 +34,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 SUPABASE_SERVICE_ROLE_KEY=
 CRON_SECRET=
+ADMIN_USERNAME=
+ADMIN_PASSWORD=
+ADMIN_SESSION_SECRET=
 ```
 
 ## Create Local Env File
@@ -46,6 +49,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 CRON_SECRET=replace-with-a-long-random-secret
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=replace-with-a-strong-password
+ADMIN_SESSION_SECRET=replace-with-a-long-random-secret
 ```
 
 ## Run Development Server
@@ -76,7 +82,7 @@ Ayrica medya dosyalari icin bir storage bucket gerekir:
 
 - `event-uploads`
 
-Admin girisi icin Supabase Auth aktif olmali ve en az bir admin kullanicisi tanimli olmalidir.
+Admin girisi artik uygulama ici gizli bir panel olarak calisir ve `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` degiskenleri ile korunur.
 
 Detayli alanlar icin [DB_SCHEMA.md](/Users/3worksmedia/event-capture/docs/DB_SCHEMA.md) dosyasina bak.
 

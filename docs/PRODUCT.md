@@ -38,7 +38,7 @@ Urunun ana amaci, etkinlik organizatorunun profesyonel ekipman veya karmasik uyg
 - Ortak galeriyi takip eder
 - Gerekirse album omrunu veya silme kurallarini degistirir
 
-Not: Uygulamada temel bir admin paneli bulunur. Admin girisi sonrasinda etkinlik adi ve album adi ile yeni album akisi baslatilabilir.
+Not: Uygulamada gizli bir admin paneli bulunur. Admin kullanici adi ve sifre ile giris yapar; olusturulan son album ana sayfada public upload girisi olarak gorunur.
 
 ## Product Flow
 

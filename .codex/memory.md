@@ -6,7 +6,7 @@
 - Repository path: `/Users/3worksmedia/event-capture`
 - Primary integration branch: `develop`
 - Production branch: `main`
-- Current pushed commit on `develop`: `4b6bb60`
+- Current pushed commit on `develop`: `08fee5b`
 
 ## Product Direction
 
@@ -27,7 +27,10 @@
 - Keep the stack simple
 - Current preferred MVP deployment: Vercel + Supabase
 - Supabase is expected to handle database, storage, and scheduled cleanup
+- Supabase MCP server is configured in Codex config and should be preferred for Supabase-related operations when credentials are set
 - Avoid overly complex infrastructure choices unless needed
+- Public homepage should surface the latest created album as the main upload entry point
+- Admin should stay hidden from the public homepage and be protected by username and password
 
 ## Documentation State
 
@@ -50,3 +53,4 @@
 - `develop` is the preview or staging deployment branch
 - After `develop` checks pass, changes should move to `main` through PR and code review
 - Every `main` deployment should go directly to production
+- Supabase-related actions should use the MCP server when available instead of ad hoc manual workflows

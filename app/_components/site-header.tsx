@@ -28,17 +28,11 @@ export function SiteHeader({ currentLabel }: SiteHeaderProps) {
           </div>
         </Link>
 
-        <div className="hidden items-center gap-6 text-sm text-stone-600 md:flex">
-          {currentLabel ? (
-            <span className="rounded-full border border-stone-300 px-3 py-1.5 font-medium text-stone-900">
-              {currentLabel}
-            </span>
-          ) : null}
-
-          <Link href="/admin" className="font-medium hover:text-stone-950">
-            Admin
-          </Link>
-        </div>
+        {currentLabel ? (
+          <span className="rounded-full border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-900">
+            {currentLabel}
+          </span>
+        ) : null}
       </div>
     </header>
   )

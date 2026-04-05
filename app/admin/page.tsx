@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { brand } from '@/lib/brand'
-import { QRCodeSVG } from 'qrcode.react'
 import {
   buildEventInsertPayload,
   getEventGalleryRoute,
@@ -13,11 +13,6 @@ import {
   normalizeEventRecord,
   type NormalizedEvent,
 } from '@/lib/events'
-import { supabase } from '@/lib/supabase'
-
-type SessionUser = {
-  email?: string
-}
 
 function formatEventLabel(event: NormalizedEvent) {
   return event.albumName === event.name
@@ -26,13 +21,12 @@ function formatEventLabel(event: NormalizedEvent) {
 }
 
 export default function AdminPage() {
-  const [user, setUser] = useState<SessionUser | null>(null)
+  const [authenticated, setAuthenticated] = useState(false)
   const [loadingSession, setLoadingSession] = useState(true)
-  const [authMode, setAuthMode] = useState<'login' | 'magic-link'>('login')
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [statusMessage, setStatusMessage] = useState(
-    'Sign in to create and manage shared event albums.'
+    'Enter your admin username and password.'
   )
   const [submitting, setSubmitting] = useState(false)
   const [events, setEvents] = useState<NormalizedEvent[]>([])
@@ -51,87 +45,86 @@ export default function AdminPage() {
   const getGalleryShareUrl = (event: NormalizedEvent) =>
     `${publicBaseUrl}${getEventGalleryRoute(getEventIdentifier(event))}`
 
+  const loadEvents = async () => {
+    const response = await fetch('/api/admin/events', {
+      cache: 'no-store',
+    })
+
+    const payload = (await response.json()) as {
+      ok?: boolean
+      events?: Record<string, unknown>[]
+      error?: string
+    }
+
+    if (!response.ok) {
+      throw new Error(payload.error || 'Could not load events.')
+    }
+
+    const normalized = (payload.events || [])
+      .map((item) => normalizeEventRecord(item))
+      .filter((item): item is NormalizedEvent => Boolean(item))
+
+    setEvents(normalized)
+  }
+
   useEffect(() => {
     const loadSession = async () => {
-      const { data, error } = await supabase.auth.getSession()
+      try {
+        const response = await fetch('/api/admin/session', {
+          cache: 'no-store',
+        })
+        const payload = (await response.json()) as { authenticated?: boolean }
 
-      if (error) {
-        console.error('Failed to read session', error)
+        setAuthenticated(Boolean(payload.authenticated))
+
+        if (payload.authenticated) {
+          await loadEvents()
+          setStatusMessage('Admin panel unlocked.')
+        }
+      } catch (error) {
+        console.error('Failed to load admin session', error)
+        setStatusMessage('Could not read the admin session.')
+      } finally {
+        setLoadingSession(false)
       }
-
-      setUser(data.session?.user ? { email: data.session.user.email } : null)
-      setLoadingSession(false)
     }
 
     void loadSession()
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ? { email: session.user.email } : null)
-    })
-
-    return () => {
-      subscription.unsubscribe()
-    }
   }, [])
 
-  useEffect(() => {
-    if (!user) return
-
-    const loadEvents = async () => {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(12)
-
-      if (error) {
-        console.error('Failed to load events', error)
-        setStatusMessage('Signed in, but events could not be loaded.')
-        return
-      }
-
-      const normalized = (data || [])
-        .map((item) => normalizeEventRecord(item))
-        .filter((item): item is NormalizedEvent => Boolean(item))
-
-      setEvents(normalized)
-    }
-
-    void loadEvents()
-  }, [user])
-
   const handleLogin = async () => {
-    if (!email) {
-      setStatusMessage('Enter an admin email address.')
+    if (!username.trim() || !password) {
+      setStatusMessage('Enter both username and password.')
       return
     }
 
     setSubmitting(true)
 
     try {
-      if (authMode === 'magic-link') {
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: {
-            emailRedirectTo: publicBaseUrl ? `${publicBaseUrl}/admin` : undefined,
-          },
-        })
-
-        if (error) throw error
-
-        setStatusMessage('Magic link sent. Check your inbox to continue.')
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
+      const response = await fetch('/api/admin/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username.trim(),
           password,
-        })
+        }),
+      })
 
-        if (error) throw error
-
-        setStatusMessage('Signed in. You can now create a new event album.')
+      const payload = (await response.json()) as {
+        authenticated?: boolean
+        error?: string
       }
+
+      if (!response.ok) {
+        throw new Error(payload.error || 'Admin login failed.')
+      }
+
+      setAuthenticated(true)
+      setPassword('')
+      await loadEvents()
+      setStatusMessage('Signed in. You can now create a new event album.')
     } catch (error) {
       console.error('Admin auth failed', error)
       setStatusMessage(
@@ -143,9 +136,13 @@ export default function AdminPage() {
   }
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    await fetch('/api/admin/session', {
+      method: 'DELETE',
+    })
+
+    setAuthenticated(false)
     setEvents([])
-    setStatusMessage('Signed out from the admin panel.')
+    setStatusMessage('Signed out from the hidden admin panel.')
   }
 
   const createEventRecord = async () => {
@@ -163,36 +160,32 @@ export default function AdminPage() {
         eventDate,
       })
 
-      const richInsert = await supabase
-        .from('events')
-        .insert([payload])
-        .select('*')
-        .single()
+      const response = await fetch('/api/admin/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: payload.name,
+          albumName: payload.album_name,
+          eventDate: payload.event_date,
+        }),
+      })
 
-      let createdRecord = richInsert.data
-
-      if (richInsert.error) {
-        const fallbackInsert = await supabase
-          .from('events')
-          .insert([
-            {
-              name: `${eventName.trim()} - ${albumName.trim()}`,
-            },
-          ])
-          .select('*')
-          .single()
-
-        if (fallbackInsert.error) {
-          throw fallbackInsert.error
-        }
-
-        createdRecord = fallbackInsert.data
+      const result = (await response.json()) as {
+        ok?: boolean
+        event?: Record<string, unknown>
+        error?: string
       }
 
-      const normalized = normalizeEventRecord(createdRecord)
+      if (!response.ok) {
+        throw new Error(result.error || 'Event creation failed.')
+      }
+
+      const normalized = normalizeEventRecord(result.event)
 
       if (normalized) {
-        setEvents((prev) => [normalized, ...prev])
+        setEvents((prev) => [normalized, ...prev.filter((item) => item.id !== normalized.id)])
       }
 
       setEventName('')
@@ -229,9 +222,19 @@ export default function AdminPage() {
     setSubmitting(true)
 
     try {
-      const { error } = await supabase.from('events').delete().eq('id', eventId)
+      const response = await fetch('/api/admin/events', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: eventId }),
+      })
 
-      if (error) throw error
+      const payload = (await response.json()) as { ok?: boolean; error?: string }
+
+      if (!response.ok) {
+        throw new Error(payload.error || 'Event deletion failed.')
+      }
 
       setEvents((prev) => prev.filter((event) => event.id !== eventId))
       setStatusMessage('Event deleted successfully.')
@@ -247,20 +250,20 @@ export default function AdminPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f6f2ea_0%,_#efe8dc_100%)]">
-      <SiteHeader currentLabel="Admin Panel" />
+      <SiteHeader currentLabel="Restricted Admin" />
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-6 py-10 md:px-10">
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-[2rem] border border-white/60 bg-white/80 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
-              Brand contact
+              Hidden admin access
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950">
-              Manage your guest album flow in one place.
+              This page is private and not linked from the public homepage.
             </h1>
             <p className="mt-4 text-sm leading-7 text-stone-600">
-              Sign in as an admin, create an event name and album name, then share
-              the upload page with your guests using a QR code or direct link.
+              Use a private username and password to manage the latest public album
+              that appears on the homepage for guest uploads.
             </p>
 
             <div className="mt-8 space-y-3 rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5 text-sm text-stone-700">
@@ -276,15 +279,15 @@ export default function AdminPage() {
           <div className="rounded-[2rem] border border-stone-200 bg-stone-950 p-6 text-stone-50 shadow-[0_18px_50px_rgba(35,24,12,0.22)]">
             {loadingSession ? (
               <p className="text-sm text-stone-300">Checking admin session...</p>
-            ) : user ? (
+            ) : authenticated ? (
               <div className="space-y-6">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
                     <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
-                      Signed in
+                      Admin access
                     </p>
                     <p className="mt-2 text-lg font-semibold text-stone-50">
-                      {user.email || 'Admin user'}
+                      Restricted mode enabled
                     </p>
                   </div>
 
@@ -348,56 +351,30 @@ export default function AdminPage() {
               </div>
             ) : (
               <div className="space-y-6">
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setAuthMode('login')}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                      authMode === 'login'
-                        ? 'bg-amber-300 text-stone-950'
-                        : 'border border-white/15 text-stone-200'
-                    }`}
-                  >
-                    Email + Password
-                  </button>
-
-                  <button
-                    onClick={() => setAuthMode('magic-link')}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                      authMode === 'magic-link'
-                        ? 'bg-amber-300 text-stone-950'
-                        : 'border border-white/15 text-stone-200'
-                    }`}
-                  >
-                    Magic Link
-                  </button>
-                </div>
-
                 <div>
                   <label className="mb-2 block text-sm font-medium text-stone-200">
-                    Admin Email
+                    Username
                   </label>
                   <input
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder="admin@eventdrop.app"
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                    placeholder="admin"
                     className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-stone-400"
                   />
                 </div>
 
-                {authMode === 'login' ? (
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-stone-200">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      placeholder="••••••••"
-                      className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-stone-400"
-                    />
-                  </div>
-                ) : null}
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-stone-200">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="••••••••"
+                    className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-stone-400"
+                  />
+                </div>
 
                 <button
                   onClick={handleLogin}
@@ -408,16 +385,12 @@ export default function AdminPage() {
                       : 'bg-amber-300 text-stone-950 hover:bg-amber-200'
                   }`}
                 >
-                  {submitting
-                    ? 'Working...'
-                    : authMode === 'login'
-                      ? 'Sign In'
-                      : 'Send Magic Link'}
+                  {submitting ? 'Checking...' : 'Unlock Admin'}
                 </button>
 
                 <p className="text-sm leading-7 text-stone-300">
-                  Temporary admin access uses Supabase Auth. If no admin user exists
-                  yet, create one in the Supabase dashboard first.
+                  Set `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and
+                  `ADMIN_SESSION_SECRET` in your environment to secure this panel.
                 </p>
               </div>
             )}
@@ -440,15 +413,19 @@ export default function AdminPage() {
                 href={getEventRoute(getEventIdentifier(latestEvent))}
                 className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-stone-50 hover:bg-stone-800"
               >
-                Open latest event
+                Open latest public album
               </Link>
             ) : null}
           </div>
 
-          {events.length === 0 ? (
+          {!authenticated ? (
             <p className="mt-6 text-sm text-stone-500">
-              No event records found yet. After signing in, create your first
-              shared album here.
+              Unlock the admin panel to list, create, or delete event albums.
+            </p>
+          ) : events.length === 0 ? (
+            <p className="mt-6 text-sm text-stone-500">
+              No event records found yet. Create the first album and it will become
+              the public homepage upload target.
             </p>
           ) : (
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
