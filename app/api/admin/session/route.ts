@@ -3,6 +3,7 @@ import {
   clearAdminSession,
   createAdminSession,
   hasAdminSession,
+  isAdminAuthConfigured,
   validateAdminCredentials,
 } from '@/lib/admin-auth'
 
@@ -10,7 +11,10 @@ export const runtime = 'nodejs'
 
 export async function GET() {
   const authenticated = await hasAdminSession()
-  return NextResponse.json({ authenticated })
+  return NextResponse.json({
+    authenticated,
+    configured: isAdminAuthConfigured(),
+  })
 }
 
 export async function POST(request: Request) {
@@ -20,6 +24,16 @@ export async function POST(request: Request) {
 
   const username = body?.username?.trim() || ''
   const password = body?.password || ''
+
+  if (!isAdminAuthConfigured()) {
+    return NextResponse.json(
+      {
+        authenticated: false,
+        error: 'Admin authentication is not configured on the server.',
+      },
+      { status: 500 }
+    )
+  }
 
   if (!validateAdminCredentials(username, password)) {
     return NextResponse.json(

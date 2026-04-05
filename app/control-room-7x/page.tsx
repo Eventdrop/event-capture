@@ -22,6 +22,7 @@ function formatEventLabel(event: NormalizedEvent) {
 
 export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false)
+  const [configured, setConfigured] = useState(true)
   const [loadingSession, setLoadingSession] = useState(true)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -73,13 +74,19 @@ export default function AdminPage() {
         const response = await fetch('/api/admin/session', {
           cache: 'no-store',
         })
-        const payload = (await response.json()) as { authenticated?: boolean }
+        const payload = (await response.json()) as {
+          authenticated?: boolean
+          configured?: boolean
+        }
 
         setAuthenticated(Boolean(payload.authenticated))
+        setConfigured(payload.configured !== false)
 
         if (payload.authenticated) {
           await loadEvents()
           setStatusMessage('Admin panel unlocked.')
+        } else if (payload.configured === false) {
+          setStatusMessage('Admin login is not configured on the server.')
         }
       } catch (error) {
         console.error('Failed to load admin session', error)
@@ -389,8 +396,9 @@ export default function AdminPage() {
                 </button>
 
                 <p className="text-sm leading-7 text-stone-300">
-                  Set `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and
-                  `ADMIN_SESSION_SECRET` in your environment to secure this panel.
+                  {configured
+                    ? 'Use the private admin username and password configured for this environment.'
+                    : 'Admin login is not configured on the server yet.'}
                 </p>
               </div>
             )}

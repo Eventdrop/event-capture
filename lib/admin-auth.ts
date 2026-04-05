@@ -14,6 +14,14 @@ function getAdminSessionSecret() {
   return process.env.ADMIN_SESSION_SECRET || 'eventdrop-admin-session'
 }
 
+export function isAdminAuthConfigured() {
+  return Boolean(
+    process.env.ADMIN_USERNAME &&
+      process.env.ADMIN_PASSWORD &&
+      process.env.ADMIN_SESSION_SECRET
+  )
+}
+
 export function validateAdminCredentials(username: string, password: string) {
   return username === getAdminUsername() && password === getAdminPassword()
 }
