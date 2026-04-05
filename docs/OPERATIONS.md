@@ -23,9 +23,14 @@ En sade ve guvenli yol:
 
 Pratik MVP icin:
 
-- Her 1 saat
+- Her gun en az 1 kez
 
-Bu, 48 saat kuralini yeterince iyi uygular ve gereksiz operasyon sikligini azaltir.
+Not:
+
+- Vercel cron kullaniminda ucretsiz veya dusuk maliyetli planlarda daha sinirli zamanlama secenekleri olabilir.
+- Daha sik cleanup ihtiyaci olursa Supabase Cron veya ucretli plan tarafina gecilebilir.
+
+Bu, 48 saat kuralini operasyonel olarak yakin bir sekilde uygular ve ilk MVP icin yeterli olur.
 
 ## Failure Handling
 

@@ -33,6 +33,8 @@ Bu secenek, mevcut Next.js kod tabanina en az surtunmeyle uyar.
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_APP_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+CRON_SECRET=
 ```
 
 Production ornegi:

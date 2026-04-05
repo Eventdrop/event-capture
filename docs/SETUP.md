@@ -32,6 +32,8 @@ Asagidaki degiskenler gerekir:
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+SUPABASE_SERVICE_ROLE_KEY=
+CRON_SECRET=
 ```
 
 ## Create Local Env File
@@ -42,6 +44,8 @@ Kok dizinde `.env.local` olustur:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+CRON_SECRET=replace-with-a-long-random-secret
 ```
 
 ## Run Development Server
