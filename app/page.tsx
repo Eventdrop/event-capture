@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
@@ -16,6 +17,7 @@ import {
 
 export default function Home() {
   const { t } = useLanguage()
+  const router = useRouter()
   const websiteLabel = brand.website.replace(/^https?:\/\//, '')
   const [latestEvent, setLatestEvent] = useState<NormalizedEvent | null>(null)
   const [statusMessage, setStatusMessage] = useState(t.home.loading)
@@ -57,6 +59,12 @@ export default function Home() {
   }, [t.home.latestAlbumReady, t.home.noAlbum])
 
   const latestEventIdentifier = latestEvent?.slug || latestEvent?.id || ''
+
+  useEffect(() => {
+    if (!latestEventIdentifier) return
+
+    router.replace(getEventRoute(latestEventIdentifier))
+  }, [latestEventIdentifier, router])
 
   return (
     <div className="flex min-h-screen flex-col">
