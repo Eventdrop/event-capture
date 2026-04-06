@@ -25,6 +25,7 @@ export default function Page() {
   const [eventName, setEventName] = useState('Shared Event Gallery')
   const [selected, setSelected] = useState<string[]>([])
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     setStatusMessage(t.gallery.loading)
@@ -137,6 +138,37 @@ export default function Page() {
     )
   }
 
+  const handleDelete = async (item: UploadRecord) => {
+    const confirmed = window.confirm(t.gallery.deleteConfirm)
+
+    if (!confirmed) return
+
+    setDeletingId(item.id)
+
+    try {
+      const response = await fetch(`/api/uploads/${item.id}`, {
+        method: 'DELETE',
+      })
+
+      const payload = (await response.json()) as { ok?: boolean; error?: string }
+
+      if (!response.ok) {
+        throw new Error(payload.error || t.gallery.deleteError)
+      }
+
+      setItems((prev) => prev.filter((current) => current.id !== item.id))
+      setSelected((prev) => prev.filter((id) => id !== item.id))
+      setStatusMessage(t.gallery.deleteSuccess)
+    } catch (error) {
+      console.error('Delete failed', error)
+      setStatusMessage(
+        error instanceof Error ? error.message : t.gallery.deleteError
+      )
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#f0ebe2_55%,_#edf4fb_100%)] text-stone-900">
       <SiteHeader currentLabel={t.gallery.badge} />
@@ -192,6 +224,7 @@ export default function Page() {
               const isSelected = selected.includes(item.id)
               const mediaKind = inferMediaKind(item)
               const downloadName = getDownloadFileName(item)
+              const isDeleting = deletingId === item.id
 
               return (
                 <article
@@ -230,12 +263,30 @@ export default function Page() {
                       {isSelected ? t.gallery.selected : t.gallery.select}
                     </button>
 
-                    <button
-                      onClick={() => handleDownload(item.file_url, downloadName)}
-                      className="absolute bottom-3 right-3 rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-stone-50"
-                    >
-                      {t.gallery.download}
-                    </button>
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3">
+                      {isSelected ? (
+                        <button
+                          onClick={() => handleDelete(item)}
+                          disabled={isDeleting}
+                          className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                            isDeleting
+                              ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                              : 'bg-[#B52E2E] text-white'
+                          }`}
+                        >
+                          {isDeleting ? t.gallery.deleting : t.gallery.delete}
+                        </button>
+                      ) : (
+                        <span />
+                      )}
+
+                      <button
+                        onClick={() => handleDownload(item.file_url, downloadName)}
+                        className="rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-stone-50"
+                      >
+                        {t.gallery.download}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-2 p-4">
