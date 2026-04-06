@@ -122,6 +122,9 @@ export default function Home() {
                 {brand.email} · {brand.phone}
               </p>
               <p className="mt-1 text-sm leading-7 text-[#33516F]">
+                {brand.website}
+              </p>
+              <p className="mt-1 text-sm leading-7 text-[#33516F]">
                 {brand.location}
               </p>
             </div>

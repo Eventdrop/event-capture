@@ -18,6 +18,7 @@ export function SiteFooter() {
             {t.common.contact}
           </p>
           <p>{brand.email}</p>
+          <p>{brand.website}</p>
           <p>
             {brand.phone} · {brand.location}
           </p>
