@@ -87,6 +87,8 @@ type TranslationTree = {
     retentionLabel: string
     retentionText: string
     selectLabel: string
+    selectButton: string
+    noFilesChosen: string
     readyPrefix: string
     photos: string
     videos: string
@@ -224,6 +226,8 @@ export const translations: Record<Locale, TranslationTree> = {
       retentionLabel: 'Saklama',
       retentionText: 'Suresi dolan medya otomatik olarak temizlenir.',
       selectLabel: 'Medya sec',
+      selectButton: 'Dosyalari sec',
+      noFilesChosen: 'Henuz dosya secilmedi',
       readyPrefix: 'Hazir',
       photos: 'fotograf',
       videos: 'video',
@@ -360,6 +364,8 @@ export const translations: Record<Locale, TranslationTree> = {
       retentionLabel: 'Bewaartermijn',
       retentionText: 'Verlopen media wordt automatisch opgeruimd.',
       selectLabel: 'Kies media',
+      selectButton: 'Bestanden kiezen',
+      noFilesChosen: 'Nog geen bestand gekozen',
       readyPrefix: 'Klaar',
       photos: 'foto',
       videos: 'video',
@@ -496,6 +502,8 @@ export const translations: Record<Locale, TranslationTree> = {
       retentionLabel: 'Retention',
       retentionText: 'Expired media is cleaned up automatically.',
       selectLabel: 'Select media',
+      selectButton: 'Choose files',
+      noFilesChosen: 'No files selected yet',
       readyPrefix: 'Ready',
       photos: 'photos',
       videos: 'videos',
