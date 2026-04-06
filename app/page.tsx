@@ -7,6 +7,7 @@ import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
 import { brand } from '@/lib/brand'
 import {
+  formatEventDisplayName,
   getEventGalleryRoute,
   getEventRoute,
   normalizeEventRecord,
@@ -84,11 +85,13 @@ export default function Home() {
               {latestEvent ? (
                 <>
                   <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#0B2742]">
-                    {latestEvent.albumName}
+                    {formatEventDisplayName(latestEvent)}
                   </h2>
-                  <p className="mt-2 text-sm leading-6 text-[#33516F]">
-                    {latestEvent.name}
-                  </p>
+                  {formatEventDisplayName(latestEvent) !== latestEvent.name ? (
+                    <p className="mt-2 text-sm leading-6 text-[#33516F]">
+                      {latestEvent.name}
+                    </p>
+                  ) : null}
 
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                     <Link

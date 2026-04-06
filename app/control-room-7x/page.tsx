@@ -9,6 +9,7 @@ import { useLanguage } from '@/app/_components/language-provider'
 import { brand } from '@/lib/brand'
 import {
   buildEventInsertPayload,
+  formatEventDisplayName,
   getEventGalleryRoute,
   getEventRoute,
   normalizeEventRecord,
@@ -16,9 +17,7 @@ import {
 } from '@/lib/events'
 
 function formatEventLabel(event: NormalizedEvent) {
-  return event.albumName === event.name
-    ? event.name
-    : `${event.name} · ${event.albumName}`
+  return formatEventDisplayName(event)
 }
 
 export default function AdminPage() {

@@ -20,6 +20,15 @@ export type NormalizedEvent = {
   expiresAt: string | null
 }
 
+function normalizeLabel(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/['’`"]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+}
+
 export function slugifyEventName(value: string) {
   return value
     .trim()
@@ -61,6 +70,31 @@ export function normalizeEventRecord(
     createdAt: record.created_at || null,
     expiresAt: record.expires_at || null,
   }
+}
+
+export function formatEventDisplayName(event: Pick<NormalizedEvent, 'name' | 'albumName'>) {
+  const name = event.name.trim()
+  const albumName = event.albumName.trim()
+
+  if (!name) return albumName
+  if (!albumName) return name
+
+  const normalizedName = normalizeLabel(name)
+  const normalizedAlbum = normalizeLabel(albumName)
+
+  if (normalizedName === normalizedAlbum) {
+    return name
+  }
+
+  if (normalizedName.includes(normalizedAlbum)) {
+    return name
+  }
+
+  if (normalizedAlbum.includes(normalizedName)) {
+    return albumName
+  }
+
+  return `${name} · ${albumName}`
 }
 
 export function getEventRoute(identifier: string) {
