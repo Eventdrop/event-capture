@@ -331,17 +331,38 @@ export default function Page() {
               {t.upload.selectLabel}
             </label>
 
-            <input
-              ref={inputRef}
-              id="event-media"
-              type="file"
-              name="media"
-              multiple
-              accept="image/*,video/mp4,video/quicktime,video/webm"
-              onChange={handleFileChange}
-              disabled={uploading || eventMissing}
-              className="block w-full rounded-[1.5rem] border-2 border-dashed border-[#C8D3E5] bg-[#FDFEFE] px-4 py-5 text-sm text-stone-700 file:mr-4 file:rounded-full file:border-0 file:bg-[#0F3D66] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-[#0F3D66]"
-            />
+            <div className="rounded-[1.5rem] border-2 border-dashed border-[#C8D3E5] bg-[#FDFEFE] p-4">
+              <input
+                ref={inputRef}
+                id="event-media"
+                type="file"
+                name="media"
+                multiple
+                accept="image/*,video/mp4,video/quicktime,video/webm"
+                onChange={handleFileChange}
+                disabled={uploading || eventMissing}
+                className="sr-only"
+              />
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <label
+                  htmlFor="event-media"
+                  className={`inline-flex cursor-pointer items-center justify-center rounded-full px-5 py-3 text-sm font-semibold ${
+                    uploading || eventMissing
+                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                      : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
+                  }`}
+                >
+                  {t.upload.selectButton}
+                </label>
+
+                <p className="text-sm text-[#597594]">
+                  {selectedFiles.length > 0
+                    ? `${selectedFiles.length} ${t.upload.filesSelected}`
+                    : t.upload.noFilesChosen}
+                </p>
+              </div>
+            </div>
 
             <div className="rounded-[1.5rem] border border-[#D4DFEE] bg-white px-4 py-4 text-sm text-[#33516F]">
               {selectionSummary ? (
