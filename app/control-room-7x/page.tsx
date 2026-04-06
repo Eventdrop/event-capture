@@ -6,6 +6,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
+import { getPublicAppUrl } from '@/lib/app-url'
 import { brand } from '@/lib/brand'
 import {
   buildEventInsertPayload,
@@ -34,8 +35,7 @@ export default function AdminPage() {
   const [albumName, setAlbumName] = useState('')
   const [eventDate, setEventDate] = useState('')
 
-  const publicBaseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
+  const publicBaseUrl = getPublicAppUrl()
 
   const latestEvent = useMemo(() => events[0] || null, [events])
 

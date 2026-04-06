@@ -7,6 +7,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
+import { getPublicAppUrl } from '@/lib/app-url'
 import {
   addHours,
   buildStoragePath,
@@ -29,7 +30,6 @@ export default function Page() {
   const [eventName, setEventName] = useState('Shared Event Album')
   const [message, setMessage] = useState(t.upload.chooseStart)
   const [uploading, setUploading] = useState(false)
-  const [pageOrigin, setPageOrigin] = useState('')
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [eventMissing, setEventMissing] = useState(false)
 
@@ -38,10 +38,6 @@ export default function Page() {
       setMessage(t.upload.chooseStart)
     }
   }, [eventMissing, resolvedEventId, selectedFiles.length, t.upload.chooseStart])
-
-  useEffect(() => {
-    setPageOrigin(window.location.origin)
-  }, [])
 
   useEffect(() => {
     const loadEvent = async () => {
@@ -87,9 +83,8 @@ export default function Page() {
   }, [eventIdentifier, t.upload.eventNotFound, t.upload.intro])
 
   const uploadUrl = useMemo(() => {
-    const base = process.env.NEXT_PUBLIC_APP_URL || pageOrigin
-    return base ? `${base}/event/${eventIdentifier}` : ''
-  }, [eventIdentifier, pageOrigin])
+    return `${getPublicAppUrl()}/event/${eventIdentifier}`
+  }, [eventIdentifier])
 
   const acceptedFiles = useMemo(
     () => selectedFiles.filter((file) => getMediaKind(file) !== null),
