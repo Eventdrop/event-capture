@@ -121,6 +121,11 @@ type TranslationTree = {
     backToUpload: string
     selected: string
     select: string
+    delete: string
+    deleting: string
+    deleteConfirm: string
+    deleteSuccess: string
+    deleteError: string
     download: string
     downloaded: string
     chooseBeforeDownload: string
@@ -261,6 +266,11 @@ export const translations: Record<Locale, TranslationTree> = {
       backToUpload: 'Yuklemeye don',
       selected: 'Secildi',
       select: 'Sec',
+      delete: 'Sil',
+      deleting: 'Siliniyor...',
+      deleteConfirm: 'Bu yuklemeyi silmek istiyor musun?',
+      deleteSuccess: 'Yukleme silindi.',
+      deleteError: 'Yukleme silinemedi.',
       download: 'Indir',
       downloaded: 'dosya indirildi',
       chooseBeforeDownload: 'Indirmeden once en az bir oge sec.',
@@ -399,6 +409,11 @@ export const translations: Record<Locale, TranslationTree> = {
       backToUpload: 'Terug naar upload',
       selected: 'Geselecteerd',
       select: 'Selecteren',
+      delete: 'Verwijderen',
+      deleting: 'Bezig met verwijderen...',
+      deleteConfirm: 'Weet je zeker dat je deze upload wilt verwijderen?',
+      deleteSuccess: 'Upload verwijderd.',
+      deleteError: 'Upload kon niet worden verwijderd.',
       download: 'Downloaden',
       downloaded: 'bestanden gedownload',
       chooseBeforeDownload: 'Selecteer eerst minstens één item.',
@@ -537,6 +552,11 @@ export const translations: Record<Locale, TranslationTree> = {
       backToUpload: 'Back to upload',
       selected: 'Selected',
       select: 'Select',
+      delete: 'Delete',
+      deleting: 'Deleting...',
+      deleteConfirm: 'Are you sure you want to delete this upload?',
+      deleteSuccess: 'Upload deleted.',
+      deleteError: 'Upload could not be deleted.',
       download: 'Download',
       downloaded: 'files downloaded',
       chooseBeforeDownload: 'Choose at least one item before downloading.',
