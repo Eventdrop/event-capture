@@ -1,5 +1,3 @@
-import { brand } from '@/lib/brand'
-
 export function getPublicAppUrl() {
-  return brand.website.replace(/\/$/, '')
+  return 'https://upload.photoboothholland.com'
 }
