@@ -13,7 +13,7 @@ import {
   isExpired,
   type UploadRecord,
 } from '@/lib/eventdrop'
-import { normalizeEventRecord } from '@/lib/events'
+import { formatEventDisplayName, normalizeEventRecord } from '@/lib/events'
 import { supabase } from '@/lib/supabase'
 
 export default function Page() {
@@ -75,7 +75,7 @@ export default function Page() {
       setItems(activeUploads)
       setEventName(
         normalizedEvent
-          ? `${normalizedEvent.name} · ${normalizedEvent.albumName}`
+          ? formatEventDisplayName(normalizedEvent)
           : 'Shared Event Gallery'
       )
       setStatusMessage(

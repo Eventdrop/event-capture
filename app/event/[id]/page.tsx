@@ -13,7 +13,7 @@ import {
   getMediaKind,
   getPublicFileUrl,
 } from '@/lib/eventdrop'
-import { normalizeEventRecord } from '@/lib/events'
+import { formatEventDisplayName, normalizeEventRecord } from '@/lib/events'
 import { supabase } from '@/lib/supabase'
 
 const BUCKET_NAME = 'event-uploads'
@@ -76,7 +76,7 @@ export default function Page() {
       const normalizedEvent = normalizeEventRecord(event)
       setEventName(
         normalizedEvent
-          ? `${normalizedEvent.name} · ${normalizedEvent.albumName}`
+          ? formatEventDisplayName(normalizedEvent)
           : 'Shared Event Album'
       )
       setResolvedEventId(normalizedEvent?.id || '')
