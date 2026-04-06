@@ -5,6 +5,7 @@ import { brand } from '@/lib/brand'
 
 export function SiteFooter() {
   const { t } = useLanguage()
+  const websiteLabel = brand.website.replace(/^https?:\/\//, '')
 
   return (
     <footer className="border-t border-[#D4DFEE] bg-white/75">
@@ -18,7 +19,14 @@ export function SiteFooter() {
             {t.common.contact}
           </p>
           <p>{brand.email}</p>
-          <p>{brand.website}</p>
+          <a
+            href={brand.website}
+            target="_blank"
+            rel="noreferrer"
+            className="underline decoration-[#C8D3E5] underline-offset-4 hover:text-[#0F3D66]"
+          >
+            {websiteLabel}
+          </a>
           <p>
             {brand.phone} · {brand.location}
           </p>

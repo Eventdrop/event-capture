@@ -15,6 +15,7 @@ import {
 
 export default function Home() {
   const { t } = useLanguage()
+  const websiteLabel = brand.website.replace(/^https?:\/\//, '')
   const [latestEvent, setLatestEvent] = useState<NormalizedEvent | null>(null)
   const [statusMessage, setStatusMessage] = useState(t.home.loading)
 
@@ -121,9 +122,14 @@ export default function Home() {
               <p className="mt-3 text-sm leading-7 text-[#33516F]">
                 {brand.email} · {brand.phone}
               </p>
-              <p className="mt-1 text-sm leading-7 text-[#33516F]">
-                {brand.website}
-              </p>
+              <a
+                href={brand.website}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1 block text-sm leading-7 text-[#33516F] underline decoration-[#C8D3E5] underline-offset-4 hover:text-[#0F3D66]"
+              >
+                {websiteLabel}
+              </a>
               <p className="mt-1 text-sm leading-7 text-[#33516F]">
                 {brand.location}
               </p>
