@@ -32,6 +32,7 @@ export default function Page() {
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [eventMissing, setEventMissing] = useState(false)
+  const [guidanceAccepted, setGuidanceAccepted] = useState(false)
 
   useEffect(() => {
     if (selectedFiles.length === 0 && !resolvedEventId && !eventMissing) {
@@ -120,6 +121,11 @@ export default function Page() {
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!guidanceAccepted) {
+      setMessage(t.upload.consentRequired)
+      return
+    }
+
     const files = Array.from(event.target.files || [])
     setSelectedFiles(files)
 
@@ -200,6 +206,11 @@ export default function Page() {
 
   const handleUpload = async () => {
     if (uploading || eventMissing) return
+
+    if (!guidanceAccepted) {
+      setMessage(t.upload.consentRequired)
+      return
+    }
 
     if (acceptedFiles.length === 0) {
       setMessage(t.upload.chooseSupported)
@@ -289,6 +300,42 @@ export default function Page() {
             {t.upload.intro}
           </p>
 
+          <div className="mt-8 rounded-[1.75rem] border border-[#D4DFEE] bg-[#FFF8EF] p-5 shadow-[0_10px_25px_rgba(245,130,32,0.08)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#C76B14]">
+              {t.upload.guidanceBadge}
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[#0B2742]">
+              {t.upload.guidanceTitle}
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-[#33516F]">
+              {t.upload.guidanceIntro}
+            </p>
+
+            <ul className="mt-4 space-y-3 text-sm leading-7 text-[#33516F]">
+              {t.upload.guidancePoints.map((point) => (
+                <li key={point} className="flex items-start gap-3">
+                  <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-[#F58220]" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+
+            <label className="mt-5 flex items-start gap-3 rounded-[1.2rem] border border-[#F3D2AF] bg-white px-4 py-4">
+              <input
+                type="checkbox"
+                checked={guidanceAccepted}
+                onChange={(event) => setGuidanceAccepted(event.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-[#C8D3E5] text-[#F58220] focus:ring-[#F58220]"
+              />
+              <span className="text-sm leading-6 text-[#33516F]">
+                <span className="font-medium text-[#0B2742]">
+                  {t.upload.consentLabel}
+                </span>
+                <span className="mt-1 block">{t.upload.consentHelp}</span>
+              </span>
+            </label>
+          </div>
+
           <div className="mt-8 grid gap-4 rounded-[1.75rem] border border-[#D4DFEE] bg-[#F7FAFD] p-5 md:grid-cols-3">
             <div>
               <p className="text-xs uppercase tracking-[0.16em] text-[#6A84A3]">
@@ -335,7 +382,7 @@ export default function Page() {
                 multiple
                 accept="image/*,video/mp4,video/quicktime,video/webm"
                 onChange={handleFileChange}
-                disabled={uploading || eventMissing}
+                disabled={uploading || eventMissing || !guidanceAccepted}
                 className="sr-only"
               />
 
@@ -345,7 +392,9 @@ export default function Page() {
                   className={`inline-flex cursor-pointer items-center justify-center rounded-full px-5 py-3 text-sm font-semibold ${
                     uploading || eventMissing
                       ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                      : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
+                      : !guidanceAccepted
+                        ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                        : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
                   }`}
                 >
                   {t.upload.selectButton}
@@ -379,9 +428,9 @@ export default function Page() {
               <button
                 type="button"
                 onClick={handleUpload}
-                disabled={uploading || eventMissing}
+                disabled={uploading || eventMissing || !guidanceAccepted}
                 className={`w-full rounded-full px-5 py-4 text-base font-semibold shadow-[0_14px_26px_rgba(245,130,32,0.2)] sm:w-auto ${
-                  uploading || eventMissing
+                  uploading || eventMissing || !guidanceAccepted
                     ? 'cursor-not-allowed bg-stone-300 text-stone-500'
                     : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
                 }`}

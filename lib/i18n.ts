@@ -102,6 +102,13 @@ type TranslationTree = {
   upload: {
     badge: string
     intro: string
+    guidanceBadge: string
+    guidanceTitle: string
+    guidanceIntro: string
+    guidancePoints: string[]
+    consentLabel: string
+    consentHelp: string
+    consentRequired: string
     uploadLabel: string
     namingLabel: string
     namingText: string
@@ -275,6 +282,21 @@ export const translations: Record<Locale, TranslationTree> = {
       badge: 'Misafir yukleme sayfasi',
       intro:
         'Misafirler bu ortak albume fotograf ve kisa video ekleyebilir. Icerikler 48 saat sonra temizlenmek uzere tasarlanmistir.',
+      guidanceBadge: 'Yukleme kurallari',
+      guidanceTitle: 'Lutfen sadece paylasilmasi uygun icerik yukleyin',
+      guidanceIntro:
+        'Yukleme yaparak bu icerikleri kendi isteginle paylastigini ve etkinlikte yer alan kisilerin mahremiyetine saygi gosterecegini onaylarsin.',
+      guidancePoints: [
+        'Sadece paylasma hakkin olan fotograf ve videolari yukle.',
+        'Kucuk dusurucu, ayipli, nefret iceren, yasa disi veya baskasinin gizliligini ihlal eden icerik yukleme.',
+        'Medya 48 saat saklanir; kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
+      ],
+      consentLabel:
+        'Bu medyayi kendi istegimle yukledigimi ve yukleme kurallarina uyacagimi onayliyorum.',
+      consentHelp:
+        'Onay vermeden dosya secimi ve yukleme acilmaz.',
+      consentRequired:
+        'Devam etmek icin once yukleme kurallarini onayla.',
       uploadLabel: 'Yukleme',
       namingLabel: 'Isimlendirme',
       namingText: 'Dosyalar tarih bazli klasorler altinda tutulur.',
@@ -447,6 +469,21 @@ export const translations: Record<Locale, TranslationTree> = {
       badge: 'Upload door gasten',
       intro:
         'Gasten kunnen foto’s en korte video’s toevoegen aan dit gedeelde album. Media is bedoeld om na 48 uur op te schonen.',
+      guidanceBadge: 'Uploadregels',
+      guidanceTitle: 'Upload alleen media die gedeeld mag worden',
+      guidanceIntro:
+        'Door te uploaden bevestig je dat je dit vrijwillig doet en dat je de privacy van de aanwezigen respecteert.',
+      guidancePoints: [
+        'Upload alleen foto’s en video’s die je mag delen.',
+        'Upload geen vernederende, beledigende, haatdragende, onwettige of privacy-schendende inhoud.',
+        'Media wordt 48 uur bewaard; gebruik de contactgegevens als iets eerder verwijderd moet worden.',
+      ],
+      consentLabel:
+        'Ik bevestig dat ik deze media vrijwillig upload en mij aan de uploadregels houd.',
+      consentHelp:
+        'Zonder akkoord blijven bestandsselectie en upload uitgeschakeld.',
+      consentRequired:
+        'Bevestig eerst de uploadregels om verder te gaan.',
       uploadLabel: 'Upload',
       namingLabel: 'Naamstructuur',
       namingText: 'Bestanden worden in mappen met datumindeling opgeslagen.',
@@ -619,6 +656,21 @@ export const translations: Record<Locale, TranslationTree> = {
       badge: 'Guest upload page',
       intro:
         'Guests can add photos and short videos to this shared album. Media is designed to be cleaned up after 48 hours.',
+      guidanceBadge: 'Upload rules',
+      guidanceTitle: 'Please upload only media that can be shared',
+      guidanceIntro:
+        'By uploading, you confirm that you are sharing this media voluntarily and that you will respect the privacy of everyone at the event.',
+      guidancePoints: [
+        'Only upload photos and videos that you are allowed to share.',
+        'Do not upload humiliating, abusive, hateful, illegal, or privacy-violating content.',
+        'Media is kept for 48 hours; use the contact details if something should be removed sooner.',
+      ],
+      consentLabel:
+        'I confirm that I am uploading this media voluntarily and will follow the upload rules.',
+      consentHelp:
+        'File selection and upload stay disabled until you agree.',
+      consentRequired:
+        'Please confirm the upload rules before continuing.',
       uploadLabel: 'Upload',
       namingLabel: 'Naming',
       namingText: 'Files are stored inside date-based folders.',
