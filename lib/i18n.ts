@@ -76,6 +76,19 @@ type TranslationTree = {
     notConfigured: string
     unlocked: string
     signedOut: string
+    passwordSection: string
+    passwordSectionHelp: string
+    passwordSectionUnavailable: string
+    currentPassword: string
+    newPassword: string
+    confirmNewPassword: string
+    changePassword: string
+    savingPassword: string
+    passwordFieldsRequired: string
+    passwordMismatch: string
+    passwordTooShort: string
+    passwordChangeSuccess: string
+    passwordChangeError: string
     createTitle: string
     eventName: string
     albumName: string
@@ -281,6 +294,21 @@ export const translations: Record<Locale, TranslationTree> = {
       notConfigured: 'Sunucuda admin girisi henuz ayarlanmamis.',
       unlocked: 'Yonetim paneli acildi.',
       signedOut: 'Gizli yonetim panelinden cikis yapildi.',
+      passwordSection: 'Giris dogrulama ve sifre',
+      passwordSectionHelp:
+        'Admin girisini daha guvenli hale getirmek icin mevcut sifreyi dogrulayip yeni sifre belirleyebilirsin.',
+      passwordSectionUnavailable:
+        'Kalici sifre degisikligi icin Supabase uzerinde public.admin_credentials tablosu gerekli.',
+      currentPassword: 'Mevcut sifre',
+      newPassword: 'Yeni sifre',
+      confirmNewPassword: 'Yeni sifre tekrar',
+      changePassword: 'Sifreyi guncelle',
+      savingPassword: 'Sifre kaydediliyor...',
+      passwordFieldsRequired: 'Sifre degisikligi icin tum alanlari doldur.',
+      passwordMismatch: 'Yeni sifreler birbiriyle ayni olmali.',
+      passwordTooShort: 'Yeni sifre en az 8 karakter olmali.',
+      passwordChangeSuccess: 'Admin sifresi basariyla guncellendi.',
+      passwordChangeError: 'Admin sifresi guncellenemedi.',
       createTitle: 'Son public album burada yonetilir.',
       eventName: 'Etkinlik adi',
       albumName: 'Album adi',
@@ -575,6 +603,21 @@ export const translations: Record<Locale, TranslationTree> = {
       notConfigured: 'De admin-login is nog niet geconfigureerd op de server.',
       unlocked: 'Beheerpaneel is geopend.',
       signedOut: 'Je bent uitgelogd uit het verborgen beheerpaneel.',
+      passwordSection: 'Logincontrole en wachtwoord',
+      passwordSectionHelp:
+        'Je kunt eerst je huidige wachtwoord bevestigen en daarna een nieuw wachtwoord instellen.',
+      passwordSectionUnavailable:
+        'Voor een blijvende wachtwoordwijziging is de tabel public.admin_credentials in Supabase nodig.',
+      currentPassword: 'Huidig wachtwoord',
+      newPassword: 'Nieuw wachtwoord',
+      confirmNewPassword: 'Herhaal nieuw wachtwoord',
+      changePassword: 'Wachtwoord opslaan',
+      savingPassword: 'Wachtwoord wordt opgeslagen...',
+      passwordFieldsRequired: 'Vul alle wachtwoordvelden in.',
+      passwordMismatch: 'Nieuwe wachtwoorden moeten overeenkomen.',
+      passwordTooShort: 'Het nieuwe wachtwoord moet minimaal 8 tekens hebben.',
+      passwordChangeSuccess: 'Adminwachtwoord is bijgewerkt.',
+      passwordChangeError: 'Adminwachtwoord kon niet worden bijgewerkt.',
       createTitle: 'Hier beheer je het nieuwste publieke album.',
       eventName: 'Naam van het evenement',
       albumName: 'Naam van het album',
@@ -867,6 +910,21 @@ export const translations: Record<Locale, TranslationTree> = {
       notConfigured: 'Admin login is not configured on the server yet.',
       unlocked: 'Admin panel unlocked.',
       signedOut: 'Signed out from the hidden admin panel.',
+      passwordSection: 'Login verification and password',
+      passwordSectionHelp:
+        'Confirm the current password first, then set a new one for the hidden admin panel.',
+      passwordSectionUnavailable:
+        'Persistent password changes require the public.admin_credentials table in Supabase.',
+      currentPassword: 'Current password',
+      newPassword: 'New password',
+      confirmNewPassword: 'Confirm new password',
+      changePassword: 'Update password',
+      savingPassword: 'Saving password...',
+      passwordFieldsRequired: 'Fill in every password field first.',
+      passwordMismatch: 'The new passwords must match.',
+      passwordTooShort: 'The new password must be at least 8 characters.',
+      passwordChangeSuccess: 'Admin password updated successfully.',
+      passwordChangeError: 'Admin password could not be updated.',
       createTitle: 'Manage the latest public album from here.',
       eventName: 'Event name',
       albumName: 'Album name',
