@@ -63,6 +63,7 @@ type TranslationTree = {
     shareReady: string
     shareCopied: string
     points: string[]
+    sections: { title: string; body: string[] }[]
     loading: string
   }
   admin: {
@@ -282,6 +283,50 @@ export const translations: Record<Locale, TranslationTree> = {
         'Misafirler QR veya link ile girer, kodla dogrulanir',
         'Fotograflar ve videolar sadece ilgili albumde toplanir',
         'Icerikler 48 saat sonra temizlenir',
+      ],
+      sections: [
+        {
+          title: 'Anlarin paylasildigi her turlu etkinlik icin mukemmel',
+          body: [
+            'Dugunler, dogum gunleri, kurumsal etkinlikler, festivaller ve ozel partiler.',
+            'Herkes fotograf ve video ceker. EventDrop tum bu icerikleri tek bir ortak albumde bir araya getirir.',
+            'Konuklar etkinlik boyunca cektikleri fotograf ve videolari kolayca yukler. Boylece herkes etkinligin farkli anlarina tek bir yerden erisebilir ve diledigi icerikleri indirebilir.',
+          ],
+        },
+        {
+          title: 'EventDrop nasil calisir',
+          body: [
+            'Her etkinligin kendine ait bir albumu ve benzersiz bir etkinlik kodu vardir.',
+            'QR ile giris yapan kullanicilar sadece e-posta adreslerini girerek aninda devam eder.',
+            'Manuel giris yapan kullanicilar ise e-posta ve etkinlik kodu ile erisim saglar.',
+            'Tum fotograf ve videolar, etkinlige ozel olusturulmus tek bir duzenli albumde otomatik olarak toplanir.',
+          ],
+        },
+        {
+          title: 'Neden EventDrop',
+          body: [
+            'Etkinlikte cekilen fotograflar cogu zaman telefonlarda kaybolur. EventDrop ile tum icerikler tek bir yerde toplanir, herkes kolayca erisebilir ve paylasabilir.',
+            'Isterseniz etkinlik sonrasinda tum icerikleri tek seferde indirerek arsivleyebilirsiniz.',
+            'Konuklarinizin tum goruntuleri tek bir yerde, aninda erisilebilir.',
+            'Etkinlige katilan herkesle paylasmak son derece kolaydir.',
+          ],
+        },
+        {
+          title: 'Hizli, basit ve sorunsuz',
+          body: [
+            'Yukleme sadece birkac saniye surer.',
+            'Herhangi bir uygulama veya hesap gerektirmez.',
+            'Tum cihazlarda sorunsuz calisir.',
+          ],
+        },
+        {
+          title: 'Guvenli ve ozel',
+          body: [
+            'Her etkinligin kendine ozel guvenli erisimi vardir.',
+            'Tum dosyalar yalnizca ilgili albumde saklanir.',
+            'Sadece etkinlige katilan kisiler erisim saglayabilir.',
+          ],
+        },
       ],
       loading: 'Misafir girisi hazirlaniyor...',
     },
@@ -595,6 +640,50 @@ export const translations: Record<Locale, TranslationTree> = {
         'Foto’s en video’s blijven binnen het juiste album',
         'Inhoud wordt na 48 uur opgeruimd',
       ],
+      sections: [
+        {
+          title: 'Perfect voor elk evenement waar herinneringen worden gedeeld',
+          body: [
+            'Bruiloften, verjaardagen, zakelijke evenementen, festivals en privéfeesten.',
+            'Iedereen maakt foto’s en video’s. EventDrop brengt al die content samen in één gedeeld album.',
+            'Gasten uploaden hun foto’s en video’s eenvoudig tijdens het evenement. Zo heeft iedereen op één plek toegang tot verschillende momenten en kan men favoriete media downloaden.',
+          ],
+        },
+        {
+          title: 'Hoe EventDrop werkt',
+          body: [
+            'Elk evenement heeft een eigen album en een unieke eventcode.',
+            'Gebruikers die via QR binnenkomen gaan direct verder met alleen hun e-mailadres.',
+            'Gebruikers die handmatig binnenkomen gebruiken e-mail en eventcode.',
+            'Alle foto’s en video’s worden automatisch verzameld in één overzichtelijk album dat speciaal voor dat evenement is aangemaakt.',
+          ],
+        },
+        {
+          title: 'Waarom EventDrop',
+          body: [
+            'Foto’s die tijdens een evenement worden gemaakt raken vaak verspreid over telefoons. Met EventDrop komt alles op één plek samen, zodat iedereen er makkelijk bij kan.',
+            'Na afloop kun je desgewenst alle content in één keer downloaden en archiveren.',
+            'Alle beelden van je gasten staan direct op één toegankelijke plek.',
+            'Delen met iedereen die aanwezig was is daardoor heel eenvoudig.',
+          ],
+        },
+        {
+          title: 'Snel, simpel en zonder gedoe',
+          body: [
+            'Uploaden duurt maar een paar seconden.',
+            'Er is geen app of account nodig.',
+            'Het werkt soepel op alle apparaten.',
+          ],
+        },
+        {
+          title: 'Veilig en privé',
+          body: [
+            'Elk evenement heeft zijn eigen beveiligde toegang.',
+            'Alle bestanden blijven alleen binnen het juiste album.',
+            'Alleen mensen die bij het evenement horen kunnen erbij.',
+          ],
+        },
+      ],
       loading: 'Gasttoegang wordt voorbereid...',
     },
     admin: {
@@ -904,6 +993,50 @@ export const translations: Record<Locale, TranslationTree> = {
         'Guests are checked through QR or a private link',
         'Photos and videos stay inside the correct album',
         'Media is cleaned up after 48 hours',
+      ],
+      sections: [
+        {
+          title: 'Perfect for every event where moments are shared',
+          body: [
+            'Weddings, birthdays, corporate events, festivals, and private parties.',
+            'Everyone takes photos and videos. EventDrop brings all that content together in one shared album.',
+            'Guests can upload their photos and videos easily during the event, so everyone can reach different moments from one place and download the ones they want.',
+          ],
+        },
+        {
+          title: 'How EventDrop works',
+          body: [
+            'Every event has its own album and a unique event code.',
+            'Users entering through QR continue instantly with only their email address.',
+            'Users entering manually use both email and the event code.',
+            'All photos and videos are automatically collected in one tidy album created specifically for that event.',
+          ],
+        },
+        {
+          title: 'Why EventDrop',
+          body: [
+            'Photos taken during an event often get lost across different phones. With EventDrop, everything is gathered in one place so everyone can access and share it easily.',
+            'If you want, you can download the full collection afterwards and archive it in one go.',
+            'All guest media stays in one accessible place.',
+            'Sharing with everyone who attended becomes simple.',
+          ],
+        },
+        {
+          title: 'Fast, simple, and frictionless',
+          body: [
+            'Uploading only takes a few seconds.',
+            'No app or account is required.',
+            'It works smoothly on all devices.',
+          ],
+        },
+        {
+          title: 'Secure and private',
+          body: [
+            'Every event has its own secure access.',
+            'All files stay inside the correct album only.',
+            'Only people connected to the event can get in.',
+          ],
+        },
       ],
       loading: 'Preparing guest entry...',
     },
