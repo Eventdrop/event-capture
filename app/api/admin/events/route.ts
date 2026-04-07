@@ -52,12 +52,13 @@ export async function POST(request: Request) {
   if (unauthorized) return unauthorized
 
   const body = (await request.json().catch(() => null)) as
-    | { name?: string; albumName?: string; eventDate?: string }
+    | { name?: string; albumName?: string; eventDate?: string; accessCode?: string }
     | null
 
   const name = body?.name?.trim() || ''
   const albumName = body?.albumName?.trim() || ''
   const eventDate = body?.eventDate || ''
+  const accessCode = body?.accessCode?.trim() || ''
 
   if (!name || !albumName) {
     return NextResponse.json(
@@ -71,21 +72,39 @@ export async function POST(request: Request) {
 
   try {
     const supabase = createAdminSupabaseClient()
-    const payload = buildEventInsertPayload({ name, albumName, eventDate })
+    const payload = buildEventInsertPayload({ name, albumName, eventDate, accessCode })
 
     const richInsert = await supabase.from('events').insert([payload]).select('*').single()
 
     let createdRecord = richInsert.data
 
     if (richInsert.error) {
+      const withoutAccessCode = {
+        name: payload.name,
+        album_name: payload.album_name,
+        slug: payload.slug,
+        event_date: payload.event_date,
+        expires_at: payload.expires_at,
+      }
+
       const fallbackInsert = await supabase
         .from('events')
-        .insert([{ name: `${name} - ${albumName}` }])
+        .insert([withoutAccessCode])
         .select('*')
         .single()
 
-      if (fallbackInsert.error) throw fallbackInsert.error
-      createdRecord = fallbackInsert.data
+      if (!fallbackInsert.error) {
+        createdRecord = fallbackInsert.data
+      } else {
+        const minimalInsert = await supabase
+          .from('events')
+          .insert([{ name: `${name} - ${albumName}` }])
+          .select('*')
+          .single()
+
+        if (minimalInsert.error) throw minimalInsert.error
+        createdRecord = minimalInsert.data
+      }
     }
 
     return NextResponse.json({ ok: true, event: createdRecord })

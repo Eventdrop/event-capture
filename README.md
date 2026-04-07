@@ -17,13 +17,16 @@ Uygulamanin temel amaci, dugun, dogum gunu, sirket etkinligi gibi gunubirlik org
 
 1. Etkinlik icin ozel bir QR kod uretilir.
 2. Katilimci QR kodu telefonuyla okutur.
-3. Acilan sayfada ortak albume fotograf ve/veya video yukler.
-4. Yuklenen icerikler ortak galeride goruntulenir.
-5. Katilimcilar istedikleri icerikleri indirebilir ve kendi aralarinda paylasabilir.
+3. Acilan giris ekraninda e-posta adresini ve event code bilgisini girer.
+4. Sistem kullaniciyi sadece o etkinlige ait album sayfasina yonlendirir.
+5. Katilimci ortak albume fotograf ve/veya video yukler.
+6. Yuklenen icerikler ortak galeride goruntulenir.
+7. Katilimcilar istedikleri icerikleri indirebilir ve kendi aralarinda paylasabilir.
 
 ## Urun Kurallari
 
-- Her etkinlik tek bir ortak album mantigiyla calisir.
+- Her etkinlik kendi ozel albumu, linki ve event code bilgisi ile calisir.
+- Public tarafta etkinlik listesi gosterilmez.
 - Yuklenen medya dosyalari 48 saat sonra otomatik olarak silinmelidir.
 - Album klasorleri tarih bazli isimlendirilmelidir.
 - Dosya isimleri tarih bilgisini tasimalidir.
@@ -82,7 +85,8 @@ Kaynaklar:
 
 ## Bu Repoda Beklenen Ana Sayfalar
 
-- `/` : son olusturulan ortak albumu gosteren public giris ve upload baslangic sayfasi
+- `/` : e-posta ve event code ile public misafir girisi
+- `/join/[id]` : QR veya ozel linkten gelen misafir icin etkinlige ozel giris sayfasi
 - `/control-room-7x` : gizli admin girisi ve etkinlik/album olusturma sayfasi
 - `/event/[id]` : etkinlige medya yukleme sayfasi
 - `/event/[id]/gallery` : ortak galeri ve indirme sayfasi

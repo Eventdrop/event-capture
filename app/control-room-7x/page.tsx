@@ -12,6 +12,7 @@ import {
   buildEventInsertPayload,
   formatEventDisplayName,
   getEventGalleryRoute,
+  getEventJoinRoute,
   getEventRoute,
   normalizeEventRecord,
   type NormalizedEvent,
@@ -41,7 +42,7 @@ export default function AdminPage() {
 
   const getEventIdentifier = (event: NormalizedEvent) => event.slug || event.id
   const getEventShareUrl = (event: NormalizedEvent) =>
-    `${publicBaseUrl}${getEventRoute(getEventIdentifier(event))}`
+    `${publicBaseUrl}${getEventJoinRoute(getEventIdentifier(event))}`
   const getGalleryShareUrl = (event: NormalizedEvent) =>
     `${publicBaseUrl}${getEventGalleryRoute(getEventIdentifier(event))}`
 
@@ -422,7 +423,7 @@ export default function AdminPage() {
 
             {latestEvent ? (
               <Link
-                href={getEventRoute(getEventIdentifier(latestEvent))}
+                href={getEventJoinRoute(getEventIdentifier(latestEvent))}
                 className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-5 py-3 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
               >
                 {t.common.latestPublicAlbum}
@@ -452,6 +453,11 @@ export default function AdminPage() {
                       Public slug: {event.slug}
                     </p>
                   ) : null}
+                  {event.accessCode ? (
+                    <p className="mt-1 text-sm font-semibold uppercase tracking-[0.18em] text-[#0F3D66]">
+                      {t.admin.accessCodeLabel}: {event.accessCode}
+                    </p>
+                  ) : null}
                   {event.eventDate ? (
                     <p className="mt-2 text-sm text-[#33516F]">
                       {t.common.eventDate}: {event.eventDate}
@@ -468,6 +474,13 @@ export default function AdminPage() {
                   </div>
 
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <Link
+                      href={getEventJoinRoute(getEventIdentifier(event))}
+                      className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-4 py-2 text-sm font-semibold text-white hover:bg-[#DB6E12]"
+                    >
+                      {t.common.guestEntryPage}
+                    </Link>
+
                     <Link
                       href={getEventRoute(getEventIdentifier(event))}
                       className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
@@ -503,6 +516,17 @@ export default function AdminPage() {
                       {t.common.copyGalleryLink}
                     </button>
 
+                    {event.accessCode ? (
+                      <button
+                        onClick={() =>
+                          copyToClipboard(event.accessCode, t.admin.codeCopied)
+                        }
+                        className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                      >
+                        {t.admin.copyCodeButton}
+                      </button>
+                    ) : null}
+
                     <button
                       onClick={() => handleDeleteEvent(event.id)}
                       disabled={submitting}
@@ -513,7 +537,7 @@ export default function AdminPage() {
                   </div>
 
                   <p className="mt-4 break-all text-xs text-[#6A84A3]">
-                    Share URL: {getEventShareUrl(event)}
+                    Guest entry URL: {getEventShareUrl(event)}
                   </p>
                 </article>
               ))}

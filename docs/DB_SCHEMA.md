@@ -16,6 +16,7 @@ Onerilen alanlar:
 - `name` text not null
 - `event_date` date null
 - `slug` text null
+- `access_code` text null unique
 - `created_at` timestamptz not null default now()
 - `expires_at` timestamptz null
 
@@ -90,6 +91,7 @@ create table if not exists public.events (
   name text not null,
   event_date date,
   slug text,
+  access_code text unique,
   created_at timestamptz not null default now(),
   expires_at timestamptz
 );
@@ -115,6 +117,9 @@ create index if not exists uploads_event_id_idx
 
 create index if not exists uploads_expires_at_idx
   on public.uploads (expires_at);
+
+create unique index if not exists events_access_code_idx
+  on public.events (access_code);
 ```
 
 ## Cleanup Query Draft
