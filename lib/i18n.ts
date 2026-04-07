@@ -57,6 +57,9 @@ type TranslationTree = {
     flowTitle: string
     flowText: string
     howItWorks: string
+    shareSite: string
+    shareReady: string
+    shareCopied: string
     points: string[]
     loading: string
   }
@@ -236,6 +239,9 @@ export const translations: Record<Locale, TranslationTree> = {
       flowText:
         'Misafir QR ile gelir, e-posta ve event code girer, sadece kendi etkinlik albumune yonlenir.',
       howItWorks: 'Nasil calisir',
+      shareSite: 'Sayfayi paylas',
+      shareReady: 'Paylasim ekrani acildi.',
+      shareCopied: 'Site linki panoya kopyalandi.',
       points: [
         'Her etkinligin kendi ozel event code bilgisi vardir',
         'Misafirler QR veya link ile girer, kodla dogrulanir',
@@ -471,6 +477,9 @@ export const translations: Record<Locale, TranslationTree> = {
       flowText:
         'Gasten komen binnen via QR, vullen e-mail en eventcode in en landen alleen in hun eigen evenementalbum.',
       howItWorks: 'Zo werkt het',
+      shareSite: 'Deel deze pagina',
+      shareReady: 'Deelscherm is geopend.',
+      shareCopied: 'Sitelink is naar het klembord gekopieerd.',
       points: [
         'Elk evenement krijgt een eigen eventcode',
         'Gasten worden via QR of link gecontroleerd',
@@ -706,6 +715,9 @@ export const translations: Record<Locale, TranslationTree> = {
       flowText:
         'Guests arrive via QR, enter email and event code, and land only inside their own event album.',
       howItWorks: 'How it works',
+      shareSite: 'Share this page',
+      shareReady: 'Share sheet opened.',
+      shareCopied: 'Site link copied to clipboard.',
       points: [
         'Every event gets its own event code',
         'Guests are checked through QR or a private link',
