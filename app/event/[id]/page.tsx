@@ -328,7 +328,6 @@ export default function Page() {
       <SiteHeader currentLabel={t.upload.badge} />
 
       {!guidanceAccepted ? (
-        <>
           <main className="flex-1 p-6">
             <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
               <section className="rounded-[2.2rem] border border-[#D4DFEE] bg-[rgba(255,248,239,0.98)] p-6 shadow-[0_18px_54px_rgba(15,61,102,0.14)] backdrop-blur md:p-8">
@@ -410,9 +409,6 @@ export default function Page() {
               </section>
             </div>
           </main>
-
-          <SiteFooter />
-        </>
       ) : (
       <main
         className="relative flex-1 bg-cover bg-center p-6"
