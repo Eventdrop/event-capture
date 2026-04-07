@@ -37,6 +37,7 @@ export default function AdminPage() {
   const [eventName, setEventName] = useState('')
   const [albumName, setAlbumName] = useState('')
   const [eventDate, setEventDate] = useState('')
+  const [accessCodeEnabled, setAccessCodeEnabled] = useState(false)
   const [accessCode, setAccessCode] = useState(() => generateEventAccessCode())
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('')
@@ -188,6 +189,7 @@ export default function AdminPage() {
         albumName,
         eventDate,
         accessCode,
+        accessCodeEnabled,
         coverImageUrl: persistedCoverImageUrl,
         backgroundImageUrl: persistedBackgroundImageUrl,
       })
@@ -202,6 +204,7 @@ export default function AdminPage() {
           albumName: payload.album_name,
           eventDate: payload.event_date,
           accessCode: payload.access_code,
+          accessCodeEnabled,
           coverImageUrl: payload.cover_image_url,
           backgroundImageUrl: payload.background_image_url,
         }),
@@ -249,6 +252,7 @@ export default function AdminPage() {
       setEventName('')
       setAlbumName('')
       setEventDate('')
+      setAccessCodeEnabled(false)
       setAccessCode(generateEventAccessCode())
       setCoverImageFile(null)
       setBackgroundImageFile(null)
@@ -446,11 +450,37 @@ export default function AdminPage() {
                   </div>
 
                   <div className="md:col-span-2">
+                    <div className="mb-3 flex items-center justify-between rounded-2xl border border-white/12 bg-white/8 px-4 py-3">
+                      <div>
+                        <p className="text-sm font-medium text-[#EAF3FB]">
+                          {t.admin.eventCodeToggle}
+                        </p>
+                        <p className="mt-1 text-xs leading-5 text-[#DDEAF7]">
+                          {accessCodeEnabled
+                            ? t.admin.eventCodeEnabledHelp
+                            : t.admin.eventCodeDisabledHelp}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setAccessCodeEnabled((current) => !current)}
+                        className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
+                          accessCodeEnabled
+                            ? 'bg-[#F58220] text-white'
+                            : 'bg-white text-[#0F3D66]'
+                        }`}
+                      >
+                        {accessCodeEnabled ? t.admin.toggleOn : t.admin.toggleOff}
+                      </button>
+                    </div>
+
                     <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
                       {t.admin.accessCodeField}
                     </label>
                     <div className="flex flex-col gap-3 sm:flex-row">
                       <input
+                        disabled={!accessCodeEnabled}
                         value={accessCode}
                         onChange={(event) =>
                           setAccessCode(normalizeEventAccessCode(event.target.value))
@@ -458,12 +488,21 @@ export default function AdminPage() {
                         placeholder="YUNA26"
                         autoCapitalize="characters"
                         autoCorrect="off"
-                        className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm uppercase tracking-[0.18em] text-[#0B2742] placeholder:text-[#7D95AF]"
+                        className={`w-full rounded-2xl border border-[#D4DFEE] px-4 py-3 text-sm uppercase tracking-[0.18em] placeholder:text-[#7D95AF] ${
+                          accessCodeEnabled
+                            ? 'bg-white text-[#0B2742]'
+                            : 'cursor-not-allowed bg-[#E7EDF4] text-[#7D95AF]'
+                        }`}
                       />
                       <button
                         type="button"
+                        disabled={!accessCodeEnabled}
                         onClick={() => setAccessCode(generateEventAccessCode())}
-                        className="rounded-full border border-white/20 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                        className={`rounded-full px-4 py-3 text-sm font-semibold ${
+                          accessCodeEnabled
+                            ? 'border border-white/20 text-white hover:bg-white/10'
+                            : 'cursor-not-allowed border border-white/10 text-[#9CB2C8]'
+                        }`}
                       >
                         {t.admin.regenerateCode}
                       </button>
@@ -634,7 +673,11 @@ export default function AdminPage() {
                     <p className="mt-1 text-sm font-semibold uppercase tracking-[0.18em] text-[#0F3D66]">
                       {t.admin.accessCodeLabel}: {event.accessCode}
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="mt-1 text-sm font-semibold text-[#6A84A3]">
+                      {t.admin.emailOnlyEntry}
+                    </p>
+                  )}
                   {event.eventDate ? (
                     <p className="mt-2 text-sm text-[#33516F]">
                       {t.common.eventDate}: {event.eventDate}

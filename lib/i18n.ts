@@ -47,6 +47,7 @@ type TranslationTree = {
     checkingAccess: string
     manualAccessHelp: string
     prefilledEvent: string
+    prefilledEventEmailOnly: string
     latestAlbumLabel: string
     latestAlbumReady: string
     noAlbum: string
@@ -80,6 +81,11 @@ type TranslationTree = {
     albumName: string
     accessCodeField: string
     accessCodeHelp: string
+    eventCodeToggle: string
+    eventCodeEnabledHelp: string
+    eventCodeDisabledHelp: string
+    toggleOn: string
+    toggleOff: string
     regenerateCode: string
     coverImage: string
     backgroundImage: string
@@ -110,6 +116,7 @@ type TranslationTree = {
     accessCodeLabel: string
     copyCodeButton: string
     codeCopied: string
+    emailOnlyEntry: string
   }
   upload: {
     badge: string
@@ -234,6 +241,8 @@ export const translations: Record<Locale, TranslationTree> = {
         'QR kodun yoksa e-posta ve event code ile yine kendi albumune girebilirsin.',
       prefilledEvent:
         'Bu baglanti belirli bir etkinlige ait. Devam etmek icin sadece e-posta ve event code girmen yeterli.',
+      prefilledEventEmailOnly:
+        'Bu baglanti belirli bir etkinlige ait. Devam etmek icin sadece e-posta girmen yeterli.',
       latestAlbumLabel: 'Misafir girisi',
       latestAlbumReady: 'Misafir girisi etkinlik kodu ile dogrulanir.',
       noAlbum:
@@ -277,6 +286,13 @@ export const translations: Record<Locale, TranslationTree> = {
       accessCodeField: 'Olusacak event code',
       accessCodeHelp:
         'Kod otomatik uretilir. Istersen olusturmadan once degistirebilir veya yenileyebilirsin.',
+      eventCodeToggle: 'Event code kullan',
+      eventCodeEnabledHelp:
+        'Aciksa ana sayfa girisinde ve bu etkinlikte event code kullanilir.',
+      eventCodeDisabledHelp:
+        'Kapaliysa QR veya ozel link ile gelen misafirler sadece e-posta ile girer.',
+      toggleOn: 'Acik',
+      toggleOff: 'Kapali',
       regenerateCode: 'Yeni kod uret',
       coverImage: 'Etkinlik gorseli',
       backgroundImage: 'Arka plan gorseli',
@@ -311,6 +327,7 @@ export const translations: Record<Locale, TranslationTree> = {
       accessCodeLabel: 'Event code',
       copyCodeButton: 'Kodu kopyala',
       codeCopied: 'Event code panoya kopyalandi.',
+      emailOnlyEntry: 'Yalnizca e-posta ile giris',
     },
     upload: {
       badge: 'Misafir yukleme sayfasi',
@@ -480,6 +497,8 @@ export const translations: Record<Locale, TranslationTree> = {
         'Heb je geen QR-code? Dan kun je nog steeds met e-mail en eventcode naar je eigen album.',
       prefilledEvent:
         'Deze link hoort al bij een specifiek evenement. Vul alleen je e-mail en eventcode in om verder te gaan.',
+      prefilledEventEmailOnly:
+        'Deze link hoort al bij een specifiek evenement. Vul alleen je e-mailadres in om verder te gaan.',
       latestAlbumLabel: 'Gasttoegang',
       latestAlbumReady: 'Gasttoegang wordt met een eventcode bevestigd.',
       noAlbum:
@@ -523,6 +542,13 @@ export const translations: Record<Locale, TranslationTree> = {
       accessCodeField: 'Eventcode',
       accessCodeHelp:
         'De code wordt automatisch gemaakt. Je kunt hem voor het opslaan aanpassen of vernieuwen.',
+      eventCodeToggle: 'Eventcode gebruiken',
+      eventCodeEnabledHelp:
+        'Als dit aan staat, gebruiken gasten op de homepage en handmatige toegang een eventcode.',
+      eventCodeDisabledHelp:
+        'Als dit uit staat, komen gasten via QR of privelink binnen met alleen hun e-mailadres.',
+      toggleOn: 'Aan',
+      toggleOff: 'Uit',
       regenerateCode: 'Nieuwe code',
       coverImage: 'Evenementfoto',
       backgroundImage: 'Achtergrondfoto',
@@ -557,6 +583,7 @@ export const translations: Record<Locale, TranslationTree> = {
       accessCodeLabel: 'Eventcode',
       copyCodeButton: 'Code kopieren',
       codeCopied: 'Eventcode is naar het klembord gekopieerd.',
+      emailOnlyEntry: 'Alleen toegang via e-mail',
     },
     upload: {
       badge: 'Upload door gasten',
@@ -726,6 +753,8 @@ export const translations: Record<Locale, TranslationTree> = {
         'No QR code available? You can still enter your own album with email and event code.',
       prefilledEvent:
         'This link already belongs to a specific event. Enter your email and event code to continue.',
+      prefilledEventEmailOnly:
+        'This link already belongs to a specific event. Enter only your email to continue.',
       latestAlbumLabel: 'Guest entry',
       latestAlbumReady: 'Guest access is confirmed with an event code.',
       noAlbum:
@@ -769,6 +798,13 @@ export const translations: Record<Locale, TranslationTree> = {
       accessCodeField: 'Generated event code',
       accessCodeHelp:
         'The code is generated automatically. You can edit or refresh it before creating the event.',
+      eventCodeToggle: 'Use event code',
+      eventCodeEnabledHelp:
+        'When enabled, guests on the homepage and manual access use an event code.',
+      eventCodeDisabledHelp:
+        'When disabled, guests entering via QR or private link continue with email only.',
+      toggleOn: 'On',
+      toggleOff: 'Off',
       regenerateCode: 'Generate new code',
       coverImage: 'Event cover image',
       backgroundImage: 'Background image',
@@ -803,6 +839,7 @@ export const translations: Record<Locale, TranslationTree> = {
       accessCodeLabel: 'Event code',
       copyCodeButton: 'Copy code',
       codeCopied: 'Event code copied to clipboard.',
+      emailOnlyEntry: 'Email-only access',
     },
     upload: {
       badge: 'Guest upload page',

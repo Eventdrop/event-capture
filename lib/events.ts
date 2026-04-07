@@ -69,7 +69,12 @@ export function deriveLegacyEventAccessCode(id?: string | null) {
 export function deriveEventAccessCode(
   record: Pick<EventRecordLike, 'id' | 'access_code'>
 ) {
-  return normalizeEventAccessCode(record.access_code || '') || deriveLegacyEventAccessCode(record.id)
+  if (record.access_code === null) return ''
+
+  return (
+    normalizeEventAccessCode(record.access_code || '') ||
+    deriveLegacyEventAccessCode(record.id)
+  )
 }
 
 export function buildEventInsertPayload(input: {
@@ -77,11 +82,14 @@ export function buildEventInsertPayload(input: {
   albumName: string
   eventDate?: string
   accessCode?: string
+  accessCodeEnabled?: boolean
   coverImageUrl?: string
   backgroundImageUrl?: string
 }) {
   const now = new Date()
-  const accessCode = normalizeEventAccessCode(input.accessCode || generateEventAccessCode())
+  const accessCode = input.accessCodeEnabled === false
+    ? null
+    : normalizeEventAccessCode(input.accessCode || generateEventAccessCode())
   const slugBase = slugifyEventName(`${input.name}-${input.albumName}`) || 'eventdrop-event'
   const expiresAt = addHours(now, 48).toISOString()
 
@@ -114,6 +122,10 @@ export function normalizeEventRecord(
     createdAt: record.created_at || null,
     expiresAt: record.expires_at || null,
   }
+}
+
+export function isEventCodeEnabled(event: Pick<NormalizedEvent, 'accessCode'>) {
+  return Boolean(event.accessCode)
 }
 
 export function formatEventDisplayName(event: Pick<NormalizedEvent, 'name' | 'albumName'>) {

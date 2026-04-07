@@ -8,12 +8,14 @@ type EventAccessFormProps = {
   eventIdentifier?: string
   returnTo?: string
   compact?: boolean
+  requireCode?: boolean
 }
 
 export function EventAccessForm({
   eventIdentifier = '',
   returnTo = '',
   compact = false,
+  requireCode = true,
 }: EventAccessFormProps) {
   const router = useRouter()
   const { t } = useLanguage()
@@ -30,7 +32,7 @@ export function EventAccessForm({
       return
     }
 
-    if (!code.trim()) {
+    if (requireCode && !code.trim()) {
       setStatusMessage(t.home.codeRequired)
       return
     }
@@ -98,18 +100,20 @@ export function EventAccessForm({
         }`}
       />
 
-      <input
-        value={code}
-        onChange={(event) => setCode(event.target.value.toUpperCase())}
-        placeholder={t.home.codeLabel}
-        autoCapitalize="characters"
-        autoCorrect="off"
-        className={`w-full rounded-full border text-[#191511] transition-colors outline-none focus:bg-[#f2e2cf] focus:ring-0 ${
-          compact
-            ? 'border-[#d7c5af] bg-[rgba(255,248,239,0.46)] px-3 py-1.5 text-[11px] uppercase tracking-[0.08em] placeholder:text-[#6f6256]'
-            : 'border-[#191511] bg-[#FF9B42] px-6 py-4 text-sm font-medium uppercase tracking-[0.28em] text-center placeholder:text-[#191511]'
-        }`}
-      />
+      {requireCode ? (
+        <input
+          value={code}
+          onChange={(event) => setCode(event.target.value.toUpperCase())}
+          placeholder={t.home.codeLabel}
+          autoCapitalize="characters"
+          autoCorrect="off"
+          className={`w-full rounded-full border text-[#191511] transition-colors outline-none focus:bg-[#f2e2cf] focus:ring-0 ${
+            compact
+              ? 'border-[#d7c5af] bg-[rgba(255,248,239,0.46)] px-3 py-1.5 text-[11px] uppercase tracking-[0.08em] placeholder:text-[#6f6256]'
+              : 'border-[#191511] bg-[#FF9B42] px-6 py-4 text-sm font-medium uppercase tracking-[0.28em] text-center placeholder:text-[#191511]'
+          }`}
+        />
+      ) : null}
 
       <button
         type="submit"
@@ -134,7 +138,11 @@ export function EventAccessForm({
           compact ? 'text-[9px] tracking-[0.08em]' : 'text-xs tracking-[0.16em]'
         }`}
       >
-        {eventIdentifier ? t.home.prefilledEvent : statusMessage}
+        {eventIdentifier
+          ? requireCode
+            ? t.home.prefilledEvent
+            : t.home.prefilledEventEmailOnly
+          : statusMessage}
       </p>
     </form>
   )
