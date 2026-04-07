@@ -12,6 +12,7 @@ import {
   getDownloadFileName,
   inferMediaKind,
   isExpired,
+  getUploadShareKey,
   type UploadRecord,
 } from '@/lib/eventdrop'
 import { formatEventDisplayName, normalizeEventRecord } from '@/lib/events'
@@ -171,7 +172,7 @@ export default function Page() {
   }
 
   const handleShare = async (item: UploadRecord) => {
-    const shareUrl = getPublicMediaUrl(item.id)
+    const shareUrl = getPublicMediaUrl(getUploadShareKey(item))
     const shareData = {
       title: eventName,
       text: getDownloadFileName(item),
