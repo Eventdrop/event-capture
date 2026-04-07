@@ -8,14 +8,6 @@ import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
 import { placeholderVisuals } from '@/lib/event-visuals'
 
-function PosterTile({ src }: { src: string }) {
-  return (
-    <div className="relative h-40 overflow-hidden rounded-[1.2rem] sm:h-44">
-      <Image src={src} alt="" fill unoptimized className="object-cover" />
-    </div>
-  )
-}
-
 export default function Home() {
   const { t } = useLanguage()
 
@@ -48,10 +40,14 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="mt-5 grid grid-cols-3 gap-2.5">
-                  <PosterTile src={placeholderVisuals.coverOne} />
-                  <PosterTile src={placeholderVisuals.coverTwo} />
-                  <PosterTile src={placeholderVisuals.coverThree} />
+                <div className="relative mt-5 h-[220px] overflow-hidden rounded-[1.4rem] sm:h-[260px]">
+                  <Image
+                    src={placeholderVisuals.homeStrip}
+                    alt=""
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
                 </div>
 
                 <p className="mt-5 text-center text-[11px] uppercase tracking-[0.28em] text-[#8b8175]">

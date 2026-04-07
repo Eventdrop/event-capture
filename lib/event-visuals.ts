@@ -1,8 +1,8 @@
 import type { NormalizedEvent } from '@/lib/events'
 
 export const placeholderVisuals = {
-  homeBackground:
-    'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80',
+  homeBackground: '/home-hero-fun.jpg',
+  homeStrip: '/home-strip-fun.jpg',
   eventBackground:
     'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80',
   galleryBackground:
