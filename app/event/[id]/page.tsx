@@ -2,12 +2,12 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
-import { getPublicAppUrl } from '@/lib/app-url'
+import { getPublicAppUrl, getPublicPath } from '@/lib/app-url'
 import {
   addHours,
   buildStoragePath,
@@ -23,7 +23,6 @@ const BUCKET_NAME = 'event-uploads'
 export default function Page() {
   const { t } = useLanguage()
   const params = useParams()
-  const router = useRouter()
   const eventIdentifier = params.id as string
   const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -128,6 +127,21 @@ export default function Page() {
   const uploadUrl = useMemo(() => {
     return `${getPublicAppUrl()}/event/${eventIdentifier}`
   }, [eventIdentifier])
+
+  const galleryUrl = useMemo(
+    () => getPublicPath(`/event/${eventIdentifier}/gallery`),
+    [eventIdentifier]
+  )
+
+  const termsUrl = useMemo(
+    () => getPublicPath(`/terms?returnTo=${encodeURIComponent(`/event/${eventIdentifier}`)}`),
+    [eventIdentifier]
+  )
+
+  const privacyUrl = useMemo(
+    () => getPublicPath(`/privacy?returnTo=${encodeURIComponent(`/event/${eventIdentifier}`)}`),
+    [eventIdentifier]
+  )
 
   const acceptedFiles = useMemo(
     () => selectedFiles.filter((file) => getMediaKind(file) !== null),
@@ -312,7 +326,7 @@ export default function Page() {
 
       setMessage(t.upload.uploadComplete)
       resetSelection({ keepMessage: true })
-      router.push(`/event/${eventIdentifier}/gallery`)
+      window.location.assign(galleryUrl)
     } catch (error) {
       console.error('Upload failed', error)
       setMessage(
@@ -373,14 +387,14 @@ export default function Page() {
                   <p className="mt-4 text-sm leading-7 text-[#597594]">
                     {t.upload.consentLinks}{' '}
                     <Link
-                      href="/terms"
+                      href={termsUrl}
                       className="font-medium text-[#0F3D66] underline decoration-[#C8D3E5] underline-offset-4"
                     >
                       {t.common.terms}
                     </Link>{' '}
                     ·{' '}
                     <Link
-                      href="/privacy"
+                      href={privacyUrl}
                       className="font-medium text-[#0F3D66] underline decoration-[#C8D3E5] underline-offset-4"
                     >
                       {t.common.privacy}
@@ -545,7 +559,7 @@ export default function Page() {
               </button>
 
               <Link
-                href={`/event/${eventIdentifier}/gallery`}
+                href={galleryUrl}
                 className="w-full rounded-full border border-[#C8D3E5] bg-white px-5 py-3 text-center text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] sm:w-auto"
               >
                 {t.upload.viewGallery}

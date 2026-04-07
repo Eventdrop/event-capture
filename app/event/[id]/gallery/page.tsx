@@ -7,7 +7,7 @@ import { useParams } from 'next/navigation'
 import { useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
-import { getPublicMediaUrl } from '@/lib/app-url'
+import { getPublicMediaUrl, getPublicPath } from '@/lib/app-url'
 import {
   getDownloadFileName,
   inferMediaKind,
@@ -135,6 +135,11 @@ export default function Page() {
   const selectedItems = useMemo(
     () => items.filter((item) => selected.includes(item.id)),
     [items, selected]
+  )
+
+  const uploadPageUrl = useMemo(
+    () => getPublicPath(`/event/${eventIdentifier}`),
+    [eventIdentifier]
   )
 
   const toggleSelect = (id: string) => {
@@ -286,7 +291,7 @@ export default function Page() {
             </button>
 
             <Link
-              href={`/event/${eventIdentifier}`}
+              href={uploadPageUrl}
               className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-5 py-3 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
             >
               {t.gallery.backToUpload}
