@@ -115,6 +115,7 @@ type TranslationTree = {
     consentHelp: string
     consentRequired: string
     consentLinks: string
+    consentButton: string
     uploadLabel: string
     namingLabel: string
     namingText: string
@@ -318,6 +319,7 @@ export const translations: Record<Locale, TranslationTree> = {
         'Devam etmek icin once yukleme kurallarini onayla.',
       consentLinks:
         'Devam ederek kullanim sartlarini ve gizlilik bilgisini de kabul ettigini beyan edersin.',
+      consentButton: 'Devam et',
       uploadLabel: 'Yukleme',
       namingLabel: 'Isimlendirme',
       namingText: 'Dosyalar tarih bazli klasorler altinda tutulur.',
@@ -556,6 +558,7 @@ export const translations: Record<Locale, TranslationTree> = {
         'Bevestig eerst de uploadregels om verder te gaan.',
       consentLinks:
         'Door verder te gaan bevestig je ook dat je de gebruiksvoorwaarden en privacyinformatie hebt gelezen.',
+      consentButton: 'Verdergaan',
       uploadLabel: 'Upload',
       namingLabel: 'Naamstructuur',
       namingText: 'Bestanden worden in mappen met datumindeling opgeslagen.',
@@ -794,6 +797,7 @@ export const translations: Record<Locale, TranslationTree> = {
         'Please confirm the upload rules before continuing.',
       consentLinks:
         'By continuing, you also confirm that you have read the terms and privacy notice.',
+      consentButton: 'Continue',
       uploadLabel: 'Upload',
       namingLabel: 'Naming',
       namingText: 'Files are stored inside date-based folders.',
