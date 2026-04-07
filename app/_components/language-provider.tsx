@@ -17,36 +17,13 @@ type LanguageContextValue = {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null)
 
-const STORAGE_KEY = 'eventdrop-locale'
-
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>(() => {
-    if (typeof window === 'undefined') {
-      return 'nl'
-    }
-
-    const stored = window.localStorage.getItem(STORAGE_KEY) as Locale | null
-
-    if (stored && locales.includes(stored)) {
-      return stored
-    }
-
-    const browserLocale = navigator.language.toLowerCase()
-
-    if (browserLocale.startsWith('tr')) {
-      return 'tr'
-    }
-
-    if (browserLocale.startsWith('nl')) {
-      return 'nl'
-    }
-
-    return 'en'
-  })
+  const [locale, setLocale] = useState<Locale>('nl')
 
   const handleSetLocale = (nextLocale: Locale) => {
-    setLocale(nextLocale)
-    window.localStorage.setItem(STORAGE_KEY, nextLocale)
+    if (locales.includes(nextLocale)) {
+      setLocale(nextLocale)
+    }
   }
 
   const value = useMemo(
