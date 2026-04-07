@@ -55,10 +55,11 @@ export async function POST(request: Request) {
     | {
         name?: string
         albumName?: string
-        eventDate?: string
-        accessCode?: string
-        coverImageUrl?: string
-        backgroundImageUrl?: string
+      eventDate?: string
+      accessCode?: string
+      accessCodeEnabled?: boolean
+      coverImageUrl?: string
+      backgroundImageUrl?: string
       }
     | null
 
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
   const albumName = body?.albumName?.trim() || ''
   const eventDate = body?.eventDate || ''
   const accessCode = body?.accessCode?.trim() || ''
+  const accessCodeEnabled = body?.accessCodeEnabled !== false
   const coverImageUrl = body?.coverImageUrl?.trim() || ''
   const backgroundImageUrl = body?.backgroundImageUrl?.trim() || ''
 
@@ -86,6 +88,7 @@ export async function POST(request: Request) {
       albumName,
       eventDate,
       accessCode,
+      accessCodeEnabled,
       coverImageUrl,
       backgroundImageUrl,
     })

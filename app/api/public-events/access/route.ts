@@ -43,16 +43,6 @@ export async function POST(request: Request) {
     )
   }
 
-  if (!code) {
-    return NextResponse.json(
-      {
-        ok: false,
-        errorCode: 'MISSING_CODE',
-      },
-      { status: 400 }
-    )
-  }
-
   try {
     const supabase = createAdminSupabaseClient()
     const { data, error } = await supabase
@@ -70,18 +60,36 @@ export async function POST(request: Request) {
       .filter((item): item is NormalizedEvent => Boolean(item))
       .filter(isEventActive)
 
-    const matchedEvent = events.find((event) => {
-      const identifierMatches =
-        !identifier || event.id === identifier || event.slug === identifier
+    const eventByIdentifier = identifier
+      ? events.find((event) => event.id === identifier || event.slug === identifier)
+      : null
 
-      return identifierMatches && event.accessCode === code
-    })
+    if (!identifier && !code) {
+      return NextResponse.json(
+        {
+          ok: false,
+          errorCode: 'MISSING_CODE',
+        },
+        { status: 400 }
+      )
+    }
+
+    const matchedEvent = identifier
+      ? eventByIdentifier && (!eventByIdentifier.accessCode || eventByIdentifier.accessCode === code)
+        ? eventByIdentifier
+        : null
+      : events.find((event) => event.accessCode && event.accessCode === code)
 
     if (!matchedEvent) {
       return NextResponse.json(
         {
           ok: false,
-          errorCode: 'INVALID_CODE',
+          errorCode:
+            identifier && eventByIdentifier?.accessCode
+              ? 'INVALID_CODE'
+              : identifier
+                ? 'INVALID_EVENT'
+                : 'INVALID_CODE',
         },
         { status: 404 }
       )
