@@ -10,6 +10,15 @@ export function LegalPage() {
   const { t } = useLanguage()
   const router = useRouter()
 
+  const handleBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back()
+      return
+    }
+
+    router.push('/')
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#edf4fb_100%)]">
       <SiteHeader currentLabel={`${t.common.terms} & ${t.common.privacy}`} />
@@ -19,7 +28,7 @@ export function LegalPage() {
           <div className="mb-4 flex items-center justify-between gap-3">
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={handleBack}
               className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-[#F7FAFD] px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-white"
             >
               {t.common.back}
@@ -97,7 +106,7 @@ export function LegalPage() {
         <section className="pb-4">
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={handleBack}
             className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(245,130,32,0.22)] hover:bg-[#DB6E12]"
           >
             {t.legal.acknowledge}
