@@ -14,6 +14,8 @@ type TranslationTree = {
     eventId: string
     eventDate: string
     guestEntryPage: string
+    terms: string
+    privacy: string
     uploadPage: string
     gallery: string
     copyUploadLink: string
@@ -109,6 +111,7 @@ type TranslationTree = {
     consentLabel: string
     consentHelp: string
     consentRequired: string
+    consentLinks: string
     uploadLabel: string
     namingLabel: string
     namingText: string
@@ -165,6 +168,14 @@ type TranslationTree = {
     photo: string
     video: string
   }
+  legal: {
+    termsTitle: string
+    termsIntro: string
+    termsSections: { title: string; points: string[] }[]
+    privacyTitle: string
+    privacyIntro: string
+    privacySections: { title: string; points: string[] }[]
+  }
 }
 
 export const translations: Record<Locale, TranslationTree> = {
@@ -174,6 +185,8 @@ export const translations: Record<Locale, TranslationTree> = {
       eventId: 'Etkinlik ID',
       eventDate: 'Etkinlik tarihi',
       guestEntryPage: 'Misafir girisi',
+      terms: 'Kullanim sartlari',
+      privacy: 'Gizlilik',
       uploadPage: 'Yukleme sayfasi',
       gallery: 'Galeri',
       copyUploadLink: 'Misafir giris linkini kopyala',
@@ -297,6 +310,8 @@ export const translations: Record<Locale, TranslationTree> = {
         'Onay vermeden dosya secimi ve yukleme acilmaz.',
       consentRequired:
         'Devam etmek icin once yukleme kurallarini onayla.',
+      consentLinks:
+        'Devam ederek kullanim sartlarini ve gizlilik bilgisini de kabul ettigini beyan edersin.',
       uploadLabel: 'Yukleme',
       namingLabel: 'Isimlendirme',
       namingText: 'Dosyalar tarih bazli klasorler altinda tutulur.',
@@ -354,6 +369,50 @@ export const translations: Record<Locale, TranslationTree> = {
       photo: 'Fotograf',
       video: 'Video',
     },
+    legal: {
+      termsTitle: 'Kullanim Sartlari',
+      termsIntro:
+        'Bu etkinlik albumunu kullanarak asagidaki kurallari kabul etmis olursun.',
+      termsSections: [
+        {
+          title: 'Icerik sorumlulugu',
+          points: [
+            'Yukledigin fotograf ve videolari paylasma hakkina sahip oldugunu beyan edersin.',
+            'Kucuk dusurucu, iftira niteliginde, nefret iceren, siddeti tesvik eden veya yasa disi icerik yukleyemezsin.',
+            'Baska kisilerin mahremiyetini ihlal eden veya acikca rahatsizlik verecek icerikler kaldirilabilir.',
+          ],
+        },
+        {
+          title: 'Hizmet kurali',
+          points: [
+            'Albumler etkinlik bazlidir ve icerikler varsayilan olarak 48 saat tutulur.',
+            'Sistemin kotuye kullanildigi durumlarda icerikler uyarısiz kaldirilabilir.',
+            'Gerekli oldugunda erisim kisitlanabilir veya album kapatilabilir.',
+          ],
+        },
+      ],
+      privacyTitle: 'Gizlilik Bilgisi',
+      privacyIntro:
+        'Bu sayfa, e-posta adresi ve yukledigin medya gibi kisisel verilerin nasil ele alindigini ozetler.',
+      privacySections: [
+        {
+          title: 'Toplanan veriler',
+          points: [
+            'E-posta adresi, etkinlige erisim saglamak ve gerekli durumlarda iletisim kurmak icin islenir.',
+            'Yuklenen fotograf ve videolar ilgili etkinlik albumunde saklanir.',
+            'Teknik loglar guvenlik ve hata ayiklama amaclariyla kisa sureli tutulabilir.',
+          ],
+        },
+        {
+          title: 'Amac ve saklama',
+          points: [
+            'Veriler etkinlik albumunu sunmak, paylasim saglamak ve kotuye kullanimi onlemek icin kullanilir.',
+            'Medya varsayilan olarak 48 saat sonunda silinir.',
+            'GDPR kapsaminda bilgi alma, duzeltme ve silme talebi icin iletisim bilgilerini kullanabilirsin.',
+          ],
+        },
+      ],
+    },
   },
   nl: {
     common: {
@@ -361,6 +420,8 @@ export const translations: Record<Locale, TranslationTree> = {
       eventId: 'Evenement-ID',
       eventDate: 'Evenementdatum',
       guestEntryPage: 'Gasttoegang',
+      terms: 'Gebruiksvoorwaarden',
+      privacy: 'Privacy',
       uploadPage: 'Uploadpagina',
       gallery: 'Galerij',
       copyUploadLink: 'Toegangslink kopieren',
@@ -484,6 +545,8 @@ export const translations: Record<Locale, TranslationTree> = {
         'Zonder akkoord blijven bestandsselectie en upload uitgeschakeld.',
       consentRequired:
         'Bevestig eerst de uploadregels om verder te gaan.',
+      consentLinks:
+        'Door verder te gaan bevestig je ook dat je de gebruiksvoorwaarden en privacyinformatie hebt gelezen.',
       uploadLabel: 'Upload',
       namingLabel: 'Naamstructuur',
       namingText: 'Bestanden worden in mappen met datumindeling opgeslagen.',
@@ -541,6 +604,50 @@ export const translations: Record<Locale, TranslationTree> = {
       photo: 'Foto',
       video: 'Video',
     },
+    legal: {
+      termsTitle: 'Gebruiksvoorwaarden',
+      termsIntro:
+        'Door dit evenementalbum te gebruiken ga je akkoord met de onderstaande regels.',
+      termsSections: [
+        {
+          title: 'Verantwoordelijkheid voor inhoud',
+          points: [
+            'Je bevestigt dat je de foto’s en video’s die je upload mag delen.',
+            'Je mag geen vernederende, lasterlijke, haatdragende, gewelddadige of onwettige inhoud uploaden.',
+            'Inhoud die de privacy van anderen schendt of duidelijk ongepast is, kan worden verwijderd.',
+          ],
+        },
+        {
+          title: 'Dienstregels',
+          points: [
+            'Albums zijn evenementgebonden en inhoud wordt standaard 48 uur bewaard.',
+            'Bij misbruik kan inhoud zonder voorafgaande waarschuwing worden verwijderd.',
+            'Toegang kan worden beperkt of een album kan worden gesloten als dat nodig is.',
+          ],
+        },
+      ],
+      privacyTitle: 'Privacyinformatie',
+      privacyIntro:
+        'Deze pagina vat samen hoe persoonlijke gegevens, zoals je e-mailadres en geuploade media, worden verwerkt.',
+      privacySections: [
+        {
+          title: 'Welke gegevens we verwerken',
+          points: [
+            'Je e-mailadres wordt gebruikt om toegang tot het evenement te beheren en je indien nodig te kunnen bereiken.',
+            'Geüploade foto’s en video’s worden opgeslagen in het album van het betreffende evenement.',
+            'Technische logs kunnen kort worden bewaard voor beveiliging en foutopsporing.',
+          ],
+        },
+        {
+          title: 'Doel en bewaartermijn',
+          points: [
+            'Gegevens worden gebruikt om het evenementalbum te leveren, delen mogelijk te maken en misbruik te voorkomen.',
+            'Media wordt standaard na 48 uur verwijderd.',
+            'Je kunt via de contactgegevens een verzoek doen om inzage, correctie of verwijdering onder de AVG.',
+          ],
+        },
+      ],
+    },
   },
   en: {
     common: {
@@ -548,6 +655,8 @@ export const translations: Record<Locale, TranslationTree> = {
       eventId: 'Event ID',
       eventDate: 'Event date',
       guestEntryPage: 'Guest entry',
+      terms: 'Terms',
+      privacy: 'Privacy',
       uploadPage: 'Upload page',
       gallery: 'Gallery',
       copyUploadLink: 'Copy guest entry link',
@@ -671,6 +780,8 @@ export const translations: Record<Locale, TranslationTree> = {
         'File selection and upload stay disabled until you agree.',
       consentRequired:
         'Please confirm the upload rules before continuing.',
+      consentLinks:
+        'By continuing, you also confirm that you have read the terms and privacy notice.',
       uploadLabel: 'Upload',
       namingLabel: 'Naming',
       namingText: 'Files are stored inside date-based folders.',
@@ -727,6 +838,50 @@ export const translations: Record<Locale, TranslationTree> = {
       uploadTimeUnavailable: 'Upload time unavailable',
       photo: 'Photo',
       video: 'Video',
+    },
+    legal: {
+      termsTitle: 'Terms',
+      termsIntro:
+        'By using this event album, you agree to the rules below.',
+      termsSections: [
+        {
+          title: 'Content responsibility',
+          points: [
+            'You confirm that you have the right to share the photos and videos you upload.',
+            'You must not upload humiliating, defamatory, hateful, violent, or illegal content.',
+            'Content that violates the privacy of others or is clearly inappropriate may be removed.',
+          ],
+        },
+        {
+          title: 'Service rules',
+          points: [
+            'Albums are event-specific and content is normally kept for 48 hours.',
+            'Content may be removed without prior notice in case of misuse.',
+            'Access may be restricted or an album may be closed when necessary.',
+          ],
+        },
+      ],
+      privacyTitle: 'Privacy Notice',
+      privacyIntro:
+        'This page summarizes how personal data such as your email address and uploaded media is handled.',
+      privacySections: [
+        {
+          title: 'Data we process',
+          points: [
+            'Your email address is used to manage event access and contact you if needed.',
+            'Uploaded photos and videos are stored inside the relevant event album.',
+            'Technical logs may be retained briefly for security and troubleshooting.',
+          ],
+        },
+        {
+          title: 'Purpose and retention',
+          points: [
+            'Data is used to provide the event album, enable sharing, and prevent misuse.',
+            'Media is normally deleted after 48 hours.',
+            'You can use the contact details to request access, correction, or deletion under GDPR.',
+          ],
+        },
+      ],
     },
   },
 }
