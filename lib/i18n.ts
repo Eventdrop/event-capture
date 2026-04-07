@@ -16,6 +16,7 @@ type TranslationTree = {
     guestEntryPage: string
     terms: string
     privacy: string
+    back: string
     uploadPage: string
     gallery: string
     copyUploadLink: string
@@ -191,6 +192,7 @@ export const translations: Record<Locale, TranslationTree> = {
       guestEntryPage: 'Misafir girisi',
       terms: 'Kullanim sartlari',
       privacy: 'Gizlilik',
+      back: 'Geri don',
       uploadPage: 'Yukleme sayfasi',
       gallery: 'Galeri',
       copyUploadLink: 'Misafir giris linkini kopyala',
@@ -430,6 +432,7 @@ export const translations: Record<Locale, TranslationTree> = {
       guestEntryPage: 'Gasttoegang',
       terms: 'Gebruiksvoorwaarden',
       privacy: 'Privacy',
+      back: 'Terug',
       uploadPage: 'Uploadpagina',
       gallery: 'Galerij',
       copyUploadLink: 'Toegangslink kopieren',
@@ -669,6 +672,7 @@ export const translations: Record<Locale, TranslationTree> = {
       guestEntryPage: 'Guest entry',
       terms: 'Terms',
       privacy: 'Privacy',
+      back: 'Back',
       uploadPage: 'Upload page',
       gallery: 'Gallery',
       copyUploadLink: 'Copy guest entry link',

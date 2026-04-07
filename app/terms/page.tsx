@@ -1,11 +1,14 @@
 'use client'
 
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
 
 export default function TermsPage() {
   const { t } = useLanguage()
+  const router = useRouter()
 
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#edf4fb_100%)]">
@@ -13,6 +16,23 @@ export default function TermsPage() {
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-6 py-12 md:px-10">
         <section className="rounded-[2rem] border border-[#D4DFEE] bg-white/88 p-7 shadow-[0_18px_54px_rgba(15,61,102,0.08)]">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-[#F7FAFD] px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-white"
+            >
+              {t.common.back}
+            </button>
+
+            <Link
+              href="/"
+              className="text-sm font-medium text-[#597594] underline decoration-[#C8D3E5] underline-offset-4"
+            >
+              EventDrop
+            </Link>
+          </div>
+
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
             {t.common.terms}
           </p>
