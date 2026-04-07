@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useLanguage } from '@/app/_components/language-provider'
 import { brand } from '@/lib/brand'
 
@@ -30,6 +31,20 @@ export function SiteFooter() {
           <p>
             {brand.phone} · {brand.location}
           </p>
+          <div className="mt-2 flex flex-wrap gap-3 text-xs text-[#597594] md:justify-end">
+            <Link
+              href="/terms"
+              className="underline decoration-[#C8D3E5] underline-offset-4 hover:text-[#0F3D66]"
+            >
+              {t.common.terms}
+            </Link>
+            <Link
+              href="/privacy"
+              className="underline decoration-[#C8D3E5] underline-offset-4 hover:text-[#0F3D66]"
+            >
+              {t.common.privacy}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
