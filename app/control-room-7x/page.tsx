@@ -11,9 +11,11 @@ import { brand } from '@/lib/brand'
 import {
   buildEventInsertPayload,
   formatEventDisplayName,
+  generateEventAccessCode,
   getEventGalleryRoute,
   getEventJoinRoute,
   getEventRoute,
+  normalizeEventAccessCode,
   normalizeEventRecord,
   type NormalizedEvent,
 } from '@/lib/events'
@@ -35,6 +37,7 @@ export default function AdminPage() {
   const [eventName, setEventName] = useState('')
   const [albumName, setAlbumName] = useState('')
   const [eventDate, setEventDate] = useState('')
+  const [accessCode, setAccessCode] = useState(() => generateEventAccessCode())
 
   const publicBaseUrl = getPublicAppUrl()
 
@@ -169,6 +172,7 @@ export default function AdminPage() {
         name: eventName,
         albumName,
         eventDate,
+        accessCode,
       })
 
       const response = await fetch('/api/admin/events', {
@@ -180,6 +184,7 @@ export default function AdminPage() {
           name: payload.name,
           albumName: payload.album_name,
           eventDate: payload.event_date,
+          accessCode: payload.access_code,
         }),
       })
 
@@ -202,6 +207,7 @@ export default function AdminPage() {
       setEventName('')
       setAlbumName('')
       setEventDate('')
+      setAccessCode(generateEventAccessCode())
       setStatusMessage(t.admin.createSuccess)
     } catch (error) {
       console.error('Event creation failed', error)
@@ -348,6 +354,34 @@ export default function AdminPage() {
                       onChange={(event) => setEventDate(event.target.value)}
                       className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white"
                     />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                      {t.admin.accessCodeField}
+                    </label>
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <input
+                        value={accessCode}
+                        onChange={(event) =>
+                          setAccessCode(normalizeEventAccessCode(event.target.value))
+                        }
+                        placeholder="YUNA26"
+                        autoCapitalize="characters"
+                        autoCorrect="off"
+                        className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm uppercase tracking-[0.18em] text-white placeholder:text-[#ADC3DA]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setAccessCode(generateEventAccessCode())}
+                        className="rounded-full border border-white/20 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                      >
+                        {t.admin.regenerateCode}
+                      </button>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-[#DDEAF7]">
+                      {t.admin.accessCodeHelp}
+                    </p>
                   </div>
                 </div>
 

@@ -72,6 +72,9 @@ type TranslationTree = {
     createTitle: string
     eventName: string
     albumName: string
+    accessCodeField: string
+    accessCodeHelp: string
+    regenerateCode: string
     createButton: string
     saving: string
     noEvents: string
@@ -236,6 +239,10 @@ export const translations: Record<Locale, TranslationTree> = {
       createTitle: 'Son public album burada yonetilir.',
       eventName: 'Etkinlik adi',
       albumName: 'Album adi',
+      accessCodeField: 'Olusacak event code',
+      accessCodeHelp:
+        'Kod otomatik uretilir. Istersen olusturmadan once degistirebilir veya yenileyebilirsin.',
+      regenerateCode: 'Yeni kod uret',
       createButton: 'Etkinlik albumu olustur',
       saving: 'Kaydediliyor...',
       noEvents:
@@ -404,6 +411,10 @@ export const translations: Record<Locale, TranslationTree> = {
       createTitle: 'Hier beheer je het nieuwste publieke album.',
       eventName: 'Naam van het evenement',
       albumName: 'Naam van het album',
+      accessCodeField: 'Eventcode',
+      accessCodeHelp:
+        'De code wordt automatisch gemaakt. Je kunt hem voor het opslaan aanpassen of vernieuwen.',
+      regenerateCode: 'Nieuwe code',
       createButton: 'Evenementalbum aanmaken',
       saving: 'Opslaan...',
       noEvents:
@@ -572,6 +583,10 @@ export const translations: Record<Locale, TranslationTree> = {
       createTitle: 'Manage the latest public album from here.',
       eventName: 'Event name',
       albumName: 'Album name',
+      accessCodeField: 'Generated event code',
+      accessCodeHelp:
+        'The code is generated automatically. You can edit or refresh it before creating the event.',
+      regenerateCode: 'Generate new code',
       createButton: 'Create event album',
       saving: 'Saving...',
       noEvents:
