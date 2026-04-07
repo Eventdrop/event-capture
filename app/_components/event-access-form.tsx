@@ -11,6 +11,10 @@ type EventAccessFormProps = {
   requireCode?: boolean
 }
 
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+}
+
 export function EventAccessForm({
   eventIdentifier = '',
   returnTo = '',
@@ -26,7 +30,7 @@ export function EventAccessForm({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    if (!email.trim()) {
+    if (!email.trim() || !isValidEmail(email)) {
       setStatusMessage(t.home.emailRequired)
       return
     }
@@ -85,13 +89,18 @@ export function EventAccessForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={compact ? 'space-y-2.5' : 'space-y-4'}>
+    <form noValidate onSubmit={handleSubmit} className={compact ? 'space-y-2.5' : 'space-y-4'}>
       <input
-        type="email"
+        type="text"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder={t.home.emailLabel}
         autoComplete="email"
+        inputMode="email"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        aria-invalid={Boolean(email.trim()) && !isValidEmail(email)}
         className={`w-full rounded-full border text-[#191511] transition-colors outline-none placeholder:text-[#6f6256] focus:bg-[#f2e2cf] focus:ring-0 ${
           compact
             ? 'border-[#d7c5af] bg-[rgba(255,248,239,0.46)] px-3 py-1.5 text-[11px]'
