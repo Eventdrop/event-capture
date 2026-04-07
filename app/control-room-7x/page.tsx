@@ -38,6 +38,9 @@ export default function AdminPage() {
   const [albumName, setAlbumName] = useState('')
   const [eventDate, setEventDate] = useState('')
   const [accessCode, setAccessCode] = useState(() => generateEventAccessCode())
+  const [coverImageUrl, setCoverImageUrl] = useState('')
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState('')
+  const [uploadingVisual, setUploadingVisual] = useState<'cover' | 'background' | null>(null)
 
   const publicBaseUrl = getPublicAppUrl()
 
@@ -173,6 +176,8 @@ export default function AdminPage() {
         albumName,
         eventDate,
         accessCode,
+        coverImageUrl,
+        backgroundImageUrl,
       })
 
       const response = await fetch('/api/admin/events', {
@@ -185,6 +190,8 @@ export default function AdminPage() {
           albumName: payload.album_name,
           eventDate: payload.event_date,
           accessCode: payload.access_code,
+          coverImageUrl: payload.cover_image_url,
+          backgroundImageUrl: payload.background_image_url,
         }),
       })
 
@@ -208,6 +215,8 @@ export default function AdminPage() {
       setAlbumName('')
       setEventDate('')
       setAccessCode(generateEventAccessCode())
+      setCoverImageUrl('')
+      setBackgroundImageUrl('')
       setStatusMessage(t.admin.createSuccess)
     } catch (error) {
       console.error('Event creation failed', error)
@@ -226,6 +235,50 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Clipboard copy failed', error)
       setStatusMessage(t.admin.loadError)
+    }
+  }
+
+  const handleVisualUpload = async (
+    file: File | null,
+    kind: 'cover' | 'background'
+  ) => {
+    if (!file) return
+
+    setUploadingVisual(kind)
+    setStatusMessage(t.admin.mediaUploading)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/admin/event-media', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const payload = (await response.json()) as {
+        ok?: boolean
+        url?: string
+        error?: string
+      }
+
+      if (!response.ok || !payload.url) {
+        throw new Error(payload.error || t.admin.mediaUploadError)
+      }
+
+      if (kind === 'cover') {
+        setCoverImageUrl(payload.url)
+      } else {
+        setBackgroundImageUrl(payload.url)
+      }
+
+      setStatusMessage(t.admin.createSuccess)
+    } catch (error) {
+      setStatusMessage(
+        error instanceof Error ? error.message : t.admin.mediaUploadError
+      )
+    } finally {
+      setUploadingVisual(null)
     }
   }
 
@@ -382,6 +435,59 @@ export default function AdminPage() {
                     <p className="mt-2 text-sm leading-6 text-[#DDEAF7]">
                       {t.admin.accessCodeHelp}
                     </p>
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                      {t.admin.coverImage}
+                    </label>
+                    <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
+                      {uploadingVisual === 'cover'
+                        ? t.admin.mediaUploading
+                        : t.admin.uploadCover}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) =>
+                          void handleVisualUpload(event.target.files?.[0] || null, 'cover')
+                        }
+                        className="sr-only"
+                      />
+                    </label>
+                    {coverImageUrl ? (
+                      <div
+                        className="mt-3 h-28 rounded-2xl border border-white/10 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${coverImageUrl})` }}
+                      />
+                    ) : null}
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                      {t.admin.backgroundImage}
+                    </label>
+                    <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
+                      {uploadingVisual === 'background'
+                        ? t.admin.mediaUploading
+                        : t.admin.uploadBackground}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) =>
+                          void handleVisualUpload(
+                            event.target.files?.[0] || null,
+                            'background'
+                          )
+                        }
+                        className="sr-only"
+                      />
+                    </label>
+                    {backgroundImageUrl ? (
+                      <div
+                        className="mt-3 h-28 rounded-2xl border border-white/10 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${backgroundImageUrl})` }}
+                      />
+                    ) : null}
                   </div>
                 </div>
 

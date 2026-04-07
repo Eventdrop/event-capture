@@ -6,6 +6,7 @@ import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { brand } from '@/lib/brand'
 import { getPublicAppUrl } from '@/lib/app-url'
+import { placeholderVisuals } from '@/lib/event-visuals'
 import { useLanguage } from '@/app/_components/language-provider'
 
 export default function Home() {
@@ -43,7 +44,14 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader currentLabel={t.home.entryLabel} />
 
-      <main className="flex-1 overflow-hidden bg-[linear-gradient(180deg,_#faf6ef_0%,_#f2ecdf_46%,_#edf4fb_100%)] text-[#0F2135]">
+      <main
+        className="flex-1 overflow-hidden bg-[linear-gradient(180deg,_#faf6ef_0%,_#f2ecdf_46%,_#edf4fb_100%)] text-[#0F2135]"
+        style={{
+          backgroundImage: `linear-gradient(180deg, rgba(250,246,239,0.8) 0%, rgba(242,236,223,0.86) 46%, rgba(237,244,251,0.92) 100%), url(${placeholderVisuals.homeBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
         <section className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-6 py-10 md:px-10 lg:py-14">
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="relative overflow-hidden rounded-[2.4rem] border border-[#D4DFEE] bg-[#0F3D66] p-7 text-white shadow-[0_24px_70px_rgba(15,61,102,0.18)]">

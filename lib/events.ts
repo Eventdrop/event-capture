@@ -6,6 +6,8 @@ type EventRecordLike = {
   album_name?: string | null
   slug?: string | null
   access_code?: string | null
+  cover_image_url?: string | null
+  background_image_url?: string | null
   event_date?: string | null
   created_at?: string | null
   expires_at?: string | null
@@ -17,6 +19,8 @@ export type NormalizedEvent = {
   albumName: string
   slug: string
   accessCode: string
+  coverImageUrl: string
+  backgroundImageUrl: string
   eventDate: string | null
   createdAt: string | null
   expiresAt: string | null
@@ -73,6 +77,8 @@ export function buildEventInsertPayload(input: {
   albumName: string
   eventDate?: string
   accessCode?: string
+  coverImageUrl?: string
+  backgroundImageUrl?: string
 }) {
   const now = new Date()
   const accessCode = normalizeEventAccessCode(input.accessCode || generateEventAccessCode())
@@ -84,6 +90,8 @@ export function buildEventInsertPayload(input: {
     album_name: input.albumName.trim(),
     slug: `${slugBase}-${Math.random().toString(36).slice(2, 6)}`,
     access_code: accessCode,
+    cover_image_url: input.coverImageUrl || null,
+    background_image_url: input.backgroundImageUrl || null,
     event_date: input.eventDate || null,
     expires_at: expiresAt,
   }
@@ -100,6 +108,8 @@ export function normalizeEventRecord(
     albumName: record.album_name || record.name,
     slug: record.slug || '',
     accessCode: deriveEventAccessCode(record),
+    coverImageUrl: record.cover_image_url || '',
+    backgroundImageUrl: record.background_image_url || '',
     eventDate: record.event_date || null,
     createdAt: record.created_at || null,
     expiresAt: record.expires_at || null,

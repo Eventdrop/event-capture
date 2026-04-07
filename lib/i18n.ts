@@ -81,6 +81,12 @@ type TranslationTree = {
     accessCodeField: string
     accessCodeHelp: string
     regenerateCode: string
+    coverImage: string
+    backgroundImage: string
+    uploadCover: string
+    uploadBackground: string
+    mediaUploading: string
+    mediaUploadError: string
     createButton: string
     saving: string
     noEvents: string
@@ -272,6 +278,12 @@ export const translations: Record<Locale, TranslationTree> = {
       accessCodeHelp:
         'Kod otomatik uretilir. Istersen olusturmadan once degistirebilir veya yenileyebilirsin.',
       regenerateCode: 'Yeni kod uret',
+      coverImage: 'Etkinlik gorseli',
+      backgroundImage: 'Arka plan gorseli',
+      uploadCover: 'Etkinlik gorseli yukle',
+      uploadBackground: 'Arka plan yukle',
+      mediaUploading: 'Gorsel yukleniyor...',
+      mediaUploadError: 'Gorsel yuklenemedi.',
       createButton: 'Etkinlik albumu olustur',
       saving: 'Kaydediliyor...',
       noEvents:
@@ -512,6 +524,12 @@ export const translations: Record<Locale, TranslationTree> = {
       accessCodeHelp:
         'De code wordt automatisch gemaakt. Je kunt hem voor het opslaan aanpassen of vernieuwen.',
       regenerateCode: 'Nieuwe code',
+      coverImage: 'Evenementfoto',
+      backgroundImage: 'Achtergrondfoto',
+      uploadCover: 'Evenementfoto uploaden',
+      uploadBackground: 'Achtergrond uploaden',
+      mediaUploading: 'Afbeelding wordt geüpload...',
+      mediaUploadError: 'Afbeelding kon niet worden geüpload.',
       createButton: 'Evenementalbum aanmaken',
       saving: 'Opslaan...',
       noEvents:
@@ -752,6 +770,12 @@ export const translations: Record<Locale, TranslationTree> = {
       accessCodeHelp:
         'The code is generated automatically. You can edit or refresh it before creating the event.',
       regenerateCode: 'Generate new code',
+      coverImage: 'Event cover image',
+      backgroundImage: 'Background image',
+      uploadCover: 'Upload cover image',
+      uploadBackground: 'Upload background image',
+      mediaUploading: 'Uploading image...',
+      mediaUploadError: 'Image upload failed.',
       createButton: 'Create event album',
       saving: 'Saving...',
       noEvents:

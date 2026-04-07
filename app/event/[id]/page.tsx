@@ -14,7 +14,8 @@ import {
   getMediaKind,
   getPublicFileUrl,
 } from '@/lib/eventdrop'
-import { formatEventDisplayName, normalizeEventRecord } from '@/lib/events'
+import { getEventBackground, getEventCover } from '@/lib/event-visuals'
+import { formatEventDisplayName, normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
 import { supabase } from '@/lib/supabase'
 
 const BUCKET_NAME = 'event-uploads'
@@ -27,6 +28,7 @@ export default function Page() {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const [resolvedEventId, setResolvedEventId] = useState('')
+  const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
   const [eventName, setEventName] = useState('Shared Event Album')
   const [message, setMessage] = useState(t.upload.chooseStart)
   const [uploading, setUploading] = useState(false)
@@ -72,6 +74,7 @@ export default function Page() {
 
       setEventMissing(false)
       const normalizedEvent = normalizeEventRecord(event)
+      setCurrentEvent(normalizedEvent)
       setEventName(
         normalizedEvent
           ? formatEventDisplayName(normalizedEvent)
@@ -373,12 +376,20 @@ export default function Page() {
           <SiteFooter />
         </>
       ) : (
-      <main className="relative flex-1 p-6">
+      <main
+        className="relative flex-1 bg-cover bg-center p-6"
+        style={{ backgroundImage: `linear-gradient(rgba(15,33,53,0.36), rgba(15,33,53,0.36)), url(${getEventBackground(currentEvent)})` }}
+      >
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-[2rem] border border-[#D4DFEE] bg-white/84 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur">
+        <section className="rounded-[2rem] border border-white/20 bg-[rgba(255,250,242,0.9)] p-6 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6A84A3]">
             {t.upload.badge}
           </p>
+
+          <div
+            className="mt-4 h-36 rounded-[1.7rem] bg-cover bg-center"
+            style={{ backgroundImage: `url(${getEventCover(currentEvent)})` }}
+          />
 
           <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-stone-950">
             {eventName}
@@ -509,7 +520,7 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="flex flex-col justify-between rounded-[2rem] border border-[#D4DFEE] bg-[#0F3D66] p-6 text-stone-50 shadow-[0_18px_50px_rgba(35,24,12,0.22)]">
+        <section className="flex flex-col justify-between rounded-[2rem] border border-white/20 bg-[rgba(15,61,102,0.82)] p-6 text-stone-50 shadow-[0_18px_50px_rgba(35,24,12,0.22)] backdrop-blur">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#BFD4EA]">
               {t.upload.qrTitle}
