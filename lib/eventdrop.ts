@@ -117,6 +117,16 @@ export function getDownloadFileName(upload: UploadRecord) {
   )
 }
 
+export function getUploadShareKey(upload: UploadRecord) {
+  const fileName = upload.file_name || upload.storage_path?.split('/').pop() || ''
+
+  if (fileName.includes('.')) {
+    return fileName.replace(/\.[^.]+$/, '')
+  }
+
+  return upload.id
+}
+
 export function getPublicFileUrl(baseUrl: string, bucket: string, storagePath: string) {
   const trimmedBase = baseUrl.replace(/\/$/, '')
   return `${trimmedBase}/storage/v1/object/public/${bucket}/${storagePath}`

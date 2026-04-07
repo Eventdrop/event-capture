@@ -7,6 +7,7 @@ import {
   getDownloadFileName,
   inferMediaKind,
   isExpired,
+  getUploadShareKey,
   type UploadRecord,
 } from '@/lib/eventdrop'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
@@ -18,18 +19,31 @@ export default async function MediaPage({
 }: PageProps<'/media/[id]'>) {
   const { id } = await params
   const supabase = createAdminSupabaseClient()
+  let upload: UploadRecord | null = null
 
-  const { data, error } = await supabase
+  const directLookup = await supabase
     .from('uploads')
     .select('*')
     .eq('id', id)
     .single()
 
-  if (error || !data) {
-    notFound()
+  if (directLookup.data) {
+    upload = directLookup.data as UploadRecord
+  } else {
+    const slugLookup = await supabase
+      .from('uploads')
+      .select('*')
+      .or(`file_name.ilike.${id}.%,storage_path.ilike.%/${id}.%`)
+      .limit(1)
+
+    if (slugLookup.data?.[0]) {
+      upload = slugLookup.data[0] as UploadRecord
+    }
   }
 
-  const upload = data as UploadRecord
+  if (!upload) {
+    notFound()
+  }
 
   if (isExpired(upload.expires_at)) {
     notFound()
@@ -51,6 +65,9 @@ export default async function MediaPage({
             <h1 className="mt-3 break-all text-3xl font-semibold tracking-[-0.03em] text-stone-950">
               {fileName}
             </h1>
+            <p className="mt-2 text-xs uppercase tracking-[0.18em] text-[#6A84A3]">
+              /media/{getUploadShareKey(upload)}
+            </p>
             <p className="mt-3 text-sm leading-7 text-[#33516F]">
               Open, download, or share this single guest upload directly.
             </p>
