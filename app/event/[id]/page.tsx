@@ -285,11 +285,10 @@ export default function Page() {
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f9f5ee_0%,_#efe8dc_52%,_#edf4fb_100%)] text-stone-900">
       <SiteHeader currentLabel={t.upload.badge} />
 
-      <main className="flex-1 p-6">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+      <main className="relative flex-1 p-6">
         {!guidanceAccepted ? (
-          <section className="lg:col-span-2">
-            <div className="rounded-[2rem] border border-[#D4DFEE] bg-[rgba(255,248,239,0.98)] p-6 shadow-[0_18px_54px_rgba(15,61,102,0.10)] backdrop-blur">
+          <div className="absolute inset-0 z-20 flex items-start justify-center bg-[rgba(249,245,238,0.88)] px-4 py-6 backdrop-blur-sm md:items-center md:px-6">
+            <div className="w-full max-w-5xl rounded-[2rem] border border-[#D4DFEE] bg-[rgba(255,248,239,0.98)] p-6 shadow-[0_18px_54px_rgba(15,61,102,0.14)] backdrop-blur">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C76B14]">
                 {t.upload.guidanceBadge}
               </p>
@@ -347,9 +346,14 @@ export default function Page() {
                 </p>
               </div>
             </div>
-          </section>
+          </div>
         ) : null}
 
+        <div
+          className={`mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr] ${
+            !guidanceAccepted ? 'pointer-events-none blur-[1px]' : ''
+          }`}
+        >
         <section className="rounded-[2rem] border border-[#D4DFEE] bg-white/84 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6A84A3]">
             {t.upload.badge}
