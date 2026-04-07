@@ -32,6 +32,7 @@ export default function Page() {
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [eventMissing, setEventMissing] = useState(false)
+  const [guidanceChecked, setGuidanceChecked] = useState(false)
   const [guidanceAccepted, setGuidanceAccepted] = useState(false)
 
   useEffect(() => {
@@ -317,8 +318,8 @@ export default function Page() {
                   <label className="flex items-start gap-3">
                     <input
                       type="checkbox"
-                      checked={guidanceAccepted}
-                      onChange={(event) => setGuidanceAccepted(event.target.checked)}
+                      checked={guidanceChecked}
+                      onChange={(event) => setGuidanceChecked(event.target.checked)}
                       className="mt-1 h-4 w-4 rounded border-[#C8D3E5] text-[#F58220] focus:ring-[#F58220]"
                     />
                     <span className="text-sm leading-6 text-[#33516F]">
@@ -345,6 +346,25 @@ export default function Page() {
                       {t.common.privacy}
                     </Link>
                   </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!guidanceChecked) {
+                        setMessage(t.upload.consentRequired)
+                        return
+                      }
+
+                      setGuidanceAccepted(true)
+                    }}
+                    className={`mt-5 inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold ${
+                      guidanceChecked
+                        ? 'bg-[#F58220] text-white shadow-[0_12px_24px_rgba(245,130,32,0.22)] hover:bg-[#DB6E12]'
+                        : 'cursor-not-allowed bg-stone-300 text-stone-500'
+                    }`}
+                  >
+                    {t.upload.consentButton}
+                  </button>
                 </div>
               </section>
             </div>
