@@ -28,11 +28,17 @@ export default function AdminPage() {
   const { t } = useLanguage()
   const [authenticated, setAuthenticated] = useState(false)
   const [configured, setConfigured] = useState(true)
+  const [canChangePassword, setCanChangePassword] = useState(false)
+  const [adminUsername, setAdminUsername] = useState('')
   const [loadingSession, setLoadingSession] = useState(true)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [currentPasswordForChange, setCurrentPasswordForChange] = useState('')
+  const [nextPassword, setNextPassword] = useState('')
+  const [confirmNextPassword, setConfirmNextPassword] = useState('')
   const [statusMessage, setStatusMessage] = useState(t.admin.loginPrompt)
   const [submitting, setSubmitting] = useState(false)
+  const [savingPassword, setSavingPassword] = useState(false)
   const [events, setEvents] = useState<NormalizedEvent[]>([])
   const [eventName, setEventName] = useState('')
   const [albumName, setAlbumName] = useState('')
@@ -97,10 +103,17 @@ export default function AdminPage() {
         const payload = (await response.json()) as {
           authenticated?: boolean
           configured?: boolean
+          username?: string
+          canChangePassword?: boolean
         }
 
         setAuthenticated(Boolean(payload.authenticated))
         setConfigured(payload.configured !== false)
+        setCanChangePassword(Boolean(payload.canChangePassword))
+        setAdminUsername(payload.username || '')
+        if (payload.username) {
+          setUsername(payload.username)
+        }
 
         if (payload.authenticated) {
           await loadEvents()
@@ -168,8 +181,68 @@ export default function AdminPage() {
     })
 
     setAuthenticated(false)
+    setCurrentPasswordForChange('')
+    setNextPassword('')
+    setConfirmNextPassword('')
     setEvents([])
     setStatusMessage(t.admin.signedOut)
+  }
+
+  const handlePasswordChange = async () => {
+    if (!adminUsername.trim() || !currentPasswordForChange || !nextPassword || !confirmNextPassword) {
+      setStatusMessage(t.admin.passwordFieldsRequired)
+      return
+    }
+
+    if (nextPassword !== confirmNextPassword) {
+      setStatusMessage(t.admin.passwordMismatch)
+      return
+    }
+
+    if (nextPassword.length < 8) {
+      setStatusMessage(t.admin.passwordTooShort)
+      return
+    }
+
+    setSavingPassword(true)
+
+    try {
+      const response = await fetch('/api/admin/credentials', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentUsername: adminUsername.trim(),
+          currentPassword: currentPasswordForChange,
+          nextPassword,
+          confirmPassword: confirmNextPassword,
+        }),
+      })
+
+      const payload = (await response.json()) as {
+        ok?: boolean
+        username?: string
+        error?: string
+      }
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || t.admin.passwordChangeError)
+      }
+
+      setAdminUsername(payload.username || adminUsername)
+      setCurrentPasswordForChange('')
+      setNextPassword('')
+      setConfirmNextPassword('')
+      setPassword('')
+      setStatusMessage(t.admin.passwordChangeSuccess)
+    } catch (error) {
+      setStatusMessage(
+        error instanceof Error ? error.message : t.admin.passwordChangeError
+      )
+    } finally {
+      setSavingPassword(false)
+    }
   }
 
   const createEventRecord = async () => {
@@ -418,6 +491,99 @@ export default function AdminPage() {
                   <p className="mt-2 text-sm leading-7 text-[#EAF3FB]">
                     Drop your moments
                   </p>
+                </div>
+
+                <div className="rounded-[1.8rem] border border-white/12 bg-white/8 p-5">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[#BFD4EA]">
+                    {t.admin.passwordSection}
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-[#EAF3FB]">
+                    {canChangePassword
+                      ? t.admin.passwordSectionHelp
+                      : t.admin.passwordSectionUnavailable}
+                  </p>
+
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                        {t.admin.username}
+                      </label>
+                      <input
+                        value={adminUsername}
+                        readOnly
+                        disabled={!canChangePassword || savingPassword}
+                        className={`w-full rounded-2xl border px-4 py-3 text-sm ${
+                          canChangePassword
+                            ? 'border-[#D4DFEE] bg-white text-[#0B2742]'
+                            : 'cursor-not-allowed border-white/10 bg-white/10 text-[#9CB2C8]'
+                        }`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                        {t.admin.currentPassword}
+                      </label>
+                      <input
+                        type="password"
+                        value={currentPasswordForChange}
+                        onChange={(event) => setCurrentPasswordForChange(event.target.value)}
+                        disabled={!canChangePassword || savingPassword}
+                        className={`w-full rounded-2xl border px-4 py-3 text-sm ${
+                          canChangePassword
+                            ? 'border-[#D4DFEE] bg-white text-[#0B2742]'
+                            : 'cursor-not-allowed border-white/10 bg-white/10 text-[#9CB2C8]'
+                        }`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                        {t.admin.newPassword}
+                      </label>
+                      <input
+                        type="password"
+                        value={nextPassword}
+                        onChange={(event) => setNextPassword(event.target.value)}
+                        disabled={!canChangePassword || savingPassword}
+                        className={`w-full rounded-2xl border px-4 py-3 text-sm ${
+                          canChangePassword
+                            ? 'border-[#D4DFEE] bg-white text-[#0B2742]'
+                            : 'cursor-not-allowed border-white/10 bg-white/10 text-[#9CB2C8]'
+                        }`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                        {t.admin.confirmNewPassword}
+                      </label>
+                      <input
+                        type="password"
+                        value={confirmNextPassword}
+                        onChange={(event) => setConfirmNextPassword(event.target.value)}
+                        disabled={!canChangePassword || savingPassword}
+                        className={`w-full rounded-2xl border px-4 py-3 text-sm ${
+                          canChangePassword
+                            ? 'border-[#D4DFEE] bg-white text-[#0B2742]'
+                            : 'cursor-not-allowed border-white/10 bg-white/10 text-[#9CB2C8]'
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handlePasswordChange}
+                    disabled={!canChangePassword || savingPassword}
+                    className={`mt-4 rounded-full px-5 py-3 text-sm font-semibold ${
+                      !canChangePassword || savingPassword
+                        ? 'cursor-not-allowed bg-[#7A8EA5] text-[#DCE6F0]'
+                        : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
+                    }`}
+                  >
+                    {savingPassword ? t.admin.savingPassword : t.admin.changePassword}
+                  </button>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">

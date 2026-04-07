@@ -46,6 +46,24 @@ Not:
 - Mevcut kod `type` adli bir alan kullaniyor. Daha acik oldugu icin `media_type` tercih edilmesi onerilir.
 - `storage_path` alaninin bulunmasi, dosya silme islemini `file_url` parse etmeye gerek kalmadan yapmayi kolaylastirir.
 
+### admin_credentials
+
+Gizli admin paneli icin kalici giris bilgilerini tutar.
+
+Onerilen alanlar:
+
+- `id` text primary key
+- `username` text not null
+- `password_hash` text not null
+- `updated_at` timestamptz not null default now()
+
+Not:
+
+- Tek satirlik bir tablo olarak dusunulur.
+- Uygulama `id = 'primary'` kaydini kullanir.
+- Tablo yoksa sistem env degiskenlerindeki `ADMIN_USERNAME` ve `ADMIN_PASSWORD` ile calismaya devam eder.
+- Kalici sifre degisikligi icin bu tablonun olusturulmus olmasi gerekir.
+
 ## Storage
 
 ### Bucket
@@ -106,6 +124,13 @@ create table if not exists public.uploads (
   mime_type text,
   created_at timestamptz not null default now(),
   expires_at timestamptz not null default (now() + interval '48 hours')
+);
+
+create table if not exists public.admin_credentials (
+  id text primary key,
+  username text not null,
+  password_hash text not null,
+  updated_at timestamptz not null default now()
 );
 ```
 

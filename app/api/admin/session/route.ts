@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import {
   clearAdminSession,
   createAdminSession,
+  getAdminAuthStatus,
   hasAdminSession,
-  isAdminAuthConfigured,
   validateAdminCredentials,
 } from '@/lib/admin-auth'
 
@@ -11,9 +11,14 @@ export const runtime = 'nodejs'
 
 export async function GET() {
   const authenticated = await hasAdminSession()
+  const status = await getAdminAuthStatus()
+
   return NextResponse.json({
     authenticated,
-    configured: isAdminAuthConfigured(),
+    configured: status.configured,
+    username: status.username,
+    canChangePassword: status.canChangePassword,
+    source: status.source,
   })
 }
 
@@ -25,7 +30,9 @@ export async function POST(request: Request) {
   const username = body?.username?.trim() || ''
   const password = body?.password || ''
 
-  if (!isAdminAuthConfigured()) {
+  const status = await getAdminAuthStatus()
+
+  if (!status.configured) {
     return NextResponse.json(
       {
         authenticated: false,
@@ -35,7 +42,7 @@ export async function POST(request: Request) {
     )
   }
 
-  if (!validateAdminCredentials(username, password)) {
+  if (!(await validateAdminCredentials(username, password))) {
     return NextResponse.json(
       {
         authenticated: false,
