@@ -128,6 +128,7 @@ type TranslationTree = {
     deleteError: string
     share: string
     shareSuccess: string
+    shareCopied: string
     shareError: string
     download: string
     downloaded: string
@@ -276,6 +277,7 @@ export const translations: Record<Locale, TranslationTree> = {
       deleteError: 'Yukleme silinemedi.',
       share: 'Paylas',
       shareSuccess: 'Paylasim linki hazirlandi.',
+      shareCopied: 'Paylasim linki panoya kopyalandi.',
       shareError: 'Paylasim su anda acilamadi.',
       download: 'Indir',
       downloaded: 'dosya indirildi',
@@ -422,6 +424,7 @@ export const translations: Record<Locale, TranslationTree> = {
       deleteError: 'Upload kon niet worden verwijderd.',
       share: 'Delen',
       shareSuccess: 'Deel-link is klaargezet.',
+      shareCopied: 'Deel-link is naar het klembord gekopieerd.',
       shareError: 'Delen kon nu niet worden geopend.',
       download: 'Downloaden',
       downloaded: 'bestanden gedownload',
@@ -568,6 +571,7 @@ export const translations: Record<Locale, TranslationTree> = {
       deleteError: 'Upload could not be deleted.',
       share: 'Share',
       shareSuccess: 'Share link is ready.',
+      shareCopied: 'Share link copied to clipboard.',
       shareError: 'Sharing could not be opened right now.',
       download: 'Download',
       downloaded: 'files downloaded',
