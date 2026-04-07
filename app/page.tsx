@@ -52,6 +52,14 @@ export default function Home() {
                   <p className="-mt-1 text-[30px] italic leading-none text-[#F28C18] sm:text-[42px]">
                     moments
                   </p>
+                  <div className="mt-3 space-y-1 text-center">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#5d6775] sm:text-[13px]">
+                      Scan. Upload. Done.
+                    </p>
+                    <p className="text-[12px] text-[#8b8175] sm:text-[13px]">
+                      All memories in one place.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="mt-5 grid grid-cols-3 gap-2.5">
