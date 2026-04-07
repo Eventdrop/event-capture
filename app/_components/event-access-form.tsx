@@ -93,7 +93,7 @@ export function EventAccessForm({
         autoComplete="email"
         className={`w-full rounded-full border border-[#191511] bg-[#FF9B42] text-center font-medium uppercase text-[#191511] placeholder:text-[#191511] ${
           compact
-            ? 'px-4 py-3 text-xs tracking-[0.22em]'
+            ? 'px-3 py-2 text-[11px] tracking-[0.18em]'
             : 'px-6 py-4 text-sm tracking-[0.28em]'
         }`}
       />
@@ -106,7 +106,7 @@ export function EventAccessForm({
         autoCorrect="off"
         className={`w-full rounded-full border border-[#191511] bg-[#FF9B42] text-center font-medium uppercase text-[#191511] placeholder:text-[#191511] ${
           compact
-            ? 'px-4 py-3 text-xs tracking-[0.22em]'
+            ? 'px-3 py-2 text-[11px] tracking-[0.18em]'
             : 'px-6 py-4 text-sm tracking-[0.28em]'
         }`}
       />
@@ -116,7 +116,7 @@ export function EventAccessForm({
         disabled={isPending}
         className={`inline-flex w-full items-center justify-center rounded-full border font-semibold uppercase ${
           compact
-            ? 'px-4 py-3 text-xs tracking-[0.22em]'
+            ? 'px-3 py-2 text-[11px] tracking-[0.18em]'
             : 'px-6 py-4 text-sm tracking-[0.28em]'
         } ${
           isPending
