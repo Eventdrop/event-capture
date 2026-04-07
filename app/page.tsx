@@ -4,21 +4,13 @@ import Image from 'next/image'
 import { EventAccessForm } from '@/app/_components/event-access-form'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
-import { placeholderVisuals } from '@/lib/event-visuals'
 import { useLanguage } from '@/app/_components/language-provider'
+import { placeholderVisuals } from '@/lib/event-visuals'
 
-function PhotoTile({
-  src,
-  alt,
-  className,
-}: {
-  src: string
-  alt: string
-  className?: string
-}) {
+function PosterTile({ src }: { src: string }) {
   return (
-    <div className={`relative overflow-hidden rounded-[1.8rem] ${className || ''}`}>
-      <Image src={src} alt={alt} fill unoptimized className="object-cover" />
+    <div className="relative h-40 overflow-hidden rounded-[1.2rem] sm:h-44">
+      <Image src={src} alt="" fill unoptimized className="object-cover" />
     </div>
   )
 }
@@ -31,10 +23,10 @@ export default function Home() {
       <SiteHeader />
 
       <main className="flex-1 px-4 py-6 md:px-8 md:py-10">
-        <div className="mx-auto grid w-full max-w-7xl gap-6 xl:grid-cols-[1.02fr_0.98fr]">
-          <section className="overflow-hidden rounded-[2.4rem] border border-[#E8D8C4] bg-white shadow-[0_24px_80px_rgba(15,33,53,0.08)]">
-            <div className="grid gap-0 xl:grid-cols-[0.92fr_1.08fr]">
-              <div className="relative min-h-[420px] bg-[#f7efe4] p-5 sm:p-6">
+        <div className="mx-auto grid w-full max-w-6xl gap-6 xl:grid-cols-[420px_minmax(0,1fr)] xl:items-start">
+          <section className="overflow-hidden rounded-[2.2rem] border border-[#ead8c1] bg-white shadow-[0_24px_80px_rgba(15,33,53,0.08)]">
+            <div className="p-4 sm:p-5">
+              <div className="relative h-[340px] overflow-hidden rounded-[1.6rem] sm:h-[430px]">
                 <Image
                   src={placeholderVisuals.homeBackground}
                   alt={t.home.title}
@@ -42,105 +34,79 @@ export default function Home() {
                   unoptimized
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.24)_0%,rgba(255,255,255,0.06)_28%,rgba(20,13,9,0.34)_100%)]" />
-
-                <div className="relative z-10 mx-auto max-w-sm rounded-[2rem] border border-white/55 bg-[rgba(255,255,255,0.78)] p-4 shadow-[0_18px_40px_rgba(15,33,53,0.12)] backdrop-blur">
-                  <p className="mb-3 text-center text-[11px] font-semibold uppercase tracking-[0.32em] text-[#73695d]">
-                    {t.home.entryLabel}
-                  </p>
-                  <EventAccessForm />
-                </div>
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.03)_38%,rgba(17,12,8,0.18)_100%)]" />
               </div>
 
-              <div className="flex flex-col justify-between px-5 pb-5 pt-4 sm:px-6 sm:pb-6 sm:pt-5">
-                <div>
-                  <p className="text-[13px] font-semibold uppercase tracking-[0.28em] text-[#A57A49]">
-                    EventDrop
+              <div className="bg-white px-2 pb-2 pt-4 sm:px-3">
+                <div className="text-center">
+                  <p className="text-[52px] font-semibold uppercase leading-[0.86] tracking-[-0.09em] text-[#17120f] sm:text-[68px]">
+                    DROP YOUR
                   </p>
-                  <h1 className="mt-4 text-[42px] font-semibold uppercase leading-[0.9] tracking-[-0.08em] text-[#17120f] sm:text-[56px]">
-                    Drop your
-                  </h1>
-                  <p className="mt-1 text-[34px] italic leading-none text-[#F28C18] sm:text-[42px]">
+                  <p className="-mt-1 text-[34px] italic leading-none text-[#F28C18] sm:text-[42px]">
                     moments
-                  </p>
-                  <p className="mt-5 max-w-md text-sm leading-7 text-[#5D6775]">
-                    {t.home.intro}
                   </p>
                 </div>
 
-                <div className="mt-6 grid grid-cols-3 gap-3">
-                  <PhotoTile
-                    src={placeholderVisuals.coverOne}
-                    alt=""
-                    className="h-36 sm:h-44"
-                  />
-                  <PhotoTile
-                    src={placeholderVisuals.coverTwo}
-                    alt=""
-                    className="h-36 sm:h-44"
-                  />
-                  <PhotoTile
-                    src={placeholderVisuals.coverThree}
-                    alt=""
-                    className="h-36 sm:h-44"
-                  />
+                <div className="mt-5 grid grid-cols-3 gap-2.5">
+                  <PosterTile src={placeholderVisuals.coverOne} />
+                  <PosterTile src={placeholderVisuals.coverTwo} />
+                  <PosterTile src={placeholderVisuals.coverThree} />
                 </div>
+
+                <p className="mt-5 text-center text-[11px] uppercase tracking-[0.28em] text-[#8b8175]">
+                  Photobooth Holland
+                </p>
               </div>
             </div>
           </section>
 
-          <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-1">
-            <div className="overflow-hidden rounded-[2.4rem] border border-[#E8D8C4] bg-white shadow-[0_24px_80px_rgba(15,33,53,0.08)]">
-              <div className="grid gap-0 lg:grid-cols-[1.06fr_0.94fr] xl:grid-cols-1">
-                <div className="p-6">
-                  <p className="text-[13px] font-semibold uppercase tracking-[0.28em] text-[#0F3D66]">
-                    {t.home.howItWorks}
-                  </p>
-                  <div className="mt-5 space-y-3">
-                    {t.home.points.map((point, index) => (
-                      <div
-                        key={point}
-                        className="flex items-start gap-3 rounded-[1.4rem] bg-[#F7FAFD] px-4 py-4"
-                      >
-                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFD244] text-sm font-semibold text-[#17120f]">
-                          {index + 1}
-                        </span>
-                        <p className="text-sm leading-6 text-[#33516F]">{point}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+          <section className="grid gap-6">
+            <div className="rounded-[2.2rem] border border-[#ead8c1] bg-white p-6 shadow-[0_24px_80px_rgba(15,33,53,0.08)] sm:p-8">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.28em] text-[#A57A49]">
+                {t.home.entryLabel}
+              </p>
+              <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#17120f] sm:text-4xl">
+                Drop your moments
+              </h1>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-[#5D6775]">
+                {t.home.intro}
+              </p>
 
-                <div className="relative min-h-[280px] bg-[#f3ebdf]">
-                  <Image
-                    src={placeholderVisuals.eventBackground}
-                    alt=""
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,33,53,0.12)_0%,rgba(15,33,53,0.42)_100%)]" />
-                </div>
+              <div className="mt-8 max-w-xl">
+                <EventAccessForm />
               </div>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="rounded-[2.2rem] bg-[#0F3D66] p-6 text-white shadow-[0_24px_70px_rgba(15,61,102,0.18)]">
-                <p className="text-[13px] font-semibold uppercase tracking-[0.28em] text-[#BFD4EA]">
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="rounded-[2rem] bg-[#0F3D66] p-6 text-white shadow-[0_24px_70px_rgba(15,61,102,0.16)]">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.26em] text-[#BFD4EA]">
                   {t.home.bestFor}
                 </p>
-                <p className="mt-4 text-base leading-8 text-[#F4F8FC]">
+                <p className="mt-4 text-sm leading-7 text-[#F4F8FC]">
                   {t.home.bestForText}
                 </p>
               </div>
 
-              <div className="rounded-[2.2rem] bg-[#FFF4E8] p-6 shadow-[0_24px_70px_rgba(155,101,29,0.12)]">
-                <p className="text-[13px] font-semibold uppercase tracking-[0.28em] text-[#A57A49]">
+              <div className="rounded-[2rem] bg-[#FFF4E8] p-6 shadow-[0_24px_70px_rgba(155,101,29,0.1)]">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.26em] text-[#A57A49]">
                   {t.home.flowTitle}
                 </p>
-                <p className="mt-4 text-base leading-8 text-[#5D4B3B]">
+                <p className="mt-4 text-sm leading-7 text-[#5D4B3B]">
                   {t.home.flowText}
                 </p>
+              </div>
+
+              <div className="rounded-[2rem] border border-[#E3ECF6] bg-[#F7FAFD] p-6 shadow-[0_24px_70px_rgba(15,61,102,0.06)]">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.26em] text-[#0F3D66]">
+                  {t.home.howItWorks}
+                </p>
+                <div className="mt-4 space-y-3">
+                  {t.home.points.slice(0, 3).map((point) => (
+                    <p key={point} className="text-sm leading-7 text-[#33516F]">
+                      {point}
+                    </p>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
