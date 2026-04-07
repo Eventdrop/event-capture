@@ -193,6 +193,7 @@ type TranslationTree = {
     privacyTitle: string
     privacyIntro: string
     privacySections: { title: string; points: string[] }[]
+    acknowledge: string
   }
 }
 
@@ -343,7 +344,7 @@ export const translations: Record<Locale, TranslationTree> = {
         'Medya 48 saat saklanir; kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
       ],
       consentLabel:
-        'Bu medyayi kendi istegimle yukledigimi ve yukleme kurallarina uyacagimi onayliyorum.',
+        'Bu medyayi kendi istegimle yukledigimi ve kullanim sartlarini kabul ettigimi onayliyorum.',
       consentHelp:
         'Onay vermeden dosya secimi ve yukleme acilmaz.',
       consentRequired:
@@ -408,7 +409,7 @@ export const translations: Record<Locale, TranslationTree> = {
       photo: 'Fotograf',
       video: 'Video',
     },
-    legal: {
+      legal: {
       termsTitle: 'Kullanim Sartlari',
       termsIntro:
         'Bu etkinlik albumunu kullanarak asagidaki kurallari kabul etmis olursun.',
@@ -419,38 +420,75 @@ export const translations: Record<Locale, TranslationTree> = {
             'Yukledigin fotograf ve videolari paylasma hakkina sahip oldugunu beyan edersin.',
             'Kucuk dusurucu, iftira niteliginde, nefret iceren, siddeti tesvik eden veya yasa disi icerik yukleyemezsin.',
             'Baska kisilerin mahremiyetini ihlal eden veya acikca rahatsizlik verecek icerikler kaldirilabilir.',
+            'Gerekli gorulen durumlarda uygunsuz icerikler onceden bildirim yapilmadan kaldirilabilir.',
           ],
         },
         {
-          title: 'Hizmet kurali',
+          title: 'Kullanim ve sistem kurallari',
           points: [
-            'Albumler etkinlik bazlidir ve icerikler varsayilan olarak 48 saat tutulur.',
-            'Sistemin kotuye kullanildigi durumlarda icerikler uyarısiz kaldirilabilir.',
-            'Gerekli oldugunda erisim kisitlanabilir veya album kapatilabilir.',
+            'EventDrop, etkinlik katilimcilarinin iceriklerini tek bir albumde toplamak amaciyla sunulur.',
+            'Sistem kotuye kullanim, spam veya zararli icerik tespit ettiginde erisimi sinirlama hakkini sakli tutar.',
+            'Gerekli durumlarda album gecici veya kalici olarak kapatilabilir.',
+          ],
+        },
+        {
+          title: 'Saklama suresi',
+          points: [
+            'Yuklenen icerikler varsayilan olarak etkinlikten sonra 48 saat boyunca saklanir.',
+            'Bu surenin ardindan icerikler otomatik olarak silinebilir.',
+            'Organizator farkli bir sure belirlemis olabilir.',
+          ],
+        },
+        {
+          title: 'Sorumluluk reddi',
+          points: [
+            'EventDrop, kullanicilar tarafindan yuklenen iceriklerden dogrudan sorumlu degildir.',
+            'Teknik aksakliklar veya veri kaybi durumlarinda garanti verilmez.',
           ],
         },
       ],
       privacyTitle: 'Gizlilik Bilgisi',
       privacyIntro:
-        'Bu sayfa, e-posta adresi ve yukledigin medya gibi kisisel verilerin nasil ele alindigini ozetler.',
+        'Bu sayfa, EventDrop uzerinden toplanan kisisel verilerin nasil islendigini aciklar.',
       privacySections: [
         {
           title: 'Toplanan veriler',
           points: [
             'E-posta adresi, etkinlige erisim saglamak ve gerekli durumlarda iletisim kurmak icin islenir.',
             'Yuklenen fotograf ve videolar ilgili etkinlik albumunde saklanir.',
-            'Teknik loglar guvenlik ve hata ayiklama amaclariyla kisa sureli tutulabilir.',
+            'Teknik veriler (IP adresi, cihaz bilgisi, log kayitlari) guvenlik ve hata takibi icin gecici olarak tutulabilir.',
           ],
         },
         {
-          title: 'Amac ve saklama',
+          title: 'Kullanim amaci',
           points: [
-            'Veriler etkinlik albumunu sunmak, paylasim saglamak ve kotuye kullanimi onlemek icin kullanilir.',
-            'Medya varsayilan olarak 48 saat sonunda silinir.',
-            'GDPR kapsaminda bilgi alma, duzeltme ve silme talebi icin iletisim bilgilerini kullanabilirsin.',
+            'Toplanan veriler yalnizca etkinlik albumunu saglamak, icerik paylasimini mumkun kilmak ve sistemi korumak amaciyla kullanilir.',
+            'Veriler ucuncu taraflarla pazarlama amaciyla paylasilmaz.',
+          ],
+        },
+        {
+          title: 'Saklama ve silme',
+          points: [
+            'Yuklenen medya varsayilan olarak 48 saat sonunda silinir.',
+            'Teknik loglar sinirli sure boyunca saklanir ve ardindan otomatik olarak kaldirilir.',
+          ],
+        },
+        {
+          title: 'Kullanici haklari',
+          points: [
+            'Kullanicilar, yukledikleri iceriklerin kaldirilmasini talep edebilir.',
+            'Talep uzerine veri erisimi, duzeltme veya silme islemleri yapilabilir.',
+          ],
+        },
+        {
+          title: 'Guvenlik',
+          points: [
+            'EventDrop, verilerin korunmasi icin gerekli teknik ve organizasyonel onlemleri uygular.',
+            'Ancak internet uzerinden yapilan veri aktariminin tamamen risksiz oldugu garanti edilemez.',
           ],
         },
       ],
+      acknowledge: 'Okudum, anladim',
     },
   },
   nl: {
@@ -673,40 +711,76 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Verantwoordelijkheid voor inhoud',
           points: [
             'Je bevestigt dat je de foto’s en video’s die je upload mag delen.',
-            'Je mag geen vernederende, lasterlijke, haatdragende, gewelddadige of onwettige inhoud uploaden.',
-            'Inhoud die de privacy van anderen schendt of duidelijk ongepast is, kan worden verwijderd.',
+            'Je mag geen privacy-schendende, schokkende, haatdragende of onwettige inhoud uploaden.',
+            'Ongeschikte inhoud kan zonder voorafgaande melding worden verwijderd.',
           ],
         },
         {
-          title: 'Dienstregels',
+          title: 'Gebruik en systeemregels',
           points: [
-            'Albums zijn evenementgebonden en inhoud wordt standaard 48 uur bewaard.',
-            'Bij misbruik kan inhoud zonder voorafgaande waarschuwing worden verwijderd.',
-            'Toegang kan worden beperkt of een album kan worden gesloten als dat nodig is.',
+            'EventDrop is bedoeld om bijdragen van deelnemers in één gedeeld evenementalbum te verzamelen.',
+            'Bij misbruik, spam of schadelijke inhoud mag het systeem de toegang beperken.',
+            'Een album kan tijdelijk of permanent worden gesloten als dat nodig is.',
+          ],
+        },
+        {
+          title: 'Bewaartermijn',
+          points: [
+            'Geüploade inhoud wordt standaard 48 uur na het evenement bewaard.',
+            'Daarna kan de inhoud automatisch worden verwijderd.',
+            'De organisator kan een andere bewaartermijn hebben ingesteld.',
+          ],
+        },
+        {
+          title: 'Aansprakelijkheidsuitsluiting',
+          points: [
+            'EventDrop is niet rechtstreeks verantwoordelijk voor inhoud die door gebruikers wordt geüpload.',
+            'Bij technische storingen of gegevensverlies wordt geen garantie gegeven.',
           ],
         },
       ],
       privacyTitle: 'Privacyinformatie',
       privacyIntro:
-        'Deze pagina vat samen hoe persoonlijke gegevens, zoals je e-mailadres en geuploade media, worden verwerkt.',
+        'Deze pagina legt uit hoe persoonsgegevens via EventDrop worden verwerkt.',
       privacySections: [
         {
-          title: 'Welke gegevens we verwerken',
+          title: 'Verwerkte gegevens',
           points: [
             'Je e-mailadres wordt gebruikt om toegang tot het evenement te beheren en je indien nodig te kunnen bereiken.',
             'Geüploade foto’s en video’s worden opgeslagen in het album van het betreffende evenement.',
-            'Technische logs kunnen kort worden bewaard voor beveiliging en foutopsporing.',
+            'Technische gegevens zoals IP-adres, apparaatinformatie en logs kunnen tijdelijk worden bewaard voor beveiliging en foutopsporing.',
           ],
         },
         {
-          title: 'Doel en bewaartermijn',
+          title: 'Doel van gebruik',
           points: [
-            'Gegevens worden gebruikt om het evenementalbum te leveren, delen mogelijk te maken en misbruik te voorkomen.',
+            'Gegevens worden alleen gebruikt om het evenementalbum beschikbaar te maken, delen mogelijk te maken en het systeem te beschermen.',
+            'Gegevens worden niet voor marketingdoeleinden met derden gedeeld.',
+          ],
+        },
+        {
+          title: 'Bewaren en verwijderen',
+          points: [
             'Media wordt standaard na 48 uur verwijderd.',
-            'Je kunt via de contactgegevens een verzoek doen om inzage, correctie of verwijdering onder de AVG.',
+            'Technische logs worden beperkt bewaard en daarna automatisch verwijderd.',
+          ],
+        },
+        {
+          title: 'Rechten van gebruikers',
+          points: [
+            'Gebruikers kunnen verzoeken om verwijdering van geüploade inhoud.',
+            'Op verzoek kunnen inzage, correctie of verwijdering van gegevens worden uitgevoerd.',
+          ],
+        },
+        {
+          title: 'Beveiliging',
+          points: [
+            'EventDrop neemt passende technische en organisatorische maatregelen om gegevens te beschermen.',
+            'Volledige risicoloosheid van gegevensoverdracht via internet kan niet worden gegarandeerd.',
           ],
         },
       ],
+      acknowledge: 'Ik heb dit gelezen en begrepen',
     },
   },
   en: {
@@ -929,40 +1003,76 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Content responsibility',
           points: [
             'You confirm that you have the right to share the photos and videos you upload.',
-            'You must not upload humiliating, defamatory, hateful, violent, or illegal content.',
-            'Content that violates the privacy of others or is clearly inappropriate may be removed.',
+            'You must not upload privacy-violating, abusive, hateful, or illegal content.',
+            'Inappropriate content may be removed without prior notice.',
           ],
         },
         {
-          title: 'Service rules',
+          title: 'Use and system rules',
           points: [
-            'Albums are event-specific and content is normally kept for 48 hours.',
-            'Content may be removed without prior notice in case of misuse.',
-            'Access may be restricted or an album may be closed when necessary.',
+            'EventDrop is provided to collect participant contributions inside a single shared album.',
+            'The system may restrict access when misuse, spam, or harmful content is detected.',
+            'An album may be closed temporarily or permanently when necessary.',
+          ],
+        },
+        {
+          title: 'Retention period',
+          points: [
+            'Uploaded content is normally stored for 48 hours after the event.',
+            'After that, content may be removed automatically.',
+            'The organizer may have configured a different retention period.',
+          ],
+        },
+        {
+          title: 'Disclaimer',
+          points: [
+            'EventDrop is not directly responsible for content uploaded by users.',
+            'No guarantee is provided in case of technical issues or data loss.',
           ],
         },
       ],
       privacyTitle: 'Privacy Notice',
       privacyIntro:
-        'This page summarizes how personal data such as your email address and uploaded media is handled.',
+        'This page explains how personal data collected through EventDrop is handled.',
       privacySections: [
         {
-          title: 'Data we process',
+          title: 'Collected data',
           points: [
             'Your email address is used to manage event access and contact you if needed.',
             'Uploaded photos and videos are stored inside the relevant event album.',
-            'Technical logs may be retained briefly for security and troubleshooting.',
+            'Technical data such as IP address, device information, and logs may be retained temporarily for security and troubleshooting.',
           ],
         },
         {
-          title: 'Purpose and retention',
+          title: 'Purpose of use',
           points: [
-            'Data is used to provide the event album, enable sharing, and prevent misuse.',
-            'Media is normally deleted after 48 hours.',
-            'You can use the contact details to request access, correction, or deletion under GDPR.',
+            'Collected data is only used to provide the event album, enable sharing, and protect the system.',
+            'Data is not shared with third parties for marketing purposes.',
+          ],
+        },
+        {
+          title: 'Storage and deletion',
+          points: [
+            'Uploaded media is normally deleted after 48 hours.',
+            'Technical logs are kept for a limited period and then removed automatically.',
+          ],
+        },
+        {
+          title: 'User rights',
+          points: [
+            'Users may request the removal of content they uploaded.',
+            'Access, correction, or deletion requests can be handled upon request.',
+          ],
+        },
+        {
+          title: 'Security',
+          points: [
+            'EventDrop applies appropriate technical and organizational safeguards to protect data.',
+            'However, completely risk-free transmission over the internet cannot be guaranteed.',
           ],
         },
       ],
+      acknowledge: 'I have read and understood this',
     },
   },
 }
