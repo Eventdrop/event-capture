@@ -179,6 +179,9 @@ type TranslationTree = {
     showing: string
     loadError: string
     notFound: string
+    downloadAll: string
+    downloadingAll: string
+    allDownloaded: string
     downloadSelected: string
     backToUpload: string
     selected: string
@@ -417,6 +420,9 @@ export const translations: Record<Locale, TranslationTree> = {
       showing: 'yukleme gosteriliyor',
       loadError: 'Galeri su anda yuklenemedi.',
       notFound: 'Bu etkinlik galerisi bulunamadi.',
+      downloadAll: 'Tum albumu indir',
+      downloadingAll: 'Tum album indiriliyor...',
+      allDownloaded: 'Albumdeki tum medya indirildi.',
       downloadSelected: 'Secilenleri indir',
       backToUpload: 'Yuklemeye don',
       selected: 'Secildi',
@@ -726,6 +732,9 @@ export const translations: Record<Locale, TranslationTree> = {
       showing: 'uploads zichtbaar',
       loadError: 'De galerij kon nu niet worden geladen.',
       notFound: 'Deze galerij is niet gevonden.',
+      downloadAll: 'Download hele album',
+      downloadingAll: 'Het hele album wordt gedownload...',
+      allDownloaded: 'Alle media uit het album zijn gedownload.',
       downloadSelected: 'Selectie downloaden',
       backToUpload: 'Terug naar upload',
       selected: 'Geselecteerd',
@@ -1033,6 +1042,9 @@ export const translations: Record<Locale, TranslationTree> = {
       showing: 'uploads visible',
       loadError: 'The gallery could not be loaded right now.',
       notFound: 'This event gallery could not be found.',
+      downloadAll: 'Download full album',
+      downloadingAll: 'Downloading the full album...',
+      allDownloaded: 'All media in the album has been downloaded.',
       downloadSelected: 'Download selected',
       backToUpload: 'Back to upload',
       selected: 'Selected',
