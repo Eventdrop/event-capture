@@ -25,7 +25,7 @@ export function SiteHeader({ currentLabel }: SiteHeaderProps) {
             <p className="text-base font-semibold tracking-[-0.03em] text-stone-950">
               {brand.name}
             </p>
-            <p className="text-xs uppercase tracking-[0.22em] text-[#6A84A3]">
+            <p className="text-xs tracking-[0.08em] text-[#6A84A3]">
               {brand.tagline}
             </p>
           </div>
