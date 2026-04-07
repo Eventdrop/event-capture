@@ -126,6 +126,9 @@ type TranslationTree = {
     deleteConfirm: string
     deleteSuccess: string
     deleteError: string
+    share: string
+    shareSuccess: string
+    shareError: string
     download: string
     downloaded: string
     chooseBeforeDownload: string
@@ -271,6 +274,9 @@ export const translations: Record<Locale, TranslationTree> = {
       deleteConfirm: 'Bu yuklemeyi silmek istiyor musun?',
       deleteSuccess: 'Yukleme silindi.',
       deleteError: 'Yukleme silinemedi.',
+      share: 'Paylas',
+      shareSuccess: 'Paylasim linki hazirlandi.',
+      shareError: 'Paylasim su anda acilamadi.',
       download: 'Indir',
       downloaded: 'dosya indirildi',
       chooseBeforeDownload: 'Indirmeden once en az bir oge sec.',
@@ -414,6 +420,9 @@ export const translations: Record<Locale, TranslationTree> = {
       deleteConfirm: 'Weet je zeker dat je deze upload wilt verwijderen?',
       deleteSuccess: 'Upload verwijderd.',
       deleteError: 'Upload kon niet worden verwijderd.',
+      share: 'Delen',
+      shareSuccess: 'Deel-link is klaargezet.',
+      shareError: 'Delen kon nu niet worden geopend.',
       download: 'Downloaden',
       downloaded: 'bestanden gedownload',
       chooseBeforeDownload: 'Selecteer eerst minstens één item.',
@@ -557,6 +566,9 @@ export const translations: Record<Locale, TranslationTree> = {
       deleteConfirm: 'Are you sure you want to delete this upload?',
       deleteSuccess: 'Upload deleted.',
       deleteError: 'Upload could not be deleted.',
+      share: 'Share',
+      shareSuccess: 'Share link is ready.',
+      shareError: 'Sharing could not be opened right now.',
       download: 'Download',
       downloaded: 'files downloaded',
       chooseBeforeDownload: 'Choose at least one item before downloading.',
