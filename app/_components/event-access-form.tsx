@@ -83,59 +83,39 @@ export function EventAccessForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-[#0B2742]">
-            {t.home.emailLabel}
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="name@example.com"
-            autoComplete="email"
-            className="w-full rounded-2xl border border-[#C8D3E5] bg-white px-4 py-3 text-sm text-[#0F2135] placeholder:text-[#7A90AA]"
-          />
-        </div>
+      <input
+        type="email"
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
+        placeholder={t.home.emailLabel}
+        autoComplete="email"
+        className="w-full rounded-full border border-[#191511] bg-[#FF9B42] px-6 py-4 text-center text-sm font-medium uppercase tracking-[0.28em] text-[#191511] placeholder:text-[#191511]"
+      />
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-[#0B2742]">
-            {t.home.codeLabel}
-          </label>
-          <input
-            value={code}
-            onChange={(event) => setCode(event.target.value.toUpperCase())}
-            placeholder="YUNA26"
-            autoCapitalize="characters"
-            autoCorrect="off"
-            className="w-full rounded-2xl border border-[#C8D3E5] bg-white px-4 py-3 text-sm uppercase tracking-[0.18em] text-[#0F2135] placeholder:tracking-[0.08em] placeholder:text-[#7A90AA]"
-          />
-        </div>
-      </div>
-
-      {eventIdentifier ? (
-        <p className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm leading-6 text-[#33516F]">
-          {t.home.prefilledEvent}
-        </p>
-      ) : (
-        <p className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm leading-6 text-[#33516F]">
-          {t.home.manualAccessHelp}
-        </p>
-      )}
+      <input
+        value={code}
+        onChange={(event) => setCode(event.target.value.toUpperCase())}
+        placeholder={t.home.codeLabel}
+        autoCapitalize="characters"
+        autoCorrect="off"
+        className="w-full rounded-full border border-[#191511] bg-[#FF9B42] px-6 py-4 text-center text-sm font-medium uppercase tracking-[0.28em] text-[#191511] placeholder:text-[#191511]"
+      />
 
       <button
         type="submit"
         disabled={isPending}
-        className={`inline-flex w-full items-center justify-center rounded-full px-6 py-4 text-base font-semibold ${
+        className={`inline-flex w-full items-center justify-center rounded-full border px-6 py-4 text-sm font-semibold uppercase tracking-[0.28em] ${
           isPending
-            ? 'cursor-not-allowed bg-[#9CAEC1] text-white'
-            : 'bg-[#F58220] text-white shadow-[0_12px_24px_rgba(245,130,32,0.22)] hover:bg-[#DB6E12]'
+            ? 'cursor-not-allowed border-[#d9c4ae] bg-[#efe2d0] text-[#8a7b6a]'
+            : 'border-[#F28C18] bg-[#FFD244] text-[#191511] shadow-[0_12px_24px_rgba(255,210,68,0.28)] hover:bg-[#ffc629]'
         }`}
       >
         {isPending ? t.home.checkingAccess : t.home.accessButton}
       </button>
 
-      <p className="text-sm leading-7 text-[#597594]">{statusMessage}</p>
+      <p className="text-center text-xs uppercase tracking-[0.16em] text-[#5d6775]">
+        {eventIdentifier ? t.home.prefilledEvent : statusMessage}
+      </p>
     </form>
   )
 }
