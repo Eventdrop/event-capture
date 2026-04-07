@@ -94,6 +94,44 @@ export default function Page() {
     void load()
   }, [eventIdentifier, t.gallery.loadError, t.gallery.noUploads, t.gallery.notFound, t.gallery.showing])
 
+  useEffect(() => {
+    const loadBranding = async () => {
+      if (!currentEvent?.id) return
+      if (currentEvent.coverImageUrl && currentEvent.backgroundImageUrl) return
+
+      try {
+        const response = await fetch(
+          `/api/public-events/branding?identifier=${encodeURIComponent(eventIdentifier)}`,
+          { cache: 'no-store' }
+        )
+
+        if (!response.ok) return
+
+        const payload = (await response.json()) as {
+          coverImageUrl?: string
+          backgroundImageUrl?: string
+        }
+
+        if (!payload.coverImageUrl && !payload.backgroundImageUrl) return
+
+        setCurrentEvent((prev) =>
+          prev
+            ? {
+                ...prev,
+                coverImageUrl: payload.coverImageUrl || prev.coverImageUrl,
+                backgroundImageUrl:
+                  payload.backgroundImageUrl || prev.backgroundImageUrl,
+              }
+            : prev
+        )
+      } catch (error) {
+        console.error('Failed to load event branding', error)
+      }
+    }
+
+    void loadBranding()
+  }, [currentEvent?.backgroundImageUrl, currentEvent?.coverImageUrl, currentEvent?.id, eventIdentifier])
+
   const selectedItems = useMemo(
     () => items.filter((item) => selected.includes(item.id)),
     [items, selected]

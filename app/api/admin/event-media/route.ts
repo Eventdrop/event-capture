@@ -17,13 +17,29 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData()
     const file = formData.get('file')
+    const eventId = `${formData.get('eventId') || ''}`.trim()
+    const kind = `${formData.get('kind') || ''}`.trim()
 
     if (!(file instanceof File)) {
       return NextResponse.json({ ok: false, error: 'File is required.' }, { status: 400 })
     }
 
+    if (!eventId) {
+      return NextResponse.json(
+        { ok: false, error: 'Event id is required.' },
+        { status: 400 }
+      )
+    }
+
+    if (kind !== 'cover' && kind !== 'background') {
+      return NextResponse.json(
+        { ok: false, error: 'Media kind must be cover or background.' },
+        { status: 400 }
+      )
+    }
+
     const { fileName } = buildStoragePath(file)
-    const storagePath = `event-branding/${fileName}`
+    const storagePath = `event-branding/${eventId}/${kind}-${fileName}`
     const buffer = Buffer.from(await file.arrayBuffer())
     const supabase = createAdminSupabaseClient()
 
@@ -38,6 +54,15 @@ export async function POST(request: Request) {
     }
 
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${storagePath}`
+
+    await supabase
+      .from('events')
+      .update(
+        kind === 'cover'
+          ? { cover_image_url: url }
+          : { background_image_url: url }
+      )
+      .eq('id', eventId)
 
     return NextResponse.json({ ok: true, url, storagePath })
   } catch (error) {

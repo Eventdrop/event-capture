@@ -40,6 +40,8 @@ export default function AdminPage() {
   const [accessCode, setAccessCode] = useState(() => generateEventAccessCode())
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('')
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
+  const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null)
   const [uploadingVisual, setUploadingVisual] = useState<'cover' | 'background' | null>(null)
 
   const publicBaseUrl = getPublicAppUrl()
@@ -171,13 +173,23 @@ export default function AdminPage() {
     setSubmitting(true)
 
     try {
+      const persistedCoverImageUrl =
+        coverImageUrl.startsWith('http://') || coverImageUrl.startsWith('https://')
+          ? coverImageUrl
+          : ''
+      const persistedBackgroundImageUrl =
+        backgroundImageUrl.startsWith('http://') ||
+        backgroundImageUrl.startsWith('https://')
+          ? backgroundImageUrl
+          : ''
+
       const payload = buildEventInsertPayload({
         name: eventName,
         albumName,
         eventDate,
         accessCode,
-        coverImageUrl,
-        backgroundImageUrl,
+        coverImageUrl: persistedCoverImageUrl,
+        backgroundImageUrl: persistedBackgroundImageUrl,
       })
 
       const response = await fetch('/api/admin/events', {
@@ -208,13 +220,38 @@ export default function AdminPage() {
       const normalized = normalizeEventRecord(result.event)
 
       if (normalized) {
-        setEvents((prev) => [normalized, ...prev.filter((item) => item.id !== normalized.id)])
+        let nextEvent = normalized
+
+        if (coverImageFile) {
+          const uploadedCoverUrl = await uploadVisualForEvent(
+            normalized.id,
+            coverImageFile,
+            'cover'
+          )
+          nextEvent = { ...nextEvent, coverImageUrl: uploadedCoverUrl }
+        }
+
+        if (backgroundImageFile) {
+          const uploadedBackgroundUrl = await uploadVisualForEvent(
+            normalized.id,
+            backgroundImageFile,
+            'background'
+          )
+          nextEvent = {
+            ...nextEvent,
+            backgroundImageUrl: uploadedBackgroundUrl,
+          }
+        }
+
+        setEvents((prev) => [nextEvent, ...prev.filter((item) => item.id !== nextEvent.id)])
       }
 
       setEventName('')
       setAlbumName('')
       setEventDate('')
       setAccessCode(generateEventAccessCode())
+      setCoverImageFile(null)
+      setBackgroundImageFile(null)
       setCoverImageUrl('')
       setBackgroundImageUrl('')
       setStatusMessage(t.admin.createSuccess)
@@ -238,49 +275,39 @@ export default function AdminPage() {
     }
   }
 
-  const handleVisualUpload = async (
-    file: File | null,
-    kind: 'cover' | 'background'
-  ) => {
-    if (!file) return
+  const uploadVisualForEvent = useCallback(
+    async (eventId: string, file: File, kind: 'cover' | 'background') => {
+      setUploadingVisual(kind)
+      setStatusMessage(t.admin.mediaUploading)
 
-    setUploadingVisual(kind)
-    setStatusMessage(t.admin.mediaUploading)
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('eventId', eventId)
+        formData.append('kind', kind)
 
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
+        const response = await fetch('/api/admin/event-media', {
+          method: 'POST',
+          body: formData,
+        })
 
-      const response = await fetch('/api/admin/event-media', {
-        method: 'POST',
-        body: formData,
-      })
+        const payload = (await response.json()) as {
+          ok?: boolean
+          url?: string
+          error?: string
+        }
 
-      const payload = (await response.json()) as {
-        ok?: boolean
-        url?: string
-        error?: string
+        if (!response.ok || !payload.url) {
+          throw new Error(payload.error || t.admin.mediaUploadError)
+        }
+
+        return payload.url
+      } finally {
+        setUploadingVisual(null)
       }
-
-      if (!response.ok || !payload.url) {
-        throw new Error(payload.error || t.admin.mediaUploadError)
-      }
-
-      if (kind === 'cover') {
-        setCoverImageUrl(payload.url)
-      } else {
-        setBackgroundImageUrl(payload.url)
-      }
-
-      setStatusMessage(t.admin.createSuccess)
-    } catch (error) {
-      setStatusMessage(
-        error instanceof Error ? error.message : t.admin.mediaUploadError
-      )
-    } finally {
-      setUploadingVisual(null)
-    }
-  }
+    },
+    [t.admin.mediaUploadError, t.admin.mediaUploading]
+  )
 
   const handleDeleteEvent = async (eventId: string) => {
     const confirmed = window.confirm(t.admin.deleteConfirm)
@@ -372,6 +399,15 @@ export default function AdminPage() {
                   </button>
                 </div>
 
+                <div className="rounded-[1.8rem] border border-white/12 bg-white/8 p-5">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[#BFD4EA]">
+                    {t.admin.createTitle}
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-[#EAF3FB]">
+                    Drop your moments
+                  </p>
+                </div>
+
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="md:col-span-2">
                     <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
@@ -381,7 +417,7 @@ export default function AdminPage() {
                       value={eventName}
                       onChange={(event) => setEventName(event.target.value)}
                       placeholder="Kingsday Canal Wedding"
-                      className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-[#ADC3DA]"
+                      className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742] placeholder:text-[#7D95AF]"
                     />
                   </div>
 
@@ -393,7 +429,7 @@ export default function AdminPage() {
                       value={albumName}
                       onChange={(event) => setAlbumName(event.target.value)}
                       placeholder="Orange Night Album"
-                      className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-[#ADC3DA]"
+                      className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742] placeholder:text-[#7D95AF]"
                     />
                   </div>
 
@@ -405,7 +441,7 @@ export default function AdminPage() {
                       type="date"
                       value={eventDate}
                       onChange={(event) => setEventDate(event.target.value)}
-                      className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white"
+                      className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742]"
                     />
                   </div>
 
@@ -422,7 +458,7 @@ export default function AdminPage() {
                         placeholder="YUNA26"
                         autoCapitalize="characters"
                         autoCorrect="off"
-                        className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm uppercase tracking-[0.18em] text-white placeholder:text-[#ADC3DA]"
+                        className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm uppercase tracking-[0.18em] text-[#0B2742] placeholder:text-[#7D95AF]"
                       />
                       <button
                         type="button"
@@ -444,13 +480,15 @@ export default function AdminPage() {
                     <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
                       {uploadingVisual === 'cover'
                         ? t.admin.mediaUploading
-                        : t.admin.uploadCover}
+                        : coverImageFile?.name || t.admin.uploadCover}
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(event) =>
-                          void handleVisualUpload(event.target.files?.[0] || null, 'cover')
-                        }
+                        onChange={(event) => {
+                          const file = event.target.files?.[0] || null
+                          setCoverImageFile(file)
+                          setCoverImageUrl(file ? URL.createObjectURL(file) : '')
+                        }}
                         className="sr-only"
                       />
                     </label>
@@ -469,16 +507,15 @@ export default function AdminPage() {
                     <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
                       {uploadingVisual === 'background'
                         ? t.admin.mediaUploading
-                        : t.admin.uploadBackground}
+                        : backgroundImageFile?.name || t.admin.uploadBackground}
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(event) =>
-                          void handleVisualUpload(
-                            event.target.files?.[0] || null,
-                            'background'
-                          )
-                        }
+                        onChange={(event) => {
+                          const file = event.target.files?.[0] || null
+                          setBackgroundImageFile(file)
+                          setBackgroundImageUrl(file ? URL.createObjectURL(file) : '')
+                        }}
                         className="sr-only"
                       />
                     </label>
