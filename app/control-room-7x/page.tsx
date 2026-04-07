@@ -6,7 +6,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
-import { getPublicAppUrl } from '@/lib/app-url'
+import { getPublicAppUrl, getPublicPath } from '@/lib/app-url'
 import { brand } from '@/lib/brand'
 import {
   buildEventInsertPayload,
@@ -46,6 +46,7 @@ export default function AdminPage() {
   const [uploadingVisual, setUploadingVisual] = useState<'cover' | 'background' | null>(null)
 
   const publicBaseUrl = getPublicAppUrl()
+  const adminUrl = getPublicPath('/control-room-7x')
 
   const latestEvent = useMemo(() => events[0] || null, [events])
 
@@ -54,6 +55,12 @@ export default function AdminPage() {
     `${publicBaseUrl}${getEventJoinRoute(getEventIdentifier(event))}`
   const getGalleryShareUrl = (event: NormalizedEvent) =>
     `${publicBaseUrl}${getEventGalleryRoute(getEventIdentifier(event))}`
+  const getPublicJoinPath = (event: NormalizedEvent) =>
+    getPublicPath(getEventJoinRoute(getEventIdentifier(event)))
+  const getPublicUploadPath = (event: NormalizedEvent) =>
+    getPublicPath(getEventRoute(getEventIdentifier(event)))
+  const getPublicGalleryPath = (event: NormalizedEvent) =>
+    getPublicPath(getEventGalleryRoute(getEventIdentifier(event)))
 
   useEffect(() => {
     setStatusMessage(t.admin.loginPrompt)
@@ -377,6 +384,7 @@ export default function AdminPage() {
               <p className="mt-3 text-sm leading-7 text-[#EEF6FF]">
                 {statusMessage}
               </p>
+              <p className="mt-3 break-all text-xs text-[#BFD4EA]">{adminUrl}</p>
             </div>
           </div>
 
@@ -639,7 +647,7 @@ export default function AdminPage() {
 
             {latestEvent ? (
               <Link
-                href={getEventJoinRoute(getEventIdentifier(latestEvent))}
+                href={getPublicJoinPath(latestEvent)}
                 className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-5 py-3 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
               >
                 {t.common.latestPublicAlbum}
@@ -695,21 +703,21 @@ export default function AdminPage() {
 
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <Link
-                      href={getEventJoinRoute(getEventIdentifier(event))}
+                      href={getPublicJoinPath(event)}
                       className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-4 py-2 text-sm font-semibold text-white hover:bg-[#DB6E12]"
                     >
                       {t.common.guestEntryPage}
                     </Link>
 
                     <Link
-                      href={getEventRoute(getEventIdentifier(event))}
+                      href={getPublicUploadPath(event)}
                       className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
                     >
                       {t.common.uploadPage}
                     </Link>
 
                     <Link
-                      href={getEventGalleryRoute(getEventIdentifier(event))}
+                      href={getPublicGalleryPath(event)}
                       className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                     >
                       {t.common.gallery}
