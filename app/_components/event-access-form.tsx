@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/app/_components/language-provider'
+import { getPublicPath } from '@/lib/app-url'
 
 type EventAccessFormProps = {
   eventIdentifier?: string
@@ -17,7 +17,6 @@ export function EventAccessForm({
   compact = false,
   requireCode = true,
 }: EventAccessFormProps) {
-  const router = useRouter()
   const { t } = useLanguage()
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
@@ -76,7 +75,7 @@ export function EventAccessForm({
       setStatusMessage(t.home.accessGranted)
 
       startTransition(() => {
-        router.push(payload.redirectTo!)
+        window.location.assign(getPublicPath(payload.redirectTo!))
       })
     } catch (error) {
       setStatusMessage(

@@ -5,18 +5,33 @@ import { useRouter } from 'next/navigation'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
+import { getPublicPath } from '@/lib/app-url'
 
 export function LegalPage() {
   const { t } = useLanguage()
   const router = useRouter()
 
   const handleBack = () => {
+    const returnTo =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('returnTo')
+        : null
+
+    if (
+      returnTo &&
+      returnTo.startsWith('/') &&
+      !returnTo.startsWith('//')
+    ) {
+      window.location.assign(getPublicPath(returnTo))
+      return
+    }
+
     if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back()
       return
     }
 
-    router.push('/')
+    window.location.assign(getPublicPath('/'))
   }
 
   return (
@@ -35,7 +50,7 @@ export function LegalPage() {
             </button>
 
             <Link
-              href="/"
+              href={getPublicPath('/')}
               className="text-sm font-medium text-[#597594] underline decoration-[#C8D3E5] underline-offset-4"
             >
               EventDrop

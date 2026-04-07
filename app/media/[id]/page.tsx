@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
+import { getPublicPath } from '@/lib/app-url'
 import {
   getDownloadFileName,
   inferMediaKind,
@@ -82,7 +83,7 @@ export default async function MediaPage({
               </a>
 
               <Link
-                href="/"
+                href={getPublicPath('/')}
                 className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-5 py-3 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
               >
                 Back to EventDrop

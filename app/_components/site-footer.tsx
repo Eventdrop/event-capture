@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useLanguage } from '@/app/_components/language-provider'
+import { getPublicPath } from '@/lib/app-url'
 import { brand } from '@/lib/brand'
 
 export function SiteFooter() {
@@ -33,13 +34,13 @@ export function SiteFooter() {
           </p>
           <div className="mt-2 flex flex-wrap gap-3 text-xs text-[#597594] md:justify-end">
             <Link
-              href="/terms"
+              href={getPublicPath('/terms')}
               className="underline decoration-[#C8D3E5] underline-offset-4 hover:text-[#0F3D66]"
             >
               {t.common.terms}
             </Link>
             <Link
-              href="/privacy"
+              href={getPublicPath('/privacy')}
               className="underline decoration-[#C8D3E5] underline-offset-4 hover:text-[#0F3D66]"
             >
               {t.common.privacy}
