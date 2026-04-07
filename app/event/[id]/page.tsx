@@ -285,75 +285,76 @@ export default function Page() {
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f9f5ee_0%,_#efe8dc_52%,_#edf4fb_100%)] text-stone-900">
       <SiteHeader currentLabel={t.upload.badge} />
 
-      <main className="relative flex-1 p-6">
-        {!guidanceAccepted ? (
-          <div className="absolute inset-0 z-20 flex items-start justify-center bg-[rgba(249,245,238,0.88)] px-4 py-6 backdrop-blur-sm md:items-center md:px-6">
-            <div className="w-full max-w-5xl rounded-[2rem] border border-[#D4DFEE] bg-[rgba(255,248,239,0.98)] p-6 shadow-[0_18px_54px_rgba(15,61,102,0.14)] backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C76B14]">
-                {t.upload.guidanceBadge}
-              </p>
-
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#0B2742]">
-                {t.upload.guidanceTitle}
-              </h2>
-
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-[#33516F]">
-                {t.upload.guidanceIntro}
-              </p>
-
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                {t.upload.guidancePoints.map((point) => (
-                  <div
-                    key={point}
-                    className="rounded-[1.5rem] border border-[#F3D2AF] bg-white p-5 text-sm leading-7 text-[#33516F]"
-                  >
-                    {point}
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 rounded-[1.5rem] border border-[#F3D2AF] bg-white p-5">
-                <label className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={guidanceAccepted}
-                    onChange={(event) => setGuidanceAccepted(event.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-[#C8D3E5] text-[#F58220] focus:ring-[#F58220]"
-                  />
-                  <span className="text-sm leading-6 text-[#33516F]">
-                    <span className="font-medium text-[#0B2742]">
-                      {t.upload.consentLabel}
-                    </span>
-                    <span className="mt-1 block">{t.upload.consentHelp}</span>
-                  </span>
-                </label>
-
-                <p className="mt-4 text-sm leading-7 text-[#597594]">
-                  {t.upload.consentLinks}{' '}
-                  <Link
-                    href="/terms"
-                    className="font-medium text-[#0F3D66] underline decoration-[#C8D3E5] underline-offset-4"
-                  >
-                    {t.common.terms}
-                  </Link>{' '}
-                  ·{' '}
-                  <Link
-                    href="/privacy"
-                    className="font-medium text-[#0F3D66] underline decoration-[#C8D3E5] underline-offset-4"
-                  >
-                    {t.common.privacy}
-                  </Link>
+      {!guidanceAccepted ? (
+        <>
+          <main className="flex-1 p-6">
+            <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+              <section className="rounded-[2.2rem] border border-[#D4DFEE] bg-[rgba(255,248,239,0.98)] p-6 shadow-[0_18px_54px_rgba(15,61,102,0.14)] backdrop-blur md:p-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C76B14]">
+                  {t.upload.guidanceBadge}
                 </p>
-              </div>
-            </div>
-          </div>
-        ) : null}
 
-        <div
-          className={`mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr] ${
-            !guidanceAccepted ? 'pointer-events-none blur-[1px]' : ''
-          }`}
-        >
+                <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#0B2742] md:text-4xl">
+                  {t.upload.guidanceTitle}
+                </h1>
+
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-[#33516F]">
+                  {t.upload.guidanceIntro}
+                </p>
+
+                <div className="mt-6 grid gap-4 md:grid-cols-3">
+                  {t.upload.guidancePoints.map((point) => (
+                    <div
+                      key={point}
+                      className="rounded-[1.5rem] border border-[#F3D2AF] bg-white p-5 text-sm leading-7 text-[#33516F]"
+                    >
+                      {point}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 rounded-[1.5rem] border border-[#F3D2AF] bg-white p-5">
+                  <label className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={guidanceAccepted}
+                      onChange={(event) => setGuidanceAccepted(event.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-[#C8D3E5] text-[#F58220] focus:ring-[#F58220]"
+                    />
+                    <span className="text-sm leading-6 text-[#33516F]">
+                      <span className="font-medium text-[#0B2742]">
+                        {t.upload.consentLabel}
+                      </span>
+                      <span className="mt-1 block">{t.upload.consentHelp}</span>
+                    </span>
+                  </label>
+
+                  <p className="mt-4 text-sm leading-7 text-[#597594]">
+                    {t.upload.consentLinks}{' '}
+                    <Link
+                      href="/terms"
+                      className="font-medium text-[#0F3D66] underline decoration-[#C8D3E5] underline-offset-4"
+                    >
+                      {t.common.terms}
+                    </Link>{' '}
+                    ·{' '}
+                    <Link
+                      href="/privacy"
+                      className="font-medium text-[#0F3D66] underline decoration-[#C8D3E5] underline-offset-4"
+                    >
+                      {t.common.privacy}
+                    </Link>
+                  </p>
+                </div>
+              </section>
+            </div>
+          </main>
+
+          <SiteFooter />
+        </>
+      ) : (
+      <main className="relative flex-1 p-6">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="rounded-[2rem] border border-[#D4DFEE] bg-white/84 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6A84A3]">
             {t.upload.badge}
@@ -519,6 +520,7 @@ export default function Page() {
         </section>
         </div>
       </main>
+      )}
 
       <SiteFooter />
     </div>
