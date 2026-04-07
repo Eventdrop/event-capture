@@ -30,6 +30,7 @@ export default function Page() {
   const [selected, setSelected] = useState<string[]>([])
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [downloadingAll, setDownloadingAll] = useState(false)
 
   useEffect(() => {
     setStatusMessage(t.gallery.loading)
@@ -187,6 +188,23 @@ export default function Page() {
     )
   }
 
+  const downloadAll = async () => {
+    if (items.length === 0 || downloadingAll) return
+
+    setDownloadingAll(true)
+    setStatusMessage(t.gallery.downloadingAll)
+
+    try {
+      for (const item of items) {
+        await handleDownload(item.file_url, getDownloadFileName(item))
+      }
+
+      setStatusMessage(t.gallery.allDownloaded)
+    } finally {
+      setDownloadingAll(false)
+    }
+  }
+
   const handleDelete = async (item: UploadRecord) => {
     const confirmed = window.confirm(t.gallery.deleteConfirm)
 
@@ -278,6 +296,18 @@ export default function Page() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              onClick={downloadAll}
+              disabled={items.length === 0 || downloadingAll}
+              className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                items.length === 0 || downloadingAll
+                  ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                  : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
+              }`}
+            >
+              {downloadingAll ? t.gallery.downloadingAll : t.gallery.downloadAll}
+            </button>
+
             <button
               onClick={downloadSelected}
               disabled={selected.length === 0}
