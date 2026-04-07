@@ -15,6 +15,43 @@ function PosterTile({ src }: { src: string }) {
   )
 }
 
+function HomeAccordion({
+  sections,
+}: {
+  sections: { title: string; body: string[] }[]
+}) {
+  return (
+    <div className="grid gap-4">
+      {sections.map((section, index) => (
+        <details
+          key={section.title}
+          className="group rounded-[1.7rem] border border-[#E3ECF6] bg-white shadow-[0_16px_44px_rgba(15,61,102,0.06)]"
+          open={index === 0}
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
+            <span className="text-base font-semibold tracking-[-0.03em] text-[#0B2742] sm:text-lg">
+              {section.title}
+            </span>
+            <span className="shrink-0 rounded-full border border-[#C8D3E5] bg-[#F7FAFD] px-3 py-1 text-xs font-semibold text-[#0F3D66] transition group-open:rotate-180">
+              ▼
+            </span>
+          </summary>
+
+          <div className="border-t border-[#EEF3F8] px-6 pb-6 pt-4">
+            <div className="space-y-3">
+              {section.body.map((paragraph) => (
+                <p key={paragraph} className="text-sm leading-7 text-[#45617F] sm:text-[15px]">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </div>
+        </details>
+      ))}
+    </div>
+  )
+}
+
 export default function Home() {
   const { t } = useLanguage()
 
@@ -91,38 +128,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-3">
-              <div className="rounded-[2rem] bg-[#0F3D66] p-6 text-white shadow-[0_24px_70px_rgba(15,61,102,0.16)]">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.26em] text-[#BFD4EA]">
-                  {t.home.bestFor}
-                </p>
-                <p className="mt-4 text-sm leading-7 text-[#F4F8FC]">
-                  {t.home.bestForText}
-                </p>
-              </div>
-
-              <div className="rounded-[2rem] bg-[#FFF4E8] p-6 shadow-[0_24px_70px_rgba(155,101,29,0.1)]">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.26em] text-[#A57A49]">
-                  {t.home.flowTitle}
-                </p>
-                <p className="mt-4 text-sm leading-7 text-[#5D4B3B]">
-                  {t.home.flowText}
-                </p>
-              </div>
-
-              <div className="rounded-[2rem] border border-[#E3ECF6] bg-[#F7FAFD] p-6 shadow-[0_24px_70px_rgba(15,61,102,0.06)]">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.26em] text-[#0F3D66]">
-                  {t.home.howItWorks}
-                </p>
-                <div className="mt-4 space-y-3">
-                  {t.home.points.slice(0, 3).map((point) => (
-                    <p key={point} className="text-sm leading-7 text-[#33516F]">
-                      {point}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <HomeAccordion sections={t.home.sections} />
           </section>
         </div>
       </main>
