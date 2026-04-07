@@ -21,7 +21,7 @@ export function LanguageSwitcher() {
   }, [])
 
   return (
-    <div ref={wrapperRef} className="relative">
+    <div ref={wrapperRef} className="relative z-[70]">
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
@@ -32,7 +32,7 @@ export function LanguageSwitcher() {
       </button>
 
       {open ? (
-        <div className="absolute right-0 z-30 mt-2 min-w-28 rounded-2xl border border-[#D4DFEE] bg-white p-2 shadow-[0_18px_40px_rgba(15,61,102,0.12)]">
+        <div className="absolute right-0 z-[80] mt-2 min-w-28 rounded-2xl border border-[#D4DFEE] bg-white p-2 shadow-[0_18px_40px_rgba(15,61,102,0.12)]">
           {locales.map((code) => (
             <button
               key={code}

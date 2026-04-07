@@ -11,7 +11,7 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ currentLabel }: SiteHeaderProps) {
   return (
-    <header className="border-b border-[#D4DFEE] bg-white/82 backdrop-blur">
+    <header className="relative z-50 border-b border-[#D4DFEE] bg-white/82 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4 md:px-10">
         <Link href="/" className="flex items-center gap-3">
           <Image
