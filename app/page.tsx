@@ -1,66 +1,18 @@
 'use client'
 
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { EventAccessForm } from '@/app/_components/event-access-form'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
-import { useLanguage } from '@/app/_components/language-provider'
 import { brand } from '@/lib/brand'
-import {
-  formatEventDisplayName,
-  getEventGalleryRoute,
-  getEventRoute,
-  normalizeEventRecord,
-  type NormalizedEvent,
-} from '@/lib/events'
+import { useLanguage } from '@/app/_components/language-provider'
 
 export default function Home() {
   const { t } = useLanguage()
   const websiteLabel = brand.website.replace(/^https?:\/\//, '')
-  const [latestEvent, setLatestEvent] = useState<NormalizedEvent | null>(null)
-  const [statusMessage, setStatusMessage] = useState(t.home.loading)
-
-  useEffect(() => {
-    setStatusMessage(t.home.loading)
-  }, [t.home.loading])
-
-  useEffect(() => {
-    const loadLatestEvent = async () => {
-      try {
-        const response = await fetch('/api/public-events/latest', {
-          cache: 'no-store',
-        })
-        const payload = (await response.json()) as {
-          ok?: boolean
-          event?: unknown
-          error?: string
-        }
-
-        if (!response.ok) {
-          throw new Error(payload.error || t.home.noAlbum)
-        }
-
-        const normalized = normalizeEventRecord(payload.event as Record<string, unknown>)
-        setLatestEvent(normalized)
-        setStatusMessage(
-          normalized ? t.home.latestAlbumReady : t.home.noAlbum
-        )
-      } catch (error) {
-        console.error('Failed to load latest event', error)
-        setStatusMessage(
-          error instanceof Error ? error.message : t.home.noAlbum
-        )
-      }
-    }
-
-    void loadLatestEvent()
-  }, [t.home.latestAlbumReady, t.home.noAlbum])
-
-  const latestEventIdentifier = latestEvent?.slug || latestEvent?.id || ''
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader currentLabel={t.home.latestAlbumLabel} />
+      <SiteHeader currentLabel={t.home.entryLabel} />
 
       <main className="dutch-grid flex-1 overflow-hidden bg-[linear-gradient(180deg,_#faf6ef_0%,_#f3ede2_48%,_#edf4fb_100%)] text-[#0F2135]">
         <section className="mx-auto grid min-h-full w-full max-w-6xl gap-14 px-6 py-20 md:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
@@ -79,43 +31,20 @@ export default function Home() {
 
             <div className="mt-8 rounded-[2rem] border border-[#D4DFEE] bg-white/82 p-6 shadow-[0_18px_54px_rgba(15,61,102,0.08)] backdrop-blur">
               <p className="text-xs uppercase tracking-[0.18em] text-[#6A84A3]">
-                {t.home.latestAlbumLabel}
+                {t.home.entryLabel}
               </p>
 
-              {latestEvent ? (
-                <>
-                  <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#0B2742]">
-                    {formatEventDisplayName(latestEvent)}
-                  </h2>
-                  {formatEventDisplayName(latestEvent) !== latestEvent.name ? (
-                    <p className="mt-2 text-sm leading-6 text-[#33516F]">
-                      {latestEvent.name}
-                    </p>
-                  ) : null}
+              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#0B2742]">
+                {t.home.formTitle}
+              </h2>
 
-                  <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                    <Link
-                      href={getEventRoute(latestEventIdentifier)}
-                      className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-6 py-4 text-base font-semibold text-white shadow-[0_12px_24px_rgba(245,130,32,0.22)] transition hover:bg-[#DB6E12]"
-                    >
-                      {t.home.uploadCta}
-                    </Link>
+              <p className="mt-2 text-sm leading-7 text-[#33516F]">
+                {t.home.formIntro}
+              </p>
 
-                    <Link
-                      href={getEventGalleryRoute(latestEventIdentifier)}
-                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-[#EDF4FB] px-6 py-4 text-base font-semibold text-[#0F3D66] transition hover:bg-white"
-                    >
-                      {t.home.galleryCta}
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                <div className="mt-4 rounded-[1.5rem] border border-dashed border-[#C8D3E5] bg-[#F8FBFE] p-5 text-sm leading-7 text-[#4E6985]">
-                  {t.home.noAlbum}
-                </div>
-              )}
-
-              <p className="mt-5 text-sm text-[#597594]">{statusMessage}</p>
+              <div className="mt-6">
+                <EventAccessForm />
+              </div>
             </div>
 
             <div className="mt-8 rounded-[2rem] border border-[#D4DFEE] bg-white/70 p-6">

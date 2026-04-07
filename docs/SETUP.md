@@ -67,6 +67,7 @@ Uygulama varsayilan olarak:
 ## Current Routes
 
 - `/`
+- `/join/[id]`
 - `/control-room-7x`
 - `/event/[id]`
 - `/event/[id]/gallery`
@@ -89,14 +90,14 @@ Detayli alanlar icin [DB_SCHEMA.md](/Users/3worksmedia/event-capture/docs/DB_SCH
 ## Recommended Local Test Flow
 
 1. Supabase ortam degiskenlerini ayarla
-2. En az bir `events` kaydi ekle
-3. Bu kaydin `id` degeriyle `/event/[id]` sayfasina git
-4. Birkac fotograf yukle
-5. `/event/[id]/gallery` sayfasinda sonuc kontrol et
+2. Gizli admin panelinden yeni bir etkinlik olustur
+3. Uretilen `event code` bilgisini not al
+4. `/join/[slug]` veya `/` uzerinden e-posta ve `event code` ile giris yap
+5. `/event/[id]` sayfasinda medya yukle
+6. `/event/[id]/gallery` sayfasinda sonuc kontrol et
 
-## Known Gaps In Current Code
+## Notes
 
-- Video yukleme akisi henuz netlestirilmemis
-- Dosya isimleri henuz tarih tabanli standarda gore uretilmiyor
-- 48 saatlik otomatik silme mekanizmasi henuz kodlanmamis
-- Host tarafi yonetim paneli henuz yok
+- Public kullanici dogrudan etkinlik sayfalarini listeleyemez; giris `event code` ile yapilir.
+- Admin panel her etkinlik icin otomatik bir `event code` uretir.
+- Eski veritabanlarinda `access_code` kolonu yoksa uygulama gecici olarak etkinlik `id` bilgisinden turetilen legacy bir kod kullanabilir.

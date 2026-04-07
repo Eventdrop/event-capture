@@ -13,6 +13,7 @@ type TranslationTree = {
     contact: string
     eventId: string
     eventDate: string
+    guestEntryPage: string
     uploadPage: string
     gallery: string
     copyUploadLink: string
@@ -29,6 +30,20 @@ type TranslationTree = {
     badge: string
     title: string
     intro: string
+    entryLabel: string
+    formTitle: string
+    formIntro: string
+    emailLabel: string
+    codeLabel: string
+    accessButton: string
+    accessHint: string
+    accessGranted: string
+    accessError: string
+    emailRequired: string
+    codeRequired: string
+    checkingAccess: string
+    manualAccessHelp: string
+    prefilledEvent: string
     latestAlbumLabel: string
     latestAlbumReady: string
     noAlbum: string
@@ -77,6 +92,9 @@ type TranslationTree = {
     checkingSession: string
     recentAlbums: string
     hiddenRouteNote: string
+    accessCodeLabel: string
+    copyCodeButton: string
+    codeCopied: string
   }
   upload: {
     badge: string
@@ -145,29 +163,47 @@ export const translations: Record<Locale, TranslationTree> = {
       contact: 'Iletisim',
       eventId: 'Etkinlik ID',
       eventDate: 'Etkinlik tarihi',
+      guestEntryPage: 'Misafir girisi',
       uploadPage: 'Yukleme sayfasi',
       gallery: 'Galeri',
-      copyUploadLink: 'Yukleme linkini kopyala',
+      copyUploadLink: 'Misafir giris linkini kopyala',
       copyGalleryLink: 'Galeri linkini kopyala',
       deleteEvent: 'Etkinligi sil',
       signOut: 'Cikis yap',
-      latestPublicAlbum: 'Son public albume git',
+      latestPublicAlbum: 'Son misafir girisini ac',
       restrictedAdmin: 'Kisitli Yonetim',
       hiddenAdminAccess: 'Gizli yonetim erisimi',
       hiddenAdminDescription:
-        'Bu sayfa public anasayfada baglanmaz. Buradan son public albumu yonetebilirsin.',
+        'Bu sayfa public anasayfada baglanmaz. Buradan etkinlikleri, kodlari ve misafir girislerini yonetebilirsin.',
       language: 'Dil',
     },
     home: {
       badge: 'QR ile etkinlik albumu',
-      title: 'Son olusturulan ortak album artik misafir yuklemelerine hazir.',
+      title: 'QR ile gelen misafirleri kendi etkinlik kodlariyla dogru albume yonlendir.',
       intro:
-        'EventDrop, misafirlerin tek bir ortak albumde fotograflarini ve videolarini kolayca toplar.',
-      latestAlbumLabel: 'Canli album',
-      latestAlbumReady: 'Son olusturulan album su anda misafir yuklemeleri icin acik.',
+        'EventDrop, ayni anda birden fazla etkinligi ayri tutar ve misafirleri e-posta ile event code kullanarak kendi albumlerine alir.',
+      entryLabel: 'Guvenli misafir girisi',
+      formTitle: 'E-posta ve event code ile devam et',
+      formIntro:
+        'QR kodu okuttuktan sonra e-postani ve organizatorden aldigin event code bilgisini gir.',
+      emailLabel: 'E-posta adresi',
+      codeLabel: 'Event code',
+      accessButton: 'Albume gir',
+      accessHint: 'Devam etmek icin e-posta ve event code gir.',
+      accessGranted: 'Erisim onaylandi. Album aciliyor...',
+      accessError: 'Bu event code ile album bulunamadi.',
+      emailRequired: 'Lutfen gecerli bir e-posta adresi gir.',
+      codeRequired: 'Event code gerekli.',
+      checkingAccess: 'Kod kontrol ediliyor...',
+      manualAccessHelp:
+        'QR kodun yoksa e-posta ve event code ile yine kendi albumune girebilirsin.',
+      prefilledEvent:
+        'Bu baglanti belirli bir etkinlige ait. Devam etmek icin sadece e-posta ve event code girmen yeterli.',
+      latestAlbumLabel: 'Misafir girisi',
+      latestAlbumReady: 'Misafir girisi etkinlik kodu ile dogrulanir.',
       noAlbum:
-        'Henuz aktif bir album yok. Admin yeni bir album olusturdugunda yukleme butonu burada gorunecek.',
-      uploadCta: 'Fotograf veya video yukle',
+        'Etkinlikler public olarak listelenmez. Devam etmek icin event code kullan.',
+      uploadCta: 'Albume git',
       galleryCta: 'Galeriyi ac',
       contactLabel: 'Iletisim',
       bestFor: 'En uygun kullanim',
@@ -175,15 +211,15 @@ export const translations: Record<Locale, TranslationTree> = {
         'Dugunler, dogum gunleri, sirket etkinlikleri ve tek gunluk bulusmalar icin tasarlandi.',
       flowTitle: 'Public giris akisi',
       flowText:
-        'Misafirler anasayfadan son albumu acar, dogrudan yukleme ekranina gider ve ayni galeride bulusur.',
+        'Misafir QR ile gelir, e-posta ve event code girer, sadece kendi etkinlik albumune yonlenir.',
       howItWorks: 'Nasil calisir',
       points: [
-        'Misafirler tek bir QR kod ile katilir',
-        'Fotograflar ve videolar tek ortak albumde toplanir',
-        'Indirmek ve paylasmak kolay kalir',
+        'Her etkinligin kendi ozel event code bilgisi vardir',
+        'Misafirler QR veya link ile girer, kodla dogrulanir',
+        'Fotograflar ve videolar sadece ilgili albumde toplanir',
         'Icerikler 48 saat sonra temizlenir',
       ],
-      loading: 'Son ortak album aranıyor...',
+      loading: 'Misafir girisi hazirlaniyor...',
     },
     admin: {
       title: 'Gizli yonetim paneli',
@@ -224,6 +260,9 @@ export const translations: Record<Locale, TranslationTree> = {
       recentAlbums: 'Son albumler',
       hiddenRouteNote:
         'Bu rota public olarak paylasilmaz; sadece ic erisim icin kullanilir.',
+      accessCodeLabel: 'Event code',
+      copyCodeButton: 'Kodu kopyala',
+      codeCopied: 'Event code panoya kopyalandi.',
     },
     upload: {
       badge: 'Misafir yukleme sayfasi',
@@ -292,29 +331,47 @@ export const translations: Record<Locale, TranslationTree> = {
       contact: 'Contact',
       eventId: 'Evenement-ID',
       eventDate: 'Evenementdatum',
+      guestEntryPage: 'Gasttoegang',
       uploadPage: 'Uploadpagina',
       gallery: 'Galerij',
-      copyUploadLink: 'Uploadlink kopieren',
+      copyUploadLink: 'Toegangslink kopieren',
       copyGalleryLink: 'Galerijlink kopieren',
       deleteEvent: 'Evenement verwijderen',
       signOut: 'Uitloggen',
-      latestPublicAlbum: 'Open laatste publieke album',
+      latestPublicAlbum: 'Open laatste gasttoegang',
       restrictedAdmin: 'Beheerderszone',
       hiddenAdminAccess: 'Verborgen beheer',
       hiddenAdminDescription:
-        'Deze pagina staat niet op de openbare homepage. Hier beheer je het laatste publieke album.',
+        'Deze pagina staat niet op de openbare homepage. Hier beheer je evenementen, codes en gasttoegang.',
       language: 'Taal',
     },
     home: {
       badge: 'QR-eventalbum',
-      title: 'Het nieuwste gedeelde album staat klaar voor gasten.',
+      title: 'Leid QR-gasten met hun eigen eventcode naar het juiste album.',
       intro:
-        'EventDrop verzamelt foto’s en video’s van gasten in een gedeeld album dat snel en helder aanvoelt.',
-      latestAlbumLabel: 'Live album',
-      latestAlbumReady: 'Het laatst aangemaakte album staat nu open voor uploads van gasten.',
+        'EventDrop houdt meerdere evenementen tegelijk gescheiden en laat gasten met e-mail en eventcode alleen hun eigen album openen.',
+      entryLabel: 'Beveiligde gasttoegang',
+      formTitle: 'Ga verder met e-mail en eventcode',
+      formIntro:
+        'Na het scannen van de QR-code vul je je e-mailadres en de eventcode van de organisator in.',
+      emailLabel: 'E-mailadres',
+      codeLabel: 'Eventcode',
+      accessButton: 'Open album',
+      accessHint: 'Vul je e-mail en eventcode in om verder te gaan.',
+      accessGranted: 'Toegang bevestigd. Album wordt geopend...',
+      accessError: 'Er is geen album gevonden voor deze eventcode.',
+      emailRequired: 'Vul een geldig e-mailadres in.',
+      codeRequired: 'Een eventcode is verplicht.',
+      checkingAccess: 'Code wordt gecontroleerd...',
+      manualAccessHelp:
+        'Heb je geen QR-code? Dan kun je nog steeds met e-mail en eventcode naar je eigen album.',
+      prefilledEvent:
+        'Deze link hoort al bij een specifiek evenement. Vul alleen je e-mail en eventcode in om verder te gaan.',
+      latestAlbumLabel: 'Gasttoegang',
+      latestAlbumReady: 'Gasttoegang wordt met een eventcode bevestigd.',
       noAlbum:
-        'Er is nog geen actief album. Zodra de beheerder er een maakt, verschijnt de uploadknop hier.',
-      uploadCta: 'Foto’s of video’s uploaden',
+        'Evenementen worden niet openbaar getoond. Gebruik een eventcode om door te gaan.',
+      uploadCta: 'Naar album',
       galleryCta: 'Galerij openen',
       contactLabel: 'Contact',
       bestFor: 'Ideaal voor',
@@ -322,15 +379,15 @@ export const translations: Record<Locale, TranslationTree> = {
         'Bruiloften, verjaardagen, bedrijfsevents en eendaagse bijeenkomsten.',
       flowTitle: 'Publieke instroom',
       flowText:
-        'Gasten starten op de homepage, openen het nieuwste album en uploaden direct naar dezelfde galerij.',
+        'Gasten komen binnen via QR, vullen e-mail en eventcode in en landen alleen in hun eigen evenementalbum.',
       howItWorks: 'Zo werkt het',
       points: [
-        'Gasten doen mee via een enkele QR-scan',
-        'Foto’s en video’s komen samen in één album',
-        'Downloaden en delen blijft eenvoudig',
+        'Elk evenement krijgt een eigen eventcode',
+        'Gasten worden via QR of link gecontroleerd',
+        'Foto’s en video’s blijven binnen het juiste album',
         'Inhoud wordt na 48 uur opgeruimd',
       ],
-      loading: 'Nieuwste gedeelde album wordt geladen...',
+      loading: 'Gasttoegang wordt voorbereid...',
     },
     admin: {
       title: 'Verborgen beheerpaneel',
@@ -371,6 +428,9 @@ export const translations: Record<Locale, TranslationTree> = {
       recentAlbums: 'Recente albums',
       hiddenRouteNote:
         'Deze route wordt niet publiek gedeeld en is alleen voor intern gebruik.',
+      accessCodeLabel: 'Eventcode',
+      copyCodeButton: 'Code kopieren',
+      codeCopied: 'Eventcode is naar het klembord gekopieerd.',
     },
     upload: {
       badge: 'Upload door gasten',
@@ -439,29 +499,47 @@ export const translations: Record<Locale, TranslationTree> = {
       contact: 'Contact',
       eventId: 'Event ID',
       eventDate: 'Event date',
+      guestEntryPage: 'Guest entry',
       uploadPage: 'Upload page',
       gallery: 'Gallery',
-      copyUploadLink: 'Copy upload link',
+      copyUploadLink: 'Copy guest entry link',
       copyGalleryLink: 'Copy gallery link',
       deleteEvent: 'Delete event',
       signOut: 'Sign out',
-      latestPublicAlbum: 'Open latest public album',
+      latestPublicAlbum: 'Open latest guest entry',
       restrictedAdmin: 'Restricted Admin',
       hiddenAdminAccess: 'Hidden admin access',
       hiddenAdminDescription:
-        'This page is not linked from the public homepage. Use it to manage the latest public album.',
+        'This page is not linked from the public homepage. Use it to manage events, codes, and guest entry.',
       language: 'Language',
     },
     home: {
       badge: 'QR event album',
-      title: 'The newest shared album is ready for guests.',
+      title: 'Route QR guests into the right album with their own event code.',
       intro:
-        'EventDrop gathers guest photos and videos into one shared album with a clean, mobile-first flow.',
-      latestAlbumLabel: 'Live album',
-      latestAlbumReady: 'The latest created album is now open for guest uploads.',
+        'EventDrop keeps simultaneous events isolated and lets guests open only their own album with email and event code.',
+      entryLabel: 'Secure guest entry',
+      formTitle: 'Continue with email and event code',
+      formIntro:
+        'After scanning the QR code, enter your email address and the event code provided by the organizer.',
+      emailLabel: 'Email address',
+      codeLabel: 'Event code',
+      accessButton: 'Enter album',
+      accessHint: 'Enter your email and event code to continue.',
+      accessGranted: 'Access confirmed. Opening the album...',
+      accessError: 'No album was found for this event code.',
+      emailRequired: 'Please enter a valid email address.',
+      codeRequired: 'An event code is required.',
+      checkingAccess: 'Checking code...',
+      manualAccessHelp:
+        'No QR code available? You can still enter your own album with email and event code.',
+      prefilledEvent:
+        'This link already belongs to a specific event. Enter your email and event code to continue.',
+      latestAlbumLabel: 'Guest entry',
+      latestAlbumReady: 'Guest access is confirmed with an event code.',
       noAlbum:
-        'There is no active album yet. As soon as the admin creates one, the upload button will appear here.',
-      uploadCta: 'Upload photos or videos',
+        'Events are not publicly listed. Use an event code to continue.',
+      uploadCta: 'Go to album',
       galleryCta: 'Open gallery',
       contactLabel: 'Contact',
       bestFor: 'Best for',
@@ -469,15 +547,15 @@ export const translations: Record<Locale, TranslationTree> = {
         'Weddings, birthdays, company events, and one-day gatherings.',
       flowTitle: 'Public entry flow',
       flowText:
-        'Guests start from the homepage, open the latest album, and upload directly into the shared gallery.',
+        'Guests arrive via QR, enter email and event code, and land only inside their own event album.',
       howItWorks: 'How it works',
       points: [
-        'Guests join with one QR scan',
-        'Photos and videos land in one shared album',
-        'Downloading and sharing stays simple',
+        'Every event gets its own event code',
+        'Guests are checked through QR or a private link',
+        'Photos and videos stay inside the correct album',
         'Media is cleaned up after 48 hours',
       ],
-      loading: 'Looking for the latest shared album...',
+      loading: 'Preparing guest entry...',
     },
     admin: {
       title: 'Hidden admin panel',
@@ -518,6 +596,9 @@ export const translations: Record<Locale, TranslationTree> = {
       recentAlbums: 'Recent albums',
       hiddenRouteNote:
         'This route is not publicly shared and is meant for internal access only.',
+      accessCodeLabel: 'Event code',
+      copyCodeButton: 'Copy code',
+      codeCopied: 'Event code copied to clipboard.',
     },
     upload: {
       badge: 'Guest upload page',
