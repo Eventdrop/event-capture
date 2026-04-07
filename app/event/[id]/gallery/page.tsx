@@ -15,7 +15,8 @@ import {
   getUploadShareKey,
   type UploadRecord,
 } from '@/lib/eventdrop'
-import { formatEventDisplayName, normalizeEventRecord } from '@/lib/events'
+import { getEventBackground, getEventCover } from '@/lib/event-visuals'
+import { formatEventDisplayName, normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
 import { supabase } from '@/lib/supabase'
 
 export default function Page() {
@@ -24,6 +25,7 @@ export default function Page() {
   const eventIdentifier = params.id as string
 
   const [items, setItems] = useState<UploadRecord[]>([])
+  const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
   const [eventName, setEventName] = useState('Shared Event Gallery')
   const [selected, setSelected] = useState<string[]>([])
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
@@ -57,6 +59,8 @@ export default function Page() {
         setStatusMessage(t.gallery.notFound)
         return
       }
+
+      setCurrentEvent(normalizedEvent)
 
       const { data: uploads, error: uploadsError } = await supabase
         .from('uploads')
@@ -203,13 +207,21 @@ export default function Page() {
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#f0ebe2_55%,_#edf4fb_100%)] text-stone-900">
       <SiteHeader currentLabel={t.gallery.badge} />
 
-      <main className="flex-1 p-6">
+      <main
+        className="flex-1 bg-cover bg-center p-6"
+        style={{ backgroundImage: `linear-gradient(rgba(15,33,53,0.4), rgba(15,33,53,0.48)), url(${getEventBackground(currentEvent)})` }}
+      >
         <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-[#D4DFEE] bg-white/84 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur sm:flex-row sm:items-start sm:justify-between">
+        <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-white/20 bg-[rgba(255,250,242,0.9)] p-6 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6A84A3]">
               {t.gallery.badge}
             </p>
+
+            <div
+              className="mt-4 h-28 w-full max-w-sm rounded-[1.6rem] bg-cover bg-center"
+              style={{ backgroundImage: `url(${getEventCover(currentEvent)})` }}
+            />
 
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-stone-950">
               {eventName}

@@ -52,13 +52,22 @@ export async function POST(request: Request) {
   if (unauthorized) return unauthorized
 
   const body = (await request.json().catch(() => null)) as
-    | { name?: string; albumName?: string; eventDate?: string; accessCode?: string }
+    | {
+        name?: string
+        albumName?: string
+        eventDate?: string
+        accessCode?: string
+        coverImageUrl?: string
+        backgroundImageUrl?: string
+      }
     | null
 
   const name = body?.name?.trim() || ''
   const albumName = body?.albumName?.trim() || ''
   const eventDate = body?.eventDate || ''
   const accessCode = body?.accessCode?.trim() || ''
+  const coverImageUrl = body?.coverImageUrl?.trim() || ''
+  const backgroundImageUrl = body?.backgroundImageUrl?.trim() || ''
 
   if (!name || !albumName) {
     return NextResponse.json(
@@ -72,7 +81,14 @@ export async function POST(request: Request) {
 
   try {
     const supabase = createAdminSupabaseClient()
-    const payload = buildEventInsertPayload({ name, albumName, eventDate, accessCode })
+    const payload = buildEventInsertPayload({
+      name,
+      albumName,
+      eventDate,
+      accessCode,
+      coverImageUrl,
+      backgroundImageUrl,
+    })
 
     const richInsert = await supabase.from('events').insert([payload]).select('*').single()
 
@@ -84,6 +100,8 @@ export async function POST(request: Request) {
         album_name: payload.album_name,
         slug: payload.slug,
         event_date: payload.event_date,
+        cover_image_url: payload.cover_image_url,
+        background_image_url: payload.background_image_url,
         expires_at: payload.expires_at,
       }
 
