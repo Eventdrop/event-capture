@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 import { useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
+import { getPublicMediaUrl } from '@/lib/app-url'
 import {
   getDownloadFileName,
   inferMediaKind,
@@ -170,10 +171,11 @@ export default function Page() {
   }
 
   const handleShare = async (item: UploadRecord) => {
+    const shareUrl = getPublicMediaUrl(item.id)
     const shareData = {
       title: eventName,
       text: getDownloadFileName(item),
-      url: item.file_url,
+      url: shareUrl,
     }
 
     try {
@@ -181,14 +183,14 @@ export default function Page() {
         await navigator.share(shareData)
         setStatusMessage(t.gallery.shareSuccess)
       } else {
-        await navigator.clipboard.writeText(item.file_url)
+        await navigator.clipboard.writeText(shareUrl)
         setStatusMessage(t.gallery.shareCopied)
       }
     } catch (error) {
       console.error('Share failed', error)
 
       try {
-        await navigator.clipboard.writeText(item.file_url)
+        await navigator.clipboard.writeText(shareUrl)
         setStatusMessage(t.gallery.shareCopied)
       } catch {
         setStatusMessage(t.gallery.shareError)
