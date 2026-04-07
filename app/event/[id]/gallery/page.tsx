@@ -177,16 +177,22 @@ export default function Page() {
     }
 
     try {
-      if (navigator.share) {
+      if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
         await navigator.share(shareData)
+        setStatusMessage(t.gallery.shareSuccess)
       } else {
         await navigator.clipboard.writeText(item.file_url)
+        setStatusMessage(t.gallery.shareCopied)
       }
-
-      setStatusMessage(t.gallery.shareSuccess)
     } catch (error) {
       console.error('Share failed', error)
-      setStatusMessage(t.gallery.shareError)
+
+      try {
+        await navigator.clipboard.writeText(item.file_url)
+        setStatusMessage(t.gallery.shareCopied)
+      } catch {
+        setStatusMessage(t.gallery.shareError)
+      }
     }
   }
 
