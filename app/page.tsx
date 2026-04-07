@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import { EventAccessForm } from '@/app/_components/event-access-form'
-import { LanguageSwitcher } from '@/app/_components/language-switcher'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
@@ -77,14 +76,9 @@ export default function Home() {
 
           <section className="grid gap-6">
             <div className="hidden rounded-[2.2rem] border border-[#ead8c1] bg-white p-6 shadow-[0_24px_80px_rgba(15,33,53,0.08)] md:block sm:p-8">
-              <div className="flex items-start justify-between gap-4">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.28em] text-[#A57A49]">
-                  {t.home.entryLabel}
-                </p>
-                <div className="shrink-0">
-                  <LanguageSwitcher />
-                </div>
-              </div>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.28em] text-[#A57A49]">
+                {t.home.entryLabel}
+              </p>
               <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#17120f] sm:text-4xl">
                 Drop your moments
               </h1>
