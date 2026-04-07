@@ -8,6 +8,14 @@ import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
 import { placeholderVisuals } from '@/lib/event-visuals'
 
+function PosterTile({ src }: { src: string }) {
+  return (
+    <div className="relative h-[180px] overflow-hidden rounded-[1.35rem] sm:h-[220px]">
+      <Image src={src} alt="" fill unoptimized className="object-cover object-center" />
+    </div>
+  )
+}
+
 export default function Home() {
   const { t } = useLanguage()
 
@@ -19,13 +27,13 @@ export default function Home() {
         <div className="mx-auto grid w-full max-w-6xl gap-6 xl:grid-cols-[420px_minmax(0,1fr)] xl:items-start">
           <section className="overflow-hidden rounded-[2.2rem] border border-[#ead8c1] bg-white shadow-[0_24px_80px_rgba(15,33,53,0.08)]">
             <div className="p-4 sm:p-5">
-              <div className="relative h-[340px] overflow-hidden rounded-[1.6rem] sm:h-[430px]">
+              <div className="relative h-[420px] overflow-hidden rounded-[1.6rem] sm:h-[560px]">
                 <Image
                   src={placeholderVisuals.homeBackground}
                   alt={t.home.title}
                   fill
                   unoptimized
-                  className="object-cover"
+                  className="object-cover object-center"
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.03)_38%,rgba(17,12,8,0.18)_100%)]" />
               </div>
@@ -40,14 +48,10 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="relative mt-5 h-[220px] overflow-hidden rounded-[1.4rem] sm:h-[260px]">
-                  <Image
-                    src={placeholderVisuals.homeStrip}
-                    alt=""
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
+                <div className="mt-5 grid grid-cols-3 gap-2.5">
+                  <PosterTile src={placeholderVisuals.coverOne} />
+                  <PosterTile src={placeholderVisuals.coverTwo} />
+                  <PosterTile src={placeholderVisuals.coverThree} />
                 </div>
 
                 <p className="mt-5 text-center text-[11px] uppercase tracking-[0.28em] text-[#8b8175]">
