@@ -344,7 +344,7 @@ export const translations: Record<Locale, TranslationTree> = {
         'Medya 48 saat saklanir; kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
       ],
       consentLabel:
-        'Bu medyayi kendi istegimle yukledigimi ve kullanim sartlarini kabul ettigimi onayliyorum.',
+        'Yukledigin fotograf ve videolar uzerinde paylasim hakkina sahip oldugunu beyan edersin. Ayni etkinlikte yer alan diger katilimcilarin da seni iceren fotograf ve videolari yukleyebilecegini ve paylasabilecegini kabul edersin.',
       consentHelp:
         'Onay vermeden dosya secimi ve yukleme acilmaz.',
       consentRequired:
@@ -417,7 +417,8 @@ export const translations: Record<Locale, TranslationTree> = {
         {
           title: 'Icerik sorumlulugu',
           points: [
-            'Yukledigin fotograf ve videolari paylasma hakkina sahip oldugunu beyan edersin.',
+            'Yukledigin fotograf ve videolar uzerinde paylasim hakkina sahip oldugunu beyan edersin.',
+            'Ayni etkinlikte yer alan diger katilimcilarin da seni iceren fotograf ve videolari yukleyebilecegini ve paylasabilecegini kabul edersin.',
             'Kucuk dusurucu, iftira niteliginde, nefret iceren, siddeti tesvik eden veya yasa disi icerik yukleyemezsin.',
             'Baska kisilerin mahremiyetini ihlal eden veya acikca rahatsizlik verecek icerikler kaldirilabilir.',
             'Gerekli gorulen durumlarda uygunsuz icerikler onceden bildirim yapilmadan kaldirilabilir.',
