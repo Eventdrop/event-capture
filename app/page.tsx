@@ -37,9 +37,9 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0.16)_38%,rgba(17,12,8,0.24)_100%)] md:bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.03)_38%,rgba(17,12,8,0.18)_100%)]" />
 
-                <div className="absolute inset-x-4 top-4 z-10 md:hidden">
-                  <div className="rounded-[1.5rem] border border-white/60 bg-[rgba(255,255,255,0.84)] p-3 shadow-[0_18px_32px_rgba(15,33,53,0.12)] backdrop-blur">
-                    <EventAccessForm />
+                <div className="absolute inset-x-5 top-5 z-10 md:hidden">
+                  <div className="rounded-[1.35rem] border border-white/45 bg-[rgba(255,255,255,0.68)] p-2.5 shadow-[0_14px_26px_rgba(15,33,53,0.1)] backdrop-blur-sm">
+                    <EventAccessForm compact />
                   </div>
                 </div>
               </div>

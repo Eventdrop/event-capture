@@ -7,11 +7,13 @@ import { useLanguage } from '@/app/_components/language-provider'
 type EventAccessFormProps = {
   eventIdentifier?: string
   returnTo?: string
+  compact?: boolean
 }
 
 export function EventAccessForm({
   eventIdentifier = '',
   returnTo = '',
+  compact = false,
 }: EventAccessFormProps) {
   const router = useRouter()
   const { t } = useLanguage()
@@ -89,7 +91,11 @@ export function EventAccessForm({
         onChange={(event) => setEmail(event.target.value)}
         placeholder={t.home.emailLabel}
         autoComplete="email"
-        className="w-full rounded-full border border-[#191511] bg-[#FF9B42] px-6 py-4 text-center text-sm font-medium uppercase tracking-[0.28em] text-[#191511] placeholder:text-[#191511]"
+        className={`w-full rounded-full border border-[#191511] bg-[#FF9B42] text-center font-medium uppercase text-[#191511] placeholder:text-[#191511] ${
+          compact
+            ? 'px-4 py-3 text-xs tracking-[0.22em]'
+            : 'px-6 py-4 text-sm tracking-[0.28em]'
+        }`}
       />
 
       <input
@@ -98,13 +104,21 @@ export function EventAccessForm({
         placeholder={t.home.codeLabel}
         autoCapitalize="characters"
         autoCorrect="off"
-        className="w-full rounded-full border border-[#191511] bg-[#FF9B42] px-6 py-4 text-center text-sm font-medium uppercase tracking-[0.28em] text-[#191511] placeholder:text-[#191511]"
+        className={`w-full rounded-full border border-[#191511] bg-[#FF9B42] text-center font-medium uppercase text-[#191511] placeholder:text-[#191511] ${
+          compact
+            ? 'px-4 py-3 text-xs tracking-[0.22em]'
+            : 'px-6 py-4 text-sm tracking-[0.28em]'
+        }`}
       />
 
       <button
         type="submit"
         disabled={isPending}
-        className={`inline-flex w-full items-center justify-center rounded-full border px-6 py-4 text-sm font-semibold uppercase tracking-[0.28em] ${
+        className={`inline-flex w-full items-center justify-center rounded-full border font-semibold uppercase ${
+          compact
+            ? 'px-4 py-3 text-xs tracking-[0.22em]'
+            : 'px-6 py-4 text-sm tracking-[0.28em]'
+        } ${
           isPending
             ? 'cursor-not-allowed border-[#d9c4ae] bg-[#efe2d0] text-[#8a7b6a]'
             : 'border-[#F28C18] bg-[#FFD244] text-[#191511] shadow-[0_12px_24px_rgba(255,210,68,0.28)] hover:bg-[#ffc629]'
@@ -113,7 +127,11 @@ export function EventAccessForm({
         {isPending ? t.home.checkingAccess : t.home.accessButton}
       </button>
 
-      <p className="text-center text-xs uppercase tracking-[0.16em] text-[#5d6775]">
+      <p
+        className={`text-center uppercase text-[#5d6775] ${
+          compact ? 'text-[10px] tracking-[0.12em]' : 'text-xs tracking-[0.16em]'
+        }`}
+      >
         {eventIdentifier ? t.home.prefilledEvent : statusMessage}
       </p>
     </form>
