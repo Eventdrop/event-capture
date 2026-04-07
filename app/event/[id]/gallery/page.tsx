@@ -169,6 +169,27 @@ export default function Page() {
     }
   }
 
+  const handleShare = async (item: UploadRecord) => {
+    const shareData = {
+      title: eventName,
+      text: getDownloadFileName(item),
+      url: item.file_url,
+    }
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+      } else {
+        await navigator.clipboard.writeText(item.file_url)
+      }
+
+      setStatusMessage(t.gallery.shareSuccess)
+    } catch (error) {
+      console.error('Share failed', error)
+      setStatusMessage(t.gallery.shareError)
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#f0ebe2_55%,_#edf4fb_100%)] text-stone-900">
       <SiteHeader currentLabel={t.gallery.badge} />
@@ -264,21 +285,28 @@ export default function Page() {
                     </button>
 
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3">
-                      {isSelected ? (
+                      <div className="flex items-center gap-2">
+                        {isSelected ? (
+                          <button
+                            onClick={() => handleDelete(item)}
+                            disabled={isDeleting}
+                            className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                              isDeleting
+                                ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                                : 'bg-[#B52E2E] text-white'
+                            }`}
+                          >
+                            {isDeleting ? t.gallery.deleting : t.gallery.delete}
+                          </button>
+                        ) : null}
+
                         <button
-                          onClick={() => handleDelete(item)}
-                          disabled={isDeleting}
-                          className={`rounded-full px-3 py-2 text-xs font-semibold ${
-                            isDeleting
-                              ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                              : 'bg-[#B52E2E] text-white'
-                          }`}
+                          onClick={() => handleShare(item)}
+                          className="rounded-full bg-white/92 px-3 py-2 text-xs font-semibold text-stone-900"
                         >
-                          {isDeleting ? t.gallery.deleting : t.gallery.delete}
+                          {t.gallery.share}
                         </button>
-                      ) : (
-                        <span />
-                      )}
+                      </div>
 
                       <button
                         onClick={() => handleDownload(item.file_url, downloadName)}
