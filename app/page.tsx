@@ -35,15 +35,21 @@ export default function Home() {
                   unoptimized
                   className="object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.03)_38%,rgba(17,12,8,0.18)_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0.16)_38%,rgba(17,12,8,0.24)_100%)] md:bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.03)_38%,rgba(17,12,8,0.18)_100%)]" />
+
+                <div className="absolute inset-x-4 top-4 z-10 md:hidden">
+                  <div className="rounded-[1.5rem] border border-white/60 bg-[rgba(255,255,255,0.84)] p-3 shadow-[0_18px_32px_rgba(15,33,53,0.12)] backdrop-blur">
+                    <EventAccessForm />
+                  </div>
+                </div>
               </div>
 
               <div className="bg-white px-2 pb-2 pt-4 sm:px-3">
                 <div className="text-center">
-                  <p className="text-[52px] font-semibold uppercase leading-[0.86] tracking-[-0.09em] text-[#17120f] sm:text-[68px]">
+                  <p className="text-[44px] font-semibold uppercase leading-[0.86] tracking-[-0.09em] text-[#17120f] sm:text-[68px]">
                     DROP YOUR
                   </p>
-                  <p className="-mt-1 text-[34px] italic leading-none text-[#F28C18] sm:text-[42px]">
+                  <p className="-mt-1 text-[30px] italic leading-none text-[#F28C18] sm:text-[42px]">
                     moments
                   </p>
                 </div>
@@ -62,7 +68,7 @@ export default function Home() {
           </section>
 
           <section className="grid gap-6">
-            <div className="rounded-[2.2rem] border border-[#ead8c1] bg-white p-6 shadow-[0_24px_80px_rgba(15,33,53,0.08)] sm:p-8">
+            <div className="hidden rounded-[2.2rem] border border-[#ead8c1] bg-white p-6 shadow-[0_24px_80px_rgba(15,33,53,0.08)] md:block sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <p className="text-[12px] font-semibold uppercase tracking-[0.28em] text-[#A57A49]">
                   {t.home.entryLabel}
