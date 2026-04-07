@@ -84,17 +84,17 @@ export function EventAccessForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className={compact ? 'space-y-2.5' : 'space-y-4'}>
       <input
         type="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder={t.home.emailLabel}
         autoComplete="email"
-        className={`w-full rounded-full border border-[#191511] bg-[#FF9B42] text-center font-medium uppercase text-[#191511] placeholder:text-[#191511] ${
+        className={`w-full rounded-full border text-[#191511] transition-colors outline-none placeholder:text-[#6f6256] focus:bg-[#f2e2cf] focus:ring-0 ${
           compact
-            ? 'px-3 py-2 text-[11px] tracking-[0.18em]'
-            : 'px-6 py-4 text-sm tracking-[0.28em]'
+            ? 'border-[#d7c5af] bg-[rgba(255,248,239,0.46)] px-3 py-1.5 text-[11px]'
+            : 'border-[#191511] bg-[#FF9B42] px-6 py-4 text-sm font-medium uppercase tracking-[0.28em] text-center placeholder:text-[#191511]'
         }`}
       />
 
@@ -104,10 +104,10 @@ export function EventAccessForm({
         placeholder={t.home.codeLabel}
         autoCapitalize="characters"
         autoCorrect="off"
-        className={`w-full rounded-full border border-[#191511] bg-[#FF9B42] text-center font-medium uppercase text-[#191511] placeholder:text-[#191511] ${
+        className={`w-full rounded-full border text-[#191511] transition-colors outline-none focus:bg-[#f2e2cf] focus:ring-0 ${
           compact
-            ? 'px-3 py-2 text-[11px] tracking-[0.18em]'
-            : 'px-6 py-4 text-sm tracking-[0.28em]'
+            ? 'border-[#d7c5af] bg-[rgba(255,248,239,0.46)] px-3 py-1.5 text-[11px] uppercase tracking-[0.08em] placeholder:text-[#6f6256]'
+            : 'border-[#191511] bg-[#FF9B42] px-6 py-4 text-sm font-medium uppercase tracking-[0.28em] text-center placeholder:text-[#191511]'
         }`}
       />
 
@@ -116,12 +116,14 @@ export function EventAccessForm({
         disabled={isPending}
         className={`inline-flex w-full items-center justify-center rounded-full border font-semibold uppercase ${
           compact
-            ? 'px-3 py-2 text-[11px] tracking-[0.18em]'
+            ? 'border-[#F0B86E] bg-[#FFD244] px-3 py-1.5 text-[10px] tracking-[0.16em] shadow-[0_8px_16px_rgba(255,210,68,0.2)]'
             : 'px-6 py-4 text-sm tracking-[0.28em]'
         } ${
           isPending
             ? 'cursor-not-allowed border-[#d9c4ae] bg-[#efe2d0] text-[#8a7b6a]'
-            : 'border-[#F28C18] bg-[#FFD244] text-[#191511] shadow-[0_12px_24px_rgba(255,210,68,0.28)] hover:bg-[#ffc629]'
+            : compact
+              ? 'text-[#191511] hover:bg-[#ffc629]'
+              : 'border-[#F28C18] bg-[#FFD244] text-[#191511] shadow-[0_12px_24px_rgba(255,210,68,0.28)] hover:bg-[#ffc629]'
         }`}
       >
         {isPending ? t.home.checkingAccess : t.home.accessButton}
@@ -129,7 +131,7 @@ export function EventAccessForm({
 
       <p
         className={`text-center uppercase text-[#5d6775] ${
-          compact ? 'text-[10px] tracking-[0.12em]' : 'text-xs tracking-[0.16em]'
+          compact ? 'text-[9px] tracking-[0.08em]' : 'text-xs tracking-[0.16em]'
         }`}
       >
         {eventIdentifier ? t.home.prefilledEvent : statusMessage}
