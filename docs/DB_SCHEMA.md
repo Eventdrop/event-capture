@@ -17,12 +17,15 @@ Onerilen alanlar:
 - `event_date` date null
 - `slug` text null
 - `access_code` text null unique
+- `allow_guest_share` boolean not null default true
+- `allow_guest_download` boolean not null default true
+- `allow_guest_delete` boolean not null default false
 - `created_at` timestamptz not null default now()
 - `expires_at` timestamptz null
 
 Not:
 
-- `expires_at`, varsayilan olarak etkinlik tarihinden veya olusturma zamanindan 48 saat sonrasina set edilebilir.
+- `expires_at`, etkinlik tarihi varsa o tarihi takip eden gece 00:00'dan 48 saat sonrasina set edilebilir.
 - Mevcut kod sadece `id` ve `name` alanlarini fiilen kullaniyor.
 
 ### uploads
@@ -36,6 +39,7 @@ Onerilen alanlar:
 - `file_url` text not null
 - `storage_path` text not null
 - `file_name` text not null
+- `share_code` text null unique
 - `media_type` text not null
 - `mime_type` text null
 - `created_at` timestamptz not null default now()
@@ -45,6 +49,7 @@ Not:
 
 - Mevcut kod `type` adli bir alan kullaniyor. Daha acik oldugu icin `media_type` tercih edilmesi onerilir.
 - `storage_path` alaninin bulunmasi, dosya silme islemini `file_url` parse etmeye gerek kalmadan yapmayi kolaylastirir.
+- `share_code`, `/media/...` paylasim linklerinin kalici ve kisa kalmasi icin kullanilir.
 
 ### admin_credentials
 
@@ -116,7 +121,8 @@ Her upload icin:
 
 Onerilen kural:
 
-- `expires_at = created_at + interval '48 hours'`
+- `expires_at = ((event_date + interval '1 day')::timestamp + interval '48 hours')`
+- event_date yoksa fallback olarak `created_at + interval '48 hours'`
 
 ## Suggested SQL Draft
 
@@ -129,6 +135,9 @@ create table if not exists public.events (
   event_date date,
   slug text,
   access_code text unique,
+  allow_guest_share boolean not null default true,
+  allow_guest_download boolean not null default true,
+  allow_guest_delete boolean not null default false,
   created_at timestamptz not null default now(),
   expires_at timestamptz
 );
@@ -139,6 +148,7 @@ create table if not exists public.uploads (
   file_url text not null,
   storage_path text not null,
   file_name text not null,
+  share_code text unique,
   media_type text not null,
   mime_type text,
   created_at timestamptz not null default now(),
@@ -170,6 +180,10 @@ create index if not exists uploads_event_id_idx
 
 create index if not exists uploads_expires_at_idx
   on public.uploads (expires_at);
+
+create unique index if not exists uploads_share_code_idx
+  on public.uploads (share_code)
+  where share_code is not null;
 
 create unique index if not exists events_access_code_idx
   on public.events (access_code);

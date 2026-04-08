@@ -89,24 +89,39 @@ export async function POST(request: Request) {
 
   try {
     const supabase = createAdminSupabaseClient()
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(300)
+    let eventByIdentifier: NormalizedEvent | null = null
 
-    if (error) {
-      throw error
+    if (identifier) {
+      const idLookup = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', identifier)
+        .maybeSingle()
+
+      if (idLookup.error) {
+        throw idLookup.error
+      }
+
+      eventByIdentifier = normalizeEventRecord(idLookup.data)
+
+      if (!eventByIdentifier) {
+        const slugLookup = await supabase
+          .from('events')
+          .select('*')
+          .eq('slug', identifier)
+          .maybeSingle()
+
+        if (slugLookup.error) {
+          throw slugLookup.error
+        }
+
+        eventByIdentifier = normalizeEventRecord(slugLookup.data)
+      }
+
+      if (eventByIdentifier && !isEventActive(eventByIdentifier)) {
+        eventByIdentifier = null
+      }
     }
-
-    const events = (data || [])
-      .map((item) => normalizeEventRecord(item))
-      .filter((item): item is NormalizedEvent => Boolean(item))
-      .filter(isEventActive)
-
-    const eventByIdentifier = identifier
-      ? events.find((event) => event.id === identifier || event.slug === identifier)
-      : null
 
     if (!identifier && !code) {
       return NextResponse.json(
@@ -118,11 +133,31 @@ export async function POST(request: Request) {
       )
     }
 
-    const matchedEvent = identifier
-      ? eventByIdentifier && (!eventByIdentifier.accessCode || eventByIdentifier.accessCode === code)
-        ? eventByIdentifier
-        : null
-      : events.find((event) => event.accessCode && event.accessCode === code)
+    let matchedEvent: NormalizedEvent | null = null
+
+    if (identifier) {
+      matchedEvent =
+        eventByIdentifier && (!eventByIdentifier.accessCode || eventByIdentifier.accessCode === code)
+          ? eventByIdentifier
+          : null
+    } else if (code) {
+      const codeLookup = await supabase
+        .from('events')
+        .select('*')
+        .eq('access_code', code)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (codeLookup.error) {
+        throw codeLookup.error
+      }
+
+      matchedEvent =
+        (codeLookup.data || [])
+          .map((item) => normalizeEventRecord(item))
+          .filter((item): item is NormalizedEvent => Boolean(item))
+          .filter(isEventActive)[0] || null
+    }
 
     if (!matchedEvent) {
       return NextResponse.json(

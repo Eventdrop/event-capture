@@ -36,9 +36,19 @@ export default async function MediaPage({
   if (directLookup.data) {
     upload = directLookup.data as UploadRecord
   } else {
+    const shareCodeLookup = await supabase
+      .from('uploads')
+      .select('*')
+      .eq('share_code', id)
+      .maybeSingle()
+
+    if (shareCodeLookup.data) {
+      upload = shareCodeLookup.data as UploadRecord
+    }
+
     const ordinalKey = parseOrdinalShareKey(id)
 
-    if (ordinalKey) {
+    if (!upload && ordinalKey) {
       const exactEventLookup = await supabase
         .from('events')
         .select('*')
@@ -51,7 +61,7 @@ export default async function MediaPage({
         const fallbackEventsLookup = await supabase
           .from('events')
           .select('*')
-          .limit(300)
+          .limit(1000)
 
         event =
           (fallbackEventsLookup.data || [])
@@ -119,6 +129,7 @@ export default async function MediaPage({
   const backToAlbumUrl = parentEvent
     ? getPublicPath(getEventGalleryRoute(parentEvent.slug || parentEvent.id))
     : getPublicPath('/')
+  const downloadAllowed = parentEvent?.allowGuestDownload !== false
 
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#edf4fb_100%)] text-stone-900">
@@ -141,7 +152,9 @@ export default async function MediaPage({
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <MediaDownloadButton fileName={shortFileName} fileUrl={upload.file_url} />
+              {downloadAllowed ? (
+                <MediaDownloadButton fileName={shortFileName} fileUrl={upload.file_url} />
+              ) : null}
 
               <Link
                 href={backToAlbumUrl}

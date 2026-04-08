@@ -180,6 +180,9 @@ export default function Page() {
   )
 
   const selectedLimit = 10
+  const shareEnabled = currentEvent?.allowGuestShare !== false
+  const downloadEnabled = currentEvent?.allowGuestDownload !== false
+  const deleteEnabled = currentEvent?.allowGuestDelete === true
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -366,17 +369,19 @@ export default function Page() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={downloadSelected}
-              disabled={selected.length === 0}
-              className={`rounded-full px-5 py-3 text-sm font-semibold ${
-                selected.length === 0
-                  ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                  : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
-              }`}
-            >
-              {t.gallery.downloadSelected} ({selected.length}/{selectedLimit})
-            </button>
+            {downloadEnabled ? (
+              <button
+                onClick={downloadSelected}
+                disabled={selected.length === 0}
+                className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                  selected.length === 0
+                    ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                    : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
+                }`}
+              >
+                {t.gallery.downloadSelected} ({selected.length}/{selectedLimit})
+              </button>
+            ) : null}
 
             {adminAuthenticated ? (
               <>
@@ -448,22 +453,24 @@ export default function Page() {
                       />
                     )}
 
-                    <button
-                      onClick={() => toggleSelect(item.id)}
-                      aria-label={isSelected ? t.gallery.selected : t.gallery.select}
-                      title={isSelected ? t.gallery.selected : t.gallery.select}
-                      className={`absolute left-3 top-3 ${actionButtonClass} ${
-                        isSelected ? 'border-[#0F3D66] bg-[#0F3D66] text-white' : ''
-                      }`}
-                    >
-                      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-                        <path d="M5 12.5 9.5 17 19 7.5" />
-                      </svg>
-                    </button>
+                    {downloadEnabled || deleteEnabled ? (
+                      <button
+                        onClick={() => toggleSelect(item.id)}
+                        aria-label={isSelected ? t.gallery.selected : t.gallery.select}
+                        title={isSelected ? t.gallery.selected : t.gallery.select}
+                        className={`absolute left-3 top-3 ${actionButtonClass} ${
+                          isSelected ? 'border-[#0F3D66] bg-[#0F3D66] text-white' : ''
+                        }`}
+                      >
+                        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                          <path d="M5 12.5 9.5 17 19 7.5" />
+                        </svg>
+                      </button>
+                    ) : null}
 
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
-                        {isSelected ? (
+                        {deleteEnabled && isSelected ? (
                           <button
                             onClick={() => handleDelete(item)}
                             disabled={isDeleting}
@@ -485,31 +492,35 @@ export default function Page() {
                           </button>
                         ) : null}
 
-                        <button
-                          onClick={() => handleShare(item)}
-                          aria-label={t.gallery.share}
-                          title={t.gallery.share}
-                          className={actionButtonClass}
-                        >
-                          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-                            <path d="M12 5v10" />
-                            <path d="m8 9 4-4 4 4" />
-                            <path d="M5 19h14" />
-                          </svg>
-                        </button>
+                        {shareEnabled ? (
+                          <button
+                            onClick={() => handleShare(item)}
+                            aria-label={t.gallery.share}
+                            title={t.gallery.share}
+                            className={actionButtonClass}
+                          >
+                            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                              <path d="M12 5v10" />
+                              <path d="m8 9 4-4 4 4" />
+                              <path d="M5 19h14" />
+                            </svg>
+                          </button>
+                        ) : null}
 
-                        <button
-                          onClick={() => handleDownload(item.file_url, downloadName)}
-                          aria-label={t.gallery.download}
-                          title={t.gallery.download}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#F58220]/70 bg-[#F58220]/92 text-white shadow-[0_8px_20px_rgba(245,130,32,0.22)] backdrop-blur hover:bg-[#F58220]"
-                        >
-                          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-                            <path d="M12 4v10" />
-                            <path d="m8 10 4 4 4-4" />
-                            <path d="M5 19h14" />
-                          </svg>
-                        </button>
+                        {downloadEnabled ? (
+                          <button
+                            onClick={() => handleDownload(item.file_url, downloadName)}
+                            aria-label={t.gallery.download}
+                            title={t.gallery.download}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#F58220]/70 bg-[#F58220]/92 text-white shadow-[0_8px_20px_rgba(245,130,32,0.22)] backdrop-blur hover:bg-[#F58220]"
+                          >
+                            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                              <path d="M12 4v10" />
+                              <path d="m8 10 4 4 4-4" />
+                              <path d="M5 19h14" />
+                            </svg>
+                          </button>
+                        ) : null}
                       </div>
                     </div>
                   </div>
