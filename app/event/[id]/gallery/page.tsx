@@ -9,10 +9,10 @@ import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicMediaUrl, getPublicPath } from '@/lib/app-url'
 import {
-  getDownloadFileName,
   inferMediaKind,
   isExpired,
   getUploadShareKey,
+  getUploadShortFileName,
   type UploadRecord,
 } from '@/lib/eventdrop'
 import { getEventBackground, getEventCover } from '@/lib/event-visuals'
@@ -214,7 +214,13 @@ export default function Page() {
 
   const downloadSelected = async () => {
     for (const item of selectedItems) {
-      await handleDownload(item.file_url, getDownloadFileName(item))
+      await handleDownload(
+        item.file_url,
+        getUploadShortFileName(item, {
+          eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+          sequence: shareSequenceById[item.id],
+        })
+      )
     }
 
     setStatusMessage(
@@ -232,7 +238,13 @@ export default function Page() {
 
     try {
       for (const item of items) {
-        await handleDownload(item.file_url, getDownloadFileName(item))
+        await handleDownload(
+          item.file_url,
+          getUploadShortFileName(item, {
+            eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+            sequence: shareSequenceById[item.id],
+          })
+        )
       }
 
       setStatusMessage(t.gallery.allDownloaded)
@@ -281,7 +293,10 @@ export default function Page() {
     )
     const shareData = {
       title: eventName,
-      text: getDownloadFileName(item),
+      text: getUploadShortFileName(item, {
+        eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+        sequence: shareSequenceById[item.id],
+      }),
       url: shareUrl,
     }
 
@@ -383,7 +398,10 @@ export default function Page() {
             {items.map((item) => {
               const isSelected = selected.includes(item.id)
               const mediaKind = inferMediaKind(item)
-              const downloadName = getDownloadFileName(item)
+              const downloadName = getUploadShortFileName(item, {
+                eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+                sequence: shareSequenceById[item.id],
+              })
               const isDeleting = deletingId === item.id
 
               return (
