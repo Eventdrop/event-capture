@@ -31,7 +31,7 @@ export async function GET() {
       .from('events')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(12)
+      .limit(50)
 
     if (error) throw error
     const events = data || []
@@ -116,6 +116,9 @@ export async function POST(request: Request) {
       accessCodeEnabled?: boolean
       coverImageUrl?: string
       backgroundImageUrl?: string
+      allowGuestShare?: boolean
+      allowGuestDownload?: boolean
+      allowGuestDelete?: boolean
       }
     | null
 
@@ -126,6 +129,9 @@ export async function POST(request: Request) {
   const accessCodeEnabled = body?.accessCodeEnabled !== false
   const coverImageUrl = body?.coverImageUrl?.trim() || ''
   const backgroundImageUrl = body?.backgroundImageUrl?.trim() || ''
+  const allowGuestShare = body?.allowGuestShare !== false
+  const allowGuestDownload = body?.allowGuestDownload !== false
+  const allowGuestDelete = body?.allowGuestDelete === true
 
   if (!name || !albumName) {
     return NextResponse.json(
@@ -147,6 +153,9 @@ export async function POST(request: Request) {
       accessCodeEnabled,
       coverImageUrl,
       backgroundImageUrl,
+      allowGuestShare,
+      allowGuestDownload,
+      allowGuestDelete,
     })
 
     const richInsert = await supabase.from('events').insert([payload]).select('*').single()
@@ -161,6 +170,9 @@ export async function POST(request: Request) {
         event_date: payload.event_date,
         cover_image_url: payload.cover_image_url,
         background_image_url: payload.background_image_url,
+        allow_guest_share: payload.allow_guest_share,
+        allow_guest_download: payload.allow_guest_download,
+        allow_guest_delete: payload.allow_guest_delete,
         expires_at: payload.expires_at,
       }
 
@@ -190,6 +202,78 @@ export async function POST(request: Request) {
       {
         ok: false,
         error: error instanceof Error ? error.message : 'Failed to create event.',
+      },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PATCH(request: Request) {
+  const unauthorized = await ensureAdmin()
+  if (unauthorized) return unauthorized
+
+  const body = (await request.json().catch(() => null)) as
+    | {
+        id?: string
+        allowGuestShare?: boolean
+        allowGuestDownload?: boolean
+        allowGuestDelete?: boolean
+      }
+    | null
+
+  const id = body?.id || ''
+
+  if (!id) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Event id is required.',
+      },
+      { status: 400 }
+    )
+  }
+
+  try {
+    const supabase = createAdminSupabaseClient()
+    const richUpdate = await supabase
+      .from('events')
+      .update({
+        allow_guest_share: body?.allowGuestShare !== false,
+        allow_guest_download: body?.allowGuestDownload !== false,
+        allow_guest_delete: body?.allowGuestDelete === true,
+      })
+      .eq('id', id)
+      .select('*')
+      .single()
+
+    if (!richUpdate.error) {
+      return NextResponse.json({ ok: true, event: richUpdate.data })
+    }
+
+    const message = richUpdate.error.message.toLowerCase()
+    const canFallback =
+      message.includes('column') ||
+      message.includes('schema cache') ||
+      message.includes('could not find')
+
+    if (!canFallback) {
+      throw richUpdate.error
+    }
+
+    const fallbackRecord = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (fallbackRecord.error) throw fallbackRecord.error
+
+    return NextResponse.json({ ok: true, event: fallbackRecord.data, legacy: true })
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: error instanceof Error ? error.message : 'Failed to update event settings.',
       },
       { status: 500 }
     )

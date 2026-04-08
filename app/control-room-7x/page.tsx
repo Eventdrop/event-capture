@@ -52,12 +52,25 @@ export default function AdminPage() {
   const [albumName, setAlbumName] = useState('')
   const [eventDate, setEventDate] = useState('')
   const [accessCodeEnabled, setAccessCodeEnabled] = useState(false)
+  const [allowGuestShare, setAllowGuestShare] = useState(true)
+  const [allowGuestDownload, setAllowGuestDownload] = useState(true)
+  const [allowGuestDelete, setAllowGuestDelete] = useState(false)
   const [accessCode, setAccessCode] = useState(() => generateEventAccessCode())
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('')
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null)
   const [uploadingVisual, setUploadingVisual] = useState<'cover' | 'background' | null>(null)
+  const [eventControlsById, setEventControlsById] = useState<
+    Record<
+      string,
+      {
+        allowGuestShare: boolean
+        allowGuestDownload: boolean
+        allowGuestDelete: boolean
+      }
+    >
+  >({})
 
   const publicBaseUrl = getPublicAppUrl()
   const adminUrl = getPublicPath('/control-room-7x')
@@ -101,6 +114,26 @@ export default function AdminPage() {
       .filter((item): item is NormalizedEvent => Boolean(item))
 
     setEvents(normalized)
+    setEventControlsById(
+      normalized.reduce<
+        Record<
+          string,
+          {
+            allowGuestShare: boolean
+            allowGuestDownload: boolean
+            allowGuestDelete: boolean
+          }
+        >
+      >((accumulator, event) => {
+        accumulator[event.id] = {
+          allowGuestShare: event.allowGuestShare,
+          allowGuestDownload: event.allowGuestDownload,
+          allowGuestDelete: event.allowGuestDelete,
+        }
+
+        return accumulator
+      }, {})
+    )
     setGuestAccessByEvent(payload.guestAccessByEvent || {})
   }, [t.admin.loadError])
 
@@ -195,6 +228,7 @@ export default function AdminPage() {
     setNextPassword('')
     setConfirmNextPassword('')
     setEvents([])
+    setEventControlsById({})
     setGuestAccessByEvent({})
     setStatusMessage(t.admin.signedOut)
   }
@@ -283,6 +317,9 @@ export default function AdminPage() {
         accessCodeEnabled,
         coverImageUrl: persistedCoverImageUrl,
         backgroundImageUrl: persistedBackgroundImageUrl,
+        allowGuestShare,
+        allowGuestDownload,
+        allowGuestDelete,
       })
 
       const response = await fetch('/api/admin/events', {
@@ -298,6 +335,9 @@ export default function AdminPage() {
           accessCodeEnabled,
           coverImageUrl: payload.cover_image_url,
           backgroundImageUrl: payload.background_image_url,
+          allowGuestShare: payload.allow_guest_share,
+          allowGuestDownload: payload.allow_guest_download,
+          allowGuestDelete: payload.allow_guest_delete,
         }),
       })
 
@@ -338,12 +378,23 @@ export default function AdminPage() {
         }
 
         setEvents((prev) => [nextEvent, ...prev.filter((item) => item.id !== nextEvent.id)])
+        setEventControlsById((prev) => ({
+          ...prev,
+          [nextEvent.id]: {
+            allowGuestShare: nextEvent.allowGuestShare,
+            allowGuestDownload: nextEvent.allowGuestDownload,
+            allowGuestDelete: nextEvent.allowGuestDelete,
+          },
+        }))
       }
 
       setEventName('')
       setAlbumName('')
       setEventDate('')
       setAccessCodeEnabled(false)
+      setAllowGuestShare(true)
+      setAllowGuestDownload(true)
+      setAllowGuestDelete(false)
       setAccessCode(generateEventAccessCode())
       setCoverImageFile(null)
       setBackgroundImageFile(null)
@@ -431,11 +482,88 @@ export default function AdminPage() {
         delete next[eventId]
         return next
       })
+      setEventControlsById((prev) => {
+        const next = { ...prev }
+        delete next[eventId]
+        return next
+      })
       setStatusMessage(t.admin.deleteSuccess)
     } catch (error) {
       console.error('Delete event failed', error)
       setStatusMessage(
         error instanceof Error ? error.message : t.admin.deleteError
+      )
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleEventControlChange = (
+    eventId: string,
+    key: 'allowGuestShare' | 'allowGuestDownload' | 'allowGuestDelete',
+    value: boolean
+  ) => {
+    setEventControlsById((prev) => ({
+      ...prev,
+      [eventId]: {
+        allowGuestShare: prev[eventId]?.allowGuestShare ?? true,
+        allowGuestDownload: prev[eventId]?.allowGuestDownload ?? true,
+        allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
+        [key]: value,
+      },
+    }))
+  }
+
+  const saveEventControls = async (eventId: string) => {
+    const currentSettings = eventControlsById[eventId]
+
+    if (!currentSettings) return
+
+    setSubmitting(true)
+
+    try {
+      const response = await fetch('/api/admin/events', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: eventId,
+          allowGuestShare: currentSettings.allowGuestShare,
+          allowGuestDownload: currentSettings.allowGuestDownload,
+          allowGuestDelete: currentSettings.allowGuestDelete,
+        }),
+      })
+
+      const payload = (await response.json()) as {
+        ok?: boolean
+        event?: Record<string, unknown>
+        error?: string
+      }
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || t.admin.visibilitySaveError)
+      }
+
+      const normalized = normalizeEventRecord(payload.event)
+
+      if (normalized) {
+        setEvents((prev) => prev.map((event) => (event.id === eventId ? normalized : event)))
+        setEventControlsById((prev) => ({
+          ...prev,
+          [eventId]: {
+            allowGuestShare: normalized.allowGuestShare,
+            allowGuestDownload: normalized.allowGuestDownload,
+            allowGuestDelete: normalized.allowGuestDelete,
+          },
+        }))
+      }
+
+      setStatusMessage(t.admin.visibilitySaved)
+    } catch (error) {
+      console.error('Failed to save event controls', error)
+      setStatusMessage(
+        error instanceof Error ? error.message : t.admin.visibilitySaveError
       )
     } finally {
       setSubmitting(false)
@@ -690,6 +818,53 @@ export default function AdminPage() {
                     </p>
                   </div>
 
+                  <div className="md:col-span-2 rounded-2xl border border-white/12 bg-white/8 p-4">
+                    <p className="text-sm font-medium text-[#EAF3FB]">
+                      {t.admin.publicTools}
+                    </p>
+
+                    <div className="mt-3 grid gap-3 md:grid-cols-3">
+                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
+                        <span className="text-sm text-[#EAF3FB]">{t.admin.shareEnabled}</span>
+                        <button
+                          type="button"
+                          onClick={() => setAllowGuestShare((current) => !current)}
+                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
+                            allowGuestShare ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
+                          }`}
+                        >
+                          {allowGuestShare ? t.admin.toggleOn : t.admin.toggleOff}
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
+                        <span className="text-sm text-[#EAF3FB]">{t.admin.downloadEnabled}</span>
+                        <button
+                          type="button"
+                          onClick={() => setAllowGuestDownload((current) => !current)}
+                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
+                            allowGuestDownload ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
+                          }`}
+                        >
+                          {allowGuestDownload ? t.admin.toggleOn : t.admin.toggleOff}
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
+                        <span className="text-sm text-[#EAF3FB]">{t.admin.deleteEnabled}</span>
+                        <button
+                          type="button"
+                          onClick={() => setAllowGuestDelete((current) => !current)}
+                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
+                            allowGuestDelete ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
+                          }`}
+                        >
+                          {allowGuestDelete ? t.admin.toggleOn : t.admin.toggleOff}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
                       {t.admin.coverImage}
@@ -861,6 +1036,59 @@ export default function AdminPage() {
                       {t.common.eventDate}: {event.eventDate}
                     </p>
                   ) : null}
+
+                  <div className="mt-4 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
+                      {t.admin.publicTools}
+                    </p>
+
+                    <div className="mt-3 grid gap-3">
+                      {([
+                        ['allowGuestShare', t.admin.shareEnabled],
+                        ['allowGuestDownload', t.admin.downloadEnabled],
+                        ['allowGuestDelete', t.admin.deleteEnabled],
+                      ] as const).map(([key, label]) => (
+                        <div
+                          key={key}
+                          className="flex items-center justify-between rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3"
+                        >
+                          <span className="text-sm text-[#33516F]">{label}</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleEventControlChange(
+                                event.id,
+                                key,
+                                !eventControlsById[event.id]?.[key]
+                              )
+                            }
+                            className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
+                              eventControlsById[event.id]?.[key]
+                                ? 'bg-[#F58220] text-white'
+                                : 'bg-[#E8EEF6] text-[#0F3D66]'
+                            }`}
+                          >
+                            {eventControlsById[event.id]?.[key]
+                              ? t.admin.toggleOn
+                              : t.admin.toggleOff}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => saveEventControls(event.id)}
+                      disabled={submitting}
+                      className={`mt-4 rounded-full px-4 py-2 text-sm font-semibold ${
+                        submitting
+                          ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                          : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
+                      }`}
+                    >
+                      {t.admin.saveVisibility}
+                    </button>
+                  </div>
 
                   <div className="mt-4 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
                     <div className="flex justify-center">

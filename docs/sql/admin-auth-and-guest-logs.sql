@@ -19,3 +19,19 @@ create index if not exists guest_access_logs_event_id_idx
 
 create index if not exists guest_access_logs_created_at_idx
   on public.guest_access_logs (created_at desc);
+
+alter table public.events
+  add column if not exists allow_guest_share boolean not null default true;
+
+alter table public.events
+  add column if not exists allow_guest_download boolean not null default true;
+
+alter table public.events
+  add column if not exists allow_guest_delete boolean not null default false;
+
+alter table public.uploads
+  add column if not exists share_code text;
+
+create unique index if not exists uploads_share_code_idx
+  on public.uploads (share_code)
+  where share_code is not null;

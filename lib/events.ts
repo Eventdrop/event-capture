@@ -9,6 +9,9 @@ type EventRecordLike = {
   cover_image_url?: string | null
   background_image_url?: string | null
   event_date?: string | null
+  allow_guest_share?: boolean | null
+  allow_guest_download?: boolean | null
+  allow_guest_delete?: boolean | null
   created_at?: string | null
   expires_at?: string | null
 }
@@ -22,6 +25,9 @@ export type NormalizedEvent = {
   coverImageUrl: string
   backgroundImageUrl: string
   eventDate: string | null
+  allowGuestShare: boolean
+  allowGuestDownload: boolean
+  allowGuestDelete: boolean
   createdAt: string | null
   expiresAt: string | null
 }
@@ -77,6 +83,37 @@ export function deriveEventAccessCode(
   )
 }
 
+export function getEventExpiryDate(eventDate?: string | null) {
+  const normalizedDate = (eventDate || '').trim()
+
+  if (!normalizedDate) {
+    return addHours(new Date(), 48)
+  }
+
+  const match = normalizedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+
+  if (!match) {
+    return addHours(new Date(), 48)
+  }
+
+  const [, year, month, day] = match
+  const localExpiry = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day) + 3,
+    0,
+    0,
+    0,
+    0
+  )
+
+  if (Number.isNaN(localExpiry.getTime())) {
+    return addHours(new Date(), 48)
+  }
+
+  return localExpiry
+}
+
 export function buildEventInsertPayload(input: {
   name: string
   albumName: string
@@ -85,13 +122,15 @@ export function buildEventInsertPayload(input: {
   accessCodeEnabled?: boolean
   coverImageUrl?: string
   backgroundImageUrl?: string
+  allowGuestShare?: boolean
+  allowGuestDownload?: boolean
+  allowGuestDelete?: boolean
 }) {
-  const now = new Date()
   const accessCode = input.accessCodeEnabled === false
     ? null
     : normalizeEventAccessCode(input.accessCode || generateEventAccessCode())
   const slugBase = slugifyEventName(`${input.name}-${input.albumName}`) || 'eventdrop-event'
-  const expiresAt = addHours(now, 48).toISOString()
+  const expiresAt = getEventExpiryDate(input.eventDate).toISOString()
 
   return {
     name: input.name.trim(),
@@ -101,6 +140,9 @@ export function buildEventInsertPayload(input: {
     cover_image_url: input.coverImageUrl || null,
     background_image_url: input.backgroundImageUrl || null,
     event_date: input.eventDate || null,
+    allow_guest_share: input.allowGuestShare !== false,
+    allow_guest_download: input.allowGuestDownload !== false,
+    allow_guest_delete: input.allowGuestDelete === true,
     expires_at: expiresAt,
   }
 }
@@ -119,6 +161,9 @@ export function normalizeEventRecord(
     coverImageUrl: record.cover_image_url || '',
     backgroundImageUrl: record.background_image_url || '',
     eventDate: record.event_date || null,
+    allowGuestShare: record.allow_guest_share !== false,
+    allowGuestDownload: record.allow_guest_download !== false,
+    allowGuestDelete: record.allow_guest_delete === true,
     createdAt: record.created_at || null,
     expiresAt: record.expires_at || null,
   }

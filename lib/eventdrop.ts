@@ -3,6 +3,7 @@ export type MediaKind = 'photo' | 'video'
 export type UploadRecord = {
   id: string
   event_id?: string | null
+  share_code?: string | null
   file_url: string
   file_name?: string | null
   storage_path?: string | null
@@ -130,6 +131,16 @@ export function formatUploadSequence(value: number) {
   return value.toString().padStart(3, '0')
 }
 
+export function buildUploadShareCode(eventSlug: string, sequence: number) {
+  const slug = slugifyShareValue(eventSlug)
+
+  if (!slug || sequence < 1) {
+    return ''
+  }
+
+  return `${slug}-${formatUploadSequence(sequence)}`
+}
+
 export function parseOrdinalShareKey(value: string) {
   const match = value.match(/^(.*)-(\d{3})$/)
 
@@ -152,11 +163,15 @@ export function getUploadShareKey(
   upload: UploadRecord,
   options?: { eventSlug?: string; sequence?: number }
 ) {
+  if (upload.share_code) {
+    return upload.share_code
+  }
+
   const slug = slugifyShareValue(options?.eventSlug || '')
   const sequence = options?.sequence || 0
 
   if (slug && sequence > 0) {
-    return `${slug}-${formatUploadSequence(sequence)}`
+    return buildUploadShareCode(slug, sequence)
   }
 
   const fileName = upload.file_name || upload.storage_path?.split('/').pop() || ''

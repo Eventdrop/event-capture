@@ -9,7 +9,7 @@ import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicAppUrl, getPublicPath } from '@/lib/app-url'
 import {
-  addHours,
+  buildUploadShareCode,
   buildStoragePath,
   getMediaKind,
   getPublicFileUrl,
@@ -239,6 +239,7 @@ export default function Page() {
     fileUrl: string
     storagePath: string
     fileName: string
+    shareCode: string
     mediaType: 'photo' | 'video'
     mimeType: string
     expiresAt: string
@@ -248,6 +249,7 @@ export default function Page() {
       file_url: payload.fileUrl,
       storage_path: payload.storagePath,
       file_name: payload.fileName,
+      share_code: payload.shareCode,
       media_type: payload.mediaType,
       mime_type: payload.mimeType,
       expires_at: payload.expiresAt,
@@ -311,6 +313,13 @@ export default function Page() {
         throw new Error('NEXT_PUBLIC_SUPABASE_URL is missing.')
       }
 
+      const existingUploadsCountQuery = await supabase
+        .from('uploads')
+        .select('id', { count: 'exact', head: true })
+        .eq('event_id', resolvedEventId)
+
+      let nextShareSequence = existingUploadsCountQuery.count || 0
+
       for (const file of acceptedFiles) {
         const mediaType = getMediaKind(file)
 
@@ -318,7 +327,7 @@ export default function Page() {
 
         const now = new Date()
         const { fileName, storagePath } = buildStoragePath(file, now)
-        const expiresAt = addHours(now, 48).toISOString()
+        const expiresAt = currentEvent?.expiresAt || new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString()
 
         setMessage(`${t.upload.uploadInProgress} ${file.name}`)
 
@@ -335,12 +344,20 @@ export default function Page() {
         }
 
         const fileUrl = getPublicFileUrl(supabaseUrl, BUCKET_NAME, storagePath)
+        nextShareSequence += 1
+
+        const shareCode =
+          buildUploadShareCode(
+            currentEvent?.slug || currentEvent?.name || currentEvent?.albumName || eventIdentifier,
+            nextShareSequence
+          ) || fileName.replace(/\.[^.]+$/, '')
 
         await createUploadRecord({
           eventId: resolvedEventId,
           fileUrl,
           storagePath,
           fileName,
+          shareCode,
           mediaType,
           mimeType: file.type || '',
           expiresAt,

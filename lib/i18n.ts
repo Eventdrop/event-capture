@@ -134,6 +134,13 @@ type TranslationTree = {
     guestEmails: string
     noGuestEmails: string
     guestEmailTimeUnknown: string
+    publicTools: string
+    shareEnabled: string
+    downloadEnabled: string
+    deleteEnabled: string
+    saveVisibility: string
+    visibilitySaved: string
+    visibilitySaveError: string
   }
   upload: {
     badge: string
@@ -416,6 +423,13 @@ export const translations: Record<Locale, TranslationTree> = {
       guestEmails: 'Girilen e-posta adresleri',
       noGuestEmails: 'Bu etkinlik icin henuz e-posta kaydi yok.',
       guestEmailTimeUnknown: 'Giris zamani bilinmiyor',
+      publicTools: 'Konuk aksiyonlari',
+      shareEnabled: 'Paylasimi ac',
+      downloadEnabled: 'Indirmeyi ac',
+      deleteEnabled: 'Silmeyi ac',
+      saveVisibility: 'Aksiyon ayarlarini kaydet',
+      visibilitySaved: 'Etkinlik aksiyon ayarlari guncellendi.',
+      visibilitySaveError: 'Etkinlik aksiyon ayarlari kaydedilemedi.',
     },
     upload: {
       badge: 'Misafir yukleme sayfasi',
@@ -780,6 +794,13 @@ export const translations: Record<Locale, TranslationTree> = {
       guestEmails: 'Ingevoerde e-mailadressen',
       noGuestEmails: 'Er zijn nog geen e-mailregistraties voor dit evenement.',
       guestEmailTimeUnknown: 'Tijdstip onbekend',
+      publicTools: 'Gastacties',
+      shareEnabled: 'Delen toestaan',
+      downloadEnabled: 'Download toestaan',
+      deleteEnabled: 'Verwijderen toestaan',
+      saveVisibility: 'Actie-instellingen opslaan',
+      visibilitySaved: 'Actie-instellingen voor dit evenement zijn bijgewerkt.',
+      visibilitySaveError: 'Actie-instellingen konden niet worden opgeslagen.',
     },
     upload: {
       badge: 'Upload door gasten',
@@ -1142,6 +1163,13 @@ export const translations: Record<Locale, TranslationTree> = {
       guestEmails: 'Entered email addresses',
       noGuestEmails: 'No email entries have been recorded for this event yet.',
       guestEmailTimeUnknown: 'Entry time unavailable',
+      publicTools: 'Guest actions',
+      shareEnabled: 'Enable sharing',
+      downloadEnabled: 'Enable downloads',
+      deleteEnabled: 'Enable deletion',
+      saveVisibility: 'Save action settings',
+      visibilitySaved: 'Event action settings were updated.',
+      visibilitySaveError: 'Event action settings could not be saved.',
     },
     upload: {
       badge: 'Guest upload page',
