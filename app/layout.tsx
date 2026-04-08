@@ -18,7 +18,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'EventDrop',
   description:
-    'Collect guest photos and videos in a shared event album with a clean Dutch-inspired QR flow.',
+    'Collect guest photos in a shared event album with a clean Dutch-inspired QR flow.',
 }
 
 export default function RootLayout({

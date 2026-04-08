@@ -21,26 +21,6 @@ import { supabase } from '@/lib/supabase'
 const BUCKET_NAME = 'event-uploads'
 const MAX_SELECTION_FILES = 10
 const PHOTO_MAX_BYTES = 10 * 1024 * 1024
-const VIDEO_MAX_BYTES = 50 * 1024 * 1024
-const VIDEO_MAX_SECONDS = 20
-
-async function getVideoDurationInSeconds(file: File) {
-  const objectUrl = URL.createObjectURL(file)
-
-  try {
-    const duration = await new Promise<number>((resolve, reject) => {
-      const video = document.createElement('video')
-      video.preload = 'metadata'
-      video.src = objectUrl
-      video.onloadedmetadata = () => resolve(video.duration || 0)
-      video.onerror = () => reject(new Error('VIDEO_METADATA_ERROR'))
-    })
-
-    return duration
-  } finally {
-    URL.revokeObjectURL(objectUrl)
-  }
-}
 
 export default function Page() {
   const { t } = useLanguage()
@@ -176,14 +156,10 @@ export default function Page() {
     const photoCount = acceptedFiles.filter(
       (file) => getMediaKind(file) === 'photo'
     ).length
-    const videoCount = acceptedFiles.filter(
-      (file) => getMediaKind(file) === 'video'
-    ).length
 
     return {
       total: acceptedFiles.length,
       photoCount,
-      videoCount,
     }
   }, [acceptedFiles])
 
@@ -209,42 +185,17 @@ export default function Page() {
     const validFiles: File[] = []
     let unsupportedFiles = 0
     let oversizedPhotos = 0
-    let oversizedVideos = 0
-    let tooLongVideos = 0
 
     for (const file of limitedFiles) {
       const mediaKind = getMediaKind(file)
 
-      if (!mediaKind) {
+      if (!mediaKind || mediaKind !== 'photo') {
         unsupportedFiles += 1
         continue
       }
 
-      if (mediaKind === 'photo') {
-        if (file.size > PHOTO_MAX_BYTES) {
-          oversizedPhotos += 1
-          continue
-        }
-
-        validFiles.push(file)
-        continue
-      }
-
-      if (file.size > VIDEO_MAX_BYTES) {
-        oversizedVideos += 1
-        continue
-      }
-
-      try {
-        const duration = await getVideoDurationInSeconds(file)
-
-        if (duration > VIDEO_MAX_SECONDS) {
-          tooLongVideos += 1
-          continue
-        }
-      } catch (error) {
-        console.error('Video metadata read failed', error)
-        unsupportedFiles += 1
+      if (file.size > PHOTO_MAX_BYTES) {
+        oversizedPhotos += 1
         continue
       }
 
@@ -256,8 +207,6 @@ export default function Page() {
     const notes = [
       unsupportedFiles > 0 ? `${unsupportedFiles} ${t.upload.unsupportedIgnored}` : '',
       oversizedPhotos > 0 ? `${oversizedPhotos} ${t.upload.photoTooLarge}` : '',
-      oversizedVideos > 0 ? `${oversizedVideos} ${t.upload.videoTooLarge}` : '',
-      tooLongVideos > 0 ? `${tooLongVideos} ${t.upload.videoTooLong}` : '',
       files.length > MAX_SELECTION_FILES ? t.upload.selectionLimit : '',
     ].filter(Boolean)
 
@@ -269,14 +218,10 @@ export default function Page() {
     const photoCount = validFiles.filter(
       (file) => getMediaKind(file) === 'photo'
     ).length
-    const videoCount = validFiles.filter(
-      (file) => getMediaKind(file) === 'video'
-    ).length
 
     const parts = [
       `${validFiles.length} ${t.upload.filesSelected}`,
       photoCount ? `${photoCount} ${photoCount > 1 ? t.upload.photos : t.upload.photos}` : '',
-      videoCount ? `${videoCount} ${videoCount > 1 ? t.upload.videos : t.upload.videos}` : '',
     ].filter(Boolean)
 
     setMessage([parts.join(' • '), ...notes].join(' • '))
@@ -562,7 +507,7 @@ export default function Page() {
                 type="file"
                 name="media"
                 multiple
-                accept="image/*,video/mp4,video/quicktime,video/webm"
+                accept="image/*"
                 onChange={handleFileChange}
                 disabled={uploading || eventMissing || !guidanceAccepted}
                 className="sr-only"
@@ -596,9 +541,6 @@ export default function Page() {
                   {t.upload.readyPrefix} {selectionSummary.total} {t.upload.filesSelected}
                   {selectionSummary.photoCount
                     ? ` • ${selectionSummary.photoCount} ${t.upload.photos}`
-                    : ''}
-                  {selectionSummary.videoCount
-                    ? ` • ${selectionSummary.videoCount} ${t.upload.videos}`
                     : ''}
                 </p>
               ) : null}
