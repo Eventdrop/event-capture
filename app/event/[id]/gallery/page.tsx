@@ -356,7 +356,7 @@ export default function Page() {
             {t.gallery.noUploads}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 lg:gap-5">
             {items.map((item) => {
               const isSelected = selected.includes(item.id)
               const mediaKind = inferMediaKind(item)
@@ -376,7 +376,7 @@ export default function Page() {
                         src={item.file_url}
                         controls
                         playsInline
-                        className="h-80 w-full bg-stone-900 object-cover"
+                        className="h-56 w-full bg-stone-900 object-cover sm:h-64"
                       />
                     ) : (
                       <Image
@@ -385,7 +385,7 @@ export default function Page() {
                         width={1200}
                         height={1200}
                         unoptimized
-                        className="h-80 w-full object-cover"
+                        className="h-56 w-full object-cover sm:h-64"
                       />
                     )}
 
