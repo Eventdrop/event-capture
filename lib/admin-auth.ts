@@ -13,6 +13,11 @@ type StoredAdminCredentials = {
   source: AdminCredentialSource
 }
 
+type AdminCredentialStoreState = {
+  credentials: StoredAdminCredentials | null
+  tableAvailable: boolean
+}
+
 function getEnvAdminUsername() {
   return process.env.ADMIN_USERNAME || 'admin'
 }
@@ -70,7 +75,7 @@ function isMissingAdminDatabaseConfig(error: unknown) {
   )
 }
 
-async function loadDatabaseAdminCredentials() {
+async function loadDatabaseAdminCredentials(): Promise<AdminCredentialStoreState> {
   try {
     const supabase = createAdminSupabaseClient()
     const { data, error } = await supabase
@@ -84,17 +89,26 @@ async function loadDatabaseAdminCredentials() {
     }
 
     if (!data?.username || !data?.password_hash) {
-      return null
+      return {
+        credentials: null,
+        tableAvailable: true,
+      }
     }
 
     return {
-      username: String(data.username),
-      passwordHash: String(data.password_hash),
-      source: 'database' as const,
+      credentials: {
+        username: String(data.username),
+        passwordHash: String(data.password_hash),
+        source: 'database' as const,
+      },
+      tableAvailable: true,
     }
   } catch (error) {
     if (isMissingTableError(error) || isMissingAdminDatabaseConfig(error)) {
-      return null
+      return {
+        credentials: null,
+        tableAvailable: false,
+      }
     }
 
     throw error
@@ -102,10 +116,10 @@ async function loadDatabaseAdminCredentials() {
 }
 
 async function getStoredAdminCredentials(): Promise<StoredAdminCredentials | null> {
-  const databaseCredentials = await loadDatabaseAdminCredentials()
+  const databaseState = await loadDatabaseAdminCredentials()
 
-  if (databaseCredentials) {
-    return databaseCredentials
+  if (databaseState.credentials) {
+    return databaseState.credentials
   }
 
   if (
@@ -134,13 +148,15 @@ async function getAdminSessionValue() {
 }
 
 export async function getAdminAuthStatus() {
-  const credentials = await getStoredAdminCredentials()
+  const databaseState = await loadDatabaseAdminCredentials()
+  const credentials =
+    databaseState.credentials || (await getStoredAdminCredentials())
 
   return {
     configured: Boolean(credentials),
     username: credentials?.username || '',
     source: credentials?.source || null,
-    canChangePassword: credentials?.source === 'database',
+    canChangePassword: databaseState.tableAvailable,
   }
 }
 
@@ -199,13 +215,14 @@ export async function updateAdminPassword(input: {
   currentPassword: string
   nextPassword: string
 }) {
+  const databaseState = await loadDatabaseAdminCredentials()
   const credentials = await getStoredAdminCredentials()
 
   if (!credentials) {
     throw new Error('Admin authentication is not configured on the server.')
   }
 
-  if (credentials.source !== 'database') {
+  if (!databaseState.tableAvailable) {
     throw new Error(
       'Password changes require the public.admin_credentials table in Supabase.'
     )
