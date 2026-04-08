@@ -21,6 +21,50 @@ function isEventActive(event: Pick<NormalizedEvent, 'expiresAt'>) {
   return new Date(event.expiresAt).getTime() > Date.now()
 }
 
+async function persistGuestAccessLog(input: {
+  eventId: string
+  eventSlug: string
+  email: string
+  source: string
+}) {
+  try {
+    const supabase = createAdminSupabaseClient()
+    const richInsert = await supabase.from('guest_access_logs').insert([
+      {
+        event_id: input.eventId,
+        event_slug: input.eventSlug || null,
+        email: input.email,
+        source: input.source,
+      },
+    ])
+
+    if (!richInsert.error) return
+
+    const message = richInsert.error.message.toLowerCase()
+    const canFallback =
+      message.includes('column') ||
+      message.includes('schema cache') ||
+      message.includes('could not find')
+
+    if (!canFallback) {
+      throw richInsert.error
+    }
+
+    const fallbackInsert = await supabase.from('guest_access_logs').insert([
+      {
+        event_id: input.eventId,
+        email: input.email,
+      },
+    ])
+
+    if (fallbackInsert.error) {
+      throw fallbackInsert.error
+    }
+  } catch (error) {
+    console.error('Failed to persist guest access log', error)
+  }
+}
+
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as
     | {
@@ -109,6 +153,13 @@ export async function POST(request: Request) {
       ok: true,
       redirectTo,
       event: matchedEvent,
+    })
+
+    await persistGuestAccessLog({
+      eventId: matchedEvent.id,
+      eventSlug: matchedEvent.slug || matchedEvent.id,
+      email,
+      source: identifier ? 'direct' : 'manual',
     })
 
     response.cookies.set(EVENT_ACCESS_COOKIE_NAME, grantEventAccess(existingCookie, {

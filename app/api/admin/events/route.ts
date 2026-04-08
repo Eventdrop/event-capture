@@ -34,8 +34,64 @@ export async function GET() {
       .limit(12)
 
     if (error) throw error
+    const events = data || []
+    const eventIds = events.map((event) => event.id).filter(Boolean)
+    let guestAccessByEvent: Record<
+      string,
+      { email: string; created_at: string | null }[]
+    > = {}
 
-    return NextResponse.json({ ok: true, events: data || [] })
+    if (eventIds.length > 0) {
+      try {
+        const guestAccessQuery = await supabase
+          .from('guest_access_logs')
+          .select('event_id,email,created_at')
+          .in('event_id', eventIds)
+          .order('created_at', { ascending: false })
+          .limit(200)
+
+        if (!guestAccessQuery.error) {
+          guestAccessByEvent = ((guestAccessQuery.data || []) as Array<{
+            event_id?: string | null
+            email?: string | null
+            created_at?: string | null
+          }>).reduce<Record<string, { email: string; created_at: string | null }[]>>(
+            (accumulator, item) => {
+              const eventId = item.event_id || ''
+              const email = item.email || ''
+
+              if (!eventId || !email) {
+                return accumulator
+              }
+
+              const current = accumulator[eventId] || []
+              const alreadyListed = current.some(
+                (entry) => entry.email.toLowerCase() === email.toLowerCase()
+              )
+
+              if (alreadyListed || current.length >= 5) {
+                return accumulator
+              }
+
+              accumulator[eventId] = [
+                ...current,
+                {
+                  email,
+                  created_at: item.created_at || null,
+                },
+              ]
+
+              return accumulator
+            },
+            {}
+          )
+        }
+      } catch (guestAccessError) {
+        console.error('Failed to load guest access logs', guestAccessError)
+      }
+    }
+
+    return NextResponse.json({ ok: true, events, guestAccessByEvent })
   } catch (error) {
     return NextResponse.json(
       {

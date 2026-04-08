@@ -131,6 +131,9 @@ type TranslationTree = {
     copyCodeButton: string
     codeCopied: string
     emailOnlyEntry: string
+    guestEmails: string
+    noGuestEmails: string
+    guestEmailTimeUnknown: string
   }
   upload: {
     badge: string
@@ -405,6 +408,9 @@ export const translations: Record<Locale, TranslationTree> = {
       copyCodeButton: 'Kodu kopyala',
       codeCopied: 'Event code panoya kopyalandi.',
       emailOnlyEntry: 'Yalnizca e-posta ile giris',
+      guestEmails: 'Girilen e-posta adresleri',
+      noGuestEmails: 'Bu etkinlik icin henuz e-posta kaydi yok.',
+      guestEmailTimeUnknown: 'Giris zamani bilinmiyor',
     },
     upload: {
       badge: 'Misafir yukleme sayfasi',
@@ -761,6 +767,9 @@ export const translations: Record<Locale, TranslationTree> = {
       copyCodeButton: 'Code kopieren',
       codeCopied: 'Eventcode is naar het klembord gekopieerd.',
       emailOnlyEntry: 'Alleen toegang via e-mail',
+      guestEmails: 'Ingevoerde e-mailadressen',
+      noGuestEmails: 'Er zijn nog geen e-mailregistraties voor dit evenement.',
+      guestEmailTimeUnknown: 'Tijdstip onbekend',
     },
     upload: {
       badge: 'Upload door gasten',
@@ -1115,6 +1124,9 @@ export const translations: Record<Locale, TranslationTree> = {
       copyCodeButton: 'Copy code',
       codeCopied: 'Event code copied to clipboard.',
       emailOnlyEntry: 'Email-only access',
+      guestEmails: 'Entered email addresses',
+      noGuestEmails: 'No email entries have been recorded for this event yet.',
+      guestEmailTimeUnknown: 'Entry time unavailable',
     },
     upload: {
       badge: 'Guest upload page',

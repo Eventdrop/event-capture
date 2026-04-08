@@ -64,6 +64,25 @@ Not:
 - Tablo yoksa sistem env degiskenlerindeki `ADMIN_USERNAME` ve `ADMIN_PASSWORD` ile calismaya devam eder.
 - Kalici sifre degisikligi icin bu tablonun olusturulmus olmasi gerekir.
 
+### guest_access_logs
+
+Misafirlerin hangi e-posta ile hangi etkinlige girdigini kaydeder.
+
+Onerilen alanlar:
+
+- `id` uuid primary key default gen_random_uuid()
+- `event_id` uuid not null references events(id) on delete cascade
+- `event_slug` text null
+- `email` text not null
+- `source` text null
+- `created_at` timestamptz not null default now()
+
+Not:
+
+- Bu tablo, misafirlerin girdigi e-posta adreslerini daha sonra admin panelden gormek icin kullanilir.
+- `source` alani girisin `manual`, `direct`, `qr` gibi hangi akistan geldigini not etmek icin kullanilabilir.
+- Tablo yoksa uygulama erisimi kirmadan calismaya devam eder, ancak mail kaydi tutulmaz.
+
 ## Storage
 
 ### Bucket
@@ -132,6 +151,15 @@ create table if not exists public.admin_credentials (
   password_hash text not null,
   updated_at timestamptz not null default now()
 );
+
+create table if not exists public.guest_access_logs (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,
+  event_slug text,
+  email text not null,
+  source text,
+  created_at timestamptz not null default now()
+);
 ```
 
 ## Suggested Indexes
@@ -145,6 +173,12 @@ create index if not exists uploads_expires_at_idx
 
 create unique index if not exists events_access_code_idx
   on public.events (access_code);
+
+create index if not exists guest_access_logs_event_id_idx
+  on public.guest_access_logs (event_id);
+
+create index if not exists guest_access_logs_created_at_idx
+  on public.guest_access_logs (created_at desc);
 ```
 
 ## Cleanup Query Draft

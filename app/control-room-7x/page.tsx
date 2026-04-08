@@ -24,6 +24,11 @@ function formatEventLabel(event: NormalizedEvent) {
   return formatEventDisplayName(event)
 }
 
+type GuestAccessEntry = {
+  email: string
+  created_at: string | null
+}
+
 export default function AdminPage() {
   const { t } = useLanguage()
   const [authenticated, setAuthenticated] = useState(false)
@@ -40,6 +45,9 @@ export default function AdminPage() {
   const [submitting, setSubmitting] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
   const [events, setEvents] = useState<NormalizedEvent[]>([])
+  const [guestAccessByEvent, setGuestAccessByEvent] = useState<
+    Record<string, GuestAccessEntry[]>
+  >({})
   const [eventName, setEventName] = useState('')
   const [albumName, setAlbumName] = useState('')
   const [eventDate, setEventDate] = useState('')
@@ -80,6 +88,7 @@ export default function AdminPage() {
     const payload = (await response.json()) as {
       ok?: boolean
       events?: Record<string, unknown>[]
+      guestAccessByEvent?: Record<string, GuestAccessEntry[]>
       error?: string
     }
 
@@ -92,6 +101,7 @@ export default function AdminPage() {
       .filter((item): item is NormalizedEvent => Boolean(item))
 
     setEvents(normalized)
+    setGuestAccessByEvent(payload.guestAccessByEvent || {})
   }, [t.admin.loadError])
 
   useEffect(() => {
@@ -185,6 +195,7 @@ export default function AdminPage() {
     setNextPassword('')
     setConfirmNextPassword('')
     setEvents([])
+    setGuestAccessByEvent({})
     setStatusMessage(t.admin.signedOut)
   }
 
@@ -415,6 +426,11 @@ export default function AdminPage() {
       }
 
       setEvents((prev) => prev.filter((event) => event.id !== eventId))
+      setGuestAccessByEvent((prev) => {
+        const next = { ...prev }
+        delete next[eventId]
+        return next
+      })
       setStatusMessage(t.admin.deleteSuccess)
     } catch (error) {
       console.error('Delete event failed', error)
@@ -933,6 +949,36 @@ export default function AdminPage() {
                   <p className="mt-4 break-all text-xs text-[#6A84A3]">
                     Guest entry URL: {getEventShareUrl(event)}
                   </p>
+
+                  <div className="mt-4 rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
+                      {t.admin.guestEmails}
+                    </p>
+
+                    {guestAccessByEvent[event.id]?.length ? (
+                      <div className="mt-3 space-y-2">
+                        {guestAccessByEvent[event.id].map((entry) => (
+                          <div
+                            key={`${event.id}-${entry.email}`}
+                            className="flex flex-col gap-1 rounded-xl bg-[#F7FAFD] px-3 py-2 text-sm text-[#33516F]"
+                          >
+                            <span className="font-medium text-[#0B2742]">
+                              {entry.email}
+                            </span>
+                            <span className="text-xs text-[#6A84A3]">
+                              {entry.created_at
+                                ? new Date(entry.created_at).toLocaleString()
+                                : t.admin.guestEmailTimeUnknown}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-[#597594]">
+                        {t.admin.noGuestEmails}
+                      </p>
+                    )}
+                  </div>
                 </article>
               ))}
             </div>
