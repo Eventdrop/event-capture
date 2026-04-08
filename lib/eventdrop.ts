@@ -2,6 +2,7 @@ export type MediaKind = 'photo' | 'video'
 
 export type UploadRecord = {
   id: string
+  event_id?: string | null
   file_url: string
   file_name?: string | null
   storage_path?: string | null
@@ -117,7 +118,47 @@ export function getDownloadFileName(upload: UploadRecord) {
   )
 }
 
-export function getUploadShareKey(upload: UploadRecord) {
+export function slugifyShareValue(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+export function formatUploadSequence(value: number) {
+  return value.toString().padStart(3, '0')
+}
+
+export function parseOrdinalShareKey(value: string) {
+  const match = value.match(/^(.*)-(\d{3})$/)
+
+  if (!match) return null
+
+  const eventSlug = match[1]?.trim() || ''
+  const sequence = Number(match[2])
+
+  if (!eventSlug || !Number.isFinite(sequence) || sequence < 1) {
+    return null
+  }
+
+  return {
+    eventSlug,
+    sequence,
+  }
+}
+
+export function getUploadShareKey(
+  upload: UploadRecord,
+  options?: { eventSlug?: string; sequence?: number }
+) {
+  const slug = slugifyShareValue(options?.eventSlug || '')
+  const sequence = options?.sequence || 0
+
+  if (slug && sequence > 0) {
+    return `${slug}-${formatUploadSequence(sequence)}`
+  }
+
   const fileName = upload.file_name || upload.storage_path?.split('/').pop() || ''
 
   if (fileName.includes('.')) {
