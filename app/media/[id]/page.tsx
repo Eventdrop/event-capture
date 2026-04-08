@@ -6,14 +6,15 @@ import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicPath } from '@/lib/app-url'
 import {
-  getDownloadFileName,
+  getUploadFileExtension,
   inferMediaKind,
   isExpired,
   parseOrdinalShareKey,
+  slugifyShareValue,
   getUploadShareKey,
   type UploadRecord,
 } from '@/lib/eventdrop'
-import { normalizeEventRecord } from '@/lib/events'
+import { getEventGalleryRoute, normalizeEventRecord } from '@/lib/events'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export const runtime = 'nodejs'
@@ -24,6 +25,7 @@ export default async function MediaPage({
   const { id } = await params
   const supabase = createAdminSupabaseClient()
   let upload: UploadRecord | null = null
+  let parentEvent = null as ReturnType<typeof normalizeEventRecord>
 
   const directLookup = await supabase
     .from('uploads')
@@ -37,15 +39,33 @@ export default async function MediaPage({
     const ordinalKey = parseOrdinalShareKey(id)
 
     if (ordinalKey) {
-      const eventLookup = await supabase
+      const exactEventLookup = await supabase
         .from('events')
         .select('*')
         .eq('slug', ordinalKey.eventSlug)
         .single()
 
-      const event = normalizeEventRecord(eventLookup.data)
+      let event = normalizeEventRecord(exactEventLookup.data)
+
+      if (!event) {
+        const fallbackEventsLookup = await supabase
+          .from('events')
+          .select('*')
+          .limit(300)
+
+        event =
+          (fallbackEventsLookup.data || [])
+            .map((item) => normalizeEventRecord(item))
+            .filter(Boolean)
+            .find((item) => {
+              if (!item) return false
+              const candidate = slugifyShareValue(item.slug || item.name || item.albumName)
+              return candidate === ordinalKey.eventSlug
+            }) || null
+      }
 
       if (event?.id) {
+        parentEvent = event
         const uploadsLookup = await supabase
           .from('uploads')
           .select('*')
@@ -77,12 +97,28 @@ export default async function MediaPage({
     notFound()
   }
 
+  if (!parentEvent && upload.event_id) {
+    const parentLookup = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', upload.event_id)
+      .single()
+
+    parentEvent = normalizeEventRecord(parentLookup.data)
+  }
+
   if (isExpired(upload.expires_at)) {
     notFound()
   }
 
   const mediaKind = inferMediaKind(upload)
-  const fileName = getDownloadFileName(upload)
+  const fallbackShareKey = getUploadShareKey(upload)
+  const shareKey = parseOrdinalShareKey(id) ? id : fallbackShareKey
+  const fileExtension = getUploadFileExtension(upload)
+  const shortFileName = `${shareKey}.${fileExtension}`
+  const backToAlbumUrl = parentEvent
+    ? getPublicPath(getEventGalleryRoute(parentEvent.slug || parentEvent.id))
+    : getPublicPath('/')
 
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#edf4fb_100%)] text-stone-900">
@@ -95,23 +131,23 @@ export default async function MediaPage({
               Shared Media
             </p>
             <h1 className="mt-3 break-all text-3xl font-semibold tracking-[-0.03em] text-stone-950">
-              {fileName}
+              {shortFileName}
             </h1>
             <p className="mt-2 text-xs uppercase tracking-[0.18em] text-[#6A84A3]">
-              /media/{parseOrdinalShareKey(id) ? id : getUploadShareKey(upload)}
+              /media/{shareKey}
             </p>
             <p className="mt-3 text-sm leading-7 text-[#33516F]">
               Open, download, or share this single guest upload directly.
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <MediaDownloadButton fileName={fileName} fileUrl={upload.file_url} />
+              <MediaDownloadButton fileName={shortFileName} fileUrl={upload.file_url} />
 
               <Link
-                href={getPublicPath('/')}
+                href={backToAlbumUrl}
                 className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-5 py-3 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
               >
-                Back to EventDrop
+                Back to album
               </Link>
             </div>
           </div>
@@ -127,7 +163,7 @@ export default async function MediaPage({
             ) : (
               <Image
                 src={upload.file_url}
-                alt={fileName}
+                alt={shortFileName}
                 width={1600}
                 height={1600}
                 unoptimized

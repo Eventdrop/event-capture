@@ -183,3 +183,18 @@ export function getStoragePathFromUpload(upload: UploadRecord) {
 
   return upload.file_url.slice(index + marker.length)
 }
+
+export function getUploadFileExtension(upload: UploadRecord) {
+  const fileName = getDownloadFileName(upload)
+  const match = fileName.match(/\.([a-z0-9]+)$/i)
+  return match?.[1]?.toLowerCase() || 'jpg'
+}
+
+export function getUploadShortFileName(
+  upload: UploadRecord,
+  options?: { eventSlug?: string; sequence?: number }
+) {
+  const shareKey = getUploadShareKey(upload, options)
+  const extension = getUploadFileExtension(upload)
+  return `${shareKey}.${extension}`
+}
