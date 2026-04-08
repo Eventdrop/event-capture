@@ -296,8 +296,8 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Anlarin paylasildigi her turlu etkinlik icin mukemmel',
           body: [
             'Dugunler, dogum gunleri, kurumsal etkinlikler, festivaller ve ozel partiler.',
-            'Herkes fotograf ve video ceker. EventDrop tum bu icerikleri tek bir ortak albumde bir araya getirir.',
-            'Konuklar etkinlik boyunca cektikleri fotograf ve videolari kolayca yukler. Boylece herkes etkinligin farkli anlarina tek bir yerden erisebilir ve diledigi icerikleri indirebilir.',
+            'Herkes fotograf ceker. EventDrop tum bu icerikleri tek bir ortak albumde bir araya getirir.',
+            'Konuklar etkinlik boyunca cektikleri fotograflari kolayca yukler. Boylece herkes etkinligin farkli anlarina tek bir yerden erisebilir ve diledigi icerikleri indirebilir.',
           ],
         },
         {
@@ -306,7 +306,7 @@ export const translations: Record<Locale, TranslationTree> = {
             'Her etkinligin kendine ait bir albumu ve benzersiz bir etkinlik kodu vardir.',
             'QR ile giris yapan kullanicilar sadece e-posta adreslerini girerek aninda devam eder.',
             'Manuel giris yapan kullanicilar ise e-posta ve etkinlik kodu ile erisim saglar.',
-            'Tum fotograf ve videolar, etkinlige ozel olusturulmus tek bir duzenli albumde otomatik olarak toplanir.',
+            'Tum fotograflar, etkinlige ozel olusturulmus tek bir duzenli albumde otomatik olarak toplanir.',
           ],
         },
         {
@@ -419,18 +419,18 @@ export const translations: Record<Locale, TranslationTree> = {
     upload: {
       badge: 'Misafir yukleme sayfasi',
       intro:
-        'Misafirler bu ortak albume fotograf ve kisa video ekleyebilir. Icerikler 48 saat sonra temizlenmek uzere tasarlanmistir.',
+        'Misafirler bu ortak albume fotograf ekleyebilir. Icerikler 48 saat sonra temizlenmek uzere tasarlanmistir.',
       guidanceBadge: 'Yukleme kurallari',
       guidanceTitle: 'Lutfen sadece paylasilmasi uygun icerik yukleyin',
       guidanceIntro:
         'Yukleme yaparak bu icerikleri kendi isteginle paylastigini ve etkinlikte yer alan kisilerin mahremiyetine saygi gosterecegini onaylarsin.',
       guidancePoints: [
-        'Sadece paylasma hakkin olan fotograf ve videolari yukle.',
+        'Sadece paylasma hakkin olan fotograflari yukle.',
         'Kucuk dusurucu, ayipli, nefret iceren, yasa disi veya baskasinin gizliligini ihlal eden icerik yukleme.',
-        'Videolar en fazla 20 saniye olmali; medya 48 saat saklanir ve kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
+        'Bu ilk surumde yalnizca fotograf kabul edilir; medya 48 saat saklanir ve kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
       ],
       consentLabel:
-        'Yukledigin fotograf ve videolar uzerinde paylasim hakkina sahip oldugunu beyan edersin. Ayni etkinlikte yer alan diger katilimcilarin da seni iceren fotograf ve videolari yukleyebilecegini ve paylasabilecegini kabul edersin.',
+        'Yukledigin fotograflar uzerinde paylasim hakkina sahip oldugunu beyan edersin. Ayni etkinlikte yer alan diger katilimcilarin da seni iceren fotograflari yukleyebilecegini ve paylasabilecegini kabul edersin.',
       consentHelp:
         'Onay vermeden dosya secimi ve yukleme acilmaz.',
       consentRequired:
@@ -450,13 +450,13 @@ export const translations: Record<Locale, TranslationTree> = {
       photos: 'fotograf',
       videos: 'video',
       filesSelected: 'dosya secildi',
-      unsupportedIgnored: 'desteklenmeyen dosya yok sayildi',
+      unsupportedIgnored: 'desteklenmeyen veya video olan dosya yok sayildi',
       photoTooLarge: 'fotograf 10 MB sinirini asti',
       videoTooLarge: 'video 50 MB sinirini asti',
       videoTooLong: 'video 20 saniyeyi asti',
       selectionLimit: 'en fazla 10 dosya secilebilir',
-      chooseSupported: 'JPG, PNG, WEBP, HEIC, MP4, MOV veya WEBM sec.',
-      chooseStart: 'Baslamak icin fotograf veya video sec.',
+      chooseSupported: 'JPG, PNG, WEBP veya HEIC fotograf sec.',
+      chooseStart: 'Baslamak icin fotograf sec.',
       eventNotFound: 'Bu etkinlik bulunamadi. Linki veya QR kodu kontrol et.',
       eventNotReady: 'Bu etkinlik henuz yuklemeye hazir degil.',
       uploadInProgress: 'Yukleniyor...',
@@ -651,7 +651,7 @@ export const translations: Record<Locale, TranslationTree> = {
       points: [
         'Elk evenement krijgt een eigen eventcode',
         'Gasten worden via QR of link gecontroleerd',
-        'Foto’s en video’s blijven binnen het juiste album',
+        'Foto’s blijven binnen het juiste album',
         'Inhoud wordt na 48 uur opgeruimd',
       ],
       sections: [
@@ -659,8 +659,8 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Perfect voor elk evenement waar herinneringen worden gedeeld',
           body: [
             'Bruiloften, verjaardagen, zakelijke evenementen, festivals en privéfeesten.',
-            'Iedereen maakt foto’s en video’s. EventDrop brengt al die content samen in één gedeeld album.',
-            'Gasten uploaden hun foto’s en video’s eenvoudig tijdens het evenement. Zo heeft iedereen op één plek toegang tot verschillende momenten en kan men favoriete media downloaden.',
+            'Iedereen maakt foto’s. EventDrop brengt al die content samen in één gedeeld album.',
+            'Gasten uploaden hun foto’s eenvoudig tijdens het evenement. Zo heeft iedereen op één plek toegang tot verschillende momenten en kan men favoriete media downloaden.',
           ],
         },
         {
@@ -669,7 +669,7 @@ export const translations: Record<Locale, TranslationTree> = {
             'Elk evenement heeft een eigen album en een unieke eventcode.',
             'Gebruikers die via QR binnenkomen gaan direct verder met alleen hun e-mailadres.',
             'Gebruikers die handmatig binnenkomen gebruiken e-mail en eventcode.',
-            'Alle foto’s en video’s worden automatisch verzameld in één overzichtelijk album dat speciaal voor dat evenement is aangemaakt.',
+            'Alle foto’s worden automatisch verzameld in één overzichtelijk album dat speciaal voor dat evenement is aangemaakt.',
           ],
         },
         {
@@ -782,18 +782,18 @@ export const translations: Record<Locale, TranslationTree> = {
     upload: {
       badge: 'Upload door gasten',
       intro:
-        'Gasten kunnen foto’s en korte video’s toevoegen aan dit gedeelde album. Media is bedoeld om na 48 uur op te schonen.',
+        'Gasten kunnen foto’s toevoegen aan dit gedeelde album. Media is bedoeld om na 48 uur op te schonen.',
       guidanceBadge: 'Uploadregels',
       guidanceTitle: 'Upload alleen media die gedeeld mag worden',
       guidanceIntro:
         'Door te uploaden bevestig je dat je dit vrijwillig doet en dat je de privacy van de aanwezigen respecteert.',
       guidancePoints: [
-        'Upload alleen foto’s en video’s die je mag delen.',
+        'Upload alleen foto’s die je mag delen.',
         'Upload geen vernederende, beledigende, haatdragende, onwettige of privacy-schendende inhoud.',
-        'Video’s mogen maximaal 20 seconden duren; media wordt 48 uur bewaard en kan eerder worden verwijderd via de contactgegevens.',
+        'In deze eerste versie worden alleen foto’s geaccepteerd; media wordt 48 uur bewaard en kan eerder worden verwijderd via de contactgegevens.',
       ],
       consentLabel:
-        'Ik bevestig dat ik deze media vrijwillig upload en mij aan de uploadregels houd.',
+        'Ik bevestig dat ik deze foto’s vrijwillig upload en mij aan de uploadregels houd.',
       consentHelp:
         'Zonder akkoord blijven bestandsselectie en upload uitgeschakeld.',
       consentRequired:
@@ -813,13 +813,13 @@ export const translations: Record<Locale, TranslationTree> = {
       photos: 'foto',
       videos: 'video',
       filesSelected: 'bestanden geselecteerd',
-      unsupportedIgnored: 'niet-ondersteunde bestanden genegeerd',
+      unsupportedIgnored: 'niet-ondersteunde of video-bestanden genegeerd',
       photoTooLarge: 'foto boven limiet van 10 MB',
       videoTooLarge: 'video boven limiet van 50 MB',
       videoTooLong: 'video langer dan 20 seconden',
       selectionLimit: 'maximaal 10 bestanden per keer',
-      chooseSupported: 'Kies JPG, PNG, WEBP, HEIC, MP4, MOV of WEBM.',
-      chooseStart: 'Kies een foto of video om te beginnen.',
+      chooseSupported: 'Kies een JPG-, PNG-, WEBP- of HEIC-foto.',
+      chooseStart: 'Kies een foto om te beginnen.',
       eventNotFound: 'Dit evenement is niet gevonden. Controleer de link of QR-code.',
       eventNotReady: 'Dit evenement is nog niet klaar voor uploads.',
       uploadInProgress: 'Uploaden...',
@@ -1012,7 +1012,7 @@ export const translations: Record<Locale, TranslationTree> = {
       points: [
         'Every event gets its own event code',
         'Guests are checked through QR or a private link',
-        'Photos and videos stay inside the correct album',
+        'Photos stay inside the correct album',
         'Media is cleaned up after 48 hours',
       ],
       sections: [
@@ -1020,8 +1020,8 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Perfect for every event where moments are shared',
           body: [
             'Weddings, birthdays, corporate events, festivals, and private parties.',
-            'Everyone takes photos and videos. EventDrop brings all that content together in one shared album.',
-            'Guests can upload their photos and videos easily during the event, so everyone can reach different moments from one place and download the ones they want.',
+            'Everyone takes photos. EventDrop brings all that content together in one shared album.',
+            'Guests can upload their photos easily during the event, so everyone can reach different moments from one place and download the ones they want.',
           ],
         },
         {
@@ -1030,7 +1030,7 @@ export const translations: Record<Locale, TranslationTree> = {
             'Every event has its own album and a unique event code.',
             'Users entering through QR continue instantly with only their email address.',
             'Users entering manually use both email and the event code.',
-            'All photos and videos are automatically collected in one tidy album created specifically for that event.',
+            'All photos are automatically collected in one tidy album created specifically for that event.',
           ],
         },
         {
@@ -1143,18 +1143,18 @@ export const translations: Record<Locale, TranslationTree> = {
     upload: {
       badge: 'Guest upload page',
       intro:
-        'Guests can add photos and short videos to this shared album. Media is designed to be cleaned up after 48 hours.',
+        'Guests can add photos to this shared album. Media is designed to be cleaned up after 48 hours.',
       guidanceBadge: 'Upload rules',
       guidanceTitle: 'Please upload only media that can be shared',
       guidanceIntro:
         'By uploading, you confirm that you are sharing this media voluntarily and that you will respect the privacy of everyone at the event.',
       guidancePoints: [
-        'Only upload photos and videos that you are allowed to share.',
+        'Only upload photos that you are allowed to share.',
         'Do not upload humiliating, abusive, hateful, illegal, or privacy-violating content.',
-        'Videos can be up to 20 seconds long; media is kept for 48 hours and can be removed sooner via the contact details.',
+        'In this first version, only photos are accepted; media is kept for 48 hours and can be removed sooner via the contact details.',
       ],
       consentLabel:
-        'I confirm that I am uploading this media voluntarily and will follow the upload rules.',
+        'I confirm that I am uploading these photos voluntarily and will follow the upload rules.',
       consentHelp:
         'File selection and upload stay disabled until you agree.',
       consentRequired:
@@ -1174,13 +1174,13 @@ export const translations: Record<Locale, TranslationTree> = {
       photos: 'photos',
       videos: 'videos',
       filesSelected: 'files selected',
-      unsupportedIgnored: 'unsupported files ignored',
+      unsupportedIgnored: 'unsupported files or videos ignored',
       photoTooLarge: 'photo exceeds the 10 MB limit',
       videoTooLarge: 'video exceeds the 50 MB limit',
       videoTooLong: 'video exceeds 20 seconds',
       selectionLimit: 'you can choose up to 10 files at a time',
-      chooseSupported: 'Choose JPG, PNG, WEBP, HEIC, MP4, MOV, or WEBM files.',
-      chooseStart: 'Choose a photo or video to get started.',
+      chooseSupported: 'Choose a JPG, PNG, WEBP, or HEIC photo.',
+      chooseStart: 'Choose a photo to get started.',
       eventNotFound: 'This event could not be found. Check the link or QR code.',
       eventNotReady: 'This event is not ready for uploads yet.',
       uploadInProgress: 'Uploading...',
