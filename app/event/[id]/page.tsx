@@ -19,6 +19,28 @@ import { formatEventDisplayName, normalizeEventRecord, type NormalizedEvent } fr
 import { supabase } from '@/lib/supabase'
 
 const BUCKET_NAME = 'event-uploads'
+const MAX_SELECTION_FILES = 10
+const PHOTO_MAX_BYTES = 10 * 1024 * 1024
+const VIDEO_MAX_BYTES = 50 * 1024 * 1024
+const VIDEO_MAX_SECONDS = 20
+
+async function getVideoDurationInSeconds(file: File) {
+  const objectUrl = URL.createObjectURL(file)
+
+  try {
+    const duration = await new Promise<number>((resolve, reject) => {
+      const video = document.createElement('video')
+      video.preload = 'metadata'
+      video.src = objectUrl
+      video.onloadedmetadata = () => resolve(video.duration || 0)
+      video.onerror = () => reject(new Error('VIDEO_METADATA_ERROR'))
+    })
+
+    return duration
+  } finally {
+    URL.revokeObjectURL(objectUrl)
+  }
+}
 
 export default function Page() {
   const { t } = useLanguage()
@@ -176,20 +198,71 @@ export default function Page() {
     }
   }
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!guidanceAccepted) {
       setMessage(t.upload.consentRequired)
       return
     }
 
     const files = Array.from(event.target.files || [])
-    setSelectedFiles(files)
+    const limitedFiles = files.slice(0, MAX_SELECTION_FILES)
+    const validFiles: File[] = []
+    let unsupportedFiles = 0
+    let oversizedPhotos = 0
+    let oversizedVideos = 0
+    let tooLongVideos = 0
 
-    const validFiles = files.filter((file) => getMediaKind(file) !== null)
-    const ignoredFiles = files.length - validFiles.length
+    for (const file of limitedFiles) {
+      const mediaKind = getMediaKind(file)
+
+      if (!mediaKind) {
+        unsupportedFiles += 1
+        continue
+      }
+
+      if (mediaKind === 'photo') {
+        if (file.size > PHOTO_MAX_BYTES) {
+          oversizedPhotos += 1
+          continue
+        }
+
+        validFiles.push(file)
+        continue
+      }
+
+      if (file.size > VIDEO_MAX_BYTES) {
+        oversizedVideos += 1
+        continue
+      }
+
+      try {
+        const duration = await getVideoDurationInSeconds(file)
+
+        if (duration > VIDEO_MAX_SECONDS) {
+          tooLongVideos += 1
+          continue
+        }
+      } catch (error) {
+        console.error('Video metadata read failed', error)
+        unsupportedFiles += 1
+        continue
+      }
+
+      validFiles.push(file)
+    }
+
+    setSelectedFiles(validFiles)
+
+    const notes = [
+      unsupportedFiles > 0 ? `${unsupportedFiles} ${t.upload.unsupportedIgnored}` : '',
+      oversizedPhotos > 0 ? `${oversizedPhotos} ${t.upload.photoTooLarge}` : '',
+      oversizedVideos > 0 ? `${oversizedVideos} ${t.upload.videoTooLarge}` : '',
+      tooLongVideos > 0 ? `${tooLongVideos} ${t.upload.videoTooLong}` : '',
+      files.length > MAX_SELECTION_FILES ? t.upload.selectionLimit : '',
+    ].filter(Boolean)
 
     if (validFiles.length === 0) {
-      setMessage(t.upload.chooseSupported)
+      setMessage([t.upload.chooseSupported, ...notes].join(' • '))
       return
     }
 
@@ -206,9 +279,7 @@ export default function Page() {
       videoCount ? `${videoCount} ${videoCount > 1 ? t.upload.videos : t.upload.videos}` : '',
     ].filter(Boolean)
 
-    const ignoredNote = ignoredFiles > 0 ? ` • ${ignoredFiles} ${t.upload.unsupportedIgnored}` : ''
-
-    setMessage(`${parts.join(' • ')}${ignoredNote}`)
+    setMessage([parts.join(' • '), ...notes].join(' • '))
   }
 
   const createUploadRecord = async (payload: {

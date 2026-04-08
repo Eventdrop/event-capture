@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getStoragePathFromUpload } from '@/lib/eventdrop'
+import { hasAdminSession } from '@/lib/admin-auth'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export const runtime = 'nodejs'
@@ -9,6 +10,16 @@ export async function DELETE(
   context: RouteContext<'/api/uploads/[id]'>
 ) {
   const { id } = await context.params
+
+  if (!(await hasAdminSession())) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Unauthorized.',
+      },
+      { status: 401 }
+    )
+  }
 
   if (!id) {
     return NextResponse.json(

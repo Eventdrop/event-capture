@@ -31,6 +31,7 @@ export default function Page() {
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingAll, setDownloadingAll] = useState(false)
+  const [adminAuthenticated, setAdminAuthenticated] = useState(false)
 
   useEffect(() => {
     setStatusMessage(t.gallery.loading)
@@ -94,6 +95,23 @@ export default function Page() {
 
     void load()
   }, [eventIdentifier, t.gallery.loadError, t.gallery.noUploads, t.gallery.notFound, t.gallery.showing])
+
+  useEffect(() => {
+    const loadAdminSession = async () => {
+      try {
+        const response = await fetch('/api/admin/session', {
+          cache: 'no-store',
+        })
+        const payload = (await response.json()) as { authenticated?: boolean }
+        setAdminAuthenticated(Boolean(payload.authenticated))
+      } catch (error) {
+        console.error('Failed to check admin session', error)
+        setAdminAuthenticated(false)
+      }
+    }
+
+    void loadAdminSession()
+  }, [])
 
   useEffect(() => {
     const loadBranding = async () => {
@@ -296,29 +314,33 @@ export default function Page() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={downloadAll}
-              disabled={items.length === 0 || downloadingAll}
-              className={`rounded-full px-5 py-3 text-sm font-semibold ${
-                items.length === 0 || downloadingAll
-                  ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                  : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
-              }`}
-            >
-              {downloadingAll ? t.gallery.downloadingAll : t.gallery.downloadAll}
-            </button>
+            {adminAuthenticated ? (
+              <>
+                <button
+                  onClick={downloadAll}
+                  disabled={items.length === 0 || downloadingAll}
+                  className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                    items.length === 0 || downloadingAll
+                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                      : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
+                  }`}
+                >
+                  {downloadingAll ? t.gallery.downloadingAll : t.gallery.downloadAll}
+                </button>
 
-            <button
-              onClick={downloadSelected}
-              disabled={selected.length === 0}
-              className={`rounded-full px-5 py-3 text-sm font-semibold ${
-                selected.length === 0
-                  ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                  : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
-              }`}
-            >
-              {t.gallery.downloadSelected} ({selected.length})
-            </button>
+                <button
+                  onClick={downloadSelected}
+                  disabled={selected.length === 0}
+                  className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                    selected.length === 0
+                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                      : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
+                  }`}
+                >
+                  {t.gallery.downloadSelected} ({selected.length})
+                </button>
+              </>
+            ) : null}
 
             <Link
               href={uploadPageUrl}
@@ -367,20 +389,22 @@ export default function Page() {
                       />
                     )}
 
-                    <button
-                      onClick={() => toggleSelect(item.id)}
-                      className={`absolute left-3 top-3 rounded-full px-3 py-2 text-xs font-semibold ${
-                        isSelected
-                          ? 'bg-[#0F3D66] text-stone-50'
-                          : 'bg-white/90 text-stone-900'
-                      }`}
-                    >
-                      {isSelected ? t.gallery.selected : t.gallery.select}
-                    </button>
+                    {adminAuthenticated ? (
+                      <button
+                        onClick={() => toggleSelect(item.id)}
+                        className={`absolute left-3 top-3 rounded-full px-3 py-2 text-xs font-semibold ${
+                          isSelected
+                            ? 'bg-[#0F3D66] text-stone-50'
+                            : 'bg-white/90 text-stone-900'
+                        }`}
+                      >
+                        {isSelected ? t.gallery.selected : t.gallery.select}
+                      </button>
+                    ) : null}
 
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
-                        {isSelected ? (
+                        {adminAuthenticated && isSelected ? (
                           <button
                             onClick={() => handleDelete(item)}
                             disabled={isDeleting}
@@ -402,12 +426,14 @@ export default function Page() {
                         </button>
                       </div>
 
-                      <button
-                        onClick={() => handleDownload(item.file_url, downloadName)}
-                        className="rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-stone-50"
-                      >
-                        {t.gallery.download}
-                      </button>
+                      {adminAuthenticated ? (
+                        <button
+                          onClick={() => handleDownload(item.file_url, downloadName)}
+                          className="rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-stone-50"
+                        >
+                          {t.gallery.download}
+                        </button>
+                      ) : null}
                     </div>
                   </div>
 

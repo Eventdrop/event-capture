@@ -160,6 +160,10 @@ type TranslationTree = {
     videos: string
     filesSelected: string
     unsupportedIgnored: string
+    photoTooLarge: string
+    videoTooLarge: string
+    videoTooLong: string
+    selectionLimit: string
     chooseSupported: string
     chooseStart: string
     eventNotFound: string
@@ -349,7 +353,7 @@ export const translations: Record<Locale, TranslationTree> = {
       passwordSectionHelp:
         'Admin girisini daha guvenli hale getirmek icin mevcut sifreyi dogrulayip yeni sifre belirleyebilirsin.',
       passwordSectionUnavailable:
-        'Kalici sifre degisikligi icin Supabase uzerinde public.admin_credentials tablosu gerekli.',
+        'Kalici sifre degisikligi icin Supabase uzerinde public.admin_credentials tablosu gerekli. Tablo varsa ilk sifre degisikligi mevcut env sifresi ile yapilabilir.',
       currentPassword: 'Mevcut sifre',
       newPassword: 'Yeni sifre',
       confirmNewPassword: 'Yeni sifre tekrar',
@@ -423,7 +427,7 @@ export const translations: Record<Locale, TranslationTree> = {
       guidancePoints: [
         'Sadece paylasma hakkin olan fotograf ve videolari yukle.',
         'Kucuk dusurucu, ayipli, nefret iceren, yasa disi veya baskasinin gizliligini ihlal eden icerik yukleme.',
-        'Medya 48 saat saklanir; kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
+        'Videolar en fazla 20 saniye olmali; medya 48 saat saklanir ve kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
       ],
       consentLabel:
         'Yukledigin fotograf ve videolar uzerinde paylasim hakkina sahip oldugunu beyan edersin. Ayni etkinlikte yer alan diger katilimcilarin da seni iceren fotograf ve videolari yukleyebilecegini ve paylasabilecegini kabul edersin.',
@@ -447,6 +451,10 @@ export const translations: Record<Locale, TranslationTree> = {
       videos: 'video',
       filesSelected: 'dosya secildi',
       unsupportedIgnored: 'desteklenmeyen dosya yok sayildi',
+      photoTooLarge: 'fotograf 10 MB sinirini asti',
+      videoTooLarge: 'video 50 MB sinirini asti',
+      videoTooLong: 'video 20 saniyeyi asti',
+      selectionLimit: 'en fazla 10 dosya secilebilir',
       chooseSupported: 'JPG, PNG, WEBP, HEIC, MP4, MOV veya WEBM sec.',
       chooseStart: 'Baslamak icin fotograf veya video sec.',
       eventNotFound: 'Bu etkinlik bulunamadi. Linki veya QR kodu kontrol et.',
@@ -708,7 +716,7 @@ export const translations: Record<Locale, TranslationTree> = {
       passwordSectionHelp:
         'Je kunt eerst je huidige wachtwoord bevestigen en daarna een nieuw wachtwoord instellen.',
       passwordSectionUnavailable:
-        'Voor een blijvende wachtwoordwijziging is de tabel public.admin_credentials in Supabase nodig.',
+        'Voor een blijvende wachtwoordwijziging is de tabel public.admin_credentials in Supabase nodig. Als die tabel bestaat, kun je de eerste wijziging doen met het huidige omgevingswachtwoord.',
       currentPassword: 'Huidig wachtwoord',
       newPassword: 'Nieuw wachtwoord',
       confirmNewPassword: 'Herhaal nieuw wachtwoord',
@@ -782,7 +790,7 @@ export const translations: Record<Locale, TranslationTree> = {
       guidancePoints: [
         'Upload alleen foto’s en video’s die je mag delen.',
         'Upload geen vernederende, beledigende, haatdragende, onwettige of privacy-schendende inhoud.',
-        'Media wordt 48 uur bewaard; gebruik de contactgegevens als iets eerder verwijderd moet worden.',
+        'Video’s mogen maximaal 20 seconden duren; media wordt 48 uur bewaard en kan eerder worden verwijderd via de contactgegevens.',
       ],
       consentLabel:
         'Ik bevestig dat ik deze media vrijwillig upload en mij aan de uploadregels houd.',
@@ -806,6 +814,10 @@ export const translations: Record<Locale, TranslationTree> = {
       videos: 'video',
       filesSelected: 'bestanden geselecteerd',
       unsupportedIgnored: 'niet-ondersteunde bestanden genegeerd',
+      photoTooLarge: 'foto boven limiet van 10 MB',
+      videoTooLarge: 'video boven limiet van 50 MB',
+      videoTooLong: 'video langer dan 20 seconden',
+      selectionLimit: 'maximaal 10 bestanden per keer',
       chooseSupported: 'Kies JPG, PNG, WEBP, HEIC, MP4, MOV of WEBM.',
       chooseStart: 'Kies een foto of video om te beginnen.',
       eventNotFound: 'Dit evenement is niet gevonden. Controleer de link of QR-code.',
@@ -1065,7 +1077,7 @@ export const translations: Record<Locale, TranslationTree> = {
       passwordSectionHelp:
         'Confirm the current password first, then set a new one for the hidden admin panel.',
       passwordSectionUnavailable:
-        'Persistent password changes require the public.admin_credentials table in Supabase.',
+        'Persistent password changes require the public.admin_credentials table in Supabase. If that table exists, the first change can use the current environment password.',
       currentPassword: 'Current password',
       newPassword: 'New password',
       confirmNewPassword: 'Confirm new password',
@@ -1139,7 +1151,7 @@ export const translations: Record<Locale, TranslationTree> = {
       guidancePoints: [
         'Only upload photos and videos that you are allowed to share.',
         'Do not upload humiliating, abusive, hateful, illegal, or privacy-violating content.',
-        'Media is kept for 48 hours; use the contact details if something should be removed sooner.',
+        'Videos can be up to 20 seconds long; media is kept for 48 hours and can be removed sooner via the contact details.',
       ],
       consentLabel:
         'I confirm that I am uploading this media voluntarily and will follow the upload rules.',
@@ -1163,6 +1175,10 @@ export const translations: Record<Locale, TranslationTree> = {
       videos: 'videos',
       filesSelected: 'files selected',
       unsupportedIgnored: 'unsupported files ignored',
+      photoTooLarge: 'photo exceeds the 10 MB limit',
+      videoTooLarge: 'video exceeds the 50 MB limit',
+      videoTooLong: 'video exceeds 20 seconds',
+      selectionLimit: 'you can choose up to 10 files at a time',
       chooseSupported: 'Choose JPG, PNG, WEBP, HEIC, MP4, MOV, or WEBM files.',
       chooseStart: 'Choose a photo or video to get started.',
       eventNotFound: 'This event could not be found. Check the link or QR code.',

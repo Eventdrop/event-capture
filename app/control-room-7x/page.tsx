@@ -519,87 +519,75 @@ export default function AdminPage() {
                       : t.admin.passwordSectionUnavailable}
                   </p>
 
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                        {t.admin.username}
-                      </label>
-                      <input
-                        value={adminUsername}
-                        readOnly
-                        disabled={!canChangePassword || savingPassword}
-                        className={`w-full rounded-2xl border px-4 py-3 text-sm ${
-                          canChangePassword
-                            ? 'border-[#D4DFEE] bg-white text-[#0B2742]'
-                            : 'cursor-not-allowed border-white/10 bg-white/10 text-[#9CB2C8]'
-                        }`}
-                      />
-                    </div>
+                  {canChangePassword ? (
+                    <>
+                      <div className="mt-4 grid gap-4 md:grid-cols-2">
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                            {t.admin.username}
+                          </label>
+                          <input
+                            value={adminUsername}
+                            readOnly
+                            disabled={savingPassword}
+                            className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742]"
+                          />
+                        </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                        {t.admin.currentPassword}
-                      </label>
-                      <input
-                        type="password"
-                        value={currentPasswordForChange}
-                        onChange={(event) => setCurrentPasswordForChange(event.target.value)}
-                        disabled={!canChangePassword || savingPassword}
-                        className={`w-full rounded-2xl border px-4 py-3 text-sm ${
-                          canChangePassword
-                            ? 'border-[#D4DFEE] bg-white text-[#0B2742]'
-                            : 'cursor-not-allowed border-white/10 bg-white/10 text-[#9CB2C8]'
-                        }`}
-                      />
-                    </div>
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                            {t.admin.currentPassword}
+                          </label>
+                          <input
+                            type="password"
+                            value={currentPasswordForChange}
+                            onChange={(event) => setCurrentPasswordForChange(event.target.value)}
+                            disabled={savingPassword}
+                            className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742]"
+                          />
+                        </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                        {t.admin.newPassword}
-                      </label>
-                      <input
-                        type="password"
-                        value={nextPassword}
-                        onChange={(event) => setNextPassword(event.target.value)}
-                        disabled={!canChangePassword || savingPassword}
-                        className={`w-full rounded-2xl border px-4 py-3 text-sm ${
-                          canChangePassword
-                            ? 'border-[#D4DFEE] bg-white text-[#0B2742]'
-                            : 'cursor-not-allowed border-white/10 bg-white/10 text-[#9CB2C8]'
-                        }`}
-                      />
-                    </div>
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                            {t.admin.newPassword}
+                          </label>
+                          <input
+                            type="password"
+                            value={nextPassword}
+                            onChange={(event) => setNextPassword(event.target.value)}
+                            disabled={savingPassword}
+                            className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742]"
+                          />
+                        </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                        {t.admin.confirmNewPassword}
-                      </label>
-                      <input
-                        type="password"
-                        value={confirmNextPassword}
-                        onChange={(event) => setConfirmNextPassword(event.target.value)}
-                        disabled={!canChangePassword || savingPassword}
-                        className={`w-full rounded-2xl border px-4 py-3 text-sm ${
-                          canChangePassword
-                            ? 'border-[#D4DFEE] bg-white text-[#0B2742]'
-                            : 'cursor-not-allowed border-white/10 bg-white/10 text-[#9CB2C8]'
-                        }`}
-                      />
-                    </div>
-                  </div>
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                            {t.admin.confirmNewPassword}
+                          </label>
+                          <input
+                            type="password"
+                            value={confirmNextPassword}
+                            onChange={(event) => setConfirmNextPassword(event.target.value)}
+                            disabled={savingPassword}
+                            className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742]"
+                          />
+                        </div>
+                      </div>
 
-                  <button
-                    type="button"
-                    onClick={handlePasswordChange}
-                    disabled={!canChangePassword || savingPassword}
-                    className={`mt-4 rounded-full px-5 py-3 text-sm font-semibold ${
-                      !canChangePassword || savingPassword
-                        ? 'cursor-not-allowed bg-[#7A8EA5] text-[#DCE6F0]'
-                        : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
-                    }`}
-                  >
-                    {savingPassword ? t.admin.savingPassword : t.admin.changePassword}
-                  </button>
+                      <button
+                        type="button"
+                        onClick={handlePasswordChange}
+                        disabled={savingPassword}
+                        className={`mt-4 rounded-full px-5 py-3 text-sm font-semibold ${
+                          savingPassword
+                            ? 'cursor-not-allowed bg-[#7A8EA5] text-[#DCE6F0]'
+                            : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
+                        }`}
+                      >
+                        {savingPassword ? t.admin.savingPassword : t.admin.changePassword}
+                      </button>
+                    </>
+                  ) : null}
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
