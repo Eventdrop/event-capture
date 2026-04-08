@@ -156,6 +156,24 @@ export default function Page() {
     [items, selected]
   )
 
+  const shareSequenceById = useMemo(() => {
+    const sorted = [...items].sort((left, right) => {
+      const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0
+      const rightTime = right.created_at ? new Date(right.created_at).getTime() : 0
+
+      if (leftTime === rightTime) {
+        return left.id.localeCompare(right.id)
+      }
+
+      return leftTime - rightTime
+    })
+
+    return sorted.reduce<Record<string, number>>((accumulator, item, index) => {
+      accumulator[item.id] = index + 1
+      return accumulator
+    }, {})
+  }, [items])
+
   const uploadPageUrl = useMemo(
     () => getPublicPath(`/event/${eventIdentifier}`),
     [eventIdentifier]
@@ -255,7 +273,12 @@ export default function Page() {
   }
 
   const handleShare = async (item: UploadRecord) => {
-    const shareUrl = getPublicMediaUrl(getUploadShareKey(item))
+    const shareUrl = getPublicMediaUrl(
+      getUploadShareKey(item, {
+        eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+        sequence: shareSequenceById[item.id],
+      })
+    )
     const shareData = {
       title: eventName,
       text: getDownloadFileName(item),

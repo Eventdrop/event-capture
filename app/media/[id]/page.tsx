@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { MediaDownloadButton } from '@/app/_components/media-download-button'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicPath } from '@/lib/app-url'
@@ -8,9 +9,11 @@ import {
   getDownloadFileName,
   inferMediaKind,
   isExpired,
+  parseOrdinalShareKey,
   getUploadShareKey,
   type UploadRecord,
 } from '@/lib/eventdrop'
+import { normalizeEventRecord } from '@/lib/events'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export const runtime = 'nodejs'
@@ -31,14 +34,42 @@ export default async function MediaPage({
   if (directLookup.data) {
     upload = directLookup.data as UploadRecord
   } else {
-    const slugLookup = await supabase
-      .from('uploads')
-      .select('*')
-      .or(`file_name.ilike.${id}.%,storage_path.ilike.%/${id}.%`)
-      .limit(1)
+    const ordinalKey = parseOrdinalShareKey(id)
 
-    if (slugLookup.data?.[0]) {
-      upload = slugLookup.data[0] as UploadRecord
+    if (ordinalKey) {
+      const eventLookup = await supabase
+        .from('events')
+        .select('*')
+        .eq('slug', ordinalKey.eventSlug)
+        .single()
+
+      const event = normalizeEventRecord(eventLookup.data)
+
+      if (event?.id) {
+        const uploadsLookup = await supabase
+          .from('uploads')
+          .select('*')
+          .eq('event_id', event.id)
+          .order('created_at', { ascending: true })
+
+        const activeUploads = ((uploadsLookup.data || []) as UploadRecord[]).filter(
+          (item) => !isExpired(item.expires_at)
+        )
+
+        upload = activeUploads[ordinalKey.sequence - 1] || null
+      }
+    }
+
+    if (!upload) {
+      const slugLookup = await supabase
+        .from('uploads')
+        .select('*')
+        .or(`file_name.ilike.${id}.%,storage_path.ilike.%/${id}.%`)
+        .limit(1)
+
+      if (slugLookup.data?.[0]) {
+        upload = slugLookup.data[0] as UploadRecord
+      }
     }
   }
 
@@ -67,20 +98,14 @@ export default async function MediaPage({
               {fileName}
             </h1>
             <p className="mt-2 text-xs uppercase tracking-[0.18em] text-[#6A84A3]">
-              /media/{getUploadShareKey(upload)}
+              /media/{parseOrdinalShareKey(id) ? id : getUploadShareKey(upload)}
             </p>
             <p className="mt-3 text-sm leading-7 text-[#33516F]">
               Open, download, or share this single guest upload directly.
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a
-                href={upload.file_url}
-                download={fileName}
-                className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-5 py-3 text-sm font-semibold text-white hover:bg-[#DB6E12]"
-              >
-                Download
-              </a>
+              <MediaDownloadButton fileName={fileName} fileUrl={upload.file_url} />
 
               <Link
                 href={getPublicPath('/')}
