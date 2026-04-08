@@ -206,6 +206,7 @@ type TranslationTree = {
     download: string
     downloaded: string
     chooseBeforeDownload: string
+    selectionLimitReached: string
     uploadTimeUnavailable: string
     photo: string
     video: string
@@ -498,6 +499,7 @@ export const translations: Record<Locale, TranslationTree> = {
       download: 'Indir',
       downloaded: 'dosya indirildi',
       chooseBeforeDownload: 'Indirmeden once en az bir oge sec.',
+      selectionLimitReached: 'Bir kerede en fazla 10 fotograf secebilirsin.',
       uploadTimeUnavailable: 'Yukleme zamani yok',
       photo: 'Fotograf',
       video: 'Video',
@@ -861,6 +863,7 @@ export const translations: Record<Locale, TranslationTree> = {
       download: 'Downloaden',
       downloaded: 'bestanden gedownload',
       chooseBeforeDownload: 'Selecteer eerst minstens één item.',
+      selectionLimitReached: 'Je kunt maximaal 10 foto’s tegelijk selecteren.',
       uploadTimeUnavailable: 'Uploadtijd onbekend',
       photo: 'Foto',
       video: 'Video',
@@ -1222,6 +1225,7 @@ export const translations: Record<Locale, TranslationTree> = {
       download: 'Download',
       downloaded: 'files downloaded',
       chooseBeforeDownload: 'Choose at least one item before downloading.',
+      selectionLimitReached: 'You can select up to 10 photos at a time.',
       uploadTimeUnavailable: 'Upload time unavailable',
       photo: 'Photo',
       video: 'Video',

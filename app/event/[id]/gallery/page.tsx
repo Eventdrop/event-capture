@@ -179,12 +179,21 @@ export default function Page() {
     [eventIdentifier]
   )
 
+  const selectedLimit = 10
+
   const toggleSelect = (id: string) => {
-    setSelected((prev) =>
-      prev.includes(id)
-        ? prev.filter((itemId) => itemId !== id)
-        : [...prev, id]
-    )
+    setSelected((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((itemId) => itemId !== id)
+      }
+
+      if (prev.length >= selectedLimit) {
+        setStatusMessage(t.gallery.selectionLimitReached)
+        return prev
+      }
+
+      return [...prev, id]
+    })
   }
 
   const handleDownload = async (url: string, filename: string) => {
@@ -213,6 +222,11 @@ export default function Page() {
   }
 
   const downloadSelected = async () => {
+    if (selectedItems.length === 0) {
+      setStatusMessage(t.gallery.chooseBeforeDownload)
+      return
+    }
+
     for (const item of selectedItems) {
       await handleDownload(
         item.file_url,
@@ -352,6 +366,18 @@ export default function Page() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              onClick={downloadSelected}
+              disabled={selected.length === 0}
+              className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                selected.length === 0
+                  ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                  : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
+              }`}
+            >
+              {t.gallery.downloadSelected} ({selected.length}/{selectedLimit})
+            </button>
+
             {adminAuthenticated ? (
               <>
                 <button
@@ -366,17 +392,6 @@ export default function Page() {
                   {downloadingAll ? t.gallery.downloadingAll : t.gallery.downloadAll}
                 </button>
 
-                <button
-                  onClick={downloadSelected}
-                  disabled={selected.length === 0}
-                  className={`rounded-full px-5 py-3 text-sm font-semibold ${
-                    selected.length === 0
-                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                      : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
-                  }`}
-                >
-                  {t.gallery.downloadSelected} ({selected.length})
-                </button>
               </>
             ) : null}
 
@@ -404,6 +419,9 @@ export default function Page() {
               })
               const isDeleting = deletingId === item.id
 
+              const actionButtonClass =
+                'inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/70 bg-white/92 text-[#0F3D66] shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur hover:bg-white'
+
               return (
                 <article
                   key={item.id}
@@ -430,51 +448,69 @@ export default function Page() {
                       />
                     )}
 
-                    {adminAuthenticated ? (
-                      <button
-                        onClick={() => toggleSelect(item.id)}
-                        className={`absolute left-3 top-3 rounded-full px-3 py-2 text-xs font-semibold ${
-                          isSelected
-                            ? 'bg-[#0F3D66] text-stone-50'
-                            : 'bg-white/90 text-stone-900'
-                        }`}
-                      >
-                        {isSelected ? t.gallery.selected : t.gallery.select}
-                      </button>
-                    ) : null}
+                    <button
+                      onClick={() => toggleSelect(item.id)}
+                      aria-label={isSelected ? t.gallery.selected : t.gallery.select}
+                      title={isSelected ? t.gallery.selected : t.gallery.select}
+                      className={`absolute left-3 top-3 ${actionButtonClass} ${
+                        isSelected ? 'border-[#0F3D66] bg-[#0F3D66] text-white' : ''
+                      }`}
+                    >
+                      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                        <path d="M5 12.5 9.5 17 19 7.5" />
+                      </svg>
+                    </button>
 
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
-                        {adminAuthenticated && isSelected ? (
+                        {isSelected ? (
                           <button
                             onClick={() => handleDelete(item)}
                             disabled={isDeleting}
-                            className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                            aria-label={t.gallery.delete}
+                            title={t.gallery.delete}
+                            className={`inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/70 shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur ${
                               isDeleting
                                 ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                                : 'bg-[#B52E2E] text-white'
+                                : 'bg-[#B52E2E]/92 text-white'
                             }`}
                           >
-                            {isDeleting ? t.gallery.deleting : t.gallery.delete}
+                            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                              <path d="M4 7h16" />
+                              <path d="M10 11v6" />
+                              <path d="M14 11v6" />
+                              <path d="M6 7l1 12h10l1-12" />
+                              <path d="M9 7V4h6v3" />
+                            </svg>
                           </button>
                         ) : null}
 
                         <button
                           onClick={() => handleShare(item)}
-                          className="rounded-full bg-white/92 px-3 py-2 text-xs font-semibold text-stone-900"
+                          aria-label={t.gallery.share}
+                          title={t.gallery.share}
+                          className={actionButtonClass}
                         >
-                          {t.gallery.share}
+                          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                            <path d="M12 5v10" />
+                            <path d="m8 9 4-4 4 4" />
+                            <path d="M5 19h14" />
+                          </svg>
                         </button>
-                      </div>
 
-                      {adminAuthenticated ? (
                         <button
                           onClick={() => handleDownload(item.file_url, downloadName)}
-                          className="rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-stone-50"
+                          aria-label={t.gallery.download}
+                          title={t.gallery.download}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#F58220]/70 bg-[#F58220]/92 text-white shadow-[0_8px_20px_rgba(245,130,32,0.22)] backdrop-blur hover:bg-[#F58220]"
                         >
-                          {t.gallery.download}
+                          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                            <path d="M12 4v10" />
+                            <path d="m8 10 4 4 4-4" />
+                            <path d="M5 19h14" />
+                          </svg>
                         </button>
-                      ) : null}
+                      </div>
                     </div>
                   </div>
 
