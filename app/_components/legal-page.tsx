@@ -2,21 +2,26 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useMemo } from 'react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
 import { getPublicPath } from '@/lib/app-url'
 
+const UPLOAD_GUIDANCE_STORAGE_KEY = 'eventdrop-upload-guidance-accepted'
+
 export function LegalPage() {
   const { t } = useLanguage()
   const router = useRouter()
-
-  const handleBack = () => {
-    const returnTo =
+  const returnTo = useMemo(
+    () =>
       typeof window !== 'undefined'
         ? new URLSearchParams(window.location.search).get('returnTo')
-        : null
+        : null,
+    []
+  )
 
+  const handleBack = () => {
     if (
       returnTo &&
       returnTo.startsWith('/') &&
@@ -32,6 +37,14 @@ export function LegalPage() {
     }
 
     window.location.assign(getPublicPath('/'))
+  }
+
+  const handleAcknowledge = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(UPLOAD_GUIDANCE_STORAGE_KEY, '1')
+    }
+
+    handleBack()
   }
 
   return (
@@ -121,7 +134,7 @@ export function LegalPage() {
         <section className="pb-4">
           <button
             type="button"
-            onClick={handleBack}
+            onClick={handleAcknowledge}
             className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(245,130,32,0.22)] hover:bg-[#DB6E12]"
           >
             {t.legal.acknowledge}

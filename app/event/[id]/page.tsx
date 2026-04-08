@@ -21,6 +21,7 @@ import { supabase } from '@/lib/supabase'
 const BUCKET_NAME = 'event-uploads'
 const MAX_SELECTION_FILES = 10
 const PHOTO_MAX_BYTES = 10 * 1024 * 1024
+const UPLOAD_GUIDANCE_STORAGE_KEY = 'eventdrop-upload-guidance-accepted'
 
 export default function Page() {
   const { t } = useLanguage()
@@ -35,8 +36,14 @@ export default function Page() {
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [eventMissing, setEventMissing] = useState(false)
-  const [guidanceChecked, setGuidanceChecked] = useState(false)
   const [guidanceAccepted, setGuidanceAccepted] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const acknowledged = window.localStorage.getItem(UPLOAD_GUIDANCE_STORAGE_KEY) === '1'
+    setGuidanceAccepted(acknowledged)
+  }, [])
 
   useEffect(() => {
     if (selectedFiles.length === 0 && !resolvedEventId && !eventMissing) {
@@ -373,32 +380,13 @@ export default function Page() {
                   {t.upload.guidanceIntro}
                 </p>
 
-                <div className="mt-6 grid gap-4 md:grid-cols-3">
-                  {t.upload.guidancePoints.map((point) => (
-                    <div
-                      key={point}
-                      className="rounded-[1.5rem] border border-[#F3D2AF] bg-white p-5 text-sm leading-7 text-[#33516F]"
-                    >
-                      {point}
-                    </div>
-                  ))}
-                </div>
-
                 <div className="mt-6 rounded-[1.5rem] border border-[#F3D2AF] bg-white p-5">
-                  <label className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      checked={guidanceChecked}
-                      onChange={(event) => setGuidanceChecked(event.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-[#C8D3E5] text-[#F58220] focus:ring-[#F58220]"
-                    />
-                    <span className="text-sm leading-6 text-[#33516F]">
-                      <span className="font-medium text-[#0B2742]">
-                        {t.upload.consentLabel}
-                      </span>
-                      <span className="mt-1 block">{t.upload.consentHelp}</span>
+                  <p className="text-sm leading-6 text-[#33516F]">
+                    <span className="font-medium text-[#0B2742]">
+                      {t.upload.consentLabel}
                     </span>
-                  </label>
+                    <span className="mt-1 block">{t.upload.consentHelp}</span>
+                  </p>
 
                   <p className="mt-4 text-sm leading-7 text-[#597594]">
                     {t.upload.consentLinks}{' '}
@@ -420,18 +408,12 @@ export default function Page() {
                   <button
                     type="button"
                     onClick={() => {
-                      if (!guidanceChecked) {
-                        setMessage(t.upload.consentRequired)
-                        return
+                      if (typeof window !== 'undefined') {
+                        window.localStorage.setItem(UPLOAD_GUIDANCE_STORAGE_KEY, '1')
                       }
-
                       setGuidanceAccepted(true)
                     }}
-                    className={`mt-5 inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold ${
-                      guidanceChecked
-                        ? 'bg-[#F58220] text-white shadow-[0_12px_24px_rgba(245,130,32,0.22)] hover:bg-[#DB6E12]'
-                        : 'cursor-not-allowed bg-stone-300 text-stone-500'
-                    }`}
+                    className="mt-5 inline-flex items-center justify-center rounded-full bg-[#F58220] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(245,130,32,0.22)] hover:bg-[#DB6E12]"
                   >
                     {t.upload.consentButton}
                   </button>
@@ -459,40 +441,13 @@ export default function Page() {
             {eventName}
           </h1>
 
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-[#33516F]">
-            {t.upload.intro}
-          </p>
+          {currentEvent?.eventDate ? (
+            <p className="mt-3 text-sm font-medium text-[#597594]">
+              {t.common.eventDate}: {currentEvent.eventDate}
+            </p>
+          ) : null}
 
-          <div className="mt-8 grid gap-4 rounded-[1.75rem] border border-[#D4DFEE] bg-[#F7FAFD] p-5 md:grid-cols-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.16em] text-[#6A84A3]">
-                {t.upload.uploadLabel}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[#33516F]">
-                {t.upload.selectLabel}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-xs uppercase tracking-[0.16em] text-[#6A84A3]">
-                {t.upload.namingLabel}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[#33516F]">
-                {t.upload.namingText}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-xs uppercase tracking-[0.16em] text-[#6A84A3]">
-                {t.upload.retentionLabel}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[#33516F]">
-                {t.upload.retentionText}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8 space-y-4">
+          <div className="mt-6 space-y-4">
             <label
               htmlFor="event-media"
               className="block text-sm font-medium text-[#0B2742]"
@@ -578,6 +533,10 @@ export default function Page() {
                 {t.upload.viewGallery}
               </Link>
             </div>
+
+            <p className="text-sm leading-6 text-[#597594]">
+              {t.upload.retentionText}
+            </p>
           </div>
         </section>
 
