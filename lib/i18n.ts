@@ -313,7 +313,7 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Neden EventDrop',
           body: [
             'Etkinlikte cekilen fotograflar cogu zaman telefonlarda kaybolur. EventDrop ile tum icerikler tek bir yerde toplanir, herkes kolayca erisebilir ve paylasabilir.',
-            'Isterseniz etkinlik sonrasinda tum icerikleri tek seferde indirerek arsivleyebilirsiniz.',
+            'Tum fotograflar etkinlik sonrasinda ertesi gun etkinlik sahibine e-posta yolu ile iletilir.',
             'Konuklarinizin tum goruntuleri tek bir yerde, aninda erisilebilir.',
             'Etkinlige katilan herkesle paylasmak son derece kolaydir.',
           ],
@@ -676,7 +676,7 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Waarom EventDrop',
           body: [
             'Foto’s die tijdens een evenement worden gemaakt raken vaak verspreid over telefoons. Met EventDrop komt alles op één plek samen, zodat iedereen er makkelijk bij kan.',
-            'Na afloop kun je desgewenst alle content in één keer downloaden en archiveren.',
+            'Alle foto’s worden de dag na het evenement per e-mail naar de eigenaar van het evenement gestuurd.',
             'Alle beelden van je gasten staan direct op één toegankelijke plek.',
             'Delen met iedereen die aanwezig was is daardoor heel eenvoudig.',
           ],
@@ -1037,7 +1037,7 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Why EventDrop',
           body: [
             'Photos taken during an event often get lost across different phones. With EventDrop, everything is gathered in one place so everyone can access and share it easily.',
-            'If you want, you can download the full collection afterwards and archive it in one go.',
+            'All photos are delivered by email to the event owner on the day after the event.',
             'All guest media stays in one accessible place.',
             'Sharing with everyone who attended becomes simple.',
           ],
