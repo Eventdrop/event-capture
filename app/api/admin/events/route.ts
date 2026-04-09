@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { hasAdminSession } from '@/lib/admin-auth'
+import { getStoragePathFromUpload, type UploadRecord } from '@/lib/eventdrop'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { buildEventInsertPayload } from '@/lib/events'
 
@@ -299,6 +300,36 @@ export async function DELETE(request: Request) {
 
   try {
     const supabase = createAdminSupabaseClient()
+    const uploadsLookup = await supabase
+      .from('uploads')
+      .select('*')
+      .eq('event_id', id)
+
+    if (uploadsLookup.error) throw uploadsLookup.error
+
+    const uploads = (uploadsLookup.data || []) as UploadRecord[]
+    const storagePaths = uploads
+      .map((upload) => getStoragePathFromUpload(upload))
+      .filter((value): value is string => Boolean(value))
+
+    if (storagePaths.length > 0) {
+      const { error: storageError } = await supabase.storage
+        .from('event-uploads')
+        .remove(storagePaths)
+
+      if (storageError) throw storageError
+    }
+
+    if (uploads.length > 0) {
+      const uploadIds = uploads.map((upload) => upload.id)
+      const { error: uploadsDeleteError } = await supabase
+        .from('uploads')
+        .delete()
+        .in('id', uploadIds)
+
+      if (uploadsDeleteError) throw uploadsDeleteError
+    }
+
     const { error } = await supabase.from('events').delete().eq('id', id)
 
     if (error) throw error
