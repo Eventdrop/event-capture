@@ -15,7 +15,12 @@ import {
   getPublicFileUrl,
 } from '@/lib/eventdrop'
 import { getEventBackground, getEventCover } from '@/lib/event-visuals'
-import { formatEventDisplayName, normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
+import {
+  formatEventDisplayName,
+  getEventJoinRoute,
+  normalizeEventRecord,
+  type NormalizedEvent,
+} from '@/lib/events'
 import { supabase } from '@/lib/supabase'
 
 const BUCKET_NAME = 'event-uploads'
@@ -134,7 +139,7 @@ export default function Page() {
   }, [currentEvent?.backgroundImageUrl, currentEvent?.coverImageUrl, currentEvent?.id, eventIdentifier])
 
   const uploadUrl = useMemo(() => {
-    return `${getPublicAppUrl()}/event/${eventIdentifier}`
+    return `${getPublicAppUrl()}${getEventJoinRoute(eventIdentifier)}`
   }, [eventIdentifier])
 
   const galleryUrl = useMemo(
