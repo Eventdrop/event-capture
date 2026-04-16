@@ -133,13 +133,13 @@ export default async function MediaPage({
 
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#edf4fb_100%)] text-stone-900">
-      <SiteHeader currentLabel="Shared Media" />
+      <SiteHeader currentLabel="Gedeeld bestand" />
 
       <main className="flex-1 px-6 py-10">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
           <div className="rounded-[2rem] border border-[#D4DFEE] bg-white/84 p-6 shadow-[0_18px_50px_rgba(61,44,22,0.12)] backdrop-blur">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6A84A3]">
-              Shared Media
+              Gedeeld bestand
             </p>
             <h1 className="mt-3 break-all text-3xl font-semibold tracking-[-0.03em] text-stone-950">
               {shortFileName}
@@ -148,7 +148,7 @@ export default async function MediaPage({
               /media/{shareKey}
             </p>
             <p className="mt-3 text-sm leading-7 text-[#33516F]">
-              Open, download, or share this single guest upload directly.
+              Open, download of deel dit bestand direct vanuit het album.
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -160,7 +160,7 @@ export default async function MediaPage({
                 href={backToAlbumUrl}
                 className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-5 py-3 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
               >
-                Back to album
+                Terug naar album
               </Link>
             </div>
           </div>

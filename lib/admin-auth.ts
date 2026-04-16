@@ -193,7 +193,7 @@ export async function createAdminSession() {
   const sessionValue = await getAdminSessionValue()
 
   if (!sessionValue) {
-    throw new Error('Admin authentication is not configured on the server.')
+    throw new Error('Beheertoegang is nog niet ingesteld op de server.')
   }
 
   cookieStore.set(ADMIN_COOKIE_NAME, sessionValue, {
@@ -219,21 +219,21 @@ export async function updateAdminPassword(input: {
   const credentials = await getStoredAdminCredentials()
 
   if (!credentials) {
-    throw new Error('Admin authentication is not configured on the server.')
+    throw new Error('Beheertoegang is nog niet ingesteld op de server.')
   }
 
   if (!databaseState.tableAvailable) {
     throw new Error(
-      'Password changes require the public.admin_credentials table in Supabase.'
+      'Voor het wijzigen van het wachtwoord is de tabel public.admin_credentials in Supabase nodig.'
     )
   }
 
   if (input.currentUsername !== credentials.username) {
-    throw new Error('Current username is incorrect.')
+    throw new Error('De huidige gebruikersnaam is onjuist.')
   }
 
   if (!verifyPassword(input.currentPassword, credentials.passwordHash)) {
-    throw new Error('Current password is incorrect.')
+    throw new Error('Het huidige wachtwoord is onjuist.')
   }
 
   const nextPasswordHash = hashPassword(input.nextPassword)

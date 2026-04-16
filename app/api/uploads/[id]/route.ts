@@ -14,7 +14,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         ok: false,
-        error: 'Upload id is required.',
+        error: 'Een upload ID is verplicht.',
       },
       { status: 400 }
     )
@@ -33,7 +33,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           ok: false,
-          error: 'Upload not found.',
+          error: 'De upload is niet gevonden.',
         },
         { status: 404 }
       )
@@ -61,7 +61,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Failed to delete upload.',
+        error: error instanceof Error ? error.message : 'De upload kon niet worden verwijderd.',
       },
       { status: 500 }
     )

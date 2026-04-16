@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   const authenticated = await hasAdminSession()
 
   if (!authenticated) {
-    return NextResponse.json({ ok: false, error: 'Unauthorized.' }, { status: 401 })
+    return NextResponse.json({ ok: false, error: 'Geen toegang.' }, { status: 401 })
   }
 
   try {
@@ -21,19 +21,19 @@ export async function POST(request: Request) {
     const kind = `${formData.get('kind') || ''}`.trim()
 
     if (!(file instanceof File)) {
-      return NextResponse.json({ ok: false, error: 'File is required.' }, { status: 400 })
+      return NextResponse.json({ ok: false, error: 'Een bestand is verplicht.' }, { status: 400 })
     }
 
     if (!eventId) {
       return NextResponse.json(
-        { ok: false, error: 'Event id is required.' },
+        { ok: false, error: 'Een evenement ID is verplicht.' },
         { status: 400 }
       )
     }
 
     if (kind !== 'cover' && kind !== 'background') {
       return NextResponse.json(
-        { ok: false, error: 'Media kind must be cover or background.' },
+        { ok: false, error: 'Het type moet omslag of achtergrond zijn.' },
         { status: 400 }
       )
     }
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Failed to upload event media.',
+        error: error instanceof Error ? error.message : 'De afbeelding kon niet worden geüpload.',
       },
       { status: 500 }
     )

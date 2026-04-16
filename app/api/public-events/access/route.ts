@@ -216,7 +216,7 @@ export async function POST(request: Request) {
       {
         ok: false,
         errorCode: 'ACCESS_FAILED',
-        error: error instanceof Error ? error.message : 'Event access failed.',
+        error: error instanceof Error ? error.message : 'Toegang tot het evenement is niet gelukt.',
       },
       { status: 500 }
     )

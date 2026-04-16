@@ -13,7 +13,7 @@ async function ensureAdmin() {
     return NextResponse.json(
       {
         ok: false,
-        error: 'Unauthorized.',
+        error: 'Geen toegang.',
       },
       { status: 401 }
     )
@@ -97,7 +97,7 @@ export async function GET() {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Failed to load events.',
+        error: error instanceof Error ? error.message : 'De evenementen konden niet worden geladen.',
       },
       { status: 500 }
     )
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: 'Event name and album name are required.',
+        error: 'Vul een evenementnaam en albumnaam in.',
       },
       { status: 400 }
     )
@@ -202,7 +202,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Failed to create event.',
+        error: error instanceof Error ? error.message : 'Het evenement kon niet worden aangemaakt.',
       },
       { status: 500 }
     )
@@ -228,7 +228,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: 'Event id is required.',
+        error: 'Een evenement ID is verplicht.',
       },
       { status: 400 }
     )
@@ -274,7 +274,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Failed to update event settings.',
+        error: error instanceof Error ? error.message : 'De instellingen van het evenement konden niet worden bijgewerkt.',
       },
       { status: 500 }
     )
@@ -292,7 +292,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: 'Event id is required.',
+        error: 'Een evenement ID is verplicht.',
       },
       { status: 400 }
     )
@@ -339,7 +339,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Failed to delete event.',
+        error: error instanceof Error ? error.message : 'Het evenement kon niet worden verwijderd.',
       },
       { status: 500 }
     )

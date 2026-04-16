@@ -80,20 +80,20 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="bg-white px-2 pb-2 pt-4 sm:px-3">
+                <div className="bg-white px-2 pb-2 pt-4 sm:px-3">
                 <div className="text-center">
                   <p className="text-[44px] font-semibold uppercase leading-[0.86] tracking-[-0.09em] text-[#17120f] sm:text-[68px]">
-                    DROP YOUR
+                    {t.home.posterHeadline}
                   </p>
                   <p className="-mt-1 text-[30px] italic leading-none text-[#F28C18] sm:text-[42px]">
-                    moments
+                    {t.home.posterAccent}
                   </p>
                   <div className="mt-3 space-y-1 text-center">
                     <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#5d6775] sm:text-[13px]">
-                      Scan. Upload. Done.
+                      {t.home.posterEyebrow}
                     </p>
                     <p className="text-[12px] text-[#8b8175] sm:text-[13px]">
-                      All memories in one place.
+                      {t.home.posterSubline}
                     </p>
                   </div>
                 </div>
@@ -117,7 +117,7 @@ export default function Home() {
                 {t.home.entryLabel}
               </p>
               <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#17120f] sm:text-4xl">
-                Drop your moments
+                {t.home.title}
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-7 text-[#5D6775]">
                 {t.home.intro}
