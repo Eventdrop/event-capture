@@ -26,7 +26,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: 'Unauthorized.',
+        error: 'Geen toegang.',
       },
       { status: 401 }
     )
@@ -51,7 +51,7 @@ export async function PATCH(request: Request) {
       {
         ok: false,
         errorCode: 'MISSING_FIELDS',
-        error: 'All password fields are required.',
+        error: 'Vul alle wachtwoordvelden in.',
       },
       { status: 400 }
     )
@@ -62,7 +62,7 @@ export async function PATCH(request: Request) {
       {
         ok: false,
         errorCode: 'PASSWORD_MISMATCH',
-        error: 'New passwords do not match.',
+        error: 'De nieuwe wachtwoorden komen niet overeen.',
       },
       { status: 400 }
     )
@@ -73,7 +73,7 @@ export async function PATCH(request: Request) {
       {
         ok: false,
         errorCode: 'PASSWORD_TOO_SHORT',
-        error: 'New password must be at least 8 characters.',
+        error: 'Het nieuwe wachtwoord moet minimaal 8 tekens hebben.',
       },
       { status: 400 }
     )
@@ -94,7 +94,7 @@ export async function PATCH(request: Request) {
     })
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'Password could not be updated.'
+      error instanceof Error ? error.message : 'Het wachtwoord kon niet worden bijgewerkt.'
 
     const statusCode =
       message.includes('require') || message.includes('table')

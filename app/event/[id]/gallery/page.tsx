@@ -26,7 +26,7 @@ export default function Page() {
 
   const [items, setItems] = useState<UploadRecord[]>([])
   const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
-  const [eventName, setEventName] = useState('Shared Event Gallery')
+  const [eventName, setEventName] = useState('Gedeelde evenementgalerij')
   const [selected, setSelected] = useState<string[]>([])
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -84,7 +84,7 @@ export default function Page() {
       setEventName(
         normalizedEvent
           ? formatEventDisplayName(normalizedEvent)
-          : 'Shared Event Gallery'
+          : 'Gedeelde evenementgalerij'
       )
       setStatusMessage(
         activeUploads.length === 0
@@ -204,7 +204,7 @@ export default function Page() {
       const response = await fetch(url)
 
       if (!response.ok) {
-        throw new Error(`Download failed with status ${response.status}.`)
+        throw new Error(`Download mislukt met status ${response.status}.`)
       }
 
       const blob = await response.blob()

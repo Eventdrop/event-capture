@@ -33,7 +33,7 @@ export function MediaDownloadButton({ fileName, fileUrl }: Props) {
       window.URL.revokeObjectURL(blobUrl)
     } catch (error) {
       console.error('Media download failed', error)
-      window.alert('Download could not be started right now.')
+      window.alert('De download kon nu niet worden gestart.')
     } finally {
       setDownloading(false)
     }
@@ -50,7 +50,7 @@ export function MediaDownloadButton({ fileName, fileUrl }: Props) {
           : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
       }`}
     >
-      {downloading ? 'Downloading...' : 'Download'}
+      {downloading ? 'Download wordt gestart...' : 'Download'}
     </button>
   )
 }

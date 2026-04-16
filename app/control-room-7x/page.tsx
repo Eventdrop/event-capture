@@ -633,7 +633,7 @@ export default function AdminPage() {
                     {t.admin.createTitle}
                   </p>
                   <p className="mt-2 text-sm leading-7 text-[#EAF3FB]">
-                    Drop your moments
+                    Houd je albums overzichtelijk en je gastentoegang eenvoudig.
                   </p>
                 </div>
 
@@ -726,7 +726,7 @@ export default function AdminPage() {
                     <input
                       value={eventName}
                       onChange={(event) => setEventName(event.target.value)}
-                      placeholder="Kingsday Canal Wedding"
+                      placeholder="Voorjaarsbruiloft aan de gracht"
                       className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742] placeholder:text-[#7D95AF]"
                     />
                   </div>
@@ -738,7 +738,7 @@ export default function AdminPage() {
                     <input
                       value={albumName}
                       onChange={(event) => setAlbumName(event.target.value)}
-                      placeholder="Orange Night Album"
+                      placeholder="Album voor de avond"
                       className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742] placeholder:text-[#7D95AF]"
                     />
                   </div>
@@ -791,7 +791,7 @@ export default function AdminPage() {
                         onChange={(event) =>
                           setAccessCode(normalizeEventAccessCode(event.target.value))
                         }
-                        placeholder="YUNA26"
+                        placeholder="LENTE26"
                         autoCapitalize="characters"
                         autoCorrect="off"
                         className={`w-full rounded-2xl border border-[#D4DFEE] px-4 py-3 text-sm uppercase tracking-[0.18em] placeholder:text-[#7D95AF] ${
@@ -1019,7 +1019,7 @@ export default function AdminPage() {
                   </p>
                   {event.slug ? (
                     <p className="mt-1 break-all text-sm text-[#6A84A3]">
-                      Public slug: {event.slug}
+                      Openbare slug: {event.slug}
                     </p>
                   ) : null}
                   {event.accessCode ? (
@@ -1163,7 +1163,7 @@ export default function AdminPage() {
                   </div>
 
                   <p className="mt-4 break-all text-xs text-[#6A84A3]">
-                    Guest entry URL: {getEventShareUrl(event)}
+                    Link voor gasten: {getEventShareUrl(event)}
                   </p>
 
                   <div className="mt-4 rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">

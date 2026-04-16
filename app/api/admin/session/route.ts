@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         authenticated: false,
-        error: 'Admin authentication is not configured on the server.',
+        error: 'Beheertoegang is nog niet ingesteld op de server.',
       },
       { status: 500 }
     )
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         authenticated: false,
-        error: 'Invalid username or password.',
+        error: 'Gebruikersnaam of wachtwoord is onjuist.',
       },
       { status: 401 }
     )

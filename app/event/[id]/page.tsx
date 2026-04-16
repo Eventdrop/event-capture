@@ -36,7 +36,7 @@ export default function Page() {
 
   const [resolvedEventId, setResolvedEventId] = useState('')
   const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
-  const [eventName, setEventName] = useState('Shared Event Album')
+  const [eventName, setEventName] = useState('Gedeeld evenementalbum')
   const [message, setMessage] = useState(t.upload.chooseStart)
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -91,7 +91,7 @@ export default function Page() {
       setEventName(
         normalizedEvent
           ? formatEventDisplayName(normalizedEvent)
-          : 'Shared Event Album'
+          : 'Gedeeld evenementalbum'
       )
       setResolvedEventId(normalizedEvent?.id || '')
       setMessage(t.upload.intro)
@@ -315,7 +315,7 @@ export default function Page() {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 
       if (!supabaseUrl) {
-        throw new Error('NEXT_PUBLIC_SUPABASE_URL is missing.')
+        throw new Error('De uploadomgeving is niet volledig ingesteld.')
       }
 
       const existingUploadsCountQuery = await supabase
@@ -345,7 +345,7 @@ export default function Page() {
           })
 
         if (storageError) {
-          throw new Error(`Storage error: ${storageError.message}`)
+          throw new Error(`Opslaan mislukt: ${storageError.message}`)
         }
 
         const fileUrl = getPublicFileUrl(supabaseUrl, BUCKET_NAME, storagePath)
@@ -375,7 +375,7 @@ export default function Page() {
     } catch (error) {
       console.error('Upload failed', error)
       setMessage(
-        error instanceof Error ? error.message : 'Upload failed unexpectedly.'
+        error instanceof Error ? error.message : 'Uploaden is niet gelukt.'
       )
     } finally {
       setUploading(false)
