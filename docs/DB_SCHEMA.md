@@ -220,3 +220,61 @@ MVP icin iki yol vardir:
 - Event bazli token veya signed URL mantigi
 
 Mevcut urun hedefi sadelik oldugu icin MVP asamasinda basit ama dikkatli RLS kurallari yeterli olabilir. Uretime cikmadan once bucket politikasi ve tablo erisimi ayrica test edilmelidir.
+
+## Security Hardening SQL
+
+Supabase Security Advisor icin asagidaki ek sertlestirmeler gerekir:
+
+- `public.admin_credentials` icin RLS acik olmali
+- `public.guest_access_logs` icin RLS acik olmali
+- `public.uploads` icindeki anon insert policy `with check (true)` yerine daha dar olmali
+- `storage.objects` icindeki broad `SELECT` policy'leri kaldirilmali
+- public bucket oldugu icin `event-uploads` dosya URL'leri yine calisir; listing policy'sine gerek yoktur
+
+```sql
+alter table public.admin_credentials enable row level security;
+alter table public.guest_access_logs enable row level security;
+
+drop policy if exists "No direct access to admin credentials" on public.admin_credentials;
+create policy "No direct access to admin credentials"
+on public.admin_credentials
+for all
+to public
+using (false)
+with check (false);
+
+drop policy if exists "No direct access to guest access logs" on public.guest_access_logs;
+create policy "No direct access to guest access logs"
+on public.guest_access_logs
+for all
+to public
+using (false)
+with check (false);
+
+drop policy if exists "Allow anon insert uploads" on public.uploads;
+drop policy if exists "Allow insert uploads" on public.uploads;
+
+create policy "Allow anon insert uploads"
+on public.uploads
+for insert
+to anon
+with check (
+  event_id is not null
+  and coalesce(file_url, '') <> ''
+  and coalesce(type, '') in ('photo', 'video')
+);
+
+drop policy if exists "Allow public read" on storage.objects;
+drop policy if exists "Allow public read for event-uploads" on storage.objects;
+drop policy if exists "allow all reads" on storage.objects;
+
+drop policy if exists "Allow public upload" on storage.objects;
+drop policy if exists "allow all uploads" on storage.objects;
+drop policy if exists "Allow anon uploads to event-uploads" on storage.objects;
+
+create policy "Allow anon uploads to event-uploads"
+on storage.objects
+for insert
+to anon
+with check (bucket_id = 'event-uploads');
+```
