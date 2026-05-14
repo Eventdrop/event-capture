@@ -1,5 +1,136 @@
 # Operations And Retention
 
+## Owner Workflow
+
+Bu proje icin amac, teknik bilgi az olsa bile sorunlari erken fark etmek ve
+panik olmadan dogru yere bakmaktir. Uygulama su servislerle calisir:
+
+- GitHub: Kod ve pull request akisi
+- Vercel: Canli site, deploy ve runtime loglari
+- Supabase: Database, storage ve API key'leri
+- Codex: Duzenli kontrol, sade rapor ve sorun oldugunda yonlendirme
+
+Production domain:
+
+`https://upload.photoboothholland.com`
+
+Admin route:
+
+`https://upload.photoboothholland.com/control-room-7x`
+
+Manual health check:
+
+```bash
+npm run health
+```
+
+Bu komut ana sayfayi, admin giris sayfasini ve cleanup endpoint'inin disariya
+kapali oldugunu kontrol eder.
+
+## Monitoring Setup
+
+### Vercel
+
+Vercel Pro kullanimi onerilir. Vercel'de su ayarlar acik tutulmalidir:
+
+- Deployment failure emails
+- Runtime error alerts
+- Usage ve spending alerts
+- Environment Variables uyarilari
+
+Environment Variables ekraninda turuncu `Needs Attention` gorunmemelidir.
+Bu uyarilar gorunurse ilgili secret yeniden girilmeli ve production redeploy
+yapilmalidir.
+
+Zorunlu production environment variables:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_APP_URL=https://upload.photoboothholland.com
+SUPABASE_SERVICE_ROLE_KEY=
+CRON_SECRET=
+ADMIN_USERNAME=
+ADMIN_PASSWORD=
+ADMIN_SESSION_SECRET=
+```
+
+Vercel uyarisi alindiginda ilk bakilacak yerler:
+
+- Project > Deployments: son deploy `Ready` mi?
+- Project > Logs: runtime hata var mi?
+- Project > Environment Variables: `Needs Attention` var mi?
+
+### Supabase
+
+Supabase tarafinda izlenecek noktalar:
+
+- Project status `Healthy` olmali
+- Database ve Storage limitleri dolmaya yaklasmamali
+- `event-uploads` bucket mevcut olmali
+- `events`, `uploads`, `admin_credentials`, `guest_access_logs` tablolari
+  beklenen sekilde durmali
+- `service_role` key yalnizca server-side secret olarak tutulmali
+
+Supabase key degisirse ayni key Vercel'deki `SUPABASE_SERVICE_ROLE_KEY`
+degiskenine de yeniden girilmeli ve redeploy yapilmalidir.
+
+### GitHub
+
+GitHub tarafinda acik tutulmasi gerekenler:
+
+- Dependabot alerts
+- Pull request review akisi
+- Branch protection for `main`
+- Failed workflow/deployment notifications
+
+Production kodu `main` branch'inden yayinlanir. Kritik degisiklikler once pull
+request ile kontrol edilmelidir.
+
+### Codex Automations
+
+Codex tarafinda iki katmanli takip onerilir:
+
+- Saatlik production health check
+- Gunluk operasyon raporu
+- Haftalik bakim kontrolu
+
+Saatlik kontrol, site tamamen ayakta mi ve admin route server error veriyor mu
+diye bakar. Gunluk/haftalik kontrollerde Vercel, Supabase ve GitHub panellerinde
+elle bakilmasi gereken konular sade bir liste olarak raporlanir.
+
+## Incident Playbook
+
+### Site Acilmiyor
+
+1. Vercel > Deployments ekraninda son deploy `Ready` mi kontrol et.
+2. `npm run health` ile production endpoint'lerini kontrol et.
+3. Vercel > Logs ekraninda son hatayi oku.
+4. Supabase dashboard'da proje `Healthy` mi kontrol et.
+5. Son deploy sorunluysa Vercel'de onceki `Ready` deployment'a rollback yap.
+
+### Admin Panel Calismiyor
+
+1. Vercel Environment Variables icinde `ADMIN_USERNAME`, `ADMIN_PASSWORD`,
+   `ADMIN_SESSION_SECRET` var mi kontrol et.
+2. `Needs Attention` varsa degeri yeniden gir ve redeploy yap.
+3. Vercel Logs icinde auth veya Supabase hatasi var mi kontrol et.
+
+### Upload Calismiyor
+
+1. Supabase `event-uploads` bucket mevcut mu kontrol et.
+2. Vercel Environment Variables icinde Supabase URL, anon key ve service role
+   key var mi kontrol et.
+3. Supabase Storage limitleri dolmus mu kontrol et.
+4. Vercel Logs icinde storage veya permission hatasi var mi kontrol et.
+
+### Cleanup Calismiyor
+
+1. Vercel `vercel.json` icinde cron tanimi duruyor mu kontrol et.
+2. `CRON_SECRET` Vercel'de set mi ve `Needs Attention` yok mu kontrol et.
+3. Vercel Logs icinde `/api/cleanup` hatasi var mi kontrol et.
+4. Supabase uploads tablosunda `expires_at` gecmis kayitlar birikiyor mu kontrol et.
+
 ## Main Operational Rule
 
 Sistemde yuklenen tum fotograf ve videolar 48 saat sonra otomatik olarak silinmelidir.

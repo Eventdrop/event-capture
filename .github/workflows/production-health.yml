@@ -1,0 +1,26 @@
+name: Production Health
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  health:
+    name: Check production site
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check production health
+        run: node scripts/health-check.mjs
+        env:
+          HEALTHCHECK_URL: https://upload.photoboothholland.com
