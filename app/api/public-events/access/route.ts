@@ -12,7 +12,9 @@ import {
   normalizeEventRecord,
   type NormalizedEvent,
 } from '@/lib/events'
+import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
+import { withRetry } from '@/lib/with-retry'
 
 export const runtime = 'nodejs'
 
@@ -29,14 +31,21 @@ async function persistGuestAccessLog(input: {
 }) {
   try {
     const supabase = createAdminSupabaseClient()
-    const richInsert = await supabase.from('guest_access_logs').insert([
+    const richInsert = await withRetry(
+      () =>
+        supabase.from('guest_access_logs').insert([
+          {
+            event_id: input.eventId,
+            event_slug: input.eventSlug || null,
+            email: input.email,
+            source: input.source,
+          },
+        ]),
       {
-        event_id: input.eventId,
-        event_slug: input.eventSlug || null,
-        email: input.email,
-        source: input.source,
-      },
-    ])
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
 
     if (!richInsert.error) return
 
@@ -50,12 +59,19 @@ async function persistGuestAccessLog(input: {
       throw richInsert.error
     }
 
-    const fallbackInsert = await supabase.from('guest_access_logs').insert([
+    const fallbackInsert = await withRetry(
+      () =>
+        supabase.from('guest_access_logs').insert([
+          {
+            event_id: input.eventId,
+            email: input.email,
+          },
+        ]),
       {
-        event_id: input.eventId,
-        email: input.email,
-      },
-    ])
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
 
     if (fallbackInsert.error) {
       throw fallbackInsert.error
@@ -92,11 +108,18 @@ export async function POST(request: Request) {
     let eventByIdentifier: NormalizedEvent | null = null
 
     if (identifier) {
-      const idLookup = await supabase
-        .from('events')
-        .select('*')
-        .eq('id', identifier)
-        .maybeSingle()
+      const idLookup = await withRetry(
+        () =>
+          supabase
+            .from('events')
+            .select('*')
+            .eq('id', identifier)
+            .maybeSingle(),
+        {
+          attempts: 3,
+          delayMs: 250,
+        }
+      )
 
       if (idLookup.error) {
         throw idLookup.error
@@ -105,11 +128,18 @@ export async function POST(request: Request) {
       eventByIdentifier = normalizeEventRecord(idLookup.data)
 
       if (!eventByIdentifier) {
-        const slugLookup = await supabase
-          .from('events')
-          .select('*')
-          .eq('slug', identifier)
-          .maybeSingle()
+        const slugLookup = await withRetry(
+          () =>
+            supabase
+              .from('events')
+              .select('*')
+              .eq('slug', identifier)
+              .maybeSingle(),
+          {
+            attempts: 3,
+            delayMs: 250,
+          }
+        )
 
         if (slugLookup.error) {
           throw slugLookup.error
@@ -136,17 +166,21 @@ export async function POST(request: Request) {
     let matchedEvent: NormalizedEvent | null = null
 
     if (identifier) {
-      matchedEvent =
-        eventByIdentifier && (!eventByIdentifier.accessCode || eventByIdentifier.accessCode === code)
-          ? eventByIdentifier
-          : null
+      matchedEvent = eventByIdentifier
     } else if (code) {
-      const codeLookup = await supabase
-        .from('events')
-        .select('*')
-        .eq('access_code', code)
-        .order('created_at', { ascending: false })
-        .limit(1)
+      const codeLookup = await withRetry(
+        () =>
+          supabase
+            .from('events')
+            .select('*')
+            .eq('access_code', code)
+            .order('created_at', { ascending: false })
+            .limit(1),
+        {
+          attempts: 3,
+          delayMs: 250,
+        }
+      )
 
       if (codeLookup.error) {
         throw codeLookup.error
@@ -164,11 +198,9 @@ export async function POST(request: Request) {
         {
           ok: false,
           errorCode:
-            identifier && eventByIdentifier?.accessCode
-              ? 'INVALID_CODE'
-              : identifier
-                ? 'INVALID_EVENT'
-                : 'INVALID_CODE',
+            identifier
+              ? 'INVALID_EVENT'
+              : 'INVALID_CODE',
         },
         { status: 404 }
       )
@@ -212,6 +244,10 @@ export async function POST(request: Request) {
 
     return response
   } catch (error) {
+    logOperation('error', 'public-access', 'Event access failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      identifier,
+    })
     return NextResponse.json(
       {
         ok: false,

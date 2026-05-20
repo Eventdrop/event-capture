@@ -1,8 +1,6 @@
 import { EventAccessForm } from '@/app/_components/event-access-form'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
-import { normalizeEventRecord } from '@/lib/events'
-import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export default async function JoinPage({
   params,
@@ -13,16 +11,7 @@ export default async function JoinPage({
 }) {
   const { id } = await params
   const { returnTo } = await searchParams
-  const supabase = createAdminSupabaseClient()
-
-  const idLookup = await supabase.from('events').select('*').eq('id', id).single()
-  const slugLookup =
-    idLookup.error && !idLookup.data
-      ? await supabase.from('events').select('*').eq('slug', id).single()
-      : null
-
-  const event = normalizeEventRecord(idLookup.data || slugLookup?.data || null)
-  const requireCode = Boolean(event?.accessCode)
+  const requireCode = false
 
   return (
     <div className="flex min-h-screen flex-col">
