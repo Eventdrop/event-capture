@@ -17,6 +17,7 @@ import {
 } from '@/lib/eventdrop'
 import { getEventBackground, getEventCover } from '@/lib/event-visuals'
 import { formatEventDisplayName, normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
+import { shareMedia } from '@/lib/share-media'
 import { supabase } from '@/lib/supabase'
 
 export default function Page() {
@@ -318,13 +319,16 @@ export default function Page() {
     }
 
     try {
-      if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
-        await navigator.share(shareData)
-        setStatusMessage(t.gallery.shareSuccess)
-      } else {
-        await navigator.clipboard.writeText(shareUrl)
-        setStatusMessage(t.gallery.shareCopied)
-      }
+      const result = await shareMedia({
+        fileName: shareData.text,
+        fileUrl: item.file_url,
+        shareUrl,
+        title: shareData.title,
+      })
+
+      setStatusMessage(
+        result === 'copied' ? t.gallery.shareCopied : t.gallery.shareSuccess
+      )
     } catch (error) {
       console.error('Share failed', error)
 

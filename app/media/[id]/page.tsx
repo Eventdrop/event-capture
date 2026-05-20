@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MediaDownloadButton } from '@/app/_components/media-download-button'
+import { MediaShareButton } from '@/app/_components/media-share-button'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicPath } from '@/lib/app-url'
@@ -155,6 +156,13 @@ export default async function MediaPage({
               {downloadAllowed ? (
                 <MediaDownloadButton fileName={shortFileName} fileUrl={upload.file_url} />
               ) : null}
+
+              <MediaShareButton
+                fileName={shortFileName}
+                fileUrl={upload.file_url}
+                shareUrl={getPublicPath(`/media/${shareKey}`)}
+                title="Photobooth Holland"
+              />
 
               <Link
                 href={backToAlbumUrl}
