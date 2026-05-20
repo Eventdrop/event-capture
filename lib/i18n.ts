@@ -239,7 +239,7 @@ export const translations: Record<Locale, TranslationTree> = {
       contact: 'Iletisim',
       eventId: 'Etkinlik ID',
       eventDate: 'Etkinlik tarihi',
-      guestEntryPage: 'Misafir girisi',
+      guestEntryPage: 'Misafir yukleme sayfasi',
       terms: 'Kullanim sartlari',
       privacy: 'Gizlilik',
       back: 'Geri don',
@@ -407,7 +407,7 @@ export const translations: Record<Locale, TranslationTree> = {
       unlockToManage:
         'Etkinlikleri listelemek, olusturmak veya silmek icin once paneli ac.',
       qrLabel: 'Misafir yukleme QR',
-      uploadCopied: 'Yukleme linki kopyalandi.',
+      uploadCopied: 'Misafir yukleme linki kopyalandi.',
       galleryCopied: 'Galeri linki kopyalandi.',
       deleteConfirm:
         'Bu etkinligi silmek istiyor musun? Veritabani kurallarina gore ilgili yuklemeler de silinebilir.',
@@ -614,7 +614,7 @@ export const translations: Record<Locale, TranslationTree> = {
       contact: 'Contact',
       eventId: 'Evenement-ID',
       eventDate: 'Evenementdatum',
-      guestEntryPage: 'Gasttoegang',
+      guestEntryPage: 'Gast uploadpagina',
       terms: 'Gebruiksvoorwaarden',
       privacy: 'Privacy',
       back: 'Terug',
@@ -780,7 +780,7 @@ export const translations: Record<Locale, TranslationTree> = {
       unlockToManage:
         'Open eerst het paneel om evenementen te bekijken, maken of verwijderen.',
       qrLabel: 'QR-code voor gastenupload',
-      uploadCopied: 'Uploadlink gekopieerd.',
+      uploadCopied: 'Gastuploadlink gekopieerd.',
       galleryCopied: 'Galerijlink gekopieerd.',
       deleteConfirm:
         'Weet je zeker dat je dit evenement wilt verwijderen? Afhankelijk van je database-regels kunnen uploads ook verdwijnen.',
@@ -985,7 +985,7 @@ export const translations: Record<Locale, TranslationTree> = {
       contact: 'Contact',
       eventId: 'Event ID',
       eventDate: 'Event date',
-      guestEntryPage: 'Guest entry',
+      guestEntryPage: 'Guest upload page',
       terms: 'Terms',
       privacy: 'Privacy',
       back: 'Back',
@@ -1153,7 +1153,7 @@ export const translations: Record<Locale, TranslationTree> = {
       unlockToManage:
         'Unlock the panel first to list, create, or delete events.',
       qrLabel: 'Guest upload QR',
-      uploadCopied: 'Upload link copied.',
+      uploadCopied: 'Guest upload link copied.',
       galleryCopied: 'Gallery link copied.',
       deleteConfirm:
         'Delete this event? Related uploads may also disappear depending on your database rules.',

@@ -14,7 +14,6 @@ import {
   generateEventAccessCode,
   getEventGalleryRoute,
   getEventJoinRoute,
-  getEventRoute,
   normalizeEventAccessCode,
   normalizeEventRecord,
   type NormalizedEvent,
@@ -84,8 +83,6 @@ export default function AdminPage() {
     `${publicBaseUrl}${getEventGalleryRoute(getEventIdentifier(event))}`
   const getPublicJoinPath = (event: NormalizedEvent) =>
     getPublicPath(getEventJoinRoute(getEventIdentifier(event)))
-  const getPublicUploadPath = (event: NormalizedEvent) =>
-    getPublicPath(getEventRoute(getEventIdentifier(event)))
   const getPublicGalleryPath = (event: NormalizedEvent) =>
     getPublicPath(getEventGalleryRoute(getEventIdentifier(event)))
 
@@ -1105,13 +1102,6 @@ export default function AdminPage() {
                       className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-4 py-2 text-sm font-semibold text-white hover:bg-[#DB6E12]"
                     >
                       {t.common.guestEntryPage}
-                    </Link>
-
-                    <Link
-                      href={getPublicUploadPath(event)}
-                      className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
-                    >
-                      {t.common.uploadPage}
                     </Link>
 
                     <Link
