@@ -126,7 +126,9 @@ export default async function MediaPage({
   const fallbackShareKey = getUploadShareKey(upload)
   const shareKey = parseOrdinalShareKey(id) ? id : fallbackShareKey
   const fileExtension = getUploadFileExtension(upload)
-  const shortFileName = `${shareKey}.${fileExtension}`
+  const shortFileName = parentEvent?.albumName
+    ? `${slugifyShareValue(parentEvent.albumName)}.${fileExtension}`
+    : `${shareKey}.${fileExtension}`
   const backToAlbumUrl = parentEvent
     ? getPublicPath(getEventGalleryRoute(parentEvent.slug || parentEvent.id))
     : getPublicPath('/')

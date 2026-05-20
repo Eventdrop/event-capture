@@ -351,11 +351,10 @@ export default function Page() {
         const fileUrl = getPublicFileUrl(supabaseUrl, BUCKET_NAME, storagePath)
         nextShareSequence += 1
 
+        const shareLabel = currentEvent?.albumName || currentEvent?.name || eventIdentifier
         const shareCode =
-          buildUploadShareCode(
-            currentEvent?.slug || currentEvent?.name || currentEvent?.albumName || eventIdentifier,
-            nextShareSequence
-          ) || fileName.replace(/\.[^.]+$/, '')
+          buildUploadShareCode(shareLabel, nextShareSequence) ||
+          fileName.replace(/\.[^.]+$/, '')
 
         await createUploadRecord({
           eventId: resolvedEventId,

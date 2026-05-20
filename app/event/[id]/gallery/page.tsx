@@ -235,7 +235,7 @@ export default function Page() {
       await handleDownload(
         item.file_url,
         getUploadShortFileName(item, {
-          eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+          eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
           sequence: shareSequenceById[item.id],
         })
       )
@@ -259,7 +259,7 @@ export default function Page() {
         await handleDownload(
           item.file_url,
           getUploadShortFileName(item, {
-            eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+            eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
             sequence: shareSequenceById[item.id],
           })
         )
@@ -305,14 +305,14 @@ export default function Page() {
   const handleShare = async (item: UploadRecord) => {
     const shareUrl = getPublicMediaUrl(
       getUploadShareKey(item, {
-        eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+        eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
         sequence: shareSequenceById[item.id],
       })
     )
     const shareData = {
       title: eventName,
       text: getUploadShortFileName(item, {
-        eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+        eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
         sequence: shareSequenceById[item.id],
       }),
       url: shareUrl,
@@ -423,7 +423,7 @@ export default function Page() {
               const isSelected = selected.includes(item.id)
               const mediaKind = inferMediaKind(item)
               const downloadName = getUploadShortFileName(item, {
-                eventSlug: currentEvent?.slug || currentEvent?.name || eventIdentifier,
+                eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
                 sequence: shareSequenceById[item.id],
               })
               const isDeleting = deletingId === item.id
