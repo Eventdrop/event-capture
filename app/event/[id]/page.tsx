@@ -25,8 +25,81 @@ import { supabase } from '@/lib/supabase'
 
 const BUCKET_NAME = 'event-uploads'
 const MAX_SELECTION_FILES = 10
-const PHOTO_MAX_BYTES = 10 * 1024 * 1024
+const PHOTO_MAX_BYTES = 20 * 1024 * 1024
+const PHOTO_COMPRESS_THRESHOLD_BYTES = 1.5 * 1024 * 1024
+const PHOTO_COMPRESS_MAX_DIMENSION = 2000
+const PHOTO_COMPRESS_QUALITY = 0.82
 const UPLOAD_GUIDANCE_STORAGE_KEY = 'eventdrop-upload-guidance-accepted'
+
+function getCompressedPhotoName(fileName: string) {
+  const baseName = fileName.replace(/\.[^.]+$/, '') || 'photo'
+  return `${baseName}.jpg`
+}
+
+function loadImageFromFile(file: File) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image()
+    const objectUrl = URL.createObjectURL(file)
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      resolve(image)
+    }
+
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
+      reject(new Error('Image could not be prepared for upload.'))
+    }
+
+    image.src = objectUrl
+  })
+}
+
+async function compressPhotoForUpload(file: File) {
+  const lowerName = file.name.toLowerCase()
+  const canCompress =
+    file.type.startsWith('image/') &&
+    !lowerName.endsWith('.heic') &&
+    !lowerName.endsWith('.heif') &&
+    !lowerName.endsWith('.gif') &&
+    !file.type.includes('svg')
+
+  if (!canCompress || file.size <= PHOTO_COMPRESS_THRESHOLD_BYTES) {
+    return file
+  }
+
+  try {
+    const image = await loadImageFromFile(file)
+    const scale = Math.min(
+      1,
+      PHOTO_COMPRESS_MAX_DIMENSION / image.naturalWidth,
+      PHOTO_COMPRESS_MAX_DIMENSION / image.naturalHeight
+    )
+    const width = Math.max(1, Math.round(image.naturalWidth * scale))
+    const height = Math.max(1, Math.round(image.naturalHeight * scale))
+    const canvas = document.createElement('canvas')
+
+    canvas.width = width
+    canvas.height = height
+    canvas.getContext('2d')?.drawImage(image, 0, 0, width, height)
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, 'image/jpeg', PHOTO_COMPRESS_QUALITY)
+    })
+
+    if (!blob || blob.size >= file.size) {
+      return file
+    }
+
+    return new File([blob], getCompressedPhotoName(file.name), {
+      type: 'image/jpeg',
+      lastModified: file.lastModified,
+    })
+  } catch (error) {
+    console.error('Photo compression failed, uploading original file', error)
+    return file
+  }
+}
 
 export default function Page() {
   const { t } = useLanguage()
@@ -330,18 +403,21 @@ export default function Page() {
 
         if (!mediaType) continue
 
-        const now = new Date()
-        const { fileName, storagePath } = buildStoragePath(file, now)
-        const expiresAt = currentEvent?.expiresAt || new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString()
-
         setMessage(`${t.upload.uploadInProgress} ${file.name}`)
+
+        const uploadFile = mediaType === 'photo'
+          ? await compressPhotoForUpload(file)
+          : file
+        const now = new Date()
+        const { fileName, storagePath } = buildStoragePath(uploadFile, now)
+        const expiresAt = currentEvent?.expiresAt || new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString()
 
         const { error: storageError } = await supabase.storage
           .from(BUCKET_NAME)
-          .upload(storagePath, file, {
+          .upload(storagePath, uploadFile, {
             cacheControl: '3600',
             upsert: false,
-            contentType: file.type || undefined,
+            contentType: uploadFile.type || undefined,
           })
 
         if (storageError) {
@@ -363,7 +439,7 @@ export default function Page() {
           fileName,
           shareCode,
           mediaType,
-          mimeType: file.type || '',
+          mimeType: uploadFile.type || '',
           expiresAt,
         })
       }
