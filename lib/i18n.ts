@@ -441,8 +441,7 @@ export const translations: Record<Locale, TranslationTree> = {
     },
     upload: {
       badge: 'Misafir yukleme sayfasi',
-      intro:
-        'Misafirler bu ortak albume fotograf ekleyebilir. Icerikler 48 saat sonra temizlenmek uzere tasarlanmistir.',
+      intro: 'Fotograflarini secip albume yukleyebilirsin.',
       guidanceBadge: 'Yukleme kurallari',
       guidanceTitle: 'Lutfen sadece paylasilmasi uygun icerik yukleyin',
       guidanceIntro:
@@ -453,11 +452,10 @@ export const translations: Record<Locale, TranslationTree> = {
         'Bu ilk surumde yalnizca fotograf kabul edilir; medya 48 saat saklanir ve kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
       ],
       consentLabel:
-        'Yukledigin fotograflar uzerinde paylasim hakkina sahip oldugunu beyan edersin. Ayni etkinlikte yer alan diger katilimcilarin da seni iceren fotograflari yukleyebilecegini ve paylasabilecegini kabul edersin.',
-      consentHelp:
-        'Onay vermeden dosya secimi ve yukleme acilmaz.',
+        'Fotograflari kendi istegimle yukluyorum ve paylasma hakkim var.',
+      consentHelp: '',
       consentRequired:
-        'Devam etmek icin once yukleme kurallarini onayla.',
+        'Devam etmek icin once onay kutusunu isaretleyin.',
       consentLinks:
         'Devam ederek kullanim sartlarini ve gizlilik bilgisini de kabul ettigini beyan edersin.',
       consentButton: 'Devam et',
@@ -465,7 +463,7 @@ export const translations: Record<Locale, TranslationTree> = {
       namingLabel: 'Isimlendirme',
       namingText: 'Dosyalar tarih bazli klasorler altinda tutulur.',
       retentionLabel: 'Saklama',
-      retentionText: 'Suresi dolan medya otomatik olarak temizlenir.',
+      retentionText: '',
       selectLabel: 'Medya sec',
       selectButton: 'Dosyalari sec',
       noFilesChosen: 'Henuz dosya secilmedi',
@@ -814,8 +812,7 @@ export const translations: Record<Locale, TranslationTree> = {
     },
     upload: {
       badge: 'Gastenupload',
-      intro:
-        'Gasten kunnen hier foto’s en video’s toevoegen aan het gedeelde album. Bestanden worden tijdelijk bewaard en daarna automatisch verwijderd.',
+      intro: 'Kies je foto’s en upload ze naar het album.',
       guidanceBadge: 'Uploadregels',
       guidanceTitle: 'Upload alleen media die je mag delen',
       guidanceIntro:
@@ -826,11 +823,10 @@ export const translations: Record<Locale, TranslationTree> = {
         'Bestanden worden tijdelijk bewaard. Wil je iets laten verwijderen, neem dan contact op via de contactgegevens.',
       ],
       consentLabel:
-        'Ik bevestig dat ik deze bestanden vrijwillig upload en dat ik me aan de uploadregels houd.',
-      consentHelp:
-        'Zonder akkoord blijven bestandsselectie en upload uitgeschakeld.',
+        'Ik upload deze foto’s vrijwillig en heb toestemming om ze te delen.',
+      consentHelp: '',
       consentRequired:
-        'Bevestig eerst de uploadregels om verder te gaan.',
+        'Vink eerst de toestemming aan om door te gaan.',
       consentLinks:
         'Door verder te gaan bevestig je ook dat je de gebruiksvoorwaarden en privacyinformatie hebt gelezen.',
       consentButton: 'Verdergaan',
@@ -838,7 +834,7 @@ export const translations: Record<Locale, TranslationTree> = {
       namingLabel: 'Bestandsnaam',
       namingText: 'Bestanden worden opgeslagen in datumgebonden mappen.',
       retentionLabel: 'Bewaartermijn',
-      retentionText: 'Verlopen media wordt automatisch verwijderd.',
+      retentionText: '',
       selectLabel: 'Kies media',
       selectButton: 'Bestanden kiezen',
       noFilesChosen: 'Nog geen bestanden gekozen',
@@ -869,7 +865,7 @@ export const translations: Record<Locale, TranslationTree> = {
     gallery: {
       badge: 'Gedeelde galerij',
       intro:
-        'Bekijk alle uploads van gasten, maak een selectie en download wat je wilt bewaren voordat de bewaartermijn afloopt.',
+        'Bekijk en deel de foto’s uit dit album.',
       loading: 'Deze galerij wordt geladen...',
       noUploads: 'Er staan nog geen uploads in deze galerij.',
       showing: 'uploads beschikbaar',
@@ -1187,8 +1183,7 @@ export const translations: Record<Locale, TranslationTree> = {
     },
     upload: {
       badge: 'Guest upload page',
-      intro:
-        'Guests can add photos to this shared album. Media is designed to be cleaned up after 48 hours.',
+      intro: 'Choose your photos and upload them to the album.',
       guidanceBadge: 'Upload rules',
       guidanceTitle: 'Please upload only media that can be shared',
       guidanceIntro:
@@ -1199,11 +1194,10 @@ export const translations: Record<Locale, TranslationTree> = {
         'In this first version, only photos are accepted; media is kept for 48 hours and can be removed sooner via the contact details.',
       ],
       consentLabel:
-        'I confirm that I am uploading these photos voluntarily and will follow the upload rules.',
-      consentHelp:
-        'File selection and upload stay disabled until you agree.',
+        'I am uploading these photos voluntarily and have permission to share them.',
+      consentHelp: '',
       consentRequired:
-        'Please confirm the upload rules before continuing.',
+        'Please tick the consent checkbox before continuing.',
       consentLinks:
         'By continuing, you also confirm that you have read the terms and privacy notice.',
       consentButton: 'Continue',
@@ -1211,7 +1205,7 @@ export const translations: Record<Locale, TranslationTree> = {
       namingLabel: 'Naming',
       namingText: 'Files are stored inside date-based folders.',
       retentionLabel: 'Retention',
-      retentionText: 'Expired media is cleaned up automatically.',
+      retentionText: '',
       selectLabel: 'Select media',
       selectButton: 'Choose files',
       noFilesChosen: 'No files selected yet',
@@ -1242,9 +1236,9 @@ export const translations: Record<Locale, TranslationTree> = {
     gallery: {
       badge: 'Shared gallery',
       intro:
-        'Browse guest uploads, make a selection, and download what you want to keep before the retention window ends.',
+        'View and share the photos from this album.',
       loading: 'Loading this event gallery...',
-      noUploads: 'No active uploads are visible in this gallery yet.',
+      noUploads: 'No uploads are visible in this gallery yet.',
       showing: 'uploads visible',
       loadError: 'The gallery could not be loaded right now.',
       notFound: 'This event gallery could not be found.',

@@ -130,8 +130,6 @@ export function buildEventInsertPayload(input: {
     ? null
     : normalizeEventAccessCode(input.accessCode || generateEventAccessCode())
   const slugBase = slugifyEventName(`${input.name}-${input.albumName}`) || 'eventdrop-event'
-  const expiresAt = getEventExpiryDate(input.eventDate).toISOString()
-
   return {
     name: input.name.trim(),
     album_name: input.albumName.trim(),
@@ -143,7 +141,7 @@ export function buildEventInsertPayload(input: {
     allow_guest_share: input.allowGuestShare !== false,
     allow_guest_download: input.allowGuestDownload !== false,
     allow_guest_delete: input.allowGuestDelete === true,
-    expires_at: expiresAt,
+    expires_at: null,
   }
 }
 

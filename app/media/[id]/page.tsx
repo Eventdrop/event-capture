@@ -9,7 +9,6 @@ import { getPublicPath } from '@/lib/app-url'
 import {
   getUploadFileExtension,
   inferMediaKind,
-  isExpired,
   parseOrdinalShareKey,
   slugifyShareValue,
   getUploadShareKey,
@@ -83,11 +82,9 @@ export default async function MediaPage({
           .eq('event_id', event.id)
           .order('created_at', { ascending: true })
 
-        const activeUploads = ((uploadsLookup.data || []) as UploadRecord[]).filter(
-          (item) => !isExpired(item.expires_at)
-        )
+        const allUploads = (uploadsLookup.data || []) as UploadRecord[]
 
-        upload = activeUploads[ordinalKey.sequence - 1] || null
+        upload = allUploads[ordinalKey.sequence - 1] || null
       }
     }
 
@@ -118,9 +115,6 @@ export default async function MediaPage({
     parentEvent = normalizeEventRecord(parentLookup.data)
   }
 
-  if (isExpired(upload.expires_at)) {
-    notFound()
-  }
 
   const mediaKind = inferMediaKind(upload)
   const fallbackShareKey = getUploadShareKey(upload)

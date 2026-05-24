@@ -10,7 +10,6 @@ import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicMediaUrl, getPublicPath } from '@/lib/app-url'
 import {
   inferMediaKind,
-  isExpired,
   getUploadShareKey,
   getUploadShortFileName,
   type UploadRecord,
@@ -21,7 +20,7 @@ import { shareMedia } from '@/lib/share-media'
 import { supabase } from '@/lib/supabase'
 
 export default function Page() {
-  const { t, locale } = useLanguage()
+  const { t } = useLanguage()
   const params = useParams()
   const eventIdentifier = params.id as string
 
@@ -77,9 +76,7 @@ export default function Page() {
         return
       }
 
-      const activeUploads = ((uploads || []) as UploadRecord[]).filter(
-        (upload) => !isExpired(upload.expires_at)
-      )
+      const activeUploads = (uploads || []) as UploadRecord[]
 
       setItems(activeUploads)
       setEventName(
@@ -349,27 +346,25 @@ export default function Page() {
         className="flex-1 bg-cover bg-center p-6"
         style={{ backgroundImage: `linear-gradient(rgba(15,33,53,0.4), rgba(15,33,53,0.48)), url(${getEventBackground(currentEvent)})` }}
       >
-        <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-white/20 bg-[rgba(255,250,242,0.9)] p-6 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:flex-row sm:items-start sm:justify-between">
+        <div className="mx-auto max-w-6xl">
+        <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6A84A3]">
               {t.gallery.badge}
             </p>
 
-            <div
-              className="mt-4 h-28 w-full max-w-sm rounded-[1.6rem] bg-cover bg-center"
-              style={{ backgroundImage: `url(${getEventCover(currentEvent)})` }}
-            />
-
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-stone-950">
-              {eventName}
-            </h1>
-
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-[#33516F]">
-              {t.gallery.intro}
-            </p>
-
-            <p className="mt-3 text-sm text-[#597594]">{statusMessage}</p>
+            <div className="mt-3 flex items-center gap-3">
+              <div
+                className="h-16 w-20 shrink-0 rounded-[1rem] bg-cover bg-center sm:h-20 sm:w-28"
+                style={{ backgroundImage: `url(${getEventCover(currentEvent)})` }}
+              />
+              <div className="min-w-0">
+                <h1 className="text-2xl font-semibold tracking-[-0.03em] text-stone-950 sm:text-3xl">
+                  {eventName}
+                </h1>
+                <p className="mt-1 text-sm text-[#597594]">{statusMessage}</p>
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -418,7 +413,7 @@ export default function Page() {
             {t.gallery.noUploads}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => {
               const isSelected = selected.includes(item.id)
               const mediaKind = inferMediaKind(item)
@@ -444,7 +439,7 @@ export default function Page() {
                         src={item.file_url}
                         controls
                         playsInline
-                        className="h-56 w-full bg-stone-900 object-cover sm:h-64"
+                        className="aspect-square w-full bg-stone-900 object-cover"
                       />
                     ) : (
                       <Image
@@ -453,7 +448,7 @@ export default function Page() {
                         width={1200}
                         height={1200}
                         unoptimized
-                        className="h-56 w-full object-cover sm:h-64"
+                        className="aspect-square w-full object-cover"
                       />
                     )}
 
@@ -529,17 +524,9 @@ export default function Page() {
                     </div>
                   </div>
 
-                  <div className="space-y-2 p-4">
-                    <p className="truncate text-sm font-medium text-stone-900">
+                  <div className="p-3">
+                    <p className="truncate text-xs font-medium text-stone-900">
                       {downloadName}
-                    </p>
-                    <p className="text-xs uppercase tracking-[0.18em] text-stone-500">
-                      {mediaKind === 'video' ? t.gallery.video : t.gallery.photo}
-                    </p>
-                    <p className="text-xs text-stone-400">
-                      {item.created_at
-                        ? new Date(item.created_at).toLocaleString(locale)
-                        : t.gallery.uploadTimeUnavailable}
                     </p>
                   </div>
                 </article>

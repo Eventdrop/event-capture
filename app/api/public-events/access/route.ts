@@ -19,8 +19,8 @@ import { withRetry } from '@/lib/with-retry'
 export const runtime = 'nodejs'
 
 function isEventActive(event: Pick<NormalizedEvent, 'expiresAt'>) {
-  if (!event.expiresAt) return true
-  return new Date(event.expiresAt).getTime() > Date.now()
+  void event
+  return true
 }
 
 async function persistGuestAccessLog(input: {
