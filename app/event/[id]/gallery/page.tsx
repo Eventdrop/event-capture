@@ -362,11 +362,11 @@ export default function Page() {
             </p>
 
             <div
-              className="relative mt-3 h-24 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-28"
+              className="relative mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
               style={eventCoverStyle}
             >
-              <div className="absolute inset-x-3 bottom-3 rounded-[0.9rem] bg-white/78 px-4 py-2 shadow-[0_8px_24px_rgba(15,33,53,0.12)] backdrop-blur">
-                <h1 className="text-lg font-semibold leading-tight text-stone-950 sm:text-xl">
+              <div className="absolute inset-x-3 bottom-3 rounded-[0.9rem] bg-white/55 px-4 py-2 shadow-[0_8px_24px_rgba(15,33,53,0.12)] backdrop-blur">
+                <h1 className="text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
                   {eventName}
                 </h1>
               </div>
