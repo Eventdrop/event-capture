@@ -35,7 +35,7 @@ export function SiteHeader({ currentLabel }: SiteHeaderProps) {
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
           {currentLabel ? (
-            <span className="rounded-full border border-[#C8D3E5] bg-[#F7FAFD] px-3 py-1.5 text-sm font-medium text-[#0F3D66] shadow-sm">
+            <span className="text-sm font-semibold text-[#0F3D66]">
               {currentLabel}
             </span>
           ) : null}

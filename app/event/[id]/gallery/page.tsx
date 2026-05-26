@@ -357,10 +357,6 @@ export default function Page() {
         <div className="mx-auto max-w-6xl">
         <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6A84A3]">
-              {t.gallery.badge}
-            </p>
-
             <div
               className="relative mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
               style={eventCoverStyle}

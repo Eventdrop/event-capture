@@ -483,10 +483,6 @@ export default function Page() {
         <section className="mx-auto w-full max-w-5xl rounded-[1.6rem] border border-white/25 bg-[rgba(255,250,242,0.93)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:p-5 lg:p-6">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6A84A3]">
-                {t.upload.badge}
-              </p>
-
               <div
                 className="relative mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
                 style={eventCoverStyle}
