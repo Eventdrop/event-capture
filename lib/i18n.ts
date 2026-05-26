@@ -188,6 +188,11 @@ type TranslationTree = {
     qrTitle: string
     qrText: string
     albumLink: string
+    keepLinkButton: string
+    keepLinkText: string
+    keepLinkReady: string
+    keepLinkCopied: string
+    keepLinkError: string
     selectionCleared: string
   }
   gallery: {
@@ -489,6 +494,11 @@ export const translations: Record<Locale, TranslationTree> = {
       qrTitle: 'QR kod ile paylas',
       qrText: 'Misafirler bu kodu okutarak ayni yukleme sayfasina ulasabilir.',
       albumLink: 'Album linki',
+      keepLinkButton: 'Linki telefonda sakla',
+      keepLinkText: 'Bu linki sakla, sonra tekrar foto yuklemek icin acabilirsin.',
+      keepLinkReady: 'Paylasim ekrani acildi. Linki WhatsApp ya da mesaj olarak kendine gonderebilirsin.',
+      keepLinkCopied: 'Link kopyalandi. WhatsApp ya da mesajlara yapistirabilirsin.',
+      keepLinkError: 'Link su anda paylasilamadi.',
       selectionCleared: 'Secim temizlendi.',
     },
     gallery: {
@@ -860,6 +870,11 @@ export const translations: Record<Locale, TranslationTree> = {
       qrTitle: 'Delen via QR-code',
       qrText: 'Gasten kunnen met deze code direct dezelfde uploadpagina openen.',
       albumLink: 'Albumlink',
+      keepLinkButton: 'Link bewaren',
+      keepLinkText: 'Bewaar deze link om later opnieuw foto’s te uploaden.',
+      keepLinkReady: 'Deelscherm geopend. Stuur de link naar jezelf via WhatsApp of berichten.',
+      keepLinkCopied: 'Link gekopieerd. Plak hem in WhatsApp of berichten.',
+      keepLinkError: 'De link kon nu niet worden gedeeld.',
       selectionCleared: 'Selectie gewist.',
     },
     gallery: {
@@ -1231,6 +1246,11 @@ export const translations: Record<Locale, TranslationTree> = {
       qrTitle: 'Share with QR code',
       qrText: 'Guests can scan this code to reach the same upload page.',
       albumLink: 'Album link',
+      keepLinkButton: 'Save this link',
+      keepLinkText: 'Save this link so you can upload photos again later.',
+      keepLinkReady: 'Share sheet opened. Send the link to yourself on WhatsApp or messages.',
+      keepLinkCopied: 'Link copied. Paste it into WhatsApp or messages.',
+      keepLinkError: 'The link could not be shared right now.',
       selectionCleared: 'Selection cleared.',
     },
     gallery: {

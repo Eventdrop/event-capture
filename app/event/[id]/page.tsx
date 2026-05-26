@@ -232,6 +232,34 @@ export default function Page() {
     }
   }, [acceptedFiles])
 
+  const handleKeepLink = async () => {
+    const shareData = {
+      title: eventName,
+      text: t.upload.keepLinkText,
+      url: uploadUrl,
+    }
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+        setMessage(t.upload.keepLinkReady)
+        return
+      }
+
+      await navigator.clipboard.writeText(uploadUrl)
+      setMessage(t.upload.keepLinkCopied)
+    } catch (error) {
+      console.error('Could not share upload link', error)
+
+      try {
+        await navigator.clipboard.writeText(uploadUrl)
+        setMessage(t.upload.keepLinkCopied)
+      } catch {
+        setMessage(t.upload.keepLinkError)
+      }
+    }
+  }
+
   const resetSelection = (options?: { keepMessage?: boolean }) => {
     if (inputRef.current) {
       inputRef.current.value = ''
@@ -567,6 +595,13 @@ export default function Page() {
                   <QRCodeSVG value={uploadUrl || eventIdentifier} size={132} />
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={handleKeepLink}
+                className="mt-3 w-full rounded-full bg-[#0F3D66] px-4 py-3 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
+              >
+                {t.upload.keepLinkButton}
+              </button>
               <p className="mt-3 hidden break-all text-xs leading-5 text-stone-500 lg:block">
                 {uploadUrl || eventIdentifier}
               </p>
