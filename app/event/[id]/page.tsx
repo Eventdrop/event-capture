@@ -14,7 +14,6 @@ import {
   getMediaKind,
   getPublicFileUrl,
 } from '@/lib/eventdrop'
-import { getEventBackground, getEventCover } from '@/lib/event-visuals'
 import {
   formatEventDisplayName,
   getEventJoinRoute,
@@ -464,21 +463,30 @@ export default function Page() {
     }
   }
 
+  const eventBackgroundStyle = currentEvent?.backgroundImageUrl
+    ? {
+        backgroundImage: `linear-gradient(rgba(15,33,53,0.34), rgba(15,33,53,0.42)), url(${currentEvent.backgroundImageUrl})`,
+      }
+    : undefined
+  const eventCoverStyle = currentEvent?.coverImageUrl
+    ? { backgroundImage: `url(${currentEvent.coverImageUrl})` }
+    : undefined
+
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f9f5ee_0%,_#efe8dc_52%,_#edf4fb_100%)] text-stone-900">
       <SiteHeader currentLabel={t.upload.badge} />
 
       <main
         className="relative flex-1 bg-cover bg-center px-4 py-5 sm:px-6 sm:py-8"
-        style={{ backgroundImage: `linear-gradient(rgba(15,33,53,0.34), rgba(15,33,53,0.42)), url(${getEventBackground(currentEvent)})` }}
+        style={eventBackgroundStyle}
       >
         <section className="mx-auto w-full max-w-5xl rounded-[1.6rem] border border-white/25 bg-[rgba(255,250,242,0.93)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:p-5 lg:p-6">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
             <div>
               <div className="flex items-center gap-3">
                 <div
-                  className="h-20 w-24 shrink-0 rounded-[1.1rem] bg-cover bg-center sm:h-24 sm:w-32"
-                  style={{ backgroundImage: `url(${getEventCover(currentEvent)})` }}
+                  className="h-20 w-24 shrink-0 rounded-[1.1rem] bg-[#EDF4FB] bg-cover bg-center sm:h-24 sm:w-32"
+                  style={eventCoverStyle}
                 />
 
                 <div className="min-w-0">

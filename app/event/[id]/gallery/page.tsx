@@ -14,7 +14,6 @@ import {
   getUploadShortFileName,
   type UploadRecord,
 } from '@/lib/eventdrop'
-import { getEventBackground, getEventCover } from '@/lib/event-visuals'
 import { formatEventDisplayName, normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
 import { shareMedia } from '@/lib/share-media'
 import { supabase } from '@/lib/supabase'
@@ -338,13 +337,22 @@ export default function Page() {
     }
   }
 
+  const eventBackgroundStyle = currentEvent?.backgroundImageUrl
+    ? {
+        backgroundImage: `linear-gradient(rgba(15,33,53,0.4), rgba(15,33,53,0.48)), url(${currentEvent.backgroundImageUrl})`,
+      }
+    : undefined
+  const eventCoverStyle = currentEvent?.coverImageUrl
+    ? { backgroundImage: `url(${currentEvent.coverImageUrl})` }
+    : undefined
+
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#f0ebe2_55%,_#edf4fb_100%)] text-stone-900">
       <SiteHeader currentLabel={t.gallery.badge} />
 
       <main
         className="flex-1 bg-cover bg-center p-6"
-        style={{ backgroundImage: `linear-gradient(rgba(15,33,53,0.4), rgba(15,33,53,0.48)), url(${getEventBackground(currentEvent)})` }}
+        style={eventBackgroundStyle}
       >
         <div className="mx-auto max-w-6xl">
         <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
@@ -355,8 +363,8 @@ export default function Page() {
 
             <div className="mt-3 flex items-center gap-3">
               <div
-                className="h-16 w-20 shrink-0 rounded-[1rem] bg-cover bg-center sm:h-20 sm:w-28"
-                style={{ backgroundImage: `url(${getEventCover(currentEvent)})` }}
+                className="h-16 w-20 shrink-0 rounded-[1rem] bg-[#EDF4FB] bg-cover bg-center sm:h-20 sm:w-28"
+                style={eventCoverStyle}
               />
               <div className="min-w-0">
                 <h1 className="text-2xl font-semibold tracking-[-0.03em] text-stone-950 sm:text-3xl">

@@ -833,7 +833,7 @@ export const translations: Record<Locale, TranslationTree> = {
         'Bestanden worden tijdelijk bewaard. Wil je iets laten verwijderen, neem dan contact op via de contactgegevens.',
       ],
       consentLabel:
-        'Ik upload deze foto’s vrijwillig en heb toestemming om ze te delen.',
+        'Ik bevestig dat ik bevoegd ben om deze foto’s te uploaden en te delen, en dat foto’s die aan dit album worden toegevoegd door derden kunnen worden bekeken, gedownload en gedeeld.',
       consentHelp: '',
       consentRequired:
         'Vink eerst de toestemming aan om door te gaan.',
@@ -1209,7 +1209,7 @@ export const translations: Record<Locale, TranslationTree> = {
         'In this first version, only photos are accepted; media is kept for 48 hours and can be removed sooner via the contact details.',
       ],
       consentLabel:
-        'I am uploading these photos voluntarily and have permission to share them.',
+        'I confirm that I am authorized to upload and share these photos, and that photos added to this album may be viewed, downloaded, and shared by third parties.',
       consentHelp: '',
       consentRequired:
         'Please tick the consent checkbox before continuing.',
