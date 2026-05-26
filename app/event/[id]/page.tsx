@@ -484,15 +484,12 @@ export default function Page() {
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
             <div>
               <div
-                className="relative mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
+                className="mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
                 style={eventCoverStyle}
-              >
-                <div className="absolute inset-x-3 bottom-3 rounded-[0.9rem] bg-white/55 px-4 py-2 shadow-[0_8px_24px_rgba(15,33,53,0.12)] backdrop-blur">
-                  <h1 className="text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
-                    {eventName}
-                  </h1>
-                </div>
-              </div>
+              />
+              <h1 className="mt-3 text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
+                {eventName}
+              </h1>
               {currentEvent?.eventDate ? (
                 <p className="mt-1 text-sm font-medium text-[#597594]">
                   {t.common.eventDate}: {currentEvent.eventDate}

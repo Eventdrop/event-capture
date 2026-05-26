@@ -358,15 +358,12 @@ export default function Page() {
         <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
             <div
-              className="relative mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
+              className="mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
               style={eventCoverStyle}
-            >
-              <div className="absolute inset-x-3 bottom-3 rounded-[0.9rem] bg-white/55 px-4 py-2 shadow-[0_8px_24px_rgba(15,33,53,0.12)] backdrop-blur">
-                <h1 className="text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
-                  {eventName}
-                </h1>
-              </div>
-            </div>
+            />
+            <h1 className="mt-3 text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
+              {eventName}
+            </h1>
             <p className="mt-1 text-sm text-[#597594]">{statusMessage}</p>
           </div>
 
