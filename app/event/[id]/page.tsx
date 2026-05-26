@@ -483,26 +483,25 @@ export default function Page() {
         <section className="mx-auto w-full max-w-5xl rounded-[1.6rem] border border-white/25 bg-[rgba(255,250,242,0.93)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:p-5 lg:p-6">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
             <div>
-              <div className="flex items-center gap-3">
-                <div
-                  className="h-20 w-24 shrink-0 rounded-[1.1rem] bg-[#EDF4FB] bg-cover bg-center sm:h-24 sm:w-32"
-                  style={eventCoverStyle}
-                />
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#6A84A3]">
+                {t.upload.badge}
+              </p>
 
-                <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
-                    {t.upload.badge}
-                  </p>
-                  <h1 className="mt-1 text-xl font-semibold leading-tight text-stone-950 sm:text-2xl">
+              <div
+                className="relative mt-3 h-24 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-28"
+                style={eventCoverStyle}
+              >
+                <div className="absolute inset-x-3 bottom-3 rounded-[0.9rem] bg-white/78 px-4 py-2 shadow-[0_8px_24px_rgba(15,33,53,0.12)] backdrop-blur">
+                  <h1 className="text-lg font-semibold leading-tight text-stone-950 sm:text-xl">
                     {eventName}
                   </h1>
-                  {currentEvent?.eventDate ? (
-                    <p className="mt-1 text-sm font-medium text-[#597594]">
-                      {t.common.eventDate}: {currentEvent.eventDate}
-                    </p>
-                  ) : null}
                 </div>
               </div>
+              {currentEvent?.eventDate ? (
+                <p className="mt-1 text-sm font-medium text-[#597594]">
+                  {t.common.eventDate}: {currentEvent.eventDate}
+                </p>
+              ) : null}
 
               <label className="mt-5 flex items-start gap-3 rounded-[1.1rem] border border-[#D4DFEE] bg-white px-4 py-3 text-sm leading-6 text-[#33516F]">
                 <input
