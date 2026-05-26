@@ -457,7 +457,7 @@ export const translations: Record<Locale, TranslationTree> = {
         'Bu ilk surumde yalnizca fotograf kabul edilir; medya 48 saat saklanir ve kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
       ],
       consentLabel:
-        'Fotograflari kendi istegimle yukluyorum ve paylasma hakkim var.',
+        'Bu fotograflari yukleme ve paylasma yetkisine sahip oldugumu; bu albume yuklenen fotograflarin ucuncu kisiler tarafindan goruntulenebilecegini, indirilebilecegini ve paylasilabilecegini onayliyorum.',
       consentHelp: '',
       consentRequired:
         'Devam etmek icin once onay kutusunu isaretleyin.',
