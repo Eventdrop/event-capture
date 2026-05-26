@@ -60,6 +60,13 @@ export default function AdminPage() {
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null)
   const [uploadingVisual, setUploadingVisual] = useState<'cover' | 'background' | null>(null)
+  const [updatingEventVisual, setUpdatingEventVisual] = useState<{
+    eventId: string
+    kind: 'cover' | 'background'
+  } | null>(null)
+  const [eventDraftsById, setEventDraftsById] = useState<
+    Record<string, { name: string; albumName: string }>
+  >({})
   const [eventControlsById, setEventControlsById] = useState<
     Record<
       string,
@@ -111,6 +118,19 @@ export default function AdminPage() {
       .filter((item): item is NormalizedEvent => Boolean(item))
 
     setEvents(normalized)
+    setEventDraftsById(
+      normalized.reduce<Record<string, { name: string; albumName: string }>>(
+        (accumulator, event) => {
+          accumulator[event.id] = {
+            name: event.name,
+            albumName: event.albumName,
+          }
+
+          return accumulator
+        },
+        {}
+      )
+    )
     setEventControlsById(
       normalized.reduce<
         Record<
@@ -375,6 +395,13 @@ export default function AdminPage() {
         }
 
         setEvents((prev) => [nextEvent, ...prev.filter((item) => item.id !== nextEvent.id)])
+        setEventDraftsById((prev) => ({
+          ...prev,
+          [nextEvent.id]: {
+            name: nextEvent.name,
+            albumName: nextEvent.albumName,
+          },
+        }))
         setEventControlsById((prev) => ({
           ...prev,
           [nextEvent.id]: {
@@ -484,6 +511,11 @@ export default function AdminPage() {
         delete next[eventId]
         return next
       })
+      setEventDraftsById((prev) => {
+        const next = { ...prev }
+        delete next[eventId]
+        return next
+      })
       setStatusMessage(t.admin.deleteSuccess)
     } catch (error) {
       console.error('Delete event failed', error)
@@ -492,6 +524,129 @@ export default function AdminPage() {
       )
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleEventDraftChange = (
+    eventId: string,
+    key: 'name' | 'albumName',
+    value: string
+  ) => {
+    setEventDraftsById((prev) => ({
+      ...prev,
+      [eventId]: {
+        name: prev[eventId]?.name || '',
+        albumName: prev[eventId]?.albumName || '',
+        [key]: value,
+      },
+    }))
+  }
+
+  const saveEventDetails = async (event: NormalizedEvent) => {
+    const draft = eventDraftsById[event.id] || {
+      name: event.name,
+      albumName: event.albumName,
+    }
+
+    if (!draft.name.trim() || !draft.albumName.trim()) {
+      setStatusMessage(t.admin.eventDetailsSaveError)
+      return
+    }
+
+    setSubmitting(true)
+
+    try {
+      const response = await fetch('/api/admin/events', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: event.id,
+          name: draft.name,
+          albumName: draft.albumName,
+          allowGuestShare: eventControlsById[event.id]?.allowGuestShare ?? event.allowGuestShare,
+          allowGuestDownload:
+            eventControlsById[event.id]?.allowGuestDownload ?? event.allowGuestDownload,
+          allowGuestDelete:
+            eventControlsById[event.id]?.allowGuestDelete ?? event.allowGuestDelete,
+        }),
+      })
+
+      const payload = (await response.json()) as {
+        ok?: boolean
+        event?: Record<string, unknown>
+        error?: string
+      }
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || t.admin.eventDetailsSaveError)
+      }
+
+      const normalized = normalizeEventRecord(payload.event)
+
+      if (normalized) {
+        setEvents((prev) =>
+          prev.map((item) => (item.id === event.id ? normalized : item))
+        )
+        setEventDraftsById((prev) => ({
+          ...prev,
+          [event.id]: {
+            name: normalized.name,
+            albumName: normalized.albumName,
+          },
+        }))
+        setEventControlsById((prev) => ({
+          ...prev,
+          [event.id]: {
+            allowGuestShare: normalized.allowGuestShare,
+            allowGuestDownload: normalized.allowGuestDownload,
+            allowGuestDelete: normalized.allowGuestDelete,
+          },
+        }))
+      }
+
+      setStatusMessage(t.admin.eventDetailsSaved)
+    } catch (error) {
+      console.error('Failed to save event details', error)
+      setStatusMessage(
+        error instanceof Error ? error.message : t.admin.eventDetailsSaveError
+      )
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const updateEventVisual = async (
+    event: NormalizedEvent,
+    file: File | null,
+    kind: 'cover' | 'background'
+  ) => {
+    if (!file) return
+
+    setUpdatingEventVisual({ eventId: event.id, kind })
+
+    try {
+      const uploadedUrl = await uploadVisualForEvent(event.id, file, kind)
+
+      setEvents((prev) =>
+        prev.map((item) =>
+          item.id === event.id
+            ? {
+                ...item,
+                coverImageUrl: kind === 'cover' ? uploadedUrl : item.coverImageUrl,
+                backgroundImageUrl:
+                  kind === 'background' ? uploadedUrl : item.backgroundImageUrl,
+              }
+            : item
+        )
+      )
+      setStatusMessage(t.admin.eventDetailsSaved)
+    } catch (error) {
+      console.error('Failed to update event visual', error)
+      setStatusMessage(error instanceof Error ? error.message : t.admin.mediaUploadError)
+    } finally {
+      setUpdatingEventVisual(null)
     }
   }
 
@@ -1033,6 +1188,93 @@ export default function AdminPage() {
                       {t.common.eventDate}: {event.eventDate}
                     </p>
                   ) : null}
+
+                  <div className="mt-4 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
+                      {t.admin.eventDetails}
+                    </p>
+
+                    <div className="mt-3 grid gap-3">
+                      <label className="block text-sm font-semibold text-[#33516F]">
+                        {t.admin.eventName}
+                        <input
+                          value={eventDraftsById[event.id]?.name ?? event.name}
+                          onChange={(inputEvent) =>
+                            handleEventDraftChange(
+                              event.id,
+                              'name',
+                              inputEvent.target.value
+                            )
+                          }
+                          className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66]"
+                        />
+                      </label>
+
+                      <label className="block text-sm font-semibold text-[#33516F]">
+                        {t.admin.albumName}
+                        <input
+                          value={eventDraftsById[event.id]?.albumName ?? event.albumName}
+                          onChange={(inputEvent) =>
+                            handleEventDraftChange(
+                              event.id,
+                              'albumName',
+                              inputEvent.target.value
+                            )
+                          }
+                          className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66]"
+                        />
+                      </label>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <label className="flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
+                        {updatingEventVisual?.eventId === event.id &&
+                        updatingEventVisual.kind === 'cover'
+                          ? t.admin.mediaUploading
+                          : t.admin.updateCover}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(inputEvent) => {
+                            const file = inputEvent.target.files?.[0] || null
+                            void updateEventVisual(event, file, 'cover')
+                            inputEvent.target.value = ''
+                          }}
+                          className="sr-only"
+                        />
+                      </label>
+
+                      <label className="flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
+                        {updatingEventVisual?.eventId === event.id &&
+                        updatingEventVisual.kind === 'background'
+                          ? t.admin.mediaUploading
+                          : t.admin.updateBackground}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(inputEvent) => {
+                            const file = inputEvent.target.files?.[0] || null
+                            void updateEventVisual(event, file, 'background')
+                            inputEvent.target.value = ''
+                          }}
+                          className="sr-only"
+                        />
+                      </label>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => saveEventDetails(event)}
+                      disabled={submitting}
+                      className={`mt-4 rounded-full px-4 py-2 text-sm font-semibold ${
+                        submitting
+                          ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                          : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
+                      }`}
+                    >
+                      {submitting ? t.admin.saving : t.admin.saveEventDetails}
+                    </button>
+                  </div>
 
                   <div className="mt-4 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">

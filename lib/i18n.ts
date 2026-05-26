@@ -109,6 +109,12 @@ type TranslationTree = {
     backgroundImage: string
     uploadCover: string
     uploadBackground: string
+    updateCover: string
+    updateBackground: string
+    eventDetails: string
+    saveEventDetails: string
+    eventDetailsSaved: string
+    eventDetailsSaveError: string
     mediaUploading: string
     mediaUploadError: string
     createButton: string
@@ -403,6 +409,12 @@ export const translations: Record<Locale, TranslationTree> = {
       backgroundImage: 'Arka plan gorseli',
       uploadCover: 'Etkinlik gorseli yukle',
       uploadBackground: 'Arka plan yukle',
+      updateCover: 'Kapak degistir',
+      updateBackground: 'Arka plan degistir',
+      eventDetails: 'Album bilgileri',
+      saveEventDetails: 'Baslik ve album adini kaydet',
+      eventDetailsSaved: 'Album bilgileri kaydedildi.',
+      eventDetailsSaveError: 'Album bilgileri kaydedilemedi.',
       mediaUploading: 'Gorsel yukleniyor...',
       mediaUploadError: 'Gorsel yuklenemedi.',
       createButton: 'Etkinlik albumu olustur',
@@ -779,6 +791,12 @@ export const translations: Record<Locale, TranslationTree> = {
       backgroundImage: 'Achtergrondafbeelding',
       uploadCover: 'Omslagafbeelding uploaden',
       uploadBackground: 'Achtergrond uploaden',
+      updateCover: 'Omslag wijzigen',
+      updateBackground: 'Achtergrond wijzigen',
+      eventDetails: 'Albumgegevens',
+      saveEventDetails: 'Naam en album opslaan',
+      eventDetailsSaved: 'Albumgegevens opgeslagen.',
+      eventDetailsSaveError: 'Albumgegevens konden niet worden opgeslagen.',
       mediaUploading: 'Afbeelding wordt geüpload...',
       mediaUploadError: 'De afbeelding kon niet worden geüpload.',
       createButton: 'Evenementalbum aanmaken',
@@ -1155,6 +1173,12 @@ export const translations: Record<Locale, TranslationTree> = {
       backgroundImage: 'Background image',
       uploadCover: 'Upload cover image',
       uploadBackground: 'Upload background image',
+      updateCover: 'Change cover',
+      updateBackground: 'Change background',
+      eventDetails: 'Album details',
+      saveEventDetails: 'Save title and album name',
+      eventDetailsSaved: 'Album details saved.',
+      eventDetailsSaveError: 'Album details could not be saved.',
       mediaUploading: 'Uploading image...',
       mediaUploadError: 'Image upload failed.',
       createButton: 'Create event album',
