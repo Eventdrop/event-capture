@@ -493,7 +493,7 @@ export default function Page() {
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                     {t.upload.badge}
                   </p>
-                  <h1 className="mt-1 text-2xl font-semibold tracking-[-0.03em] text-stone-950 sm:text-3xl">
+                  <h1 className="mt-1 text-xl font-semibold leading-tight text-stone-950 sm:text-2xl">
                     {eventName}
                   </h1>
                   {currentEvent?.eventDate ? (

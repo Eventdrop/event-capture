@@ -367,7 +367,7 @@ export default function Page() {
                 style={eventCoverStyle}
               />
               <div className="min-w-0">
-                <h1 className="text-2xl font-semibold tracking-[-0.03em] text-stone-950 sm:text-3xl">
+                <h1 className="text-xl font-semibold leading-tight text-stone-950 sm:text-2xl">
                   {eventName}
                 </h1>
                 <p className="mt-1 text-sm text-[#597594]">{statusMessage}</p>
