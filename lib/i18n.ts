@@ -218,6 +218,9 @@ type TranslationTree = {
     select: string
     delete: string
     deleting: string
+    deleteSelected: string
+    deleteSelectedConfirm: string
+    deleteSelectedSuccess: string
     deleteConfirm: string
     deleteSuccess: string
     deleteError: string
@@ -531,6 +534,9 @@ export const translations: Record<Locale, TranslationTree> = {
       select: 'Sec',
       delete: 'Sil',
       deleting: 'Siliniyor...',
+      deleteSelected: 'Secilenleri sil',
+      deleteSelectedConfirm: 'Secili yuklemeleri silmek istiyor musun?',
+      deleteSelectedSuccess: 'Secili yuklemeler silindi.',
       deleteConfirm: 'Bu yuklemeyi silmek istiyor musun?',
       deleteSuccess: 'Yukleme silindi.',
       deleteError: 'Yukleme silinemedi.',
@@ -913,6 +919,9 @@ export const translations: Record<Locale, TranslationTree> = {
       select: 'Selecteren',
       delete: 'Verwijderen',
       deleting: 'Bezig met verwijderen...',
+      deleteSelected: 'Geselecteerde items verwijderen',
+      deleteSelectedConfirm: 'Weet je zeker dat je de geselecteerde uploads wilt verwijderen?',
+      deleteSelectedSuccess: 'Geselecteerde uploads verwijderd.',
       deleteConfirm: 'Weet je zeker dat je deze upload wilt verwijderen?',
       deleteSuccess: 'Upload verwijderd.',
       deleteError: 'Upload kon niet worden verwijderd.',
@@ -1295,6 +1304,9 @@ export const translations: Record<Locale, TranslationTree> = {
       select: 'Select',
       delete: 'Delete',
       deleting: 'Deleting...',
+      deleteSelected: 'Delete selected',
+      deleteSelectedConfirm: 'Are you sure you want to delete the selected uploads?',
+      deleteSelectedSuccess: 'Selected uploads deleted.',
       deleteConfirm: 'Are you sure you want to delete this upload?',
       deleteSuccess: 'Upload deleted.',
       deleteError: 'Upload could not be deleted.',

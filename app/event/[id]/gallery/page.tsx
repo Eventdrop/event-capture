@@ -28,7 +28,7 @@ export default function Page() {
   const [eventName, setEventName] = useState('Gedeelde evenementgalerij')
   const [selected, setSelected] = useState<string[]>([])
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deletingSelected, setDeletingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [adminAuthenticated, setAdminAuthenticated] = useState(false)
 
@@ -267,34 +267,41 @@ export default function Page() {
     }
   }
 
-  const handleDelete = async (item: UploadRecord) => {
-    const confirmed = window.confirm(t.gallery.deleteConfirm)
+  const deleteSelected = async () => {
+    if (selectedItems.length === 0 || deletingSelected) return
+
+    const confirmed = window.confirm(t.gallery.deleteSelectedConfirm)
 
     if (!confirmed) return
 
-    setDeletingId(item.id)
+    setDeletingSelected(true)
+    setStatusMessage(t.gallery.deleting)
 
     try {
-      const response = await fetch(`/api/uploads/${item.id}`, {
-        method: 'DELETE',
-      })
+      for (const item of selectedItems) {
 
-      const payload = (await response.json()) as { ok?: boolean; error?: string }
+        const response = await fetch(`/api/uploads/${item.id}`, {
+          method: 'DELETE',
+        })
 
-      if (!response.ok) {
-        throw new Error(payload.error || t.gallery.deleteError)
+        const payload = (await response.json()) as { ok?: boolean; error?: string }
+
+        if (!response.ok) {
+          throw new Error(payload.error || t.gallery.deleteError)
+        }
       }
 
-      setItems((prev) => prev.filter((current) => current.id !== item.id))
-      setSelected((prev) => prev.filter((id) => id !== item.id))
-      setStatusMessage(t.gallery.deleteSuccess)
+      const deletedIds = new Set(selectedItems.map((item) => item.id))
+      setItems((prev) => prev.filter((item) => !deletedIds.has(item.id)))
+      setSelected((prev) => prev.filter((id) => !deletedIds.has(id)))
+      setStatusMessage(t.gallery.deleteSelectedSuccess)
     } catch (error) {
-      console.error('Delete failed', error)
+      console.error('Bulk delete failed', error)
       setStatusMessage(
         error instanceof Error ? error.message : t.gallery.deleteError
       )
     } finally {
-      setDeletingId(null)
+      setDeletingSelected(false)
     }
   }
 
@@ -382,6 +389,21 @@ export default function Page() {
               </button>
             ) : null}
 
+            {deleteEnabled ? (
+              <button
+                onClick={deleteSelected}
+                disabled={selected.length === 0 || deletingSelected}
+                className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                  selected.length === 0 || deletingSelected
+                    ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                    : 'bg-[#B52E2E] text-white hover:bg-[#982525]'
+                }`}
+              >
+                {deletingSelected
+                  ? t.gallery.deleting
+                  : `${t.gallery.deleteSelected} (${selected.length})`}
+              </button>
+            ) : null}
             {adminAuthenticated ? (
               <>
                 <button
@@ -421,8 +443,6 @@ export default function Page() {
                 eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
                 sequence: shareSequenceById[item.id],
               })
-              const isDeleting = deletingId === item.id
-
               const actionButtonClass =
                 'inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/70 bg-white/92 text-[#0F3D66] shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur hover:bg-white'
 
@@ -469,28 +489,6 @@ export default function Page() {
 
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
-                        {deleteEnabled && isSelected ? (
-                          <button
-                            onClick={() => handleDelete(item)}
-                            disabled={isDeleting}
-                            aria-label={t.gallery.delete}
-                            title={t.gallery.delete}
-                            className={`inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/70 shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur ${
-                              isDeleting
-                                ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                                : 'bg-[#B52E2E]/92 text-white'
-                            }`}
-                          >
-                            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-                              <path d="M4 7h16" />
-                              <path d="M10 11v6" />
-                              <path d="M14 11v6" />
-                              <path d="M6 7l1 12h10l1-12" />
-                              <path d="M9 7V4h6v3" />
-                            </svg>
-                          </button>
-                        ) : null}
-
                         {shareEnabled ? (
                           <button
                             onClick={() => handleShare(item)}
