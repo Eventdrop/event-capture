@@ -1,6 +1,14 @@
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { EventAccessForm } from '@/app/_components/event-access-form'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
+import {
+  EVENT_ACCESS_COOKIE_NAME,
+  hasEventAccess,
+  isSafeReturnToPath,
+} from '@/lib/event-access'
+import { getEventRoute } from '@/lib/events'
 
 export default async function JoinPage({
   params,
@@ -12,6 +20,12 @@ export default async function JoinPage({
   const { id } = await params
   const { returnTo } = await searchParams
   const requireCode = false
+  const cookieStore = await cookies()
+  const accessCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
+
+  if (hasEventAccess(accessCookie, id)) {
+    redirect(isSafeReturnToPath(returnTo || '') ? returnTo! : getEventRoute(id))
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
