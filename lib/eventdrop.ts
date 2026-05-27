@@ -1,4 +1,4 @@
-export type MediaKind = 'photo' | 'video'
+export type MediaKind = 'photo'
 
 export type UploadRecord = {
   id: string
@@ -15,7 +15,6 @@ export type UploadRecord = {
 }
 
 const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'])
-const VIDEO_EXTENSIONS = new Set(['mp4', 'mov', 'm4v', 'webm', 'quicktime'])
 
 export function padDatePart(value: number) {
   return value.toString().padStart(2, '0')
@@ -54,21 +53,15 @@ export function getFileExtension(file: File) {
   if (file.type.includes('webp')) return 'webp'
   if (file.type.includes('heic')) return 'heic'
   if (file.type.includes('heif')) return 'heif'
-  if (file.type.includes('mp4')) return 'mp4'
-  if (file.type.includes('webm')) return 'webm'
-  if (file.type.includes('quicktime')) return 'mov'
-
   return 'bin'
 }
 
 export function getMediaKind(file: File): MediaKind | null {
   if (file.type.startsWith('image/')) return 'photo'
-  if (file.type.startsWith('video/')) return 'video'
 
   const extension = getFileExtension(file)
 
   if (IMAGE_EXTENSIONS.has(extension)) return 'photo'
-  if (VIDEO_EXTENSIONS.has(extension)) return 'video'
 
   return null
 }
@@ -98,15 +91,10 @@ export function isExpired(expiresAt?: string | null) {
 export function inferMediaKind(upload: UploadRecord): MediaKind {
   const explicitType = upload.media_type || upload.type || ''
 
-  if (explicitType === 'video') return 'video'
   if (explicitType === 'photo') return 'photo'
 
   const mimeType = upload.mime_type || ''
-  if (mimeType.startsWith('video/')) return 'video'
   if (mimeType.startsWith('image/')) return 'photo'
-
-  const target = `${upload.file_name || ''} ${upload.file_url}`.toLowerCase()
-  if (target.match(/\.(mp4|mov|m4v|webm)(\?|$)/)) return 'video'
 
   return 'photo'
 }

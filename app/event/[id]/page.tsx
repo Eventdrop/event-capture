@@ -346,7 +346,7 @@ export default function Page() {
     storagePath: string
     fileName: string
     shareCode: string
-    mediaType: 'photo' | 'video'
+    mediaType: 'photo'
     mimeType: string
     expiresAt: string | null
   }) => {
@@ -433,9 +433,7 @@ export default function Page() {
 
         setMessage(`${t.upload.uploadInProgress} ${file.name}`)
 
-        const uploadFile = mediaType === 'photo'
-          ? await compressPhotoForUpload(file)
-          : file
+        const uploadFile = await compressPhotoForUpload(file)
         const now = new Date()
         const { fileName, storagePath } = buildStoragePath(uploadFile, now)
         const expiresAt = null

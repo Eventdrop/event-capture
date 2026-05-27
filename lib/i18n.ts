@@ -174,12 +174,9 @@ type TranslationTree = {
     noFilesChosen: string
     readyPrefix: string
     photos: string
-    videos: string
     filesSelected: string
     unsupportedIgnored: string
     photoTooLarge: string
-    videoTooLarge: string
-    videoTooLong: string
     selectionLimit: string
     chooseSupported: string
     chooseStart: string
@@ -234,7 +231,6 @@ type TranslationTree = {
     selectionLimitReached: string
     uploadTimeUnavailable: string
     photo: string
-    video: string
   }
   legal: {
     termsTitle: string
@@ -318,7 +314,7 @@ export const translations: Record<Locale, TranslationTree> = {
       points: [
         'Her etkinligin kendi ozel event code bilgisi vardir',
         'Misafirler QR veya link ile girer, kodla dogrulanir',
-        'Fotograflar ve videolar sadece ilgili albumde toplanir',
+        'Fotograflar sadece ilgili albumde toplanir',
         'Icerikler 48 saat sonra temizlenir',
       ],
       sections: [
@@ -469,7 +465,7 @@ export const translations: Record<Locale, TranslationTree> = {
       guidancePoints: [
         'Sadece paylasma hakkin olan fotograflari yukle.',
         'Kucuk dusurucu, ayipli, nefret iceren, yasa disi veya baskasinin gizliligini ihlal eden icerik yukleme.',
-        'Bu ilk surumde yalnizca fotograf kabul edilir; medya 48 saat saklanir ve kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
+        'Yalnizca fotograf kabul edilir; kaldirma talebi icin iletisim bilgilerini kullanabilirsin.',
       ],
       consentLabel:
         'Bu fotograflari yukleme ve paylasma yetkisine sahip oldugumu; bu albume yuklenen fotograflarin ucuncu kisiler tarafindan goruntulenebilecegini, indirilebilecegini ve paylasilabilecegini onayliyorum.',
@@ -484,17 +480,14 @@ export const translations: Record<Locale, TranslationTree> = {
       namingText: 'Dosyalar tarih bazli klasorler altinda tutulur.',
       retentionLabel: 'Saklama',
       retentionText: '',
-      selectLabel: 'Medya sec',
+      selectLabel: 'Fotograf sec',
       selectButton: 'Dosyalari sec',
       noFilesChosen: 'Henuz dosya secilmedi',
       readyPrefix: 'Hazir',
       photos: 'fotograf',
-      videos: 'video',
       filesSelected: 'dosya secildi',
-      unsupportedIgnored: 'desteklenmeyen veya video olan dosya yok sayildi',
+      unsupportedIgnored: 'desteklenmeyen dosya yok sayildi',
       photoTooLarge: 'fotograf 20 MB sinirini asti',
-      videoTooLarge: 'video 50 MB sinirini asti',
-      videoTooLong: 'video 20 saniyeyi asti',
       selectionLimit: 'en fazla 10 dosya secilebilir',
       chooseSupported: 'JPG, PNG, WEBP veya HEIC fotograf sec.',
       chooseStart: 'Baslamak icin fotograf sec.',
@@ -527,7 +520,7 @@ export const translations: Record<Locale, TranslationTree> = {
       notFound: 'Bu etkinlik galerisi bulunamadi.',
       downloadAll: 'Tum albumu indir',
       downloadingAll: 'Tum album indiriliyor...',
-      allDownloaded: 'Albumdeki tum medya indirildi.',
+      allDownloaded: 'Albumdeki tum fotograflar indirildi.',
       downloadSelected: 'Secilenleri indir',
       backToUpload: 'Yuklemeye don',
       selected: 'Secildi',
@@ -550,7 +543,6 @@ export const translations: Record<Locale, TranslationTree> = {
       selectionLimitReached: 'Bir kerede en fazla 10 fotograf secebilirsin.',
       uploadTimeUnavailable: 'Yukleme zamani yok',
       photo: 'Fotograf',
-      video: 'Video',
     },
       legal: {
       termsTitle: 'Kullanim Sartlari',
@@ -560,8 +552,8 @@ export const translations: Record<Locale, TranslationTree> = {
         {
           title: 'Icerik sorumlulugu',
           points: [
-            'Yukledigin fotograf ve videolar uzerinde paylasim hakkina sahip oldugunu beyan edersin.',
-            'Ayni etkinlikte yer alan diger katilimcilarin da seni iceren fotograf ve videolari yukleyebilecegini ve paylasabilecegini kabul edersin.',
+            'Yukledigin fotograflar uzerinde paylasim hakkina sahip oldugunu beyan edersin.',
+            'Ayni etkinlikte yer alan diger katilimcilarin da seni iceren fotograflari yukleyebilecegini ve paylasabilecegini kabul edersin.',
             'Kucuk dusurucu, iftira niteliginde, nefret iceren, siddeti tesvik eden veya yasa disi icerik yukleyemezsin.',
             'Baska kisilerin mahremiyetini ihlal eden veya acikca rahatsizlik verecek icerikler kaldirilabilir.',
             'Gerekli gorulen durumlarda uygunsuz icerikler onceden bildirim yapilmadan kaldirilabilir.',
@@ -599,7 +591,7 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Toplanan veriler',
           points: [
             'E-posta adresi, etkinlige erisim saglamak ve gerekli durumlarda iletisim kurmak icin islenir.',
-            'Yuklenen fotograf ve videolar ilgili etkinlik albumunde saklanir.',
+            'Yuklenen fotograflar ilgili etkinlik albumunde saklanir.',
             'Teknik veriler (IP adresi, cihaz bilgisi, log kayitlari) guvenlik ve hata takibi icin gecici olarak tutulabilir.',
           ],
         },
@@ -659,9 +651,9 @@ export const translations: Record<Locale, TranslationTree> = {
     },
     home: {
       badge: 'QR photobooth voor evenementen',
-      title: 'Alle foto’s en video’s van je evenement in één gedeeld album.',
+      title: 'Alle foto’s van je evenement in één gedeeld album.',
       intro:
-        'Photobooth Holland helpt gasten om foto’s en video’s via een QR code te delen in één overzichtelijk album. Geschikt voor bruiloften, bedrijfsfeesten, verjaardagen en 360 photobooth activaties.',
+        'Photobooth Holland helpt gasten om foto’s via een QR code te delen in één overzichtelijk album. Geschikt voor bruiloften, bedrijfsfeesten, verjaardagen en 360 photobooth activaties.',
       entryLabel: 'Snelle toegang voor gasten',
       posterHeadline: 'DEEL JE',
       posterAccent: 'momenten',
@@ -697,7 +689,7 @@ export const translations: Record<Locale, TranslationTree> = {
         'Bruiloften, verjaardagen, bedrijfsfeesten, merkactivaties en 360 photobooth events.',
       flowTitle: 'Zo werkt het',
       flowText:
-        'Gasten scannen de QR code, kiezen hun bestanden en alles komt direct in het juiste album terecht.',
+        'Gasten scannen de QR code, kiezen hun foto’s en alles komt direct in het juiste album terecht.',
       howItWorks: 'Zo werkt het',
       shareSite: 'Deel deze pagina',
       shareReady: 'Deelscherm is geopend.',
@@ -705,14 +697,14 @@ export const translations: Record<Locale, TranslationTree> = {
       points: [
         'Elk evenement krijgt een eigen QR-link en optionele eventcode',
         'Gasten uploaden zonder app of account',
-        'Foto’s en video’s komen direct in het juiste album terecht',
+        'Foto’s komen direct in het juiste album terecht',
         'Duidelijk en mobielvriendelijk voor ieder evenement',
       ],
       sections: [
         {
           title: 'Perfect voor elk evenement waar mensen foto’s willen delen',
           body: [
-            'Van bruiloften en verjaardagen tot bedrijfsfeesten en merkactivaties: gasten maken de hele dag foto’s en video’s op hun telefoon.',
+            'Van bruiloften en verjaardagen tot bedrijfsfeesten en merkactivaties: gasten maken de hele dag foto’s op hun telefoon.',
             'Met Photobooth Holland verzamel je die beelden in één duidelijk evenementalbum, zonder losse apps of onoverzichtelijke groepschats.',
             'Zo bewaar je niet alleen de photobooth beelden, maar ook de spontane momenten daaromheen.',
           ],
@@ -721,7 +713,7 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Hoe Photobooth Holland werkt',
           body: [
             'Voor ieder evenement is er een eigen uploadpagina met QR code.',
-            'Na het scannen kiezen gasten hun foto’s of video’s en delen die direct vanaf hun telefoon.',
+            'Na het scannen kiezen gasten hun foto’s en delen die direct vanaf hun telefoon.',
             'Alle bestanden worden automatisch verzameld in één album dat bij het evenement hoort.',
           ],
         },
@@ -848,7 +840,7 @@ export const translations: Record<Locale, TranslationTree> = {
       badge: 'Gastenupload',
       intro: 'Kies je foto’s en upload ze naar het album.',
       guidanceBadge: 'Uploadregels',
-      guidanceTitle: 'Upload alleen media die je mag delen',
+      guidanceTitle: 'Upload alleen foto’s die je mag delen',
       guidanceIntro:
         'Door iets te uploaden bevestig je dat je dit vrijwillig deelt en rekening houdt met de privacy van andere aanwezigen.',
       guidancePoints: [
@@ -869,17 +861,14 @@ export const translations: Record<Locale, TranslationTree> = {
       namingText: 'Bestanden worden opgeslagen in datumgebonden mappen.',
       retentionLabel: 'Bewaartermijn',
       retentionText: '',
-      selectLabel: 'Kies media',
+      selectLabel: 'Kies foto’s',
       selectButton: 'Bestanden kiezen',
       noFilesChosen: 'Nog geen bestanden gekozen',
       readyPrefix: 'Klaar',
       photos: 'foto',
-      videos: 'video',
       filesSelected: 'bestanden geselecteerd',
       unsupportedIgnored: 'niet-ondersteunde bestanden zijn overgeslagen',
       photoTooLarge: 'foto boven limiet van 20 MB',
-      videoTooLarge: 'video boven limiet van 50 MB',
-      videoTooLong: 'video langer dan 20 seconden',
       selectionLimit: 'je kunt maximaal 10 bestanden tegelijk selecteren',
       chooseSupported: 'Kies een JPG-, PNG-, WEBP- of HEIC-bestand.',
       chooseStart: 'Kies een bestand om te beginnen.',
@@ -912,7 +901,7 @@ export const translations: Record<Locale, TranslationTree> = {
       notFound: 'Deze galerij is niet gevonden.',
       downloadAll: 'Hele album downloaden',
       downloadingAll: 'Het hele album wordt gedownload...',
-      allDownloaded: 'Alle media uit het album zijn gedownload.',
+      allDownloaded: 'Alle foto’s uit het album zijn gedownload.',
       downloadSelected: 'Geselecteerde items downloaden',
       backToUpload: 'Terug naar upload',
       selected: 'Geselecteerd',
@@ -935,7 +924,6 @@ export const translations: Record<Locale, TranslationTree> = {
       selectionLimitReached: 'Je kunt maximaal 10 foto’s tegelijk selecteren.',
       uploadTimeUnavailable: 'Uploadtijd onbekend',
       photo: 'Foto',
-      video: 'Video',
     },
     legal: {
       termsTitle: 'Algemene voorwaarden',
@@ -945,7 +933,7 @@ export const translations: Record<Locale, TranslationTree> = {
         {
           title: 'Verantwoordelijkheid voor inhoud',
           points: [
-            'Je bevestigt dat je de foto’s en video’s die je upload zelf mag delen.',
+            'Je bevestigt dat je de foto’s die je upload zelf mag delen.',
             'Je mag geen privacygevoelige, schokkende, haatdragende of onwettige inhoud uploaden.',
             'Ongeschikte inhoud kan zonder voorafgaande waarschuwing worden verwijderd.',
           ],
@@ -982,7 +970,7 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Verwerkte gegevens',
           points: [
             'Je e-mailadres wordt gebruikt om toegang tot het evenement te beheren en je indien nodig te kunnen bereiken.',
-            'Geüploade foto’s en video’s worden opgeslagen in het album van het betreffende evenement.',
+            'Geüploade foto’s worden opgeslagen in het album van het betreffende evenement.',
             'Technische gegevens zoals IP-adres, apparaatinformatie en loggegevens kunnen tijdelijk worden bewaard voor beveiliging en foutopsporing.',
           ],
         },
@@ -1233,13 +1221,13 @@ export const translations: Record<Locale, TranslationTree> = {
       badge: 'Guest upload page',
       intro: 'Choose your photos and upload them to the album.',
       guidanceBadge: 'Upload rules',
-      guidanceTitle: 'Please upload only media that can be shared',
+      guidanceTitle: 'Please upload only photos that can be shared',
       guidanceIntro:
-        'By uploading, you confirm that you are sharing this media voluntarily and that you will respect the privacy of everyone at the event.',
+        'By uploading, you confirm that you are sharing these photos voluntarily and that you will respect the privacy of everyone at the event.',
       guidancePoints: [
         'Only upload photos that you are allowed to share.',
         'Do not upload humiliating, abusive, hateful, illegal, or privacy-violating content.',
-        'In this first version, only photos are accepted; media is kept for 48 hours and can be removed sooner via the contact details.',
+        'In this first version, only photos are accepted; photos can be removed via the contact details.',
       ],
       consentLabel:
         'I confirm that I am authorized to upload and share these photos, and that photos added to this album may be viewed, downloaded, and shared by third parties.',
@@ -1254,17 +1242,14 @@ export const translations: Record<Locale, TranslationTree> = {
       namingText: 'Files are stored inside date-based folders.',
       retentionLabel: 'Retention',
       retentionText: '',
-      selectLabel: 'Select media',
+      selectLabel: 'Select photos',
       selectButton: 'Choose files',
       noFilesChosen: 'No files selected yet',
       readyPrefix: 'Ready',
       photos: 'photos',
-      videos: 'videos',
       filesSelected: 'files selected',
-      unsupportedIgnored: 'unsupported files or videos ignored',
+      unsupportedIgnored: 'unsupported files ignored',
       photoTooLarge: 'photo exceeds the 20 MB limit',
-      videoTooLarge: 'video exceeds the 50 MB limit',
-      videoTooLong: 'video exceeds 20 seconds',
       selectionLimit: 'you can choose up to 10 files at a time',
       chooseSupported: 'Choose a JPG, PNG, WEBP, or HEIC photo.',
       chooseStart: 'Choose a photo to get started.',
@@ -1297,7 +1282,7 @@ export const translations: Record<Locale, TranslationTree> = {
       notFound: 'This event gallery could not be found.',
       downloadAll: 'Download full album',
       downloadingAll: 'Downloading the full album...',
-      allDownloaded: 'All media in the album has been downloaded.',
+      allDownloaded: 'All photos in the album have been downloaded.',
       downloadSelected: 'Download selected',
       backToUpload: 'Back to upload',
       selected: 'Selected',
@@ -1320,7 +1305,6 @@ export const translations: Record<Locale, TranslationTree> = {
       selectionLimitReached: 'You can select up to 10 photos at a time.',
       uploadTimeUnavailable: 'Upload time unavailable',
       photo: 'Photo',
-      video: 'Video',
     },
     legal: {
       termsTitle: 'Terms',
@@ -1330,7 +1314,7 @@ export const translations: Record<Locale, TranslationTree> = {
         {
           title: 'Content responsibility',
           points: [
-            'You confirm that you have the right to share the photos and videos you upload.',
+            'You confirm that you have the right to share the photos you upload.',
             'You must not upload privacy-violating, abusive, hateful, or illegal content.',
             'Inappropriate content may be removed without prior notice.',
           ],
@@ -1367,7 +1351,7 @@ export const translations: Record<Locale, TranslationTree> = {
           title: 'Collected data',
           points: [
             'Your email address is used to manage event access and contact you if needed.',
-            'Uploaded photos and videos are stored inside the relevant event album.',
+            'Uploaded photos are stored inside the relevant event album.',
             'Technical data such as IP address, device information, and logs may be retained temporarily for security and troubleshooting.',
           ],
         },

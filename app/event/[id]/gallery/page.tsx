@@ -9,7 +9,6 @@ import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicMediaUrl, getPublicPath } from '@/lib/app-url'
 import {
-  inferMediaKind,
   getUploadShareKey,
   getUploadShortFileName,
   type UploadRecord,
@@ -438,7 +437,6 @@ export default function Page() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => {
               const isSelected = selected.includes(item.id)
-              const mediaKind = inferMediaKind(item)
               const downloadName = getUploadShortFileName(item, {
                 eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
                 sequence: shareSequenceById[item.id],
@@ -454,23 +452,14 @@ export default function Page() {
                   }`}
                 >
                   <div className="relative">
-                    {mediaKind === 'video' ? (
-                      <video
-                        src={item.file_url}
-                        controls
-                        playsInline
-                        className="aspect-square w-full bg-stone-900 object-cover"
-                      />
-                    ) : (
-                      <Image
-                        src={item.file_url}
-                        alt={downloadName}
-                        width={1200}
-                        height={1200}
-                        unoptimized
-                        className="aspect-square w-full object-cover"
-                      />
-                    )}
+                    <Image
+                      src={item.file_url}
+                      alt={downloadName}
+                      width={1200}
+                      height={1200}
+                      unoptimized
+                      className="aspect-square w-full object-cover"
+                    />
 
                     {deleteEnabled ? (
                       <button

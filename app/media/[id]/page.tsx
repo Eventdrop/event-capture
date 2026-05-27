@@ -8,7 +8,6 @@ import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicPath } from '@/lib/app-url'
 import {
   getUploadFileExtension,
-  inferMediaKind,
   parseOrdinalShareKey,
   slugifyShareValue,
   getUploadShareKey,
@@ -114,9 +113,6 @@ export default async function MediaPage({
 
     parentEvent = normalizeEventRecord(parentLookup.data)
   }
-
-
-  const mediaKind = inferMediaKind(upload)
   const fallbackShareKey = getUploadShareKey(upload)
   const shareKey = parseOrdinalShareKey(id) ? id : fallbackShareKey
   const fileExtension = getUploadFileExtension(upload)
@@ -170,23 +166,14 @@ export default async function MediaPage({
           </div>
 
           <div className="overflow-hidden rounded-[2rem] border border-[#D4DFEE] bg-white shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
-            {mediaKind === 'video' ? (
-              <video
-                src={upload.file_url}
-                controls
-                playsInline
-                className="max-h-[80vh] w-full bg-stone-950 object-contain"
-              />
-            ) : (
-              <Image
-                src={upload.file_url}
-                alt={shortFileName}
-                width={1600}
-                height={1600}
-                unoptimized
-                className="max-h-[80vh] w-full object-contain"
-              />
-            )}
+            <Image
+              src={upload.file_url}
+              alt={shortFileName}
+              width={1600}
+              height={1600}
+              unoptimized
+              className="max-h-[80vh] w-full object-contain"
+            />
           </div>
         </div>
       </main>
