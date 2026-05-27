@@ -481,9 +481,13 @@ export default function Page() {
                           isSelected ? 'border-[#0F3D66] bg-[#0F3D66] text-white' : ''
                         }`}
                       >
-                        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-                          <path d="M5 12.5 9.5 17 19 7.5" />
-                        </svg>
+                        {isSelected ? (
+                          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                            <path d="M5 12.5 9.5 17 19 7.5" />
+                          </svg>
+                        ) : (
+                          <span className="h-3 w-3 rounded-full border border-[#0F3D66]/50" />
+                        )}
                       </button>
                     ) : null}
 
