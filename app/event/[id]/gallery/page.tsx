@@ -472,7 +472,26 @@ export default function Page() {
                       />
                     )}
 
-                    {downloadEnabled || deleteEnabled ? (
+                    {deleteEnabled ? (
+                      <button
+                        onClick={() => toggleSelect(item.id)}
+                        aria-label={isSelected ? t.gallery.selected : t.gallery.select}
+                        title={isSelected ? t.gallery.selected : t.gallery.select}
+                        className={`absolute left-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur ${
+                          isSelected
+                            ? 'border-[#B52E2E] bg-[#B52E2E] text-white'
+                            : 'border-white/70 bg-white/92 text-[#0F3D66] hover:bg-white'
+                        }`}
+                      >
+                        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                          <path d="M4 7h16" />
+                          <path d="M10 11v6" />
+                          <path d="M14 11v6" />
+                          <path d="M6 7l1 12h10l1-12" />
+                          <path d="M9 7V4h6v3" />
+                        </svg>
+                      </button>
+                    ) : downloadEnabled ? (
                       <button
                         onClick={() => toggleSelect(item.id)}
                         aria-label={isSelected ? t.gallery.selected : t.gallery.select}
