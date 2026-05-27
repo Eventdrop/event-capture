@@ -527,6 +527,10 @@ export default function Page() {
               </label>
 
               <div className="mt-4 rounded-[1.25rem] border-2 border-dashed border-[#C8D3E5] bg-[#FDFEFE] p-3">
+                <p className="mb-3 rounded-full bg-[#EDF4FB] px-4 py-2 text-center text-xs font-semibold text-[#0F3D66]">
+                  {t.upload.photoOnlyNotice}
+                </p>
+
                 <input
                   ref={inputRef}
                   id="event-media"

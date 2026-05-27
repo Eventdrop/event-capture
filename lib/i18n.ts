@@ -171,6 +171,7 @@ type TranslationTree = {
     retentionText: string
     selectLabel: string
     selectButton: string
+    photoOnlyNotice: string
     noFilesChosen: string
     readyPrefix: string
     photos: string
@@ -482,6 +483,7 @@ export const translations: Record<Locale, TranslationTree> = {
       retentionText: '',
       selectLabel: 'Fotograf sec',
       selectButton: 'Dosyalari sec',
+      photoOnlyNotice: 'Bu album su anda sadece fotograf yuklemeleri icindir.',
       noFilesChosen: 'Henuz dosya secilmedi',
       readyPrefix: 'Hazir',
       photos: 'fotograf',
@@ -863,6 +865,7 @@ export const translations: Record<Locale, TranslationTree> = {
       retentionText: '',
       selectLabel: 'Kies foto’s',
       selectButton: 'Bestanden kiezen',
+      photoOnlyNotice: 'Dit album is op dit moment alleen bedoeld voor foto-uploads.',
       noFilesChosen: 'Nog geen bestanden gekozen',
       readyPrefix: 'Klaar',
       photos: 'foto',
@@ -1244,6 +1247,7 @@ export const translations: Record<Locale, TranslationTree> = {
       retentionText: '',
       selectLabel: 'Select photos',
       selectButton: 'Choose files',
+      photoOnlyNotice: 'This album is currently for photo uploads only.',
       noFilesChosen: 'No files selected yet',
       readyPrefix: 'Ready',
       photos: 'photos',
