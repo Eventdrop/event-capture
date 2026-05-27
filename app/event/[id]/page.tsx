@@ -103,6 +103,10 @@ export default function Page() {
   const { t } = useLanguage()
   const params = useParams()
   const eventIdentifier = params.id as string
+  const consentStorageKey = useMemo(
+    () => `eventdrop-upload-consent:${eventIdentifier}`,
+    [eventIdentifier]
+  )
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const [resolvedEventId, setResolvedEventId] = useState('')
@@ -114,6 +118,24 @@ export default function Page() {
   const [eventMissing, setEventMissing] = useState(false)
   const [guidanceAccepted, setGuidanceAccepted] = useState(false)
 
+
+  useEffect(() => {
+    try {
+      setGuidanceAccepted(localStorage.getItem(consentStorageKey) === 'true')
+    } catch (error) {
+      console.error('Failed to load upload consent preference', error)
+    }
+  }, [consentStorageKey])
+
+  const handleGuidanceAcceptedChange = (checked: boolean) => {
+    setGuidanceAccepted(checked)
+
+    try {
+      localStorage.setItem(consentStorageKey, checked ? 'true' : 'false')
+    } catch (error) {
+      console.error('Failed to save upload consent preference', error)
+    }
+  }
 
   useEffect(() => {
     if (selectedFiles.length === 0 && !resolvedEventId && !eventMissing) {
@@ -500,7 +522,7 @@ export default function Page() {
                 <input
                   type="checkbox"
                   checked={guidanceAccepted}
-                  onChange={(event) => setGuidanceAccepted(event.target.checked)}
+                  onChange={(event) => handleGuidanceAcceptedChange(event.target.checked)}
                   className="mt-1 h-4 w-4 rounded border-[#C8D3E5] accent-[#F58220]"
                 />
                 <span>{t.upload.consentLabel}</span>
