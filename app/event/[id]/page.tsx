@@ -16,7 +16,7 @@ import {
 } from '@/lib/eventdrop'
 import {
   formatEventDisplayName,
-  getEventJoinRoute,
+  getEventRoute,
   normalizeEventRecord,
   type NormalizedEvent,
 } from '@/lib/events'
@@ -226,7 +226,7 @@ export default function Page() {
   }, [currentEvent?.backgroundImageUrl, currentEvent?.coverImageUrl, currentEvent?.id, eventIdentifier])
 
   const uploadUrl = useMemo(() => {
-    return `${getPublicAppUrl()}${getEventJoinRoute(eventIdentifier)}`
+    return `${getPublicAppUrl()}${getEventRoute(eventIdentifier)}`
   }, [eventIdentifier])
 
   const galleryUrl = useMemo(

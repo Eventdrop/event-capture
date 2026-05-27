@@ -361,7 +361,7 @@ export default function Page() {
         style={eventBackgroundStyle}
       >
         <div className="mx-auto max-w-6xl">
-        <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0 flex-1">
             <div
               className="mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
@@ -373,12 +373,12 @@ export default function Page() {
             <p className="mt-1 text-sm text-[#597594]">{statusMessage}</p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-2 xl:flex xl:flex-row">
             {downloadEnabled ? (
               <button
                 onClick={downloadSelected}
                 disabled={selected.length === 0}
-                className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                className={`inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-semibold ${
                   selected.length === 0
                     ? 'cursor-not-allowed bg-stone-300 text-stone-500'
                     : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
@@ -392,7 +392,7 @@ export default function Page() {
               <button
                 onClick={deleteSelected}
                 disabled={selected.length === 0 || deletingSelected}
-                className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                className={`inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-semibold ${
                   selected.length === 0 || deletingSelected
                     ? 'cursor-not-allowed bg-stone-300 text-stone-500'
                     : 'bg-[#B52E2E] text-white hover:bg-[#982525]'
@@ -408,7 +408,7 @@ export default function Page() {
                 <button
                   onClick={downloadAll}
                   disabled={items.length === 0 || downloadingAll}
-                  className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                  className={`inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-semibold ${
                     items.length === 0 || downloadingAll
                       ? 'cursor-not-allowed bg-stone-300 text-stone-500'
                       : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
@@ -422,7 +422,7 @@ export default function Page() {
 
             <Link
               href={uploadPageUrl}
-              className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-5 py-3 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-5 py-3 text-center text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
             >
               {t.gallery.backToUpload}
             </Link>

@@ -13,7 +13,7 @@ import {
   formatEventDisplayName,
   generateEventAccessCode,
   getEventGalleryRoute,
-  getEventJoinRoute,
+  getEventRoute,
   normalizeEventAccessCode,
   normalizeEventRecord,
   type NormalizedEvent,
@@ -85,11 +85,11 @@ export default function AdminPage() {
 
   const getEventIdentifier = (event: NormalizedEvent) => event.slug || event.id
   const getEventShareUrl = (event: NormalizedEvent) =>
-    `${publicBaseUrl}${getEventJoinRoute(getEventIdentifier(event))}`
+    `${publicBaseUrl}${getEventRoute(getEventIdentifier(event))}`
   const getGalleryShareUrl = (event: NormalizedEvent) =>
     `${publicBaseUrl}${getEventGalleryRoute(getEventIdentifier(event))}`
   const getPublicJoinPath = (event: NormalizedEvent) =>
-    getPublicPath(getEventJoinRoute(getEventIdentifier(event)))
+    getPublicPath(getEventRoute(getEventIdentifier(event)))
   const getPublicGalleryPath = (event: NormalizedEvent) =>
     getPublicPath(getEventGalleryRoute(getEventIdentifier(event)))
 
