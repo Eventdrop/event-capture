@@ -7,7 +7,6 @@ import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
 import { getPublicAppUrl, getPublicPath } from '@/lib/app-url'
-import { brand } from '@/lib/brand'
 import {
   buildEventInsertPayload,
   formatEventDisplayName,
@@ -740,38 +739,96 @@ export default function AdminPage() {
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f6f4ee_0%,_#edf4fb_100%)]">
       <SiteHeader currentLabel={t.common.restrictedAdmin} />
 
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-6 py-10 md:px-10">
-        <section className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
-          <div className="rounded-[2.2rem] border border-[#D4DFEE] bg-white/85 p-7 shadow-[0_18px_54px_rgba(15,61,102,0.08)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
-              {t.common.hiddenAdminAccess}
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#0B2742]">
-              {t.admin.title}
-            </h1>
-            <p className="mt-4 text-sm leading-7 text-[#33516F]">
-              {t.common.hiddenAdminDescription}
-            </p>
+      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 md:px-8">
+        <section className="grid gap-5 lg:grid-cols-[0.62fr_1.38fr]">
+          <div className="rounded-[1.8rem] border border-[#D4DFEE] bg-white/85 p-5 shadow-[0_18px_54px_rgba(15,61,102,0.08)]">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
+                  {t.admin.recentAlbums}
+                </p>
+                <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#0B2742]">
+                  {events.length} album
+                </h1>
+              </div>
 
-            <div className="mt-8 space-y-3 rounded-[1.7rem] border border-[#D4DFEE] bg-[#F7FAFD] p-5 text-sm text-[#33516F]">
-              <p className="font-semibold text-[#0B2742]">{brand.name}</p>
-              <p>{brand.email}</p>
-              <p>{brand.phone}</p>
-              <p>{brand.location}</p>
+              <button
+                type="button"
+                onClick={() => copyToClipboard(adminUrl, t.admin.uploadCopied)}
+                className="rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+              >
+                Admin link
+              </button>
             </div>
 
-            <div className="mt-6 rounded-[1.7rem] bg-[#0F3D66] p-5 text-white">
-              <p className="text-xs uppercase tracking-[0.18em] text-[#C9DDF2]">
-                {t.admin.hiddenRouteNote}
+            {!authenticated ? (
+              <p className="mt-5 rounded-[1.2rem] bg-[#F7FAFD] p-4 text-sm text-[#597594]">
+                {t.admin.unlockToManage}
               </p>
-              <p className="mt-3 text-sm leading-7 text-[#EEF6FF]">
-                {statusMessage}
+            ) : events.length === 0 ? (
+              <p className="mt-5 rounded-[1.2rem] bg-[#F7FAFD] p-4 text-sm text-[#597594]">
+                {t.admin.noEvents}
               </p>
-              <p className="mt-3 break-all text-xs text-[#BFD4EA]">{adminUrl}</p>
-            </div>
+            ) : (
+              <div className="mt-5 space-y-3">
+                {events.slice(0, 8).map((event, index) => (
+                  <details
+                    key={event.id}
+                    open={index === 0}
+                    className="rounded-[1.2rem] border border-[#D4DFEE] bg-[#F7FAFD] p-3"
+                  >
+                    <summary className="cursor-pointer text-sm font-semibold text-[#0B2742]">
+                      {formatEventLabel(event)}
+                    </summary>
+
+                    <div className="mt-3 space-y-2">
+                      <p className="text-xs text-[#6A84A3]">
+                        {guestAccessByEvent[event.id]?.length || 0} e-mail
+                      </p>
+
+                      <div className="grid gap-2">
+                        <Link
+                          href={getPublicJoinPath(event)}
+                          className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
+                        >
+                          {t.common.guestEntryPage}
+                        </Link>
+                        <Link
+                          href={getPublicGalleryPath(event)}
+                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                        >
+                          {t.common.gallery}
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            copyToClipboard(getEventShareUrl(event), t.admin.uploadCopied)
+                          }
+                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                        >
+                          {t.common.copyUploadLink}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            copyToClipboard(
+                              getGalleryShareUrl(event),
+                              t.admin.galleryCopied
+                            )
+                          }
+                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                        >
+                          {t.common.copyGalleryLink}
+                        </button>
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="rounded-[2.2rem] border border-[#D4DFEE] bg-[#0F3D66] p-7 text-white shadow-[0_22px_60px_rgba(15,61,102,0.18)]">
+          <div className="rounded-[1.8rem] border border-[#D4DFEE] bg-[#0F3D66] p-5 text-white shadow-[0_22px_60px_rgba(15,61,102,0.18)] md:p-6">
             {loadingSession ? (
               <p className="text-sm text-[#DDEAF7]">{t.admin.checkingSession}</p>
             ) : authenticated ? (
@@ -794,19 +851,16 @@ export default function AdminPage() {
                   </button>
                 </div>
 
-                <div className="rounded-[1.8rem] border border-white/12 bg-white/8 p-5">
-                  <p className="text-xs uppercase tracking-[0.18em] text-[#BFD4EA]">
-                    {t.admin.createTitle}
-                  </p>
-                  <p className="mt-2 text-sm leading-7 text-[#EAF3FB]">
-                    Houd je albums overzichtelijk en je gastentoegang eenvoudig.
-                  </p>
-                </div>
+                {statusMessage ? (
+                  <div className="rounded-[1.2rem] border border-white/12 bg-white/8 px-4 py-3 text-sm leading-6 text-[#EAF3FB]">
+                    {statusMessage}
+                  </div>
+                ) : null}
 
-                <div className="rounded-[1.8rem] border border-white/12 bg-white/8 p-5">
-                  <p className="text-xs uppercase tracking-[0.18em] text-[#BFD4EA]">
+                <details className="rounded-[1.2rem] border border-white/12 bg-white/8 p-4">
+                  <summary className="cursor-pointer text-sm font-semibold text-[#EAF3FB]">
                     {t.admin.passwordSection}
-                  </p>
+                  </summary>
                   <p className="mt-2 text-sm leading-7 text-[#EAF3FB]">
                     {canChangePassword
                       ? t.admin.passwordSectionHelp
@@ -882,7 +936,7 @@ export default function AdminPage() {
                       </button>
                     </>
                   ) : null}
-                </div>
+                </details>
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="md:col-span-2">
@@ -1149,10 +1203,10 @@ export default function AdminPage() {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
-                {t.admin.recentAlbums}
+                {t.admin.eventDetails}
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[#0B2742]">
-                {t.admin.recentAlbums}
+                {t.admin.eventDetails}
               </h2>
             </div>
 
@@ -1172,14 +1226,15 @@ export default function AdminPage() {
             <p className="mt-6 text-sm text-[#597594]">{t.admin.noEvents}</p>
           ) : (
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
-              {events.map((event) => (
-                <article
+              {events.map((event, index) => (
+                <details
                   key={event.id}
+                  open={index === 0}
                   className="rounded-[1.8rem] border border-[#D4DFEE] bg-[#F8FBFE] p-5"
                 >
-                  <p className="text-lg font-semibold text-[#0B2742]">
+                  <summary className="cursor-pointer text-lg font-semibold text-[#0B2742]">
                     {formatEventLabel(event)}
-                  </p>
+                  </summary>
                   <p className="mt-2 break-all text-sm text-[#6A84A3]">
                     {t.common.eventId}: {event.id}
                   </p>
@@ -1465,7 +1520,7 @@ export default function AdminPage() {
                       </p>
                     )}
                   </div>
-                </article>
+                </details>
               ))}
             </div>
           )}
