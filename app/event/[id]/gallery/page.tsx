@@ -357,6 +357,40 @@ export default function Page() {
     }
   }
 
+  const deleteSingle = async (item: UploadRecord) => {
+    if (deletingSelected) return
+
+    const confirmed = window.confirm(t.gallery.deleteConfirm)
+
+    if (!confirmed) return
+
+    setDeletingSelected(true)
+    setStatusMessage(t.gallery.deleting)
+
+    try {
+      const response = await fetch(`/api/uploads/${item.id}`, {
+        method: 'DELETE',
+      })
+
+      const payload = (await response.json()) as { ok?: boolean; error?: string }
+
+      if (!response.ok) {
+        throw new Error(payload.error || t.gallery.deleteError)
+      }
+
+      setItems((prev) => prev.filter((upload) => upload.id !== item.id))
+      setSelected((prev) => prev.filter((id) => id !== item.id))
+      setStatusMessage(t.gallery.deleteSuccess)
+    } catch (error) {
+      console.error('Upload delete failed', error)
+      setStatusMessage(
+        error instanceof Error ? error.message : t.gallery.deleteError
+      )
+    } finally {
+      setDeletingSelected(false)
+    }
+  }
+
   const handleShare = async (item: UploadRecord) => {
     const shareUrl = getPublicMediaUrl(
       getUploadShareKey(item, {
@@ -521,17 +555,39 @@ export default function Page() {
                         onClick={() => toggleSelect(item.id)}
                         aria-label={isSelected ? t.gallery.selected : t.gallery.select}
                         title={isSelected ? t.gallery.selected : t.gallery.select}
-                        className={`absolute left-3 top-3 ${actionButtonClass} ${
-                          isSelected ? 'border-[#0F3D66] bg-[#0F3D66] text-white ring-2 ring-white/90' : ''
+                        className={`absolute left-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur ${
+                          isSelected
+                            ? 'border-white bg-[#0F3D66] text-white ring-2 ring-[#0F3D66]/30'
+                            : 'border-white bg-white/95 text-[#0F3D66] hover:bg-white'
                         }`}
                       >
                         {isSelected ? (
-                          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                          <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[2.8]">
                             <path d="M5 12.5 9.5 17 19 7.5" />
                           </svg>
                         ) : (
-                          <span className="h-3 w-3 rounded-full border border-[#0F3D66]/50" />
+                          <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
+                            <circle cx="12" cy="12" r="8" />
+                          </svg>
                         )}
+                      </button>
+                    ) : null}
+
+                    {deleteEnabled ? (
+                      <button
+                        onClick={() => deleteSingle(item)}
+                        disabled={deletingSelected}
+                        aria-label={t.gallery.delete}
+                        title={t.gallery.delete}
+                        className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-[#B52E2E] text-white shadow-[0_8px_20px_rgba(181,46,46,0.25)] backdrop-blur hover:bg-[#982525] disabled:cursor-not-allowed disabled:bg-stone-300"
+                      >
+                        <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
+                          <path d="M4 7h16" />
+                          <path d="M10 11v6" />
+                          <path d="M14 11v6" />
+                          <path d="M6 7l1 12h10l1-12" />
+                          <path d="M9 7V4h6v3" />
+                        </svg>
                       </button>
                     ) : null}
 
