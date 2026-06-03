@@ -28,6 +28,7 @@ export default function Page() {
   const [selected, setSelected] = useState<string[]>([])
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
   const [deletingSelected, setDeletingSelected] = useState(false)
+  const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [adminAuthenticated, setAdminAuthenticated] = useState(false)
 
@@ -175,7 +176,7 @@ export default function Page() {
     [eventIdentifier]
   )
 
-  const selectedLimit = 10
+  const selectedLimit = 100
   const shareEnabled = currentEvent?.allowGuestShare !== false
   const downloadEnabled = currentEvent?.allowGuestDownload !== false
   const deleteEnabled = currentEvent?.allowGuestDelete === true
@@ -220,27 +221,89 @@ export default function Page() {
     }
   }
 
-  const downloadSelected = async () => {
-    if (selectedItems.length === 0) {
+  const saveBlob = (blob: Blob, filename: string) => {
+    const blobUrl = window.URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+
+    anchor.href = blobUrl
+    anchor.download = filename
+    anchor.click()
+
+    window.URL.revokeObjectURL(blobUrl)
+  }
+
+  const getZipFileName = (selectedOnly: boolean) => {
+    const baseName = (currentEvent?.albumName || currentEvent?.name || eventIdentifier)
+      .trim()
+      .replace(/[\\/:*?"<>|]+/g, '-')
+      .replace(/\s+/g, ' ')
+
+    return `${baseName || 'eventdrop-album'}${selectedOnly ? '-selectie' : ''}.zip`
+  }
+
+  const downloadZip = async (options: { all?: boolean }) => {
+    const zipItems = options.all ? items : selectedItems
+
+    if (zipItems.length === 0) {
       setStatusMessage(t.gallery.chooseBeforeDownload)
       return
     }
 
-    for (const item of selectedItems) {
-      await handleDownload(
-        item.file_url,
-        getUploadShortFileName(item, {
-          eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
-          sequence: shareSequenceById[item.id],
-        })
+    const namesById = zipItems.reduce<Record<string, string>>((accumulator, item) => {
+      accumulator[item.id] = getUploadShortFileName(item, {
+        eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
+        sequence: shareSequenceById[item.id],
+      })
+      return accumulator
+    }, {})
+
+    try {
+      const response = await fetch('/api/gallery-download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          all: options.all === true,
+          eventIdentifier,
+          namesById,
+          uploadIds: options.all ? undefined : zipItems.map((item) => item.id),
+        }),
+      })
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null
+        throw new Error(payload?.error || t.gallery.loadError)
+      }
+
+      saveBlob(await response.blob(), getZipFileName(options.all !== true))
+
+      setStatusMessage(
+        options.all ? t.gallery.allDownloaded : `${zipItems.length} ${t.gallery.downloaded}`
+      )
+    } catch (error) {
+      console.error('ZIP download failed', error)
+      setStatusMessage(
+        error instanceof Error ? error.message : t.gallery.loadError
       )
     }
+  }
 
-    setStatusMessage(
-      selectedItems.length > 0
-        ? `${selectedItems.length} ${t.gallery.downloaded}`
-        : t.gallery.chooseBeforeDownload
-    )
+  const downloadSelected = async () => {
+    if (selectedItems.length === 0 || downloadingSelected) {
+      setStatusMessage(t.gallery.chooseBeforeDownload)
+      return
+    }
+
+    setDownloadingSelected(true)
+
+    try {
+      await downloadZip({ all: false })
+    } finally {
+      setDownloadingSelected(false)
+    }
   }
 
   const downloadAll = async () => {
@@ -250,17 +313,7 @@ export default function Page() {
     setStatusMessage(t.gallery.downloadingAll)
 
     try {
-      for (const item of items) {
-        await handleDownload(
-          item.file_url,
-          getUploadShortFileName(item, {
-            eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
-            sequence: shareSequenceById[item.id],
-          })
-        )
-      }
-
-      setStatusMessage(t.gallery.allDownloaded)
+      await downloadZip({ all: true })
     } finally {
       setDownloadingAll(false)
     }
@@ -377,14 +430,16 @@ export default function Page() {
             {downloadEnabled ? (
               <button
                 onClick={downloadSelected}
-                disabled={selected.length === 0}
+                disabled={selected.length === 0 || downloadingSelected}
                 className={`inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-semibold ${
-                  selected.length === 0
+                  selected.length === 0 || downloadingSelected
                     ? 'cursor-not-allowed bg-stone-300 text-stone-500'
                     : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
                 }`}
               >
-                {t.gallery.downloadSelected} ({selected.length}/{selectedLimit})
+                {downloadingSelected
+                  ? t.gallery.downloadingAll
+                  : `${t.gallery.downloadSelected} (${selected.length}/${selectedLimit})`}
               </button>
             ) : null}
 
@@ -461,32 +516,13 @@ export default function Page() {
                       className="aspect-square w-full object-cover"
                     />
 
-                    {deleteEnabled ? (
-                      <button
-                        onClick={() => toggleSelect(item.id)}
-                        aria-label={isSelected ? t.gallery.selected : t.gallery.select}
-                        title={isSelected ? t.gallery.selected : t.gallery.select}
-                        className={`absolute left-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur ${
-                          isSelected
-                            ? 'border-[#B52E2E] bg-[#B52E2E] text-white'
-                            : 'border-white/70 bg-white/92 text-[#0F3D66] hover:bg-white'
-                        }`}
-                      >
-                        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-                          <path d="M4 7h16" />
-                          <path d="M10 11v6" />
-                          <path d="M14 11v6" />
-                          <path d="M6 7l1 12h10l1-12" />
-                          <path d="M9 7V4h6v3" />
-                        </svg>
-                      </button>
-                    ) : downloadEnabled ? (
+                    {downloadEnabled || deleteEnabled ? (
                       <button
                         onClick={() => toggleSelect(item.id)}
                         aria-label={isSelected ? t.gallery.selected : t.gallery.select}
                         title={isSelected ? t.gallery.selected : t.gallery.select}
                         className={`absolute left-3 top-3 ${actionButtonClass} ${
-                          isSelected ? 'border-[#0F3D66] bg-[#0F3D66] text-white' : ''
+                          isSelected ? 'border-[#0F3D66] bg-[#0F3D66] text-white ring-2 ring-white/90' : ''
                         }`}
                       >
                         {isSelected ? (
