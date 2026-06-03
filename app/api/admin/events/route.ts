@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { hasAdminSession } from '@/lib/admin-auth'
 import { getStoragePathFromUpload, type UploadRecord } from '@/lib/eventdrop'
+import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { buildEventInsertPayload } from '@/lib/events'
+import { withRetry } from '@/lib/with-retry'
 
 export const runtime = 'nodejs'
 
@@ -28,11 +30,18 @@ export async function GET() {
 
   try {
     const supabase = createAdminSupabaseClient()
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50)
+    const { data, error } = await withRetry(
+      () =>
+        supabase
+          .from('events')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(50),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
 
     if (error) throw error
     const events = data || []
@@ -44,12 +53,19 @@ export async function GET() {
 
     if (eventIds.length > 0) {
       try {
-        const guestAccessQuery = await supabase
-          .from('guest_access_logs')
-          .select('event_id,email,created_at')
-          .in('event_id', eventIds)
-          .order('created_at', { ascending: false })
-          .limit(200)
+        const guestAccessQuery = await withRetry(
+          () =>
+            supabase
+              .from('guest_access_logs')
+              .select('event_id,email,created_at')
+              .in('event_id', eventIds)
+              .order('created_at', { ascending: false })
+              .limit(1000),
+          {
+            attempts: 3,
+            delayMs: 250,
+          }
+        )
 
         if (!guestAccessQuery.error) {
           guestAccessByEvent = ((guestAccessQuery.data || []) as Array<{
@@ -70,7 +86,7 @@ export async function GET() {
                 (entry) => entry.email.toLowerCase() === email.toLowerCase()
               )
 
-              if (alreadyListed || current.length >= 5) {
+              if (alreadyListed) {
                 return accumulator
               }
 
@@ -88,12 +104,17 @@ export async function GET() {
           )
         }
       } catch (guestAccessError) {
-        console.error('Failed to load guest access logs', guestAccessError)
+        logOperation('warn', 'admin-events', 'Failed to load guest access logs', {
+          error: guestAccessError instanceof Error ? guestAccessError.message : 'Unknown error',
+        })
       }
     }
 
     return NextResponse.json({ ok: true, events, guestAccessByEvent })
   } catch (error) {
+    logOperation('error', 'admin-events', 'Failed to load events', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
     return NextResponse.json(
       {
         ok: false,
@@ -159,7 +180,13 @@ export async function POST(request: Request) {
       allowGuestDelete,
     })
 
-    const richInsert = await supabase.from('events').insert([payload]).select('*').single()
+    const richInsert = await withRetry(
+      () => supabase.from('events').insert([payload]).select('*').single(),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
 
     let createdRecord = richInsert.data
 
@@ -177,20 +204,30 @@ export async function POST(request: Request) {
         expires_at: payload.expires_at,
       }
 
-      const fallbackInsert = await supabase
-        .from('events')
-        .insert([withoutAccessCode])
-        .select('*')
-        .single()
+      const fallbackInsert = await withRetry(
+        () =>
+          supabase.from('events').insert([withoutAccessCode]).select('*').single(),
+        {
+          attempts: 3,
+          delayMs: 250,
+        }
+      )
 
       if (!fallbackInsert.error) {
         createdRecord = fallbackInsert.data
       } else {
-        const minimalInsert = await supabase
-          .from('events')
-          .insert([{ name: `${name} - ${albumName}` }])
-          .select('*')
-          .single()
+        const minimalInsert = await withRetry(
+          () =>
+            supabase
+              .from('events')
+              .insert([{ name: `${name} - ${albumName}` }])
+              .select('*')
+              .single(),
+          {
+            attempts: 3,
+            delayMs: 250,
+          }
+        )
 
         if (minimalInsert.error) throw minimalInsert.error
         createdRecord = minimalInsert.data
@@ -199,6 +236,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, event: createdRecord })
   } catch (error) {
+    logOperation('error', 'admin-events', 'Failed to create event', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
     return NextResponse.json(
       {
         ok: false,
@@ -216,6 +256,8 @@ export async function PATCH(request: Request) {
   const body = (await request.json().catch(() => null)) as
     | {
         id?: string
+        name?: string
+        albumName?: string
         allowGuestShare?: boolean
         allowGuestDownload?: boolean
         allowGuestDelete?: boolean
@@ -236,16 +278,47 @@ export async function PATCH(request: Request) {
 
   try {
     const supabase = createAdminSupabaseClient()
-    const richUpdate = await supabase
-      .from('events')
-      .update({
-        allow_guest_share: body?.allowGuestShare !== false,
-        allow_guest_download: body?.allowGuestDownload !== false,
-        allow_guest_delete: body?.allowGuestDelete === true,
-      })
-      .eq('id', id)
-      .select('*')
-      .single()
+    const updatePayload: Record<string, string | boolean> = {
+      allow_guest_share: body?.allowGuestShare !== false,
+      allow_guest_download: body?.allowGuestDownload !== false,
+      allow_guest_delete: body?.allowGuestDelete === true,
+    }
+    const name = body?.name?.trim()
+    const albumName = body?.albumName?.trim()
+
+    if (name !== undefined) {
+      if (!name) {
+        return NextResponse.json(
+          { ok: false, error: 'Vul een evenementnaam in.' },
+          { status: 400 }
+        )
+      }
+      updatePayload.name = name
+    }
+
+    if (albumName !== undefined) {
+      if (!albumName) {
+        return NextResponse.json(
+          { ok: false, error: 'Vul een albumnaam in.' },
+          { status: 400 }
+        )
+      }
+      updatePayload.album_name = albumName
+    }
+
+    const richUpdate = await withRetry(
+      () =>
+        supabase
+          .from('events')
+          .update(updatePayload)
+          .eq('id', id)
+          .select('*')
+          .single(),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
 
     if (!richUpdate.error) {
       return NextResponse.json({ ok: true, event: richUpdate.data })
@@ -261,16 +334,22 @@ export async function PATCH(request: Request) {
       throw richUpdate.error
     }
 
-    const fallbackRecord = await supabase
-      .from('events')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const fallbackRecord = await withRetry(
+      () => supabase.from('events').select('*').eq('id', id).single(),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
 
     if (fallbackRecord.error) throw fallbackRecord.error
 
     return NextResponse.json({ ok: true, event: fallbackRecord.data, legacy: true })
   } catch (error) {
+    logOperation('error', 'admin-events', 'Failed to update event controls', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      eventId: id,
+    })
     return NextResponse.json(
       {
         ok: false,
@@ -300,10 +379,13 @@ export async function DELETE(request: Request) {
 
   try {
     const supabase = createAdminSupabaseClient()
-    const uploadsLookup = await supabase
-      .from('uploads')
-      .select('*')
-      .eq('event_id', id)
+    const uploadsLookup = await withRetry(
+      () => supabase.from('uploads').select('*').eq('event_id', id),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
 
     if (uploadsLookup.error) throw uploadsLookup.error
 
@@ -313,29 +395,46 @@ export async function DELETE(request: Request) {
       .filter((value): value is string => Boolean(value))
 
     if (storagePaths.length > 0) {
-      const { error: storageError } = await supabase.storage
-        .from('event-uploads')
-        .remove(storagePaths)
+      const { error: storageError } = await withRetry(
+        () => supabase.storage.from('event-uploads').remove(storagePaths),
+        {
+          attempts: 3,
+          delayMs: 250,
+        }
+      )
 
       if (storageError) throw storageError
     }
 
     if (uploads.length > 0) {
       const uploadIds = uploads.map((upload) => upload.id)
-      const { error: uploadsDeleteError } = await supabase
-        .from('uploads')
-        .delete()
-        .in('id', uploadIds)
+      const { error: uploadsDeleteError } = await withRetry(
+        () => supabase.from('uploads').delete().in('id', uploadIds),
+        {
+          attempts: 3,
+          delayMs: 250,
+        }
+      )
 
       if (uploadsDeleteError) throw uploadsDeleteError
     }
 
-    const { error } = await supabase.from('events').delete().eq('id', id)
+    const { error } = await withRetry(
+      () => supabase.from('events').delete().eq('id', id),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
 
     if (error) throw error
 
     return NextResponse.json({ ok: true })
   } catch (error) {
+    logOperation('error', 'admin-events', 'Failed to delete event', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      eventId: id,
+    })
     return NextResponse.json(
       {
         ok: false,
