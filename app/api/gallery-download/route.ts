@@ -104,6 +104,10 @@ export async function POST(request: Request) {
       return jsonError('Alleen de beheerder kan het volledige album downloaden.', 401)
     }
 
+    if (downloadAll && event.allowAlbumDownload === false) {
+      return jsonError('Het volledige album downloaden is voor dit album uitgeschakeld.', 403)
+    }
+
     if (!downloadAll && event.allowGuestDownload === false) {
       return jsonError('Downloaden is voor dit album uitgeschakeld.', 403)
     }

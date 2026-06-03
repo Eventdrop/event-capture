@@ -19,6 +19,7 @@ Onerilen alanlar:
 - `access_code` text null unique
 - `allow_guest_share` boolean not null default true
 - `allow_guest_download` boolean not null default true
+- `allow_album_download` boolean not null default true
 - `allow_guest_delete` boolean not null default false
 - `created_at` timestamptz not null default now()
 - `expires_at` timestamptz null
@@ -137,6 +138,7 @@ create table if not exists public.events (
   access_code text unique,
   allow_guest_share boolean not null default true,
   allow_guest_download boolean not null default true,
+  allow_album_download boolean not null default true,
   allow_guest_delete boolean not null default false,
   created_at timestamptz not null default now(),
   expires_at timestamptz

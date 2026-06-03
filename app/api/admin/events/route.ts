@@ -140,6 +140,7 @@ export async function POST(request: Request) {
       backgroundImageUrl?: string
       allowGuestShare?: boolean
       allowGuestDownload?: boolean
+      allowAlbumDownload?: boolean
       allowGuestDelete?: boolean
       }
     | null
@@ -153,6 +154,7 @@ export async function POST(request: Request) {
   const backgroundImageUrl = body?.backgroundImageUrl?.trim() || ''
   const allowGuestShare = body?.allowGuestShare !== false
   const allowGuestDownload = body?.allowGuestDownload !== false
+  const allowAlbumDownload = body?.allowAlbumDownload !== false
   const allowGuestDelete = body?.allowGuestDelete === true
 
   if (!name || !albumName) {
@@ -177,6 +179,7 @@ export async function POST(request: Request) {
       backgroundImageUrl,
       allowGuestShare,
       allowGuestDownload,
+      allowAlbumDownload,
       allowGuestDelete,
     })
 
@@ -260,6 +263,7 @@ export async function PATCH(request: Request) {
         albumName?: string
         allowGuestShare?: boolean
         allowGuestDownload?: boolean
+        allowAlbumDownload?: boolean
         allowGuestDelete?: boolean
       }
     | null
@@ -281,6 +285,7 @@ export async function PATCH(request: Request) {
     const updatePayload: Record<string, string | boolean> = {
       allow_guest_share: body?.allowGuestShare !== false,
       allow_guest_download: body?.allowGuestDownload !== false,
+      allow_album_download: body?.allowAlbumDownload !== false,
       allow_guest_delete: body?.allowGuestDelete === true,
     }
     const name = body?.name?.trim()

@@ -11,6 +11,7 @@ type EventRecordLike = {
   event_date?: string | null
   allow_guest_share?: boolean | null
   allow_guest_download?: boolean | null
+  allow_album_download?: boolean | null
   allow_guest_delete?: boolean | null
   created_at?: string | null
   expires_at?: string | null
@@ -27,6 +28,7 @@ export type NormalizedEvent = {
   eventDate: string | null
   allowGuestShare: boolean
   allowGuestDownload: boolean
+  allowAlbumDownload: boolean
   allowGuestDelete: boolean
   createdAt: string | null
   expiresAt: string | null
@@ -124,6 +126,7 @@ export function buildEventInsertPayload(input: {
   backgroundImageUrl?: string
   allowGuestShare?: boolean
   allowGuestDownload?: boolean
+  allowAlbumDownload?: boolean
   allowGuestDelete?: boolean
 }) {
   const accessCode = input.accessCodeEnabled === false
@@ -140,6 +143,7 @@ export function buildEventInsertPayload(input: {
     event_date: input.eventDate || null,
     allow_guest_share: input.allowGuestShare !== false,
     allow_guest_download: input.allowGuestDownload !== false,
+    allow_album_download: input.allowAlbumDownload !== false,
     allow_guest_delete: input.allowGuestDelete === true,
     expires_at: null,
   }
@@ -161,6 +165,7 @@ export function normalizeEventRecord(
     eventDate: record.event_date || null,
     allowGuestShare: record.allow_guest_share !== false,
     allowGuestDownload: record.allow_guest_download !== false,
+    allowAlbumDownload: record.allow_album_download !== false,
     allowGuestDelete: record.allow_guest_delete === true,
     createdAt: record.created_at || null,
     expiresAt: record.expires_at || null,

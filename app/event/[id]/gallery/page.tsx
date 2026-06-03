@@ -180,6 +180,7 @@ export default function Page() {
   const selectedLimit = 100
   const shareEnabled = currentEvent?.allowGuestShare !== false
   const downloadEnabled = currentEvent?.allowGuestDownload !== false
+  const albumDownloadEnabled = currentEvent?.allowAlbumDownload !== false
   const deleteEnabled = currentEvent?.allowGuestDelete === true
   const downloadInProgress = downloadingSelected || downloadingAll
 
@@ -523,7 +524,7 @@ export default function Page() {
                   : `${t.gallery.deleteSelected} (${selected.length})`}
               </button>
             ) : null}
-            {adminAuthenticated ? (
+            {adminAuthenticated && albumDownloadEnabled ? (
               <>
                 <button
                   onClick={downloadAll}

@@ -52,6 +52,7 @@ export default function AdminPage() {
   const [accessCodeEnabled, setAccessCodeEnabled] = useState(false)
   const [allowGuestShare, setAllowGuestShare] = useState(true)
   const [allowGuestDownload, setAllowGuestDownload] = useState(true)
+  const [allowAlbumDownload, setAllowAlbumDownload] = useState(true)
   const [allowGuestDelete, setAllowGuestDelete] = useState(false)
   const [accessCode, setAccessCode] = useState(() => generateEventAccessCode())
   const [coverImageUrl, setCoverImageUrl] = useState('')
@@ -72,6 +73,7 @@ export default function AdminPage() {
       {
         allowGuestShare: boolean
         allowGuestDownload: boolean
+        allowAlbumDownload: boolean
         allowGuestDelete: boolean
       }
     >
@@ -137,6 +139,7 @@ export default function AdminPage() {
           {
             allowGuestShare: boolean
             allowGuestDownload: boolean
+            allowAlbumDownload: boolean
             allowGuestDelete: boolean
           }
         >
@@ -144,6 +147,7 @@ export default function AdminPage() {
         accumulator[event.id] = {
           allowGuestShare: event.allowGuestShare,
           allowGuestDownload: event.allowGuestDownload,
+          allowAlbumDownload: event.allowAlbumDownload,
           allowGuestDelete: event.allowGuestDelete,
         }
 
@@ -335,6 +339,7 @@ export default function AdminPage() {
         backgroundImageUrl: persistedBackgroundImageUrl,
         allowGuestShare,
         allowGuestDownload,
+        allowAlbumDownload,
         allowGuestDelete,
       })
 
@@ -353,6 +358,7 @@ export default function AdminPage() {
           backgroundImageUrl: payload.background_image_url,
           allowGuestShare: payload.allow_guest_share,
           allowGuestDownload: payload.allow_guest_download,
+          allowAlbumDownload: payload.allow_album_download,
           allowGuestDelete: payload.allow_guest_delete,
         }),
       })
@@ -406,6 +412,7 @@ export default function AdminPage() {
           [nextEvent.id]: {
             allowGuestShare: nextEvent.allowGuestShare,
             allowGuestDownload: nextEvent.allowGuestDownload,
+            allowAlbumDownload: nextEvent.allowAlbumDownload,
             allowGuestDelete: nextEvent.allowGuestDelete,
           },
         }))
@@ -417,6 +424,7 @@ export default function AdminPage() {
       setAccessCodeEnabled(false)
       setAllowGuestShare(true)
       setAllowGuestDownload(true)
+      setAllowAlbumDownload(true)
       setAllowGuestDelete(false)
       setAccessCode(generateEventAccessCode())
       setCoverImageFile(null)
@@ -581,6 +589,8 @@ export default function AdminPage() {
           allowGuestShare: eventControlsById[event.id]?.allowGuestShare ?? event.allowGuestShare,
           allowGuestDownload:
             eventControlsById[event.id]?.allowGuestDownload ?? event.allowGuestDownload,
+          allowAlbumDownload:
+            eventControlsById[event.id]?.allowAlbumDownload ?? event.allowAlbumDownload,
           allowGuestDelete:
             eventControlsById[event.id]?.allowGuestDelete ?? event.allowGuestDelete,
         }),
@@ -614,6 +624,7 @@ export default function AdminPage() {
           [event.id]: {
             allowGuestShare: normalized.allowGuestShare,
             allowGuestDownload: normalized.allowGuestDownload,
+            allowAlbumDownload: normalized.allowAlbumDownload,
             allowGuestDelete: normalized.allowGuestDelete,
           },
         }))
@@ -665,7 +676,7 @@ export default function AdminPage() {
 
   const handleEventControlChange = (
     eventId: string,
-    key: 'allowGuestShare' | 'allowGuestDownload' | 'allowGuestDelete',
+    key: 'allowGuestShare' | 'allowGuestDownload' | 'allowAlbumDownload' | 'allowGuestDelete',
     value: boolean
   ) => {
     setEventControlsById((prev) => ({
@@ -673,6 +684,7 @@ export default function AdminPage() {
       [eventId]: {
         allowGuestShare: prev[eventId]?.allowGuestShare ?? true,
         allowGuestDownload: prev[eventId]?.allowGuestDownload ?? true,
+        allowAlbumDownload: prev[eventId]?.allowAlbumDownload ?? true,
         allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
         [key]: value,
       },
@@ -696,6 +708,7 @@ export default function AdminPage() {
           id: eventId,
           allowGuestShare: currentSettings.allowGuestShare,
           allowGuestDownload: currentSettings.allowGuestDownload,
+          allowAlbumDownload: currentSettings.allowAlbumDownload,
           allowGuestDelete: currentSettings.allowGuestDelete,
         }),
       })
@@ -719,6 +732,7 @@ export default function AdminPage() {
           [eventId]: {
             allowGuestShare: normalized.allowGuestShare,
             allowGuestDownload: normalized.allowGuestDownload,
+            allowAlbumDownload: normalized.allowAlbumDownload,
             allowGuestDelete: normalized.allowGuestDelete,
           },
         }))
@@ -1043,7 +1057,7 @@ export default function AdminPage() {
                       {t.admin.publicTools}
                     </p>
 
-                    <div className="mt-3 grid gap-3 md:grid-cols-3">
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
                       <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
                         <span className="text-sm text-[#EAF3FB]">{t.admin.shareEnabled}</span>
                         <button
@@ -1067,6 +1081,19 @@ export default function AdminPage() {
                           }`}
                         >
                           {allowGuestDownload ? t.admin.toggleOn : t.admin.toggleOff}
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
+                        <span className="text-sm text-[#EAF3FB]">{t.admin.albumDownloadEnabled}</span>
+                        <button
+                          type="button"
+                          onClick={() => setAllowAlbumDownload((current) => !current)}
+                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
+                            allowAlbumDownload ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
+                          }`}
+                        >
+                          {allowAlbumDownload ? t.admin.toggleOn : t.admin.toggleOff}
                         </button>
                       </div>
 
@@ -1354,6 +1381,7 @@ export default function AdminPage() {
                       {([
                         ['allowGuestShare', t.admin.shareEnabled],
                         ['allowGuestDownload', t.admin.downloadEnabled],
+                        ['allowAlbumDownload', t.admin.albumDownloadEnabled],
                         ['allowGuestDelete', t.admin.deleteEnabled],
                       ] as const).map(([key, label]) => (
                         <div

@@ -151,6 +151,7 @@ type TranslationTree = {
     publicTools: string
     shareEnabled: string
     downloadEnabled: string
+    albumDownloadEnabled: string
     deleteEnabled: string
     saveVisibility: string
     visibilitySaved: string
@@ -463,6 +464,7 @@ export const translations: Record<Locale, TranslationTree> = {
       publicTools: 'Konuk aksiyonlari',
       shareEnabled: 'Paylasimi ac',
       downloadEnabled: 'Indirmeyi ac',
+      albumDownloadEnabled: 'Tum album indirmeyi ac',
       deleteEnabled: 'Silmeyi ac',
       saveVisibility: 'Aksiyon ayarlarini kaydet',
       visibilitySaved: 'Etkinlik aksiyon ayarlari guncellendi.',
@@ -853,6 +855,7 @@ export const translations: Record<Locale, TranslationTree> = {
       publicTools: 'Gastacties',
       shareEnabled: 'Delen toestaan',
       downloadEnabled: 'Download toestaan',
+      albumDownloadEnabled: 'Hele album downloaden toestaan',
       deleteEnabled: 'Verwijderen toestaan',
       saveVisibility: 'Instellingen opslaan',
       visibilitySaved: 'Actie-instellingen voor dit evenement zijn bijgewerkt.',
@@ -1243,6 +1246,7 @@ export const translations: Record<Locale, TranslationTree> = {
       publicTools: 'Guest actions',
       shareEnabled: 'Enable sharing',
       downloadEnabled: 'Enable downloads',
+      albumDownloadEnabled: 'Enable full album download',
       deleteEnabled: 'Enable deletion',
       saveVisibility: 'Save action settings',
       visibilitySaved: 'Event action settings were updated.',

@@ -27,6 +27,9 @@ alter table public.events
   add column if not exists allow_guest_download boolean not null default true;
 
 alter table public.events
+  add column if not exists allow_album_download boolean not null default true;
+
+alter table public.events
   add column if not exists allow_guest_delete boolean not null default false;
 
 alter table public.uploads
