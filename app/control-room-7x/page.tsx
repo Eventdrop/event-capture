@@ -445,6 +445,20 @@ export default function AdminPage() {
     }
   }
 
+  const copyGuestEmails = (eventId: string) => {
+    const emails = (guestAccessByEvent[eventId] || [])
+      .map((entry) => entry.email)
+      .filter(Boolean)
+      .join('\n')
+
+    if (!emails) {
+      setStatusMessage(t.admin.noGuestEmails)
+      return
+    }
+
+    void copyToClipboard(emails, t.admin.guestEmailsCopied)
+  }
+
   const uploadVisualForEvent = useCallback(
     async (eventId: string, file: File, kind: 'cover' | 'background') => {
       setUploadingVisual(kind)
@@ -1399,28 +1413,52 @@ export default function AdminPage() {
                   </p>
 
                   <div className="mt-4 rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
-                      {t.admin.guestEmails}
-                    </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
+                          {t.admin.guestEmails}
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-[#0B2742]">
+                          {t.admin.guestEmailSummary.replace(
+                            '{count}',
+                            String(guestAccessByEvent[event.id]?.length || 0)
+                          )}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => copyGuestEmails(event.id)}
+                        disabled={!guestAccessByEvent[event.id]?.length}
+                        className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {t.admin.copyGuestEmails}
+                      </button>
+                    </div>
 
                     {guestAccessByEvent[event.id]?.length ? (
-                      <div className="mt-3 space-y-2">
-                        {guestAccessByEvent[event.id].map((entry) => (
-                          <div
-                            key={`${event.id}-${entry.email}`}
-                            className="flex flex-col gap-1 rounded-xl bg-[#F7FAFD] px-3 py-2 text-sm text-[#33516F]"
-                          >
-                            <span className="font-medium text-[#0B2742]">
-                              {entry.email}
-                            </span>
-                            <span className="text-xs text-[#6A84A3]">
-                              {entry.created_at
-                                ? new Date(entry.created_at).toLocaleString()
-                                : t.admin.guestEmailTimeUnknown}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                      <details className="mt-3 rounded-2xl bg-[#F7FAFD] px-3 py-2">
+                        <summary className="cursor-pointer text-sm font-semibold text-[#0F3D66]">
+                          {t.admin.showGuestEmails}
+                        </summary>
+                        <div className="mt-3 max-h-56 space-y-2 overflow-auto pr-1">
+                          {guestAccessByEvent[event.id].map((entry) => (
+                            <div
+                              key={`${event.id}-${entry.email}`}
+                              className="flex flex-col gap-1 rounded-xl bg-white px-3 py-2 text-sm text-[#33516F]"
+                            >
+                              <span className="font-medium text-[#0B2742]">
+                                {entry.email}
+                              </span>
+                              <span className="text-xs text-[#6A84A3]">
+                                {entry.created_at
+                                  ? new Date(entry.created_at).toLocaleString()
+                                  : t.admin.guestEmailTimeUnknown}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
                     ) : (
                       <p className="mt-3 text-sm text-[#597594]">
                         {t.admin.noGuestEmails}

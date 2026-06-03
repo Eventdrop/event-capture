@@ -30,6 +30,7 @@ export default function Page() {
   const [deletingSelected, setDeletingSelected] = useState(false)
   const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
+  const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
   const [adminAuthenticated, setAdminAuthenticated] = useState(false)
 
   useEffect(() => {
@@ -180,6 +181,7 @@ export default function Page() {
   const shareEnabled = currentEvent?.allowGuestShare !== false
   const downloadEnabled = currentEvent?.allowGuestDownload !== false
   const deleteEnabled = currentEvent?.allowGuestDelete === true
+  const downloadInProgress = downloadingSelected || downloadingAll
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -227,9 +229,11 @@ export default function Page() {
 
     anchor.href = blobUrl
     anchor.download = filename
+    document.body.appendChild(anchor)
     anchor.click()
+    anchor.remove()
 
-    window.URL.revokeObjectURL(blobUrl)
+    window.setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000)
   }
 
   const getZipFileName = (selectedOnly: boolean) => {
@@ -438,6 +442,12 @@ export default function Page() {
   const eventCoverStyle = currentEvent?.coverImageUrl
     ? { backgroundImage: `url(${currentEvent.coverImageUrl})` }
     : undefined
+  const previewDownloadName = previewItem
+    ? getUploadShortFileName(previewItem, {
+        eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
+        sequence: shareSequenceById[previewItem.id],
+      })
+    : ''
 
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#f0ebe2_55%,_#edf4fb_100%)] text-stone-900">
@@ -448,6 +458,25 @@ export default function Page() {
         style={eventBackgroundStyle}
       >
         <div className="mx-auto max-w-6xl">
+        {downloadInProgress ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mb-4 flex items-center gap-3 rounded-2xl border border-[#F9C58E] bg-[#FFF4E8] px-4 py-3 text-sm font-semibold text-[#8A4A07] shadow-[0_12px_30px_rgba(61,44,22,0.12)]"
+          >
+            <span className="h-3 w-3 animate-pulse rounded-full bg-[#F58220]" />
+            {downloadingAll ? t.gallery.downloadingAll : t.gallery.downloadingSelected}
+          </div>
+        ) : statusMessage ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mb-4 rounded-2xl border border-white/30 bg-white/85 px-4 py-3 text-sm font-semibold text-[#33516F] shadow-[0_12px_30px_rgba(15,33,53,0.1)] backdrop-blur"
+          >
+            {statusMessage}
+          </div>
+        ) : null}
+
         <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0 flex-1">
             <div
@@ -457,7 +486,9 @@ export default function Page() {
             <h1 className="mt-3 text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
               {eventName}
             </h1>
-            <p className="mt-1 text-sm text-[#597594]">{statusMessage}</p>
+            <p className="mt-1 text-sm text-[#597594]">
+              {downloadInProgress ? t.gallery.downloadPreparing : statusMessage}
+            </p>
           </div>
 
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-2 xl:flex xl:flex-row">
@@ -472,7 +503,7 @@ export default function Page() {
                 }`}
               >
                 {downloadingSelected
-                  ? t.gallery.downloadingAll
+                  ? t.gallery.downloadingSelected
                   : `${t.gallery.downloadSelected} (${selected.length}/${selectedLimit})`}
               </button>
             ) : null}
@@ -549,13 +580,21 @@ export default function Page() {
                       unoptimized
                       className="aspect-square w-full object-cover"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setPreviewItem(item)}
+                      aria-label={t.gallery.openPreview}
+                      title={t.gallery.openPreview}
+                      className="absolute inset-0 z-10"
+                    />
 
                     {downloadEnabled || deleteEnabled ? (
                       <button
+                        type="button"
                         onClick={() => toggleSelect(item.id)}
                         aria-label={isSelected ? t.gallery.selected : t.gallery.select}
                         title={isSelected ? t.gallery.selected : t.gallery.select}
-                        className={`absolute left-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur ${
+                        className={`absolute left-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur ${
                           isSelected
                             ? 'border-white bg-[#0F3D66] text-white ring-2 ring-[#0F3D66]/30'
                             : 'border-white bg-white/95 text-[#0F3D66] hover:bg-white'
@@ -575,11 +614,12 @@ export default function Page() {
 
                     {deleteEnabled ? (
                       <button
+                        type="button"
                         onClick={() => deleteSingle(item)}
                         disabled={deletingSelected}
                         aria-label={t.gallery.delete}
                         title={t.gallery.delete}
-                        className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-[#B52E2E] text-white shadow-[0_8px_20px_rgba(181,46,46,0.25)] backdrop-blur hover:bg-[#982525] disabled:cursor-not-allowed disabled:bg-stone-300"
+                        className="absolute right-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-[#B52E2E] text-white shadow-[0_8px_20px_rgba(181,46,46,0.25)] backdrop-blur hover:bg-[#982525] disabled:cursor-not-allowed disabled:bg-stone-300"
                       >
                         <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
                           <path d="M4 7h16" />
@@ -591,10 +631,11 @@ export default function Page() {
                       </button>
                     ) : null}
 
-                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3">
+                    <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
                         {shareEnabled ? (
                           <button
+                            type="button"
                             onClick={() => handleShare(item)}
                             aria-label={t.gallery.share}
                             title={t.gallery.share}
@@ -610,6 +651,7 @@ export default function Page() {
 
                         {downloadEnabled ? (
                           <button
+                            type="button"
                             onClick={() => handleDownload(item.file_url, downloadName)}
                             aria-label={t.gallery.download}
                             title={t.gallery.download}
@@ -638,6 +680,68 @@ export default function Page() {
         )}
         </div>
       </main>
+
+      {previewItem ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          onClick={() => setPreviewItem(null)}
+        >
+          <div
+            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[1.5rem] bg-stone-950 shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setPreviewItem(null)}
+              aria-label={t.gallery.closePreview}
+              title={t.gallery.closePreview}
+              className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-stone-950 shadow-lg hover:bg-stone-100"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
+                <path d="M6 6l12 12" />
+                <path d="M18 6 6 18" />
+              </svg>
+            </button>
+
+            <div className="flex min-h-0 flex-1 items-center justify-center bg-black">
+              <Image
+                src={previewItem.file_url}
+                alt={previewDownloadName}
+                width={1600}
+                height={1600}
+                unoptimized
+                className="max-h-[76vh] w-auto max-w-full object-contain"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="truncate text-sm font-semibold text-stone-900">
+                {previewDownloadName}
+              </p>
+              <div className="flex gap-2">
+                {shareEnabled ? (
+                  <button
+                    type="button"
+                    onClick={() => handleShare(previewItem)}
+                    className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                  >
+                    {t.gallery.share}
+                  </button>
+                ) : null}
+                {downloadEnabled ? (
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(previewItem.file_url, previewDownloadName)}
+                    className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#F58220] px-4 text-sm font-semibold text-white hover:bg-[#DB6E12]"
+                  >
+                    {t.gallery.download}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <SiteFooter />
     </div>

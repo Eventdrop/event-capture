@@ -142,6 +142,10 @@ type TranslationTree = {
     codeCopied: string
     emailOnlyEntry: string
     guestEmails: string
+    guestEmailSummary: string
+    copyGuestEmails: string
+    guestEmailsCopied: string
+    showGuestEmails: string
     noGuestEmails: string
     guestEmailTimeUnknown: string
     publicTools: string
@@ -209,11 +213,15 @@ type TranslationTree = {
     notFound: string
     downloadAll: string
     downloadingAll: string
+    downloadingSelected: string
+    downloadPreparing: string
     allDownloaded: string
     downloadSelected: string
     backToUpload: string
     selected: string
     select: string
+    openPreview: string
+    closePreview: string
     delete: string
     deleting: string
     deleteSelected: string
@@ -446,6 +454,10 @@ export const translations: Record<Locale, TranslationTree> = {
       codeCopied: 'Event code panoya kopyalandi.',
       emailOnlyEntry: 'Yalnizca e-posta ile giris',
       guestEmails: 'Girilen e-posta adresleri',
+      guestEmailSummary: '{count} farkli e-posta kaydi',
+      copyGuestEmails: 'E-postalari kopyala',
+      guestEmailsCopied: 'E-posta adresleri kopyalandi.',
+      showGuestEmails: 'Listeyi ac',
       noGuestEmails: 'Bu etkinlik icin henuz e-posta kaydi yok.',
       guestEmailTimeUnknown: 'Giris zamani bilinmiyor',
       publicTools: 'Konuk aksiyonlari',
@@ -521,12 +533,16 @@ export const translations: Record<Locale, TranslationTree> = {
       loadError: 'Galeri su anda yuklenemedi.',
       notFound: 'Bu etkinlik galerisi bulunamadi.',
       downloadAll: 'Tum albumu indir',
-      downloadingAll: 'Tum album indiriliyor...',
-      allDownloaded: 'Albumdeki tum fotograflar indirildi.',
+      downloadingAll: 'Tum album hazirlaniyor...',
+      downloadingSelected: 'Secilen fotograflar hazirlaniyor...',
+      downloadPreparing: 'ZIP dosyasi hazirlaniyor, lutfen bekle.',
+      allDownloaded: 'Album indirme islemi baslatildi.',
       downloadSelected: 'Secilenleri indir',
       backToUpload: 'Yuklemeye don',
       selected: 'Secildi',
       select: 'Sec',
+      openPreview: 'Fotografi buyut',
+      closePreview: 'Kapat',
       delete: 'Sil',
       deleting: 'Siliniyor...',
       deleteSelected: 'Secilenleri sil',
@@ -828,6 +844,10 @@ export const translations: Record<Locale, TranslationTree> = {
       codeCopied: 'De eventcode is naar het klembord gekopieerd.',
       emailOnlyEntry: 'Alleen toegang met e-mail',
       guestEmails: 'Ingevoerde e-mailadressen',
+      guestEmailSummary: '{count} unieke e-mailregistraties',
+      copyGuestEmails: 'E-mails kopiëren',
+      guestEmailsCopied: 'E-mailadressen gekopieerd.',
+      showGuestEmails: 'Lijst openen',
       noGuestEmails: 'Er zijn nog geen e-mailregistraties voor dit evenement.',
       guestEmailTimeUnknown: 'Moment onbekend',
       publicTools: 'Gastacties',
@@ -903,12 +923,16 @@ export const translations: Record<Locale, TranslationTree> = {
       loadError: 'De galerij kon op dit moment niet worden geladen.',
       notFound: 'Deze galerij is niet gevonden.',
       downloadAll: 'Hele album downloaden',
-      downloadingAll: 'Het hele album wordt gedownload...',
-      allDownloaded: 'Alle foto’s uit het album zijn gedownload.',
+      downloadingAll: 'Het hele album wordt voorbereid...',
+      downloadingSelected: 'De geselecteerde foto’s worden voorbereid...',
+      downloadPreparing: 'Het ZIP-bestand wordt voorbereid, even geduld.',
+      allDownloaded: 'Het downloaden van het album is gestart.',
       downloadSelected: 'Geselecteerde items downloaden',
       backToUpload: 'Terug naar upload',
       selected: 'Geselecteerd',
       select: 'Selecteren',
+      openPreview: 'Foto vergroten',
+      closePreview: 'Sluiten',
       delete: 'Verwijderen',
       deleting: 'Bezig met verwijderen...',
       deleteSelected: 'Geselecteerde items verwijderen',
@@ -1210,6 +1234,10 @@ export const translations: Record<Locale, TranslationTree> = {
       codeCopied: 'Event code copied to clipboard.',
       emailOnlyEntry: 'Email-only access',
       guestEmails: 'Entered email addresses',
+      guestEmailSummary: '{count} unique email entries',
+      copyGuestEmails: 'Copy emails',
+      guestEmailsCopied: 'Email addresses copied.',
+      showGuestEmails: 'Open list',
       noGuestEmails: 'No email entries have been recorded for this event yet.',
       guestEmailTimeUnknown: 'Entry time unavailable',
       publicTools: 'Guest actions',
@@ -1285,12 +1313,16 @@ export const translations: Record<Locale, TranslationTree> = {
       loadError: 'The gallery could not be loaded right now.',
       notFound: 'This event gallery could not be found.',
       downloadAll: 'Download full album',
-      downloadingAll: 'Downloading the full album...',
-      allDownloaded: 'All photos in the album have been downloaded.',
+      downloadingAll: 'Preparing the full album...',
+      downloadingSelected: 'Preparing the selected photos...',
+      downloadPreparing: 'Preparing the ZIP file, please wait.',
+      allDownloaded: 'The album download has started.',
       downloadSelected: 'Download selected',
       backToUpload: 'Back to upload',
       selected: 'Selected',
       select: 'Select',
+      openPreview: 'Open photo preview',
+      closePreview: 'Close',
       delete: 'Delete',
       deleting: 'Deleting...',
       deleteSelected: 'Delete selected',
