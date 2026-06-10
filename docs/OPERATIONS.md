@@ -25,7 +25,8 @@ npm run health
 ```
 
 Bu komut ana sayfayi, admin giris sayfasini ve cleanup endpoint'inin disariya
-kapali oldugunu kontrol eder.
+kapali oldugunu, ayrica `/api/health` uzerinden env ve Supabase baglantisini
+kontrol eder.
 
 ## Monitoring Setup
 

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export const runtime = 'nodejs'
@@ -90,6 +91,10 @@ export async function GET(request: Request) {
         : '',
     })
   } catch (error) {
+    logOperation('error', 'public-branding', 'Failed to resolve event branding', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      identifier,
+    })
     return NextResponse.json(
       {
         ok: false,

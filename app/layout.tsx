@@ -1,21 +1,8 @@
 import type { Metadata } from 'next'
-import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google'
 import { LanguageProvider } from '@/app/_components/language-provider'
 import { getPublicAppUrl } from '@/lib/app-url'
 import { brand } from '@/lib/brand'
 import './globals.css'
-
-const ibmPlexSans = IBM_Plex_Sans({
-  subsets: ['latin'],
-  variable: '--font-ibm-plex-sans',
-  weight: ['400', '500', '600', '700'],
-})
-
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ['latin'],
-  variable: '--font-ibm-plex-mono',
-  weight: ['400', '500'],
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL(getPublicAppUrl()),
@@ -25,7 +12,7 @@ export const metadata: Metadata = {
     template: `%s | ${brand.name}`,
   },
   description:
-    'Photobooth Holland helpt gasten om foto’s en video’s via een QR code te delen in één gedeeld eventalbum. Geschikt voor bruiloften, bedrijfsfeesten, verjaardagen en 360 photobooth activaties.',
+    'Photobooth Holland helpt gasten om foto’s via een QR code te delen in één gedeeld eventalbum. Geschikt voor bruiloften, bedrijfsfeesten, verjaardagen en 360 photobooth activaties.',
   keywords: [
     'photobooth holland',
     'photobooth',
@@ -47,13 +34,13 @@ export const metadata: Metadata = {
     locale: 'nl_NL',
     title: 'Photobooth Holland | QR photobooth en gedeeld eventalbum',
     description:
-      'Laat gasten foto’s en video’s uploaden via QR code en verzamel alles van je evenement in één overzichtelijk album.',
+      'Laat gasten foto’s uploaden via QR code en verzamel alles van je evenement in één overzichtelijk album.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Photobooth Holland | QR photobooth en gedeeld eventalbum',
     description:
-      'Een eenvoudige manier om foto’s en video’s van je evenement op één plek te verzamelen.',
+      'Een eenvoudige manier om foto’s van je evenement op één plek te verzamelen.',
   },
   robots: {
     index: true,
@@ -85,10 +72,7 @@ export default function RootLayout({
   }
 
   return (
-    <html
-      lang="nl"
-      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
-    >
+    <html lang="nl" className="h-full antialiased">
       <body className="min-h-full bg-stone-50 text-stone-900">
         <script
           type="application/ld+json"

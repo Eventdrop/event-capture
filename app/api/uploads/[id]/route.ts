@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getStoragePathFromUpload } from '@/lib/eventdrop'
+import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export const runtime = 'nodejs'
@@ -58,6 +59,10 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true })
   } catch (error) {
+    logOperation('error', 'uploads-delete', 'Failed to delete upload', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      uploadId: id,
+    })
     return NextResponse.json(
       {
         ok: false,

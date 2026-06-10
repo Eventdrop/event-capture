@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export const runtime = 'nodejs'
@@ -20,6 +21,9 @@ export async function GET() {
       event: data || null,
     })
   } catch (error) {
+    logOperation('error', 'public-latest', 'Failed to load latest event', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
     return NextResponse.json(
       {
         ok: false,

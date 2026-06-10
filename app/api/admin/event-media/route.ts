@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { hasAdminSession } from '@/lib/admin-auth'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { buildStoragePath } from '@/lib/eventdrop'
+import { withRetry } from '@/lib/with-retry'
 
 export const runtime = 'nodejs'
 
@@ -43,11 +44,18 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(await file.arrayBuffer())
     const supabase = createAdminSupabaseClient()
 
-    const { error } = await supabase.storage.from(BUCKET_NAME).upload(storagePath, buffer, {
-      cacheControl: '3600',
-      upsert: false,
-      contentType: file.type || undefined,
-    })
+    const { error } = await withRetry(
+      () =>
+        supabase.storage.from(BUCKET_NAME).upload(storagePath, buffer, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type || undefined,
+        }),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
 
     if (error) {
       throw error

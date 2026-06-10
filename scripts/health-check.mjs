@@ -11,6 +11,11 @@ const checks = [
     expectedStatuses: [200],
   },
   {
+    name: 'Operational health',
+    path: '/api/health',
+    expectedStatuses: [200],
+  },
+  {
     name: 'Admin login page',
     path: '/control-room-7x',
     expectedStatuses: [200],
