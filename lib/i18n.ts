@@ -224,6 +224,8 @@ type TranslationTree = {
     select: string
     openPreview: string
     closePreview: string
+    previousPhoto: string
+    nextPhoto: string
     delete: string
     deleting: string
     deleteSelected: string
@@ -547,6 +549,8 @@ export const translations: Record<Locale, TranslationTree> = {
       select: 'Sec',
       openPreview: 'Fotografi buyut',
       closePreview: 'Kapat',
+      previousPhoto: 'Onceki fotograf',
+      nextPhoto: 'Sonraki fotograf',
       delete: 'Sil',
       deleting: 'Siliniyor...',
       deleteSelected: 'Secilenleri sil',
@@ -939,6 +943,8 @@ export const translations: Record<Locale, TranslationTree> = {
       select: 'Selecteren',
       openPreview: 'Foto vergroten',
       closePreview: 'Sluiten',
+      previousPhoto: 'Vorige foto',
+      nextPhoto: 'Volgende foto',
       delete: 'Verwijderen',
       deleting: 'Bezig met verwijderen...',
       deleteSelected: 'Geselecteerde items verwijderen',
@@ -1331,6 +1337,8 @@ export const translations: Record<Locale, TranslationTree> = {
       select: 'Select',
       openPreview: 'Open photo preview',
       closePreview: 'Close',
+      previousPhoto: 'Previous photo',
+      nextPhoto: 'Next photo',
       delete: 'Delete',
       deleting: 'Deleting...',
       deleteSelected: 'Delete selected',

@@ -430,6 +430,34 @@ export default function Page() {
         sequence: shareSequenceById[previewItem.id],
       })
     : ''
+  const previewIndex = previewItem
+    ? items.findIndex((item) => item.id === previewItem.id)
+    : -1
+  const previousPreviewItem = previewIndex > 0 ? items[previewIndex - 1] : null
+  const nextPreviewItem =
+    previewIndex >= 0 && previewIndex < items.length - 1 ? items[previewIndex + 1] : null
+
+  useEffect(() => {
+    if (!previewItem) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setPreviewItem(null)
+        return
+      }
+
+      if (event.key === 'ArrowLeft' && previousPreviewItem) {
+        setPreviewItem(previousPreviewItem)
+      }
+
+      if (event.key === 'ArrowRight' && nextPreviewItem) {
+        setPreviewItem(nextPreviewItem)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [nextPreviewItem, previousPreviewItem, previewItem])
 
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#f0ebe2_55%,_#edf4fb_100%)] text-stone-900">
@@ -670,6 +698,34 @@ export default function Page() {
               </svg>
             </button>
 
+            {previousPreviewItem ? (
+              <button
+                type="button"
+                onClick={() => setPreviewItem(previousPreviewItem)}
+                aria-label={t.gallery.previousPhoto}
+                title={t.gallery.previousPhoto}
+                className="absolute left-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/92 text-stone-950 shadow-lg backdrop-blur hover:bg-white"
+              >
+                <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current stroke-2">
+                  <path d="m15 6-6 6 6 6" />
+                </svg>
+              </button>
+            ) : null}
+
+            {nextPreviewItem ? (
+              <button
+                type="button"
+                onClick={() => setPreviewItem(nextPreviewItem)}
+                aria-label={t.gallery.nextPhoto}
+                title={t.gallery.nextPhoto}
+                className="absolute right-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/92 text-stone-950 shadow-lg backdrop-blur hover:bg-white"
+              >
+                <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current stroke-2">
+                  <path d="m9 6 6 6-6 6" />
+                </svg>
+              </button>
+            ) : null}
+
             <div className="flex min-h-0 flex-1 items-center justify-center bg-black">
               <Image
                 src={previewItem.file_url}
@@ -682,9 +738,16 @@ export default function Page() {
             </div>
 
             <div className="flex flex-col gap-3 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="truncate text-sm font-semibold text-stone-900">
-                {previewDownloadName}
-              </p>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-stone-900">
+                  {previewDownloadName}
+                </p>
+                {previewIndex >= 0 ? (
+                  <p className="mt-1 text-xs font-semibold text-[#597594]">
+                    {previewIndex + 1} / {items.length}
+                  </p>
+                ) : null}
+              </div>
               <div className="flex gap-2">
                 {shareEnabled ? (
                   <button
