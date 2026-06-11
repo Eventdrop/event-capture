@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { hasAdminSession } from '@/lib/admin-auth'
 import {
   getStoragePathFromUpload,
   getUploadShortFileName,
@@ -20,7 +19,7 @@ type DownloadRequestBody = {
 }
 
 const MAX_SELECTED_DOWNLOADS = 100
-const MAX_ADMIN_ALBUM_DOWNLOADS = 500
+const MAX_ALBUM_DOWNLOADS = 500
 
 function jsonError(error: string, status: number) {
   return NextResponse.json({ ok: false, error }, { status })
@@ -100,15 +99,11 @@ export async function POST(request: Request) {
       return jsonError('Deze galerij is niet gevonden.', 404)
     }
 
-    if (downloadAll && !(await hasAdminSession())) {
-      return jsonError('Alleen de beheerder kan het volledige album downloaden.', 401)
-    }
-
     if (downloadAll && event.allowAlbumDownload === false) {
       return jsonError('Het volledige album downloaden is voor dit album uitgeschakeld.', 403)
     }
 
-    if (!downloadAll && event.allowGuestDownload === false) {
+    if (event.allowGuestDownload === false) {
       return jsonError('Downloaden is voor dit album uitgeschakeld.', 403)
     }
 
@@ -119,7 +114,7 @@ export async function POST(request: Request) {
       .order('created_at', { ascending: true })
 
     const { data, error } = downloadAll
-      ? await query.limit(MAX_ADMIN_ALBUM_DOWNLOADS)
+      ? await query.limit(MAX_ALBUM_DOWNLOADS)
       : await query.in('id', uploadIds)
 
     if (error) throw error

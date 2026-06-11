@@ -213,6 +213,7 @@ type TranslationTree = {
     loadError: string
     notFound: string
     downloadAll: string
+    downloadAlbumPackage: string
     downloadingAll: string
     downloadingSelected: string
     downloadPreparing: string
@@ -535,6 +536,7 @@ export const translations: Record<Locale, TranslationTree> = {
       loadError: 'Galeri su anda yuklenemedi.',
       notFound: 'Bu etkinlik galerisi bulunamadi.',
       downloadAll: 'Tum albumu indir',
+      downloadAlbumPackage: 'Album paketi indir',
       downloadingAll: 'Tum album hazirlaniyor...',
       downloadingSelected: 'Secilen fotograflar hazirlaniyor...',
       downloadPreparing: 'ZIP dosyasi hazirlaniyor, lutfen bekle.',
@@ -926,6 +928,7 @@ export const translations: Record<Locale, TranslationTree> = {
       loadError: 'De galerij kon op dit moment niet worden geladen.',
       notFound: 'Deze galerij is niet gevonden.',
       downloadAll: 'Hele album downloaden',
+      downloadAlbumPackage: 'Albumpakket downloaden',
       downloadingAll: 'Het hele album wordt voorbereid...',
       downloadingSelected: 'De geselecteerde foto’s worden voorbereid...',
       downloadPreparing: 'Het ZIP-bestand wordt voorbereid, even geduld.',
@@ -1317,6 +1320,7 @@ export const translations: Record<Locale, TranslationTree> = {
       loadError: 'The gallery could not be loaded right now.',
       notFound: 'This event gallery could not be found.',
       downloadAll: 'Download full album',
+      downloadAlbumPackage: 'Download album package',
       downloadingAll: 'Preparing the full album...',
       downloadingSelected: 'Preparing the selected photos...',
       downloadPreparing: 'Preparing the ZIP file, please wait.',

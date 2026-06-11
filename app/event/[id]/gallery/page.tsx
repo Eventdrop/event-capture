@@ -30,6 +30,7 @@ export default function Page() {
   const [deletingSelected, setDeletingSelected] = useState(false)
   const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
+  const [albumPackageIndex, setAlbumPackageIndex] = useState(0)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
 
   useEffect(() => {
@@ -92,6 +93,10 @@ export default function Page() {
 
     void load()
   }, [eventIdentifier, t.gallery.loadError, t.gallery.noUploads, t.gallery.notFound, t.gallery.showing])
+
+  useEffect(() => {
+    setAlbumPackageIndex(0)
+  }, [items.length])
 
   useEffect(() => {
     const loadBranding = async () => {
@@ -160,11 +165,21 @@ export default function Page() {
   )
 
   const selectedLimit = 100
+  const albumPackageSize = 100
   const shareEnabled = currentEvent?.allowGuestShare !== false
   const downloadEnabled = currentEvent?.allowGuestDownload !== false
   const albumDownloadEnabled = currentEvent?.allowAlbumDownload !== false
   const deleteEnabled = currentEvent?.allowGuestDelete === true
   const downloadInProgress = downloadingSelected || downloadingAll
+  const totalAlbumPackages = Math.max(1, Math.ceil(items.length / albumPackageSize))
+  const activeAlbumPackageIndex = Math.min(albumPackageIndex, totalAlbumPackages - 1)
+  const albumPackageStart = activeAlbumPackageIndex * albumPackageSize
+  const albumPackageEnd = Math.min(albumPackageStart + albumPackageSize, items.length)
+  const albumPackageItems = items.slice(albumPackageStart, albumPackageEnd)
+  const albumPackageButtonLabel =
+    items.length <= albumPackageSize
+      ? t.gallery.downloadAll
+      : `${t.gallery.downloadAlbumPackage} ${activeAlbumPackageIndex + 1}/${totalAlbumPackages} (${albumPackageStart + 1}-${albumPackageEnd})`
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -219,17 +234,26 @@ export default function Page() {
     window.setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000)
   }
 
-  const getZipFileName = (selectedOnly: boolean) => {
+  const getZipFileName = (options: { packageNumber?: number; selectedOnly: boolean }) => {
     const baseName = (currentEvent?.albumName || currentEvent?.name || eventIdentifier)
       .trim()
       .replace(/[\\/:*?"<>|]+/g, '-')
       .replace(/\s+/g, ' ')
+    const suffix = options.packageNumber
+      ? `-pakket-${options.packageNumber}`
+      : options.selectedOnly
+        ? '-selectie'
+        : ''
 
-    return `${baseName || 'eventdrop-album'}${selectedOnly ? '-selectie' : ''}.zip`
+    return `${baseName || 'eventdrop-album'}${suffix}.zip`
   }
 
-  const downloadZip = async (options: { all?: boolean }) => {
-    const zipItems = options.all ? items : selectedItems
+  const downloadZip = async (options: {
+    all?: boolean
+    packageNumber?: number
+    zipItems?: UploadRecord[]
+  }) => {
+    const zipItems = options.zipItems || (options.all ? items : selectedItems)
 
     if (zipItems.length === 0) {
       setStatusMessage(t.gallery.chooseBeforeDownload)
@@ -265,7 +289,13 @@ export default function Page() {
         throw new Error(payload?.error || t.gallery.loadError)
       }
 
-      saveBlob(await response.blob(), getZipFileName(options.all !== true))
+      saveBlob(
+        await response.blob(),
+        getZipFileName({
+          packageNumber: options.packageNumber,
+          selectedOnly: options.all !== true && !options.packageNumber,
+        })
+      )
 
       setStatusMessage(
         options.all ? t.gallery.allDownloaded : `${zipItems.length} ${t.gallery.downloaded}`
@@ -300,7 +330,14 @@ export default function Page() {
     setStatusMessage(t.gallery.downloadingAll)
 
     try {
-      await downloadZip({ all: true })
+      const downloadSingleAlbumZip = items.length <= albumPackageSize
+
+      await downloadZip({
+        all: downloadSingleAlbumZip,
+        packageNumber: items.length > albumPackageSize ? activeAlbumPackageIndex + 1 : undefined,
+        zipItems: downloadSingleAlbumZip ? undefined : albumPackageItems,
+      })
+      setAlbumPackageIndex((prev) => (prev + 1 >= totalAlbumPackages ? 0 : prev + 1))
     } finally {
       setDownloadingAll(false)
     }
@@ -464,7 +501,7 @@ export default function Page() {
                       : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
                   }`}
                 >
-                  {downloadingAll ? t.gallery.downloadingAll : t.gallery.downloadAll}
+                  {downloadingAll ? t.gallery.downloadingAll : albumPackageButtonLabel}
                 </button>
 
               </>
