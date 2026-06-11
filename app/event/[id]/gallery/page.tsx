@@ -31,7 +31,6 @@ export default function Page() {
   const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
-  const [adminAuthenticated, setAdminAuthenticated] = useState(false)
 
   useEffect(() => {
     setStatusMessage(t.gallery.loading)
@@ -93,23 +92,6 @@ export default function Page() {
 
     void load()
   }, [eventIdentifier, t.gallery.loadError, t.gallery.noUploads, t.gallery.notFound, t.gallery.showing])
-
-  useEffect(() => {
-    const loadAdminSession = async () => {
-      try {
-        const response = await fetch('/api/admin/session', {
-          cache: 'no-store',
-        })
-        const payload = (await response.json()) as { authenticated?: boolean }
-        setAdminAuthenticated(Boolean(payload.authenticated))
-      } catch (error) {
-        console.error('Failed to check admin session', error)
-        setAdminAuthenticated(false)
-      }
-    }
-
-    void loadAdminSession()
-  }, [])
 
   useEffect(() => {
     const loadBranding = async () => {
@@ -324,44 +306,6 @@ export default function Page() {
     }
   }
 
-  const deleteSelected = async () => {
-    if (selectedItems.length === 0 || deletingSelected) return
-
-    const confirmed = window.confirm(t.gallery.deleteSelectedConfirm)
-
-    if (!confirmed) return
-
-    setDeletingSelected(true)
-    setStatusMessage(t.gallery.deleting)
-
-    try {
-      for (const item of selectedItems) {
-
-        const response = await fetch(`/api/uploads/${item.id}`, {
-          method: 'DELETE',
-        })
-
-        const payload = (await response.json()) as { ok?: boolean; error?: string }
-
-        if (!response.ok) {
-          throw new Error(payload.error || t.gallery.deleteError)
-        }
-      }
-
-      const deletedIds = new Set(selectedItems.map((item) => item.id))
-      setItems((prev) => prev.filter((item) => !deletedIds.has(item.id)))
-      setSelected((prev) => prev.filter((id) => !deletedIds.has(id)))
-      setStatusMessage(t.gallery.deleteSelectedSuccess)
-    } catch (error) {
-      console.error('Bulk delete failed', error)
-      setStatusMessage(
-        error instanceof Error ? error.message : t.gallery.deleteError
-      )
-    } finally {
-      setDeletingSelected(false)
-    }
-  }
-
   const deleteSingle = async (item: UploadRecord) => {
     if (deletingSelected) return
 
@@ -509,22 +453,7 @@ export default function Page() {
               </button>
             ) : null}
 
-            {deleteEnabled ? (
-              <button
-                onClick={deleteSelected}
-                disabled={selected.length === 0 || deletingSelected}
-                className={`inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-semibold ${
-                  selected.length === 0 || deletingSelected
-                    ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                    : 'bg-[#B52E2E] text-white hover:bg-[#982525]'
-                }`}
-              >
-                {deletingSelected
-                  ? t.gallery.deleting
-                  : `${t.gallery.deleteSelected} (${selected.length})`}
-              </button>
-            ) : null}
-            {adminAuthenticated && albumDownloadEnabled ? (
+            {downloadEnabled && albumDownloadEnabled ? (
               <>
                 <button
                   onClick={downloadAll}
