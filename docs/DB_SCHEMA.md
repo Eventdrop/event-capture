@@ -21,6 +21,7 @@ Onerilen alanlar:
 - `allow_guest_download` boolean not null default true
 - `allow_album_download` boolean not null default true
 - `allow_guest_delete` boolean not null default false
+- `allow_guest_poster` boolean not null default false
 - `created_at` timestamptz not null default now()
 - `expires_at` timestamptz null
 
@@ -41,6 +42,7 @@ Onerilen alanlar:
 - `storage_path` text not null
 - `file_name` text not null
 - `share_code` text null unique
+- `guest_message` text null
 - `media_type` text not null
 - `mime_type` text null
 - `created_at` timestamptz not null default now()
@@ -140,6 +142,7 @@ create table if not exists public.events (
   allow_guest_download boolean not null default true,
   allow_album_download boolean not null default true,
   allow_guest_delete boolean not null default false,
+  allow_guest_poster boolean not null default false,
   created_at timestamptz not null default now(),
   expires_at timestamptz
 );
@@ -151,6 +154,7 @@ create table if not exists public.uploads (
   storage_path text not null,
   file_name text not null,
   share_code text unique,
+  guest_message text,
   media_type text not null,
   mime_type text,
   created_at timestamptz not null default now(),

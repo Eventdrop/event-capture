@@ -32,8 +32,14 @@ alter table public.events
 alter table public.events
   add column if not exists allow_guest_delete boolean not null default false;
 
+alter table public.events
+  add column if not exists allow_guest_poster boolean not null default false;
+
 alter table public.uploads
   add column if not exists share_code text;
+
+alter table public.uploads
+  add column if not exists guest_message text;
 
 create unique index if not exists uploads_share_code_idx
   on public.uploads (share_code)

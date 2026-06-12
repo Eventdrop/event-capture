@@ -17,6 +17,126 @@ import { formatEventDisplayName, normalizeEventRecord, type NormalizedEvent } fr
 import { shareMedia } from '@/lib/share-media'
 import { supabase } from '@/lib/supabase'
 
+const POSTER_WIDTH = 2480
+const POSTER_HEIGHT = 3508
+const POSTER_MAX_TILES = 10
+const POSTER_GAP = 24
+const POSTER_MARGIN = 72
+const POSTER_FOOTER_HEIGHT = 190
+const POSTER_LOGO_URL = '/photobooth-holland-logo.png'
+
+type CanvasImageResource = {
+  image: HTMLImageElement
+  objectUrl: string
+}
+
+function sanitizeDownloadName(value: string) {
+  return value
+    .trim()
+    .replace(/[\\/:*?"<>|]+/g, '-')
+    .replace(/\s+/g, ' ')
+}
+
+function loadCanvasImage(url: string): Promise<CanvasImageResource> {
+  return fetch(url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Afbeelding kon niet worden geladen (${response.status}).`)
+      }
+
+      return response.blob()
+    })
+    .then(
+      (blob) =>
+        new Promise<CanvasImageResource>((resolve, reject) => {
+          const objectUrl = window.URL.createObjectURL(blob)
+          const image = new window.Image()
+
+          image.onload = () => resolve({ image, objectUrl })
+          image.onerror = () => {
+            window.URL.revokeObjectURL(objectUrl)
+            reject(new Error('Afbeelding kon niet in de poster worden geplaatst.'))
+          }
+          image.src = objectUrl
+        })
+    )
+}
+
+function drawCoverImage(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) {
+  const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight)
+  const scaledWidth = image.naturalWidth * scale
+  const scaledHeight = image.naturalHeight * scale
+  const sourceX = x + (width - scaledWidth) / 2
+  const sourceY = y + (height - scaledHeight) / 2
+
+  context.drawImage(image, sourceX, sourceY, scaledWidth, scaledHeight)
+}
+
+function drawPosterTitle(
+  context: CanvasRenderingContext2D,
+  title: string,
+  x: number,
+  y: number,
+  maxWidth: number
+) {
+  const words = title.trim().split(/\s+/)
+  const lines: string[] = []
+  let currentLine = ''
+
+  context.fillStyle = '#fff'
+  context.font = '700 58px Arial, sans-serif'
+
+  for (const word of words) {
+    const candidate = currentLine ? `${currentLine} ${word}` : word
+
+    if (context.measureText(candidate).width > maxWidth && currentLine) {
+      lines.push(currentLine)
+      currentLine = word
+    } else {
+      currentLine = candidate
+    }
+
+    if (lines.length === 2) break
+  }
+
+  if (currentLine && lines.length < 2) {
+    lines.push(currentLine)
+  }
+
+  const lineHeight = 70
+
+  lines.slice(0, 2).forEach((line, index) => {
+    context.fillText(line, x, y + index * lineHeight)
+  })
+
+  return y + Math.max(1, lines.length) * lineHeight
+}
+
+function drawPosterTile(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) {
+  context.save()
+  context.fillStyle = '#000'
+  context.fillRect(x, y, width, height)
+  context.beginPath()
+  context.rect(x, y, width, height)
+  context.clip()
+  drawCoverImage(context, image, x, y, width, height)
+  context.restore()
+}
+
 export default function Page() {
   const { t } = useLanguage()
   const params = useParams()
@@ -30,6 +150,7 @@ export default function Page() {
   const [deletingSelected, setDeletingSelected] = useState(false)
   const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
+  const [creatingPoster, setCreatingPoster] = useState(false)
   const [albumPackageIndex, setAlbumPackageIndex] = useState(0)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
 
@@ -170,7 +291,8 @@ export default function Page() {
   const downloadEnabled = currentEvent?.allowGuestDownload !== false
   const albumDownloadEnabled = currentEvent?.allowAlbumDownload !== false
   const deleteEnabled = currentEvent?.allowGuestDelete === true
-  const downloadInProgress = downloadingSelected || downloadingAll
+  const posterEnabled = currentEvent?.allowGuestPoster === true
+  const downloadInProgress = downloadingSelected || downloadingAll || creatingPoster
   const totalAlbumPackages = Math.max(1, Math.ceil(items.length / albumPackageSize))
   const activeAlbumPackageIndex = Math.min(albumPackageIndex, totalAlbumPackages - 1)
   const albumPackageStart = activeAlbumPackageIndex * albumPackageSize
@@ -343,6 +465,137 @@ export default function Page() {
     }
   }
 
+  const createPoster = async () => {
+    if (selectedItems.length === 0 || creatingPoster) {
+      setStatusMessage(t.gallery.posterChoose)
+      return
+    }
+
+    setCreatingPoster(true)
+    setStatusMessage(t.gallery.posterPreparing)
+
+    const resources: CanvasImageResource[] = []
+    let logoResource: CanvasImageResource | null = null
+
+    try {
+      const posterItems = selectedItems.slice(0, POSTER_MAX_TILES)
+      const loadedImages = await Promise.all(
+        posterItems.map((item) => loadCanvasImage(item.file_url))
+      )
+
+      resources.push(...loadedImages)
+      logoResource = await loadCanvasImage(POSTER_LOGO_URL).catch(() => null)
+
+      const canvas = document.createElement('canvas')
+      canvas.width = POSTER_WIDTH
+      canvas.height = POSTER_HEIGHT
+
+      const context = canvas.getContext('2d')
+
+      if (!context) {
+        throw new Error(t.gallery.loadError)
+      }
+
+      context.fillStyle = '#050505'
+      context.fillRect(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+
+      const titleBottom = drawPosterTitle(
+        context,
+        eventName,
+        POSTER_MARGIN,
+        POSTER_MARGIN + 56,
+        POSTER_WIDTH - POSTER_MARGIN * 2
+      )
+      const gridTop = Math.max(POSTER_MARGIN + 190, titleBottom + 44)
+      const footerTop = POSTER_HEIGHT - POSTER_MARGIN - POSTER_FOOTER_HEIGHT
+      const gridHeight = footerTop - gridTop - POSTER_GAP
+      const columns = posterItems.length === 1 ? 1 : 2
+      const rows = Math.ceil(posterItems.length / columns)
+      const tileWidth =
+        (POSTER_WIDTH - POSTER_MARGIN * 2 - POSTER_GAP * (columns - 1)) / columns
+      const tileHeight = (gridHeight - POSTER_GAP * (rows - 1)) / rows
+
+      loadedImages.forEach(({ image }, index) => {
+        const column = index % columns
+        const row = Math.floor(index / columns)
+
+        drawPosterTile(
+          context,
+          image,
+          POSTER_MARGIN + column * (tileWidth + POSTER_GAP),
+          gridTop + row * (tileHeight + POSTER_GAP),
+          tileWidth,
+          tileHeight
+        )
+      })
+
+      context.fillStyle = '#000'
+      context.fillRect(0, footerTop, POSTER_WIDTH, POSTER_FOOTER_HEIGHT)
+
+      if (logoResource) {
+        const logoSize = 128
+
+        context.save()
+        context.beginPath()
+        context.arc(
+          POSTER_MARGIN + logoSize / 2,
+          footerTop + POSTER_FOOTER_HEIGHT / 2,
+          logoSize / 2,
+          0,
+          Math.PI * 2
+        )
+        context.clip()
+        drawCoverImage(
+          context,
+          logoResource.image,
+          POSTER_MARGIN,
+          footerTop + (POSTER_FOOTER_HEIGHT - logoSize) / 2,
+          logoSize,
+          logoSize
+        )
+        context.restore()
+      }
+
+      context.fillStyle = '#fff'
+      context.font = '700 42px Arial, sans-serif'
+      context.fillText('Photobooth Holland', POSTER_MARGIN + 158, footerTop + 82)
+      context.fillStyle = '#d9d9d9'
+      context.font = '400 28px Arial, sans-serif'
+      context.fillText('www.photoboothholland.com', POSTER_MARGIN + 158, footerTop + 126)
+      context.textAlign = 'right'
+      context.fillStyle = '#fff'
+      context.font = '600 30px Arial, sans-serif'
+
+      if (currentEvent?.eventDate) {
+        context.fillText(currentEvent.eventDate, POSTER_WIDTH - POSTER_MARGIN, footerTop + 106)
+      }
+
+      context.textAlign = 'left'
+
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, 'image/png')
+      })
+
+      if (!blob) {
+        throw new Error(t.gallery.loadError)
+      }
+
+      saveBlob(blob, `${sanitizeDownloadName(eventName || 'photobooth-poster')}-poster-a3.png`)
+      setStatusMessage(t.gallery.posterReady)
+    } catch (error) {
+      console.error('Poster creation failed', error)
+      setStatusMessage(error instanceof Error ? error.message : t.gallery.loadError)
+    } finally {
+      resources.forEach((resource) => window.URL.revokeObjectURL(resource.objectUrl))
+
+      if (logoResource) {
+        window.URL.revokeObjectURL(logoResource.objectUrl)
+      }
+
+      setCreatingPoster(false)
+    }
+  }
+
   const deleteSingle = async (item: UploadRecord) => {
     if (deletingSelected) return
 
@@ -475,7 +728,11 @@ export default function Page() {
             className="mb-4 flex items-center gap-3 rounded-2xl border border-[#F9C58E] bg-[#FFF4E8] px-4 py-3 text-sm font-semibold text-[#8A4A07] shadow-[0_12px_30px_rgba(61,44,22,0.12)]"
           >
             <span className="h-3 w-3 animate-pulse rounded-full bg-[#F58220]" />
-            {downloadingAll ? t.gallery.downloadingAll : t.gallery.downloadingSelected}
+            {creatingPoster
+              ? t.gallery.posterPreparing
+              : downloadingAll
+                ? t.gallery.downloadingAll
+                : t.gallery.downloadingSelected}
           </div>
         ) : statusMessage ? (
           <div
@@ -490,7 +747,7 @@ export default function Page() {
         <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0 flex-1">
             <div
-              className="mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
+              className="mt-3 h-44 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-52 lg:h-56"
               style={eventCoverStyle}
             />
             <h1 className="mt-3 text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
@@ -533,6 +790,26 @@ export default function Page() {
                 </button>
 
               </>
+            ) : null}
+
+            {posterEnabled ? (
+              <button
+                type="button"
+                onClick={createPoster}
+                disabled={selectedItems.length === 0 || creatingPoster}
+                className={`inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-semibold ${
+                  selectedItems.length === 0 || creatingPoster
+                    ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                    : 'bg-stone-950 text-white hover:bg-stone-800'
+                }`}
+              >
+                {creatingPoster
+                  ? t.gallery.posterPreparing
+                  : `${t.gallery.posterButton} (${Math.min(
+                      selectedItems.length,
+                      POSTER_MAX_TILES
+                    )}/${POSTER_MAX_TILES})`}
+              </button>
             ) : null}
 
             <Link
@@ -667,6 +944,11 @@ export default function Page() {
                     <p className="truncate text-xs font-medium text-stone-900">
                       {downloadName}
                     </p>
+                    {item.guest_message ? (
+                      <p className="mt-2 line-clamp-2 text-xs text-[#597594]">
+                        {item.guest_message}
+                      </p>
+                    ) : null}
                   </div>
                 </article>
               )
@@ -745,6 +1027,12 @@ export default function Page() {
                 {previewIndex >= 0 ? (
                   <p className="mt-1 text-xs font-semibold text-[#597594]">
                     {previewIndex + 1} / {items.length}
+                  </p>
+                ) : null}
+                {previewItem.guest_message ? (
+                  <p className="mt-2 max-w-xl text-sm text-[#33516F]">
+                    <span className="font-semibold">{t.gallery.guestMessageLabel}: </span>
+                    {previewItem.guest_message}
                   </p>
                 ) : null}
               </div>

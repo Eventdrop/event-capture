@@ -10,6 +10,7 @@ export type UploadRecord = {
   media_type?: string | null
   type?: string | null
   mime_type?: string | null
+  guest_message?: string | null
   created_at?: string | null
   expires_at?: string | null
 }

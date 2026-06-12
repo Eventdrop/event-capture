@@ -142,6 +142,7 @@ export async function POST(request: Request) {
       allowGuestDownload?: boolean
       allowAlbumDownload?: boolean
       allowGuestDelete?: boolean
+      allowGuestPoster?: boolean
       }
     | null
 
@@ -156,6 +157,7 @@ export async function POST(request: Request) {
   const allowGuestDownload = body?.allowGuestDownload !== false
   const allowAlbumDownload = body?.allowAlbumDownload !== false
   const allowGuestDelete = body?.allowGuestDelete === true
+  const allowGuestPoster = body?.allowGuestPoster === true
 
   if (!name || !albumName) {
     return NextResponse.json(
@@ -181,6 +183,7 @@ export async function POST(request: Request) {
       allowGuestDownload,
       allowAlbumDownload,
       allowGuestDelete,
+      allowGuestPoster,
     })
 
     const richInsert = await withRetry(
@@ -204,6 +207,7 @@ export async function POST(request: Request) {
         allow_guest_share: payload.allow_guest_share,
         allow_guest_download: payload.allow_guest_download,
         allow_guest_delete: payload.allow_guest_delete,
+        allow_guest_poster: payload.allow_guest_poster,
         expires_at: payload.expires_at,
       }
 
@@ -265,6 +269,7 @@ export async function PATCH(request: Request) {
         allowGuestDownload?: boolean
         allowAlbumDownload?: boolean
         allowGuestDelete?: boolean
+        allowGuestPoster?: boolean
       }
     | null
 
@@ -287,6 +292,7 @@ export async function PATCH(request: Request) {
       allow_guest_download: body?.allowGuestDownload !== false,
       allow_album_download: body?.allowAlbumDownload !== false,
       allow_guest_delete: body?.allowGuestDelete === true,
+      allow_guest_poster: body?.allowGuestPoster === true,
     }
     const name = body?.name?.trim()
     const albumName = body?.albumName?.trim()

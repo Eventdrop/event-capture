@@ -54,6 +54,7 @@ export default function AdminPage() {
   const [allowGuestDownload, setAllowGuestDownload] = useState(true)
   const [allowAlbumDownload, setAllowAlbumDownload] = useState(true)
   const [allowGuestDelete, setAllowGuestDelete] = useState(false)
+  const [allowGuestPoster, setAllowGuestPoster] = useState(false)
   const [accessCode, setAccessCode] = useState(() => generateEventAccessCode())
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('')
@@ -75,6 +76,7 @@ export default function AdminPage() {
         allowGuestDownload: boolean
         allowAlbumDownload: boolean
         allowGuestDelete: boolean
+        allowGuestPoster: boolean
       }
     >
   >({})
@@ -141,6 +143,7 @@ export default function AdminPage() {
             allowGuestDownload: boolean
             allowAlbumDownload: boolean
             allowGuestDelete: boolean
+            allowGuestPoster: boolean
           }
         >
       >((accumulator, event) => {
@@ -149,6 +152,7 @@ export default function AdminPage() {
           allowGuestDownload: event.allowGuestDownload,
           allowAlbumDownload: event.allowAlbumDownload,
           allowGuestDelete: event.allowGuestDelete,
+          allowGuestPoster: event.allowGuestPoster,
         }
 
         return accumulator
@@ -341,6 +345,7 @@ export default function AdminPage() {
         allowGuestDownload,
         allowAlbumDownload,
         allowGuestDelete,
+        allowGuestPoster,
       })
 
       const response = await fetch('/api/admin/events', {
@@ -360,6 +365,7 @@ export default function AdminPage() {
           allowGuestDownload: payload.allow_guest_download,
           allowAlbumDownload: payload.allow_album_download,
           allowGuestDelete: payload.allow_guest_delete,
+          allowGuestPoster: payload.allow_guest_poster,
         }),
       })
 
@@ -414,6 +420,7 @@ export default function AdminPage() {
             allowGuestDownload: nextEvent.allowGuestDownload,
             allowAlbumDownload: nextEvent.allowAlbumDownload,
             allowGuestDelete: nextEvent.allowGuestDelete,
+            allowGuestPoster: nextEvent.allowGuestPoster,
           },
         }))
       }
@@ -426,6 +433,7 @@ export default function AdminPage() {
       setAllowGuestDownload(true)
       setAllowAlbumDownload(true)
       setAllowGuestDelete(false)
+      setAllowGuestPoster(false)
       setAccessCode(generateEventAccessCode())
       setCoverImageFile(null)
       setBackgroundImageFile(null)
@@ -593,6 +601,8 @@ export default function AdminPage() {
             eventControlsById[event.id]?.allowAlbumDownload ?? event.allowAlbumDownload,
           allowGuestDelete:
             eventControlsById[event.id]?.allowGuestDelete ?? event.allowGuestDelete,
+          allowGuestPoster:
+            eventControlsById[event.id]?.allowGuestPoster ?? event.allowGuestPoster,
         }),
       })
 
@@ -626,6 +636,7 @@ export default function AdminPage() {
             allowGuestDownload: normalized.allowGuestDownload,
             allowAlbumDownload: normalized.allowAlbumDownload,
             allowGuestDelete: normalized.allowGuestDelete,
+            allowGuestPoster: normalized.allowGuestPoster,
           },
         }))
       }
@@ -676,7 +687,12 @@ export default function AdminPage() {
 
   const handleEventControlChange = (
     eventId: string,
-    key: 'allowGuestShare' | 'allowGuestDownload' | 'allowAlbumDownload' | 'allowGuestDelete',
+    key:
+      | 'allowGuestShare'
+      | 'allowGuestDownload'
+      | 'allowAlbumDownload'
+      | 'allowGuestDelete'
+      | 'allowGuestPoster',
     value: boolean
   ) => {
     setEventControlsById((prev) => ({
@@ -686,6 +702,7 @@ export default function AdminPage() {
         allowGuestDownload: prev[eventId]?.allowGuestDownload ?? true,
         allowAlbumDownload: prev[eventId]?.allowAlbumDownload ?? true,
         allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
+        allowGuestPoster: prev[eventId]?.allowGuestPoster ?? false,
         [key]: value,
       },
     }))
@@ -710,6 +727,7 @@ export default function AdminPage() {
           allowGuestDownload: currentSettings.allowGuestDownload,
           allowAlbumDownload: currentSettings.allowAlbumDownload,
           allowGuestDelete: currentSettings.allowGuestDelete,
+          allowGuestPoster: currentSettings.allowGuestPoster,
         }),
       })
 
@@ -734,6 +752,7 @@ export default function AdminPage() {
             allowGuestDownload: normalized.allowGuestDownload,
             allowAlbumDownload: normalized.allowAlbumDownload,
             allowGuestDelete: normalized.allowGuestDelete,
+            allowGuestPoster: normalized.allowGuestPoster,
           },
         }))
       }
@@ -1109,6 +1128,19 @@ export default function AdminPage() {
                           {allowGuestDelete ? t.admin.toggleOn : t.admin.toggleOff}
                         </button>
                       </div>
+
+                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
+                        <span className="text-sm text-[#EAF3FB]">{t.admin.posterEnabled}</span>
+                        <button
+                          type="button"
+                          onClick={() => setAllowGuestPoster((current) => !current)}
+                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
+                            allowGuestPoster ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
+                          }`}
+                        >
+                          {allowGuestPoster ? t.admin.toggleOn : t.admin.toggleOff}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -1383,6 +1415,7 @@ export default function AdminPage() {
                         ['allowGuestDownload', t.admin.downloadEnabled],
                         ['allowAlbumDownload', t.admin.albumDownloadEnabled],
                         ['allowGuestDelete', t.admin.deleteEnabled],
+                        ['allowGuestPoster', t.admin.posterEnabled],
                       ] as const).map(([key, label]) => (
                         <div
                           key={key}

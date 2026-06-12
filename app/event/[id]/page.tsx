@@ -28,6 +28,11 @@ const PHOTO_MAX_BYTES = 20 * 1024 * 1024
 const PHOTO_COMPRESS_THRESHOLD_BYTES = 1.5 * 1024 * 1024
 const PHOTO_COMPRESS_MAX_DIMENSION = 2000
 const PHOTO_COMPRESS_QUALITY = 0.82
+const GUEST_MESSAGE_MAX_LENGTH = 240
+
+function limitGuestMessage(value: string) {
+  return value.slice(0, GUEST_MESSAGE_MAX_LENGTH)
+}
 
 function getCompressedPhotoName(fileName: string) {
   const baseName = fileName.replace(/\.[^.]+$/, '') || 'photo'
@@ -117,6 +122,7 @@ export default function Page() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [eventMissing, setEventMissing] = useState(false)
   const [guidanceAccepted, setGuidanceAccepted] = useState(false)
+  const [guestMessage, setGuestMessage] = useState('')
 
 
   useEffect(() => {
@@ -349,6 +355,7 @@ export default function Page() {
     mediaType: 'photo'
     mimeType: string
     expiresAt: string | null
+    guestMessage: string | null
   }) => {
     const richInsert = {
       event_id: payload.eventId,
@@ -359,6 +366,7 @@ export default function Page() {
       media_type: payload.mediaType,
       mime_type: payload.mimeType,
       expires_at: payload.expiresAt,
+      guest_message: payload.guestMessage,
       type: payload.mediaType,
     }
 
@@ -408,6 +416,8 @@ export default function Page() {
       setMessage(t.upload.eventNotReady)
       return
     }
+
+    const uploadGuestMessage = limitGuestMessage(guestMessage).trim() || null
 
     setUploading(true)
     setMessage(t.upload.uploadInProgress)
@@ -467,10 +477,12 @@ export default function Page() {
           mediaType,
           mimeType: uploadFile.type || '',
           expiresAt,
+          guestMessage: uploadGuestMessage,
         })
       }
 
       setMessage(t.upload.uploadComplete)
+      setGuestMessage('')
       resetSelection({ keepMessage: true })
       window.location.assign(galleryUrl)
     } catch (error) {
@@ -504,7 +516,7 @@ export default function Page() {
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
             <div>
               <div
-                className="mt-3 h-36 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-40"
+                className="mt-3 h-44 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-52"
                 style={eventCoverStyle}
               />
               <h1 className="mt-3 text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
@@ -524,6 +536,23 @@ export default function Page() {
                   className="mt-1 h-4 w-4 rounded border-[#C8D3E5] accent-[#F58220]"
                 />
                 <span>{t.upload.consentLabel}</span>
+              </label>
+
+              <label className="mt-4 block rounded-[1.1rem] border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#33516F]">
+                <span className="block text-sm font-semibold text-[#0B2742]">
+                  {t.upload.messageLabel}
+                </span>
+                <textarea
+                  value={guestMessage}
+                  onChange={(event) => setGuestMessage(limitGuestMessage(event.target.value))}
+                  maxLength={GUEST_MESSAGE_MAX_LENGTH}
+                  placeholder={t.upload.messagePlaceholder}
+                  rows={3}
+                  className="mt-2 w-full resize-none rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-3 py-2 text-sm text-[#0B2742] outline-none focus:border-[#F58220]"
+                />
+                <span className="mt-1 block text-xs text-[#6A84A3]">
+                  {t.upload.messageHelp}
+                </span>
               </label>
 
               <div className="mt-4 rounded-[1.25rem] border-2 border-dashed border-[#C8D3E5] bg-[#FDFEFE] p-3">

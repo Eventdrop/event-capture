@@ -153,6 +153,7 @@ type TranslationTree = {
     downloadEnabled: string
     albumDownloadEnabled: string
     deleteEnabled: string
+    posterEnabled: string
     saveVisibility: string
     visibilitySaved: string
     visibilitySaveError: string
@@ -177,6 +178,9 @@ type TranslationTree = {
     selectLabel: string
     selectButton: string
     photoOnlyNotice: string
+    messageLabel: string
+    messagePlaceholder: string
+    messageHelp: string
     noFilesChosen: string
     readyPrefix: string
     photos: string
@@ -220,6 +224,11 @@ type TranslationTree = {
     allDownloaded: string
     downloadSelected: string
     backToUpload: string
+    posterButton: string
+    posterPreparing: string
+    posterChoose: string
+    posterReady: string
+    guestMessageLabel: string
     selected: string
     select: string
     openPreview: string
@@ -469,6 +478,7 @@ export const translations: Record<Locale, TranslationTree> = {
       downloadEnabled: 'Indirmeyi ac',
       albumDownloadEnabled: 'Tum album indirmeyi ac',
       deleteEnabled: 'Silmeyi ac',
+      posterEnabled: 'A3 posteri ac',
       saveVisibility: 'Aksiyon ayarlarini kaydet',
       visibilitySaved: 'Etkinlik aksiyon ayarlari guncellendi.',
       visibilitySaveError: 'Etkinlik aksiyon ayarlari kaydedilemedi.',
@@ -501,6 +511,9 @@ export const translations: Record<Locale, TranslationTree> = {
       selectLabel: 'Fotograf sec',
       selectButton: 'Dosyalari sec',
       photoOnlyNotice: 'Bu album su anda sadece fotograf yuklemeleri icindir.',
+      messageLabel: 'Mesaj birak',
+      messagePlaceholder: 'Orn. Gefeliciteerd! ❤️',
+      messageHelp: 'Istersen kisa bir tebrik mesaji ekleyebilirsin.',
       noFilesChosen: 'Henuz dosya secilmedi',
       readyPrefix: 'Hazir',
       photos: 'fotograf',
@@ -545,6 +558,11 @@ export const translations: Record<Locale, TranslationTree> = {
       allDownloaded: 'Album indirme islemi baslatildi.',
       downloadSelected: 'Secilenleri indir',
       backToUpload: 'Yuklemeye don',
+      posterButton: 'A3 poster olustur',
+      posterPreparing: 'Poster hazirlaniyor...',
+      posterChoose: 'Poster icin once en fazla 10 fotograf sec.',
+      posterReady: 'A3 poster indirildi.',
+      guestMessageLabel: 'Misafir mesaji',
       selected: 'Secildi',
       select: 'Sec',
       openPreview: 'Fotografi buyut',
@@ -863,6 +881,7 @@ export const translations: Record<Locale, TranslationTree> = {
       downloadEnabled: 'Download toestaan',
       albumDownloadEnabled: 'Hele album downloaden toestaan',
       deleteEnabled: 'Verwijderen toestaan',
+      posterEnabled: 'A3-poster toestaan',
       saveVisibility: 'Instellingen opslaan',
       visibilitySaved: 'Actie-instellingen voor dit evenement zijn bijgewerkt.',
       visibilitySaveError: 'Actie-instellingen konden niet worden opgeslagen.',
@@ -895,6 +914,9 @@ export const translations: Record<Locale, TranslationTree> = {
       selectLabel: 'Kies foto’s',
       selectButton: 'Bestanden kiezen',
       photoOnlyNotice: 'Dit album is op dit moment alleen bedoeld voor foto-uploads.',
+      messageLabel: 'Laat een bericht achter',
+      messagePlaceholder: 'Bijv. Gefeliciteerd! ❤️',
+      messageHelp: 'Optioneel: schrijf een korte wens bij je upload.',
       noFilesChosen: 'Nog geen bestanden gekozen',
       readyPrefix: 'Klaar',
       photos: 'foto',
@@ -939,6 +961,11 @@ export const translations: Record<Locale, TranslationTree> = {
       allDownloaded: 'Het downloaden van het album is gestart.',
       downloadSelected: 'Geselecteerde items downloaden',
       backToUpload: 'Terug naar upload',
+      posterButton: 'A3-poster maken',
+      posterPreparing: 'Poster wordt gemaakt...',
+      posterChoose: 'Selecteer eerst maximaal 10 foto’s voor de poster.',
+      posterReady: 'A3-poster is gedownload.',
+      guestMessageLabel: 'Bericht van gast',
       selected: 'Geselecteerd',
       select: 'Selecteren',
       openPreview: 'Foto vergroten',
@@ -1257,6 +1284,7 @@ export const translations: Record<Locale, TranslationTree> = {
       downloadEnabled: 'Enable downloads',
       albumDownloadEnabled: 'Enable full album download',
       deleteEnabled: 'Enable deletion',
+      posterEnabled: 'Enable A3 poster',
       saveVisibility: 'Save action settings',
       visibilitySaved: 'Event action settings were updated.',
       visibilitySaveError: 'Event action settings could not be saved.',
@@ -1289,6 +1317,9 @@ export const translations: Record<Locale, TranslationTree> = {
       selectLabel: 'Select photos',
       selectButton: 'Choose files',
       photoOnlyNotice: 'This album is currently for photo uploads only.',
+      messageLabel: 'Leave a message',
+      messagePlaceholder: 'E.g. Congratulations! ❤️',
+      messageHelp: 'Optional: add a short wish with your upload.',
       noFilesChosen: 'No files selected yet',
       readyPrefix: 'Ready',
       photos: 'photos',
@@ -1333,6 +1364,11 @@ export const translations: Record<Locale, TranslationTree> = {
       allDownloaded: 'The album download has started.',
       downloadSelected: 'Download selected',
       backToUpload: 'Back to upload',
+      posterButton: 'Create A3 poster',
+      posterPreparing: 'Preparing poster...',
+      posterChoose: 'Select up to 10 photos first for the poster.',
+      posterReady: 'A3 poster downloaded.',
+      guestMessageLabel: 'Guest message',
       selected: 'Selected',
       select: 'Select',
       openPreview: 'Open photo preview',
