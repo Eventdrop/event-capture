@@ -336,6 +336,18 @@ export async function PATCH(request: Request) {
     }
 
     const message = richUpdate.error.message.toLowerCase()
+    if (
+      message.includes('allow_guest_poster') ||
+      message.includes('allow_album_download') ||
+      message.includes('allow_guest_share') ||
+      message.includes('allow_guest_download') ||
+      message.includes('allow_guest_delete')
+    ) {
+      throw new Error(
+        'Supabase mist nog een instellingen-kolom. Run eerst de nieuwste SQL in de juiste Supabase projectdatabase.'
+      )
+    }
+
     const canFallback =
       message.includes('column') ||
       message.includes('schema cache') ||
