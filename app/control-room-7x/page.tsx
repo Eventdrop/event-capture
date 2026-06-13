@@ -58,12 +58,16 @@ export default function AdminPage() {
   const [accessCode, setAccessCode] = useState(() => generateEventAccessCode())
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('')
+  const [posterTemplateUrl, setPosterTemplateUrl] = useState('')
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null)
-  const [uploadingVisual, setUploadingVisual] = useState<'cover' | 'background' | null>(null)
+  const [posterTemplateFile, setPosterTemplateFile] = useState<File | null>(null)
+  const [uploadingVisual, setUploadingVisual] = useState<
+    'cover' | 'background' | 'posterTemplate' | null
+  >(null)
   const [updatingEventVisual, setUpdatingEventVisual] = useState<{
     eventId: string
-    kind: 'cover' | 'background'
+    kind: 'cover' | 'background' | 'posterTemplate'
   } | null>(null)
   const [eventDraftsById, setEventDraftsById] = useState<
     Record<string, { name: string; albumName: string }>
@@ -332,6 +336,10 @@ export default function AdminPage() {
         backgroundImageUrl.startsWith('https://')
           ? backgroundImageUrl
           : ''
+      const persistedPosterTemplateUrl =
+        posterTemplateUrl.startsWith('http://') || posterTemplateUrl.startsWith('https://')
+          ? posterTemplateUrl
+          : ''
 
       const payload = buildEventInsertPayload({
         name: eventName,
@@ -341,6 +349,7 @@ export default function AdminPage() {
         accessCodeEnabled,
         coverImageUrl: persistedCoverImageUrl,
         backgroundImageUrl: persistedBackgroundImageUrl,
+        posterTemplateUrl: persistedPosterTemplateUrl,
         allowGuestShare,
         allowGuestDownload,
         allowAlbumDownload,
@@ -361,6 +370,8 @@ export default function AdminPage() {
           accessCodeEnabled,
           coverImageUrl: payload.cover_image_url,
           backgroundImageUrl: payload.background_image_url,
+          posterTemplateUrl:
+            'poster_template_url' in payload ? payload.poster_template_url : undefined,
           allowGuestShare: payload.allow_guest_share,
           allowGuestDownload: payload.allow_guest_download,
           allowAlbumDownload: payload.allow_album_download,
@@ -405,6 +416,18 @@ export default function AdminPage() {
           }
         }
 
+        if (posterTemplateFile) {
+          const uploadedPosterTemplateUrl = await uploadVisualForEvent(
+            normalized.id,
+            posterTemplateFile,
+            'posterTemplate'
+          )
+          nextEvent = {
+            ...nextEvent,
+            posterTemplateUrl: uploadedPosterTemplateUrl,
+          }
+        }
+
         setEvents((prev) => [nextEvent, ...prev.filter((item) => item.id !== nextEvent.id)])
         setEventDraftsById((prev) => ({
           ...prev,
@@ -437,8 +460,10 @@ export default function AdminPage() {
       setAccessCode(generateEventAccessCode())
       setCoverImageFile(null)
       setBackgroundImageFile(null)
+      setPosterTemplateFile(null)
       setCoverImageUrl('')
       setBackgroundImageUrl('')
+      setPosterTemplateUrl('')
       setStatusMessage(t.admin.createSuccess)
     } catch (error) {
       console.error('Event creation failed', error)
@@ -475,7 +500,11 @@ export default function AdminPage() {
   }
 
   const uploadVisualForEvent = useCallback(
-    async (eventId: string, file: File, kind: 'cover' | 'background') => {
+    async (
+      eventId: string,
+      file: File,
+      kind: 'cover' | 'background' | 'posterTemplate'
+    ) => {
       setUploadingVisual(kind)
       setStatusMessage(t.admin.mediaUploading)
 
@@ -655,7 +684,7 @@ export default function AdminPage() {
   const updateEventVisual = async (
     event: NormalizedEvent,
     file: File | null,
-    kind: 'cover' | 'background'
+    kind: 'cover' | 'background' | 'posterTemplate'
   ) => {
     if (!file) return
 
@@ -672,6 +701,8 @@ export default function AdminPage() {
                 coverImageUrl: kind === 'cover' ? uploadedUrl : item.coverImageUrl,
                 backgroundImageUrl:
                   kind === 'background' ? uploadedUrl : item.backgroundImageUrl,
+                posterTemplateUrl:
+                  kind === 'posterTemplate' ? uploadedUrl : item.posterTemplateUrl,
               }
             : item
         )
@@ -1197,6 +1228,33 @@ export default function AdminPage() {
                       />
                     ) : null}
                   </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                      {t.admin.posterTemplateImage}
+                    </label>
+                    <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
+                      {uploadingVisual === 'posterTemplate'
+                        ? t.admin.mediaUploading
+                        : posterTemplateFile?.name || t.admin.uploadPosterTemplate}
+                      <input
+                        type="file"
+                        accept="image/png,image/*"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0] || null
+                          setPosterTemplateFile(file)
+                          setPosterTemplateUrl(file ? URL.createObjectURL(file) : '')
+                        }}
+                        className="sr-only"
+                      />
+                    </label>
+                    {posterTemplateUrl ? (
+                      <div
+                        className="mt-3 h-36 rounded-2xl border border-white/10 bg-black bg-contain bg-center bg-no-repeat"
+                        style={{ backgroundImage: `url(${posterTemplateUrl})` }}
+                      />
+                    ) : null}
+                  </div>
                 </div>
 
                 <button
@@ -1354,7 +1412,7 @@ export default function AdminPage() {
                       </label>
                     </div>
 
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
                       <label className="flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
                         {updatingEventVisual?.eventId === event.id &&
                         updatingEventVisual.kind === 'cover'
@@ -1383,6 +1441,23 @@ export default function AdminPage() {
                           onChange={(inputEvent) => {
                             const file = inputEvent.target.files?.[0] || null
                             void updateEventVisual(event, file, 'background')
+                            inputEvent.target.value = ''
+                          }}
+                          className="sr-only"
+                        />
+                      </label>
+
+                      <label className="flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
+                        {updatingEventVisual?.eventId === event.id &&
+                        updatingEventVisual.kind === 'posterTemplate'
+                          ? t.admin.mediaUploading
+                          : t.admin.updatePosterTemplate}
+                        <input
+                          type="file"
+                          accept="image/png,image/*"
+                          onChange={(inputEvent) => {
+                            const file = inputEvent.target.files?.[0] || null
+                            void updateEventVisual(event, file, 'posterTemplate')
                             inputEvent.target.value = ''
                           }}
                           className="sr-only"

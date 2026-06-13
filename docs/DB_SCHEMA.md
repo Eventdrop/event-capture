@@ -22,6 +22,7 @@ Onerilen alanlar:
 - `allow_album_download` boolean not null default true
 - `allow_guest_delete` boolean not null default false
 - `allow_guest_poster` boolean not null default false
+- `poster_template_url` text null
 - `created_at` timestamptz not null default now()
 - `expires_at` timestamptz null
 
@@ -143,6 +144,7 @@ create table if not exists public.events (
   allow_album_download boolean not null default true,
   allow_guest_delete boolean not null default false,
   allow_guest_poster boolean not null default false,
+  poster_template_url text,
   created_at timestamptz not null default now(),
   expires_at timestamptz
 );

@@ -7,6 +7,17 @@ import { withRetry } from '@/lib/with-retry'
 export const runtime = 'nodejs'
 
 const BUCKET_NAME = 'event-uploads'
+const eventVisualColumns = {
+  cover: 'cover_image_url',
+  background: 'background_image_url',
+  posterTemplate: 'poster_template_url',
+} as const
+
+type EventVisualKind = keyof typeof eventVisualColumns
+
+function isEventVisualKind(value: string): value is EventVisualKind {
+  return value in eventVisualColumns
+}
 
 export async function POST(request: Request) {
   const authenticated = await hasAdminSession()
@@ -32,9 +43,9 @@ export async function POST(request: Request) {
       )
     }
 
-    if (kind !== 'cover' && kind !== 'background') {
+    if (!isEventVisualKind(kind)) {
       return NextResponse.json(
-        { ok: false, error: 'Het type moet omslag of achtergrond zijn.' },
+        { ok: false, error: 'Het type moet omslag, achtergrond of A3-sjabloon zijn.' },
         { status: 400 }
       )
     }
@@ -65,11 +76,7 @@ export async function POST(request: Request) {
 
     await supabase
       .from('events')
-      .update(
-        kind === 'cover'
-          ? { cover_image_url: url }
-          : { background_image_url: url }
-      )
+      .update({ [eventVisualColumns[kind]]: url })
       .eq('id', eventId)
 
     return NextResponse.json({ ok: true, url, storagePath })

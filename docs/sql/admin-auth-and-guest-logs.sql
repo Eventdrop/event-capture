@@ -35,6 +35,9 @@ alter table public.events
 alter table public.events
   add column if not exists allow_guest_poster boolean not null default false;
 
+alter table public.events
+  add column if not exists poster_template_url text;
+
 alter table public.uploads
   add column if not exists share_code text;
 

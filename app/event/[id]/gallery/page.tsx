@@ -24,6 +24,12 @@ const POSTER_GAP = 24
 const POSTER_MARGIN = 72
 const POSTER_FOOTER_HEIGHT = 190
 const POSTER_LOGO_URL = '/photobooth-holland-logo.png'
+const POSTER_TEMPLATE_PHOTO_AREA = {
+  x: 190,
+  y: 560,
+  width: POSTER_WIDTH - 380,
+  height: POSTER_HEIGHT - 1040,
+}
 
 type CanvasImageResource = {
   image: HTMLImageElement
@@ -77,6 +83,23 @@ function drawCoverImage(
   const sourceY = y + (height - scaledHeight) / 2
 
   context.drawImage(image, sourceX, sourceY, scaledWidth, scaledHeight)
+}
+
+function drawContainImage(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) {
+  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight)
+  const scaledWidth = image.naturalWidth * scale
+  const scaledHeight = image.naturalHeight * scale
+  const targetX = x + (width - scaledWidth) / 2
+  const targetY = y + (height - scaledHeight) / 2
+
+  context.drawImage(image, targetX, targetY, scaledWidth, scaledHeight)
 }
 
 function drawPosterTitle(
@@ -133,7 +156,7 @@ function drawPosterTile(
   context.beginPath()
   context.rect(x, y, width, height)
   context.clip()
-  drawCoverImage(context, image, x, y, width, height)
+  drawContainImage(context, image, x, y, width, height)
   context.restore()
 }
 
@@ -476,6 +499,7 @@ export default function Page() {
 
     const resources: CanvasImageResource[] = []
     let logoResource: CanvasImageResource | null = null
+    let templateResource: CanvasImageResource | null = null
 
     try {
       const posterItems = selectedItems.slice(0, POSTER_MAX_TILES)
@@ -485,6 +509,9 @@ export default function Page() {
 
       resources.push(...loadedImages)
       logoResource = await loadCanvasImage(POSTER_LOGO_URL).catch(() => null)
+      templateResource = currentEvent?.posterTemplateUrl
+        ? await loadCanvasImage(currentEvent.posterTemplateUrl).catch(() => null)
+        : null
 
       const canvas = document.createElement('canvas')
       canvas.width = POSTER_WIDTH
@@ -499,78 +526,102 @@ export default function Page() {
       context.fillStyle = '#050505'
       context.fillRect(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
 
-      const titleBottom = drawPosterTitle(
-        context,
-        eventName,
-        POSTER_MARGIN,
-        POSTER_MARGIN + 56,
-        POSTER_WIDTH - POSTER_MARGIN * 2
-      )
-      const gridTop = Math.max(POSTER_MARGIN + 190, titleBottom + 44)
-      const footerTop = POSTER_HEIGHT - POSTER_MARGIN - POSTER_FOOTER_HEIGHT
-      const gridHeight = footerTop - gridTop - POSTER_GAP
-      const columns = posterItems.length === 1 ? 1 : 2
-      const rows = Math.ceil(posterItems.length / columns)
-      const tileWidth =
-        (POSTER_WIDTH - POSTER_MARGIN * 2 - POSTER_GAP * (columns - 1)) / columns
-      const tileHeight = (gridHeight - POSTER_GAP * (rows - 1)) / rows
+      if (templateResource) {
+        const { x, y, width, height } = POSTER_TEMPLATE_PHOTO_AREA
+        const columns = posterItems.length === 1 ? 1 : 2
+        const rows = Math.ceil(posterItems.length / columns)
+        const tileWidth = (width - POSTER_GAP * (columns - 1)) / columns
+        const tileHeight = (height - POSTER_GAP * (rows - 1)) / rows
 
-      loadedImages.forEach(({ image }, index) => {
-        const column = index % columns
-        const row = Math.floor(index / columns)
+        loadedImages.forEach(({ image }, index) => {
+          const column = index % columns
+          const row = Math.floor(index / columns)
 
-        drawPosterTile(
+          drawPosterTile(
+            context,
+            image,
+            x + column * (tileWidth + POSTER_GAP),
+            y + row * (tileHeight + POSTER_GAP),
+            tileWidth,
+            tileHeight
+          )
+        })
+
+        drawCoverImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+      } else {
+        const titleBottom = drawPosterTitle(
           context,
-          image,
-          POSTER_MARGIN + column * (tileWidth + POSTER_GAP),
-          gridTop + row * (tileHeight + POSTER_GAP),
-          tileWidth,
-          tileHeight
-        )
-      })
-
-      context.fillStyle = '#000'
-      context.fillRect(0, footerTop, POSTER_WIDTH, POSTER_FOOTER_HEIGHT)
-
-      if (logoResource) {
-        const logoSize = 128
-
-        context.save()
-        context.beginPath()
-        context.arc(
-          POSTER_MARGIN + logoSize / 2,
-          footerTop + POSTER_FOOTER_HEIGHT / 2,
-          logoSize / 2,
-          0,
-          Math.PI * 2
-        )
-        context.clip()
-        drawCoverImage(
-          context,
-          logoResource.image,
+          eventName,
           POSTER_MARGIN,
-          footerTop + (POSTER_FOOTER_HEIGHT - logoSize) / 2,
-          logoSize,
-          logoSize
+          POSTER_MARGIN + 56,
+          POSTER_WIDTH - POSTER_MARGIN * 2
         )
-        context.restore()
+        const gridTop = Math.max(POSTER_MARGIN + 190, titleBottom + 44)
+        const footerTop = POSTER_HEIGHT - POSTER_MARGIN - POSTER_FOOTER_HEIGHT
+        const gridHeight = footerTop - gridTop - POSTER_GAP
+        const columns = posterItems.length === 1 ? 1 : 2
+        const rows = Math.ceil(posterItems.length / columns)
+        const tileWidth =
+          (POSTER_WIDTH - POSTER_MARGIN * 2 - POSTER_GAP * (columns - 1)) / columns
+        const tileHeight = (gridHeight - POSTER_GAP * (rows - 1)) / rows
+
+        loadedImages.forEach(({ image }, index) => {
+          const column = index % columns
+          const row = Math.floor(index / columns)
+
+          drawPosterTile(
+            context,
+            image,
+            POSTER_MARGIN + column * (tileWidth + POSTER_GAP),
+            gridTop + row * (tileHeight + POSTER_GAP),
+            tileWidth,
+            tileHeight
+          )
+        })
+
+        context.fillStyle = '#000'
+        context.fillRect(0, footerTop, POSTER_WIDTH, POSTER_FOOTER_HEIGHT)
+
+        if (logoResource) {
+          const logoSize = 128
+
+          context.save()
+          context.beginPath()
+          context.arc(
+            POSTER_MARGIN + logoSize / 2,
+            footerTop + POSTER_FOOTER_HEIGHT / 2,
+            logoSize / 2,
+            0,
+            Math.PI * 2
+          )
+          context.clip()
+          drawCoverImage(
+            context,
+            logoResource.image,
+            POSTER_MARGIN,
+            footerTop + (POSTER_FOOTER_HEIGHT - logoSize) / 2,
+            logoSize,
+            logoSize
+          )
+          context.restore()
+        }
+
+        context.fillStyle = '#fff'
+        context.font = '700 42px Arial, sans-serif'
+        context.fillText('Photobooth Holland', POSTER_MARGIN + 158, footerTop + 82)
+        context.fillStyle = '#d9d9d9'
+        context.font = '400 28px Arial, sans-serif'
+        context.fillText('www.photoboothholland.com', POSTER_MARGIN + 158, footerTop + 126)
+        context.textAlign = 'right'
+        context.fillStyle = '#fff'
+        context.font = '600 30px Arial, sans-serif'
+
+        if (currentEvent?.eventDate) {
+          context.fillText(currentEvent.eventDate, POSTER_WIDTH - POSTER_MARGIN, footerTop + 106)
+        }
+
+        context.textAlign = 'left'
       }
-
-      context.fillStyle = '#fff'
-      context.font = '700 42px Arial, sans-serif'
-      context.fillText('Photobooth Holland', POSTER_MARGIN + 158, footerTop + 82)
-      context.fillStyle = '#d9d9d9'
-      context.font = '400 28px Arial, sans-serif'
-      context.fillText('www.photoboothholland.com', POSTER_MARGIN + 158, footerTop + 126)
-      context.textAlign = 'right'
-      context.fillStyle = '#fff'
-      context.font = '600 30px Arial, sans-serif'
-
-      if (currentEvent?.eventDate) {
-        context.fillText(currentEvent.eventDate, POSTER_WIDTH - POSTER_MARGIN, footerTop + 106)
-      }
-
-      context.textAlign = 'left'
 
       const blob = await new Promise<Blob | null>((resolve) => {
         canvas.toBlob(resolve, 'image/png')
@@ -590,6 +641,10 @@ export default function Page() {
 
       if (logoResource) {
         window.URL.revokeObjectURL(logoResource.objectUrl)
+      }
+
+      if (templateResource) {
+        window.URL.revokeObjectURL(templateResource.objectUrl)
       }
 
       setCreatingPoster(false)
@@ -734,6 +789,17 @@ export default function Page() {
                 ? t.gallery.downloadingAll
                 : t.gallery.downloadingSelected}
           </div>
+        ) : currentEvent ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mb-4 flex flex-col gap-1 rounded-2xl border border-white/30 bg-white/85 px-4 py-3 text-sm font-semibold text-[#33516F] shadow-[0_12px_30px_rgba(15,33,53,0.1)] backdrop-blur sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span className="min-w-0 truncate text-stone-950">{eventName}</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#597594]">
+              {items.length} {t.gallery.showing}
+            </span>
+          </div>
         ) : statusMessage ? (
           <div
             role="status"
@@ -744,26 +810,26 @@ export default function Page() {
           </div>
         ) : null}
 
-        <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur lg:flex-row lg:items-center lg:justify-between">
+        <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur">
           <div className="min-w-0 flex-1">
             <div
-              className="mt-3 h-44 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-52 lg:h-56"
+              className="h-44 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-56 lg:aspect-[3/1] lg:h-auto xl:aspect-[18/5]"
               style={eventCoverStyle}
             />
-            <h1 className="mt-3 text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
+            <h1 className="sr-only">
               {eventName}
             </h1>
             <p className="mt-1 text-sm text-[#597594]">
-              {downloadInProgress ? t.gallery.downloadPreparing : statusMessage}
+              {items.length} {t.gallery.showing}
             </p>
           </div>
 
-          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-2 xl:flex xl:flex-row">
+          <div className="flex w-full flex-wrap items-center gap-2">
             {downloadEnabled ? (
               <button
                 onClick={downloadSelected}
                 disabled={selected.length === 0 || downloadingSelected}
-                className={`inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-semibold ${
+                className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
                   selected.length === 0 || downloadingSelected
                     ? 'cursor-not-allowed bg-stone-300 text-stone-500'
                     : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
@@ -780,7 +846,7 @@ export default function Page() {
                 <button
                   onClick={downloadAll}
                   disabled={items.length === 0 || downloadingAll}
-                  className={`inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-semibold ${
+                  className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
                     items.length === 0 || downloadingAll
                       ? 'cursor-not-allowed bg-stone-300 text-stone-500'
                       : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
@@ -797,7 +863,7 @@ export default function Page() {
                 type="button"
                 onClick={createPoster}
                 disabled={selectedItems.length === 0 || creatingPoster}
-                className={`inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-semibold ${
+                className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
                   selectedItems.length === 0 || creatingPoster
                     ? 'cursor-not-allowed bg-stone-300 text-stone-500'
                     : 'bg-stone-950 text-white hover:bg-stone-800'
@@ -814,7 +880,7 @@ export default function Page() {
 
             <Link
               href={uploadPageUrl}
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-5 py-3 text-center text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+              className="inline-flex min-h-9 flex-1 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-center text-xs font-semibold text-[#0F3D66] shadow-sm hover:bg-[#EDF4FB] sm:flex-none"
             >
               {t.gallery.backToUpload}
             </Link>
@@ -850,7 +916,7 @@ export default function Page() {
                       width={1200}
                       height={1200}
                       unoptimized
-                      className="aspect-square w-full object-cover"
+                      className="aspect-[4/5] w-full bg-stone-950 object-contain"
                     />
                     <button
                       type="button"

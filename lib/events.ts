@@ -8,6 +8,7 @@ type EventRecordLike = {
   access_code?: string | null
   cover_image_url?: string | null
   background_image_url?: string | null
+  poster_template_url?: string | null
   event_date?: string | null
   allow_guest_share?: boolean | null
   allow_guest_download?: boolean | null
@@ -26,6 +27,7 @@ export type NormalizedEvent = {
   accessCode: string
   coverImageUrl: string
   backgroundImageUrl: string
+  posterTemplateUrl: string
   eventDate: string | null
   allowGuestShare: boolean
   allowGuestDownload: boolean
@@ -126,6 +128,7 @@ export function buildEventInsertPayload(input: {
   accessCodeEnabled?: boolean
   coverImageUrl?: string
   backgroundImageUrl?: string
+  posterTemplateUrl?: string
   allowGuestShare?: boolean
   allowGuestDownload?: boolean
   allowAlbumDownload?: boolean
@@ -136,7 +139,7 @@ export function buildEventInsertPayload(input: {
     ? null
     : normalizeEventAccessCode(input.accessCode || generateEventAccessCode())
   const slugBase = slugifyEventName(`${input.name}-${input.albumName}`) || 'eventdrop-event'
-  return {
+  const payload = {
     name: input.name.trim(),
     album_name: input.albumName.trim(),
     slug: `${slugBase}-${Math.random().toString(36).slice(2, 6)}`,
@@ -151,6 +154,10 @@ export function buildEventInsertPayload(input: {
     allow_guest_poster: input.allowGuestPoster === true,
     expires_at: null,
   }
+
+  return input.posterTemplateUrl
+    ? { ...payload, poster_template_url: input.posterTemplateUrl }
+    : payload
 }
 
 export function normalizeEventRecord(
@@ -166,6 +173,7 @@ export function normalizeEventRecord(
     accessCode: deriveEventAccessCode(record),
     coverImageUrl: record.cover_image_url || '',
     backgroundImageUrl: record.background_image_url || '',
+    posterTemplateUrl: record.poster_template_url || '',
     eventDate: record.event_date || null,
     allowGuestShare: record.allow_guest_share !== false,
     allowGuestDownload: record.allow_guest_download !== false,

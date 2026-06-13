@@ -107,10 +107,13 @@ type TranslationTree = {
     regenerateCode: string
     coverImage: string
     backgroundImage: string
+    posterTemplateImage: string
     uploadCover: string
     uploadBackground: string
+    uploadPosterTemplate: string
     updateCover: string
     updateBackground: string
+    updatePosterTemplate: string
     eventDetails: string
     saveEventDetails: string
     eventDetailsSaved: string
@@ -428,10 +431,13 @@ export const translations: Record<Locale, TranslationTree> = {
       regenerateCode: 'Yeni kod uret',
       coverImage: 'Etkinlik gorseli',
       backgroundImage: 'Arka plan gorseli',
+      posterTemplateImage: 'A3 poster sablonu',
       uploadCover: 'Etkinlik gorseli yukle',
       uploadBackground: 'Arka plan yukle',
+      uploadPosterTemplate: 'A3 sablon yukle',
       updateCover: 'Kapak degistir',
       updateBackground: 'Arka plan degistir',
+      updatePosterTemplate: 'A3 sablon degistir',
       eventDetails: 'Album bilgileri',
       saveEventDetails: 'Baslik ve album adini kaydet',
       eventDetailsSaved: 'Album bilgileri kaydedildi.',
@@ -831,10 +837,13 @@ export const translations: Record<Locale, TranslationTree> = {
       regenerateCode: 'Nieuwe code genereren',
       coverImage: 'Omslagafbeelding',
       backgroundImage: 'Achtergrondafbeelding',
+      posterTemplateImage: 'A3-postersjabloon',
       uploadCover: 'Omslagafbeelding uploaden',
       uploadBackground: 'Achtergrond uploaden',
+      uploadPosterTemplate: 'A3-sjabloon uploaden',
       updateCover: 'Omslag wijzigen',
       updateBackground: 'Achtergrond wijzigen',
+      updatePosterTemplate: 'A3-sjabloon wijzigen',
       eventDetails: 'Albumgegevens',
       saveEventDetails: 'Naam en album opslaan',
       eventDetailsSaved: 'Albumgegevens opgeslagen.',
@@ -1234,10 +1243,13 @@ export const translations: Record<Locale, TranslationTree> = {
       regenerateCode: 'Generate new code',
       coverImage: 'Event cover image',
       backgroundImage: 'Background image',
+      posterTemplateImage: 'A3 poster template',
       uploadCover: 'Upload cover image',
       uploadBackground: 'Upload background image',
+      uploadPosterTemplate: 'Upload A3 template',
       updateCover: 'Change cover',
       updateBackground: 'Change background',
+      updatePosterTemplate: 'Change A3 template',
       eventDetails: 'Album details',
       saveEventDetails: 'Save title and album name',
       eventDetailsSaved: 'Album details saved.',

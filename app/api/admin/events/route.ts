@@ -138,6 +138,7 @@ export async function POST(request: Request) {
       accessCodeEnabled?: boolean
       coverImageUrl?: string
       backgroundImageUrl?: string
+      posterTemplateUrl?: string
       allowGuestShare?: boolean
       allowGuestDownload?: boolean
       allowAlbumDownload?: boolean
@@ -153,6 +154,7 @@ export async function POST(request: Request) {
   const accessCodeEnabled = body?.accessCodeEnabled !== false
   const coverImageUrl = body?.coverImageUrl?.trim() || ''
   const backgroundImageUrl = body?.backgroundImageUrl?.trim() || ''
+  const posterTemplateUrl = body?.posterTemplateUrl?.trim() || ''
   const allowGuestShare = body?.allowGuestShare !== false
   const allowGuestDownload = body?.allowGuestDownload !== false
   const allowAlbumDownload = body?.allowAlbumDownload !== false
@@ -179,6 +181,7 @@ export async function POST(request: Request) {
       accessCodeEnabled,
       coverImageUrl,
       backgroundImageUrl,
+      posterTemplateUrl,
       allowGuestShare,
       allowGuestDownload,
       allowAlbumDownload,
@@ -197,6 +200,8 @@ export async function POST(request: Request) {
     let createdRecord = richInsert.data
 
     if (richInsert.error) {
+      const posterTemplatePayload =
+        'poster_template_url' in payload ? payload.poster_template_url : null
       const withoutAccessCode = {
         name: payload.name,
         album_name: payload.album_name,
@@ -204,6 +209,7 @@ export async function POST(request: Request) {
         event_date: payload.event_date,
         cover_image_url: payload.cover_image_url,
         background_image_url: payload.background_image_url,
+        ...(posterTemplatePayload ? { poster_template_url: posterTemplatePayload } : {}),
         allow_guest_share: payload.allow_guest_share,
         allow_guest_download: payload.allow_guest_download,
         allow_guest_delete: payload.allow_guest_delete,
