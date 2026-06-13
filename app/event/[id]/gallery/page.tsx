@@ -20,15 +20,15 @@ import { supabase } from '@/lib/supabase'
 const POSTER_WIDTH = 2480
 const POSTER_HEIGHT = 3508
 const POSTER_MAX_TILES = 10
-const POSTER_GAP = 24
-const POSTER_MARGIN = 72
-const POSTER_FOOTER_HEIGHT = 190
+const POSTER_GAP = 10
+const POSTER_MARGIN = 56
+const POSTER_FOOTER_HEIGHT = 160
 const POSTER_LOGO_URL = '/photobooth-holland-logo.png'
 const POSTER_TEMPLATE_PHOTO_AREA = {
-  x: 190,
-  y: 560,
-  width: POSTER_WIDTH - 380,
-  height: POSTER_HEIGHT - 1040,
+  x: 120,
+  y: 390,
+  width: POSTER_WIDTH - 240,
+  height: POSTER_HEIGHT - 760,
 }
 
 type CanvasImageResource = {
@@ -158,6 +158,73 @@ function drawPosterTile(
   context.clip()
   drawContainImage(context, image, x, y, width, height)
   context.restore()
+}
+
+function getPosterTileRects(
+  images: HTMLImageElement[],
+  area: { x: number; y: number; width: number; height: number }
+) {
+  if (images.length === 0) return []
+
+  const columns = images.length === 1 ? 1 : 2
+  const columnWidth = (area.width - POSTER_GAP * (columns - 1)) / columns
+  const columnsState = Array.from({ length: columns }, (_, index) => ({
+    height: 0,
+    index,
+    rects: [] as Array<{
+      image: HTMLImageElement
+      x: number
+      y: number
+      width: number
+      height: number
+    }>,
+  }))
+
+  images.forEach((image) => {
+    const naturalRatio = image.naturalHeight / image.naturalWidth
+    const tileRatio = Math.min(2.45, Math.max(0.62, naturalRatio))
+    const targetColumn = columnsState.reduce((shortest, column) =>
+      column.height < shortest.height ? column : shortest
+    )
+    const tileHeight = columnWidth * tileRatio
+
+    targetColumn.rects.push({
+      image,
+      x: area.x + targetColumn.index * (columnWidth + POSTER_GAP),
+      y: targetColumn.height,
+      width: columnWidth,
+      height: tileHeight,
+    })
+    targetColumn.height += tileHeight + POSTER_GAP
+  })
+
+  const tallestColumn = Math.max(
+    ...columnsState.map((column) => Math.max(0, column.height - POSTER_GAP))
+  )
+  const scale = tallestColumn > 0 ? area.height / tallestColumn : 1
+
+  return columnsState.flatMap((column) => {
+    const columnHeight = Math.max(0, column.height - POSTER_GAP) * scale
+    const topOffset = area.y + Math.max(0, (area.height - columnHeight) / 2)
+
+    return column.rects.map((rect) => ({
+      image: rect.image,
+      x: rect.x,
+      y: topOffset + rect.y * scale,
+      width: rect.width,
+      height: rect.height * scale,
+    }))
+  })
+}
+
+function drawPosterMasonry(
+  context: CanvasRenderingContext2D,
+  images: HTMLImageElement[],
+  area: { x: number; y: number; width: number; height: number }
+) {
+  getPosterTileRects(images, area).forEach((rect) => {
+    drawPosterTile(context, rect.image, rect.x, rect.y, rect.width, rect.height)
+  })
 }
 
 export default function Page() {
@@ -527,25 +594,11 @@ export default function Page() {
       context.fillRect(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
 
       if (templateResource) {
-        const { x, y, width, height } = POSTER_TEMPLATE_PHOTO_AREA
-        const columns = posterItems.length === 1 ? 1 : 2
-        const rows = Math.ceil(posterItems.length / columns)
-        const tileWidth = (width - POSTER_GAP * (columns - 1)) / columns
-        const tileHeight = (height - POSTER_GAP * (rows - 1)) / rows
-
-        loadedImages.forEach(({ image }, index) => {
-          const column = index % columns
-          const row = Math.floor(index / columns)
-
-          drawPosterTile(
-            context,
-            image,
-            x + column * (tileWidth + POSTER_GAP),
-            y + row * (tileHeight + POSTER_GAP),
-            tileWidth,
-            tileHeight
-          )
-        })
+        drawPosterMasonry(
+          context,
+          loadedImages.map(({ image }) => image),
+          POSTER_TEMPLATE_PHOTO_AREA
+        )
 
         drawCoverImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
       } else {
@@ -556,28 +609,20 @@ export default function Page() {
           POSTER_MARGIN + 56,
           POSTER_WIDTH - POSTER_MARGIN * 2
         )
-        const gridTop = Math.max(POSTER_MARGIN + 190, titleBottom + 44)
+        const gridTop = Math.max(POSTER_MARGIN + 150, titleBottom + 30)
         const footerTop = POSTER_HEIGHT - POSTER_MARGIN - POSTER_FOOTER_HEIGHT
-        const gridHeight = footerTop - gridTop - POSTER_GAP
-        const columns = posterItems.length === 1 ? 1 : 2
-        const rows = Math.ceil(posterItems.length / columns)
-        const tileWidth =
-          (POSTER_WIDTH - POSTER_MARGIN * 2 - POSTER_GAP * (columns - 1)) / columns
-        const tileHeight = (gridHeight - POSTER_GAP * (rows - 1)) / rows
+        const gridArea = {
+          x: POSTER_MARGIN,
+          y: gridTop,
+          width: POSTER_WIDTH - POSTER_MARGIN * 2,
+          height: footerTop - gridTop - 12,
+        }
 
-        loadedImages.forEach(({ image }, index) => {
-          const column = index % columns
-          const row = Math.floor(index / columns)
-
-          drawPosterTile(
-            context,
-            image,
-            POSTER_MARGIN + column * (tileWidth + POSTER_GAP),
-            gridTop + row * (tileHeight + POSTER_GAP),
-            tileWidth,
-            tileHeight
-          )
-        })
+        drawPosterMasonry(
+          context,
+          loadedImages.map(({ image }) => image),
+          gridArea
+        )
 
         context.fillStyle = '#000'
         context.fillRect(0, footerTop, POSTER_WIDTH, POSTER_FOOTER_HEIGHT)
@@ -819,9 +864,6 @@ export default function Page() {
             <h1 className="sr-only">
               {eventName}
             </h1>
-            <p className="mt-1 text-sm text-[#597594]">
-              {items.length} {t.gallery.showing}
-            </p>
           </div>
 
           <div className="flex w-full flex-wrap items-center gap-2">
