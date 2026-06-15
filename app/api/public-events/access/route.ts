@@ -23,6 +23,16 @@ function isEventActive(event: Pick<NormalizedEvent, 'expiresAt'>) {
   return true
 }
 
+function isMissingColumnError(error: { message?: string } | null | undefined) {
+  const message = (error?.message || '').toLowerCase()
+
+  return (
+    message.includes('column') ||
+    message.includes('schema cache') ||
+    message.includes('could not find')
+  )
+}
+
 async function persistGuestAccessLog(input: {
   eventId: string
   eventSlug: string
@@ -141,7 +151,7 @@ export async function POST(request: Request) {
           }
         )
 
-        if (slugLookup.error) {
+        if (slugLookup.error && !isMissingColumnError(slugLookup.error)) {
           throw slugLookup.error
         }
 
@@ -182,7 +192,7 @@ export async function POST(request: Request) {
         }
       )
 
-      if (codeLookup.error) {
+      if (codeLookup.error && !isMissingColumnError(codeLookup.error)) {
         throw codeLookup.error
       }
 
@@ -191,6 +201,32 @@ export async function POST(request: Request) {
           .map((item) => normalizeEventRecord(item))
           .filter((item): item is NormalizedEvent => Boolean(item))
           .filter(isEventActive)[0] || null
+
+      if (!matchedEvent && isMissingColumnError(codeLookup.error)) {
+        const fallbackLookup = await withRetry(
+          () =>
+            supabase
+              .from('events')
+              .select('*')
+              .order('created_at', { ascending: false })
+              .limit(100),
+          {
+            attempts: 3,
+            delayMs: 250,
+          }
+        )
+
+        if (fallbackLookup.error) {
+          throw fallbackLookup.error
+        }
+
+        matchedEvent =
+          (fallbackLookup.data || [])
+            .map((item) => normalizeEventRecord(item))
+            .filter((item): item is NormalizedEvent => Boolean(item))
+            .filter(isEventActive)
+            .find((event) => event.accessCode === code) || null
+      }
     }
 
     if (!matchedEvent) {

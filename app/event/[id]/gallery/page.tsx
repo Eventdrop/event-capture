@@ -19,7 +19,7 @@ import { supabase } from '@/lib/supabase'
 
 const POSTER_WIDTH = 2480
 const POSTER_HEIGHT = 3508
-const POSTER_MAX_TILES = 10
+const POSTER_MAX_TILES = 15
 const POSTER_GAP = 10
 const POSTER_MARGIN = 56
 const POSTER_FOOTER_HEIGHT = 160
@@ -85,22 +85,6 @@ function drawCoverImage(
   context.drawImage(image, sourceX, sourceY, scaledWidth, scaledHeight)
 }
 
-function drawContainImage(
-  context: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  x: number,
-  y: number,
-  width: number,
-  height: number
-) {
-  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight)
-  const scaledWidth = image.naturalWidth * scale
-  const scaledHeight = image.naturalHeight * scale
-  const targetX = x + (width - scaledWidth) / 2
-  const targetY = y + (height - scaledHeight) / 2
-
-  context.drawImage(image, targetX, targetY, scaledWidth, scaledHeight)
-}
 
 function drawPosterTitle(
   context: CanvasRenderingContext2D,
@@ -156,8 +140,24 @@ function drawPosterTile(
   context.beginPath()
   context.rect(x, y, width, height)
   context.clip()
-  drawContainImage(context, image, x, y, width, height)
+  drawCoverImage(context, image, x, y, width, height)
   context.restore()
+}
+
+function getPosterColumnCount(imageCount: number) {
+  if (imageCount <= 1) return 1
+  if (imageCount <= 6) return 2
+  return 3
+}
+
+function getPosterTileRatio(image: HTMLImageElement, imageCount: number) {
+  const naturalRatio = image.naturalHeight / image.naturalWidth
+
+  if (imageCount >= 9) {
+    return Math.min(1.65, Math.max(0.72, naturalRatio))
+  }
+
+  return Math.min(2.15, Math.max(0.62, naturalRatio))
 }
 
 function getPosterTileRects(
@@ -166,7 +166,7 @@ function getPosterTileRects(
 ) {
   if (images.length === 0) return []
 
-  const columns = images.length === 1 ? 1 : 2
+  const columns = getPosterColumnCount(images.length)
   const columnWidth = (area.width - POSTER_GAP * (columns - 1)) / columns
   const columnsState = Array.from({ length: columns }, (_, index) => ({
     height: 0,
@@ -181,8 +181,7 @@ function getPosterTileRects(
   }))
 
   images.forEach((image) => {
-    const naturalRatio = image.naturalHeight / image.naturalWidth
-    const tileRatio = Math.min(2.45, Math.max(0.62, naturalRatio))
+    const tileRatio = getPosterTileRatio(image, images.length)
     const targetColumn = columnsState.reduce((shortest, column) =>
       column.height < shortest.height ? column : shortest
     )

@@ -25,10 +25,12 @@ export function EventAccessForm({
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [statusMessage, setStatusMessage] = useState(t.home.accessHint)
+  const [hasSubmitted, setHasSubmitted] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setHasSubmitted(true)
 
     if (!email.trim() || !isValidEmail(email)) {
       setStatusMessage(t.home.emailRequired)
@@ -146,7 +148,7 @@ export function EventAccessForm({
           compact ? 'text-[9px] tracking-[0.08em]' : 'text-xs tracking-[0.16em]'
         }`}
       >
-        {eventIdentifier
+        {eventIdentifier && !hasSubmitted
           ? requireCode
             ? t.home.prefilledEvent
             : t.home.prefilledEventEmailOnly
