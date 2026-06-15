@@ -20,7 +20,7 @@ import { supabase } from '@/lib/supabase'
 const POSTER_WIDTH = 2480
 const POSTER_HEIGHT = 3508
 const POSTER_MAX_TILES = 15
-const POSTER_GAP = 10
+const POSTER_GAP = 18
 const POSTER_MARGIN = 56
 const POSTER_FOOTER_HEIGHT = 160
 const POSTER_LOGO_URL = '/photobooth-holland-logo.png'
@@ -144,20 +144,14 @@ function drawPosterTile(
   context.restore()
 }
 
-function getPosterColumnCount(imageCount: number) {
-  if (imageCount <= 1) return 1
-  if (imageCount <= 6) return 2
-  return 3
-}
-
-function getPosterTileRatio(image: HTMLImageElement, imageCount: number) {
-  const naturalRatio = image.naturalHeight / image.naturalWidth
-
-  if (imageCount >= 9) {
-    return Math.min(1.65, Math.max(0.72, naturalRatio))
-  }
-
-  return Math.min(2.15, Math.max(0.62, naturalRatio))
+function getPosterGridSize(imageCount: number) {
+  if (imageCount <= 1) return { columns: 1, rows: 1 }
+  if (imageCount <= 2) return { columns: 2, rows: 1 }
+  if (imageCount <= 4) return { columns: 2, rows: 2 }
+  if (imageCount <= 6) return { columns: 2, rows: 3 }
+  if (imageCount <= 9) return { columns: 3, rows: 3 }
+  if (imageCount <= 12) return { columns: 3, rows: 4 }
+  return { columns: 3, rows: 5 }
 }
 
 function getPosterTileRects(
@@ -166,61 +160,37 @@ function getPosterTileRects(
 ) {
   if (images.length === 0) return []
 
-  const columns = getPosterColumnCount(images.length)
-  const columnWidth = (area.width - POSTER_GAP * (columns - 1)) / columns
-  const columnsState = Array.from({ length: columns }, (_, index) => ({
-    height: 0,
-    index,
-    rects: [] as Array<{
-      image: HTMLImageElement
-      x: number
-      y: number
-      width: number
-      height: number
-    }>,
-  }))
+  const { columns, rows } = getPosterGridSize(images.length)
+  const tileWidth = (area.width - POSTER_GAP * (columns - 1)) / columns
+  const tileHeight = (area.height - POSTER_GAP * (rows - 1)) / rows
+  const usedRows = Math.ceil(images.length / columns)
+  const usedHeight = usedRows * tileHeight + Math.max(0, usedRows - 1) * POSTER_GAP
+  const topOffset = area.y + Math.max(0, (area.height - usedHeight) / 2)
 
-  images.forEach((image) => {
-    const tileRatio = getPosterTileRatio(image, images.length)
-    const targetColumn = columnsState.reduce((shortest, column) =>
-      column.height < shortest.height ? column : shortest
-    )
-    const tileHeight = columnWidth * tileRatio
+  return images.map((image, index) => {
+    const row = Math.floor(index / columns)
+    const column = index % columns
 
-    targetColumn.rects.push({
+    return {
       image,
-      x: area.x + targetColumn.index * (columnWidth + POSTER_GAP),
-      y: targetColumn.height,
-      width: columnWidth,
+      x: area.x + column * (tileWidth + POSTER_GAP),
+      y: topOffset + row * (tileHeight + POSTER_GAP),
+      width: tileWidth,
       height: tileHeight,
-    })
-    targetColumn.height += tileHeight + POSTER_GAP
-  })
-
-  const tallestColumn = Math.max(
-    ...columnsState.map((column) => Math.max(0, column.height - POSTER_GAP))
-  )
-  const scale = tallestColumn > 0 ? area.height / tallestColumn : 1
-
-  return columnsState.flatMap((column) => {
-    const columnHeight = Math.max(0, column.height - POSTER_GAP) * scale
-    const topOffset = area.y + Math.max(0, (area.height - columnHeight) / 2)
-
-    return column.rects.map((rect) => ({
-      image: rect.image,
-      x: rect.x,
-      y: topOffset + rect.y * scale,
-      width: rect.width,
-      height: rect.height * scale,
-    }))
+    }
   })
 }
 
-function drawPosterMasonry(
+function drawPosterGrid(
   context: CanvasRenderingContext2D,
   images: HTMLImageElement[],
   area: { x: number; y: number; width: number; height: number }
 ) {
+  context.save()
+  context.fillStyle = '#050505'
+  context.fillRect(area.x, area.y, area.width, area.height)
+  context.restore()
+
   getPosterTileRects(images, area).forEach((rect) => {
     drawPosterTile(context, rect.image, rect.x, rect.y, rect.width, rect.height)
   })
@@ -324,9 +294,10 @@ export default function Page() {
         const payload = (await response.json()) as {
           coverImageUrl?: string
           backgroundImageUrl?: string
+          posterTemplateUrl?: string
         }
 
-        if (!payload.coverImageUrl && !payload.backgroundImageUrl) return
+        if (!payload.coverImageUrl && !payload.backgroundImageUrl && !payload.posterTemplateUrl) return
 
         setCurrentEvent((prev) =>
           prev
@@ -335,6 +306,8 @@ export default function Page() {
                 coverImageUrl: payload.coverImageUrl || prev.coverImageUrl,
                 backgroundImageUrl:
                   payload.backgroundImageUrl || prev.backgroundImageUrl,
+                posterTemplateUrl:
+                  payload.posterTemplateUrl || prev.posterTemplateUrl,
               }
             : prev
         )
@@ -593,7 +566,7 @@ export default function Page() {
       context.fillRect(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
 
       if (templateResource) {
-        drawPosterMasonry(
+        drawPosterGrid(
           context,
           loadedImages.map(({ image }) => image),
           POSTER_TEMPLATE_PHOTO_AREA
@@ -617,7 +590,7 @@ export default function Page() {
           height: footerTop - gridTop - 12,
         }
 
-        drawPosterMasonry(
+        drawPosterGrid(
           context,
           loadedImages.map(({ image }) => image),
           gridArea

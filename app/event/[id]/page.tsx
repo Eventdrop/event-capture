@@ -28,6 +28,7 @@ const PHOTO_MAX_BYTES = 20 * 1024 * 1024
 const PHOTO_COMPRESS_THRESHOLD_BYTES = 1.5 * 1024 * 1024
 const PHOTO_COMPRESS_MAX_DIMENSION = 2000
 const PHOTO_COMPRESS_QUALITY = 0.82
+const PHOTO_MAX_ASPECT_RATIO = 2.75
 const GUEST_MESSAGE_MAX_LENGTH = 240
 
 function limitGuestMessage(value: string) {
@@ -56,6 +57,26 @@ function loadImageFromFile(file: File) {
 
     image.src = objectUrl
   })
+}
+
+async function isPhotoAspectRatioAllowed(file: File) {
+  const lowerName = file.name.toLowerCase()
+
+  if (lowerName.endsWith('.heic') || lowerName.endsWith('.heif')) {
+    return true
+  }
+
+  try {
+    const image = await loadImageFromFile(file)
+    const width = image.naturalWidth || image.width
+    const height = image.naturalHeight || image.height
+
+    if (!width || !height) return true
+
+    return Math.max(width / height, height / width) <= PHOTO_MAX_ASPECT_RATIO
+  } catch {
+    return true
+  }
 }
 
 async function compressPhotoForUpload(file: File) {
@@ -209,9 +230,10 @@ export default function Page() {
         const payload = (await response.json()) as {
           coverImageUrl?: string
           backgroundImageUrl?: string
+          posterTemplateUrl?: string
         }
 
-        if (!payload.coverImageUrl && !payload.backgroundImageUrl) return
+        if (!payload.coverImageUrl && !payload.backgroundImageUrl && !payload.posterTemplateUrl) return
 
         setCurrentEvent((prev) =>
           prev
@@ -220,6 +242,8 @@ export default function Page() {
                 coverImageUrl: payload.coverImageUrl || prev.coverImageUrl,
                 backgroundImageUrl:
                   payload.backgroundImageUrl || prev.backgroundImageUrl,
+                posterTemplateUrl:
+                  payload.posterTemplateUrl || prev.posterTemplateUrl,
               }
             : prev
         )
@@ -304,6 +328,7 @@ export default function Page() {
     const validFiles: File[] = []
     let unsupportedFiles = 0
     let oversizedPhotos = 0
+    let awkwardRatioPhotos = 0
 
     for (const file of limitedFiles) {
       const mediaKind = getMediaKind(file)
@@ -318,6 +343,11 @@ export default function Page() {
         continue
       }
 
+      if (!(await isPhotoAspectRatioAllowed(file))) {
+        awkwardRatioPhotos += 1
+        continue
+      }
+
       validFiles.push(file)
     }
 
@@ -326,6 +356,7 @@ export default function Page() {
     const notes = [
       unsupportedFiles > 0 ? `${unsupportedFiles} ${t.upload.unsupportedIgnored}` : '',
       oversizedPhotos > 0 ? `${oversizedPhotos} ${t.upload.photoTooLarge}` : '',
+      awkwardRatioPhotos > 0 ? `${awkwardRatioPhotos} ${t.upload.photoBadRatio}` : '',
       files.length > MAX_SELECTION_FILES ? t.upload.selectionLimit : '',
     ].filter(Boolean)
 

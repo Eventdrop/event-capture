@@ -190,6 +190,7 @@ type TranslationTree = {
     filesSelected: string
     unsupportedIgnored: string
     photoTooLarge: string
+    photoBadRatio: string
     selectionLimit: string
     chooseSupported: string
     chooseStart: string
@@ -526,6 +527,7 @@ export const translations: Record<Locale, TranslationTree> = {
       filesSelected: 'dosya secildi',
       unsupportedIgnored: 'desteklenmeyen dosya yok sayildi',
       photoTooLarge: 'fotograf 20 MB sinirini asti',
+      photoBadRatio: 'cok uzun veya dar fotograf albume eklenmedi',
       selectionLimit: 'en fazla 10 dosya secilebilir',
       chooseSupported: 'JPG, PNG, WEBP veya HEIC fotograf sec.',
       chooseStart: 'Baslamak icin fotograf sec.',
@@ -932,6 +934,7 @@ export const translations: Record<Locale, TranslationTree> = {
       filesSelected: 'bestanden geselecteerd',
       unsupportedIgnored: 'niet-ondersteunde bestanden zijn overgeslagen',
       photoTooLarge: 'foto boven limiet van 20 MB',
+      photoBadRatio: 'te smalle of lange foto is niet aan het album toegevoegd',
       selectionLimit: 'je kunt maximaal 10 bestanden tegelijk selecteren',
       chooseSupported: 'Kies een JPG-, PNG-, WEBP- of HEIC-bestand.',
       chooseStart: 'Kies een bestand om te beginnen.',
@@ -1338,6 +1341,7 @@ export const translations: Record<Locale, TranslationTree> = {
       filesSelected: 'files selected',
       unsupportedIgnored: 'unsupported files ignored',
       photoTooLarge: 'photo exceeds the 20 MB limit',
+      photoBadRatio: 'very narrow or long photo was not added to the album',
       selectionLimit: 'you can choose up to 10 files at a time',
       chooseSupported: 'Choose a JPG, PNG, WEBP, or HEIC photo.',
       chooseStart: 'Choose a photo to get started.',

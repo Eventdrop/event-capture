@@ -56,12 +56,14 @@ export async function GET(request: Request) {
 
     const coverFromRow = `${event.cover_image_url || ''}`.trim()
     const backgroundFromRow = `${event.background_image_url || ''}`.trim()
+    const posterTemplateFromRow = `${event.poster_template_url || ''}`.trim()
 
-    if (coverFromRow || backgroundFromRow) {
+    if (coverFromRow && backgroundFromRow && posterTemplateFromRow) {
       return NextResponse.json({
         ok: true,
         coverImageUrl: coverFromRow,
         backgroundImageUrl: backgroundFromRow,
+        posterTemplateUrl: posterTemplateFromRow,
       })
     }
 
@@ -80,15 +82,21 @@ export async function GET(request: Request) {
     const latestBackground = files?.find((file) =>
       file.name.startsWith('background-')
     )
+    const latestPosterTemplate = files?.find((file) =>
+      file.name.startsWith('posterTemplate-')
+    )
 
     return NextResponse.json({
       ok: true,
-      coverImageUrl: latestCover
+      coverImageUrl: coverFromRow || (latestCover
         ? buildPublicUrl(`event-branding/${event.id}/${latestCover.name}`)
-        : '',
-      backgroundImageUrl: latestBackground
+        : ''),
+      backgroundImageUrl: backgroundFromRow || (latestBackground
         ? buildPublicUrl(`event-branding/${event.id}/${latestBackground.name}`)
-        : '',
+        : ''),
+      posterTemplateUrl: posterTemplateFromRow || (latestPosterTemplate
+        ? buildPublicUrl(`event-branding/${event.id}/${latestPosterTemplate.name}`)
+        : ''),
     })
   } catch (error) {
     logOperation('error', 'public-branding', 'Failed to resolve event branding', {
