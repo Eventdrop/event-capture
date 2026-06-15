@@ -231,6 +231,11 @@ type TranslationTree = {
     posterButton: string
     posterPreparing: string
     posterChoose: string
+    posterLimitReached: string
+    posterMoreNeeded: string
+    posterLimitExceeded: string
+    posterExtraIgnored: string
+    posterBlackWhite: string
     posterReady: string
     guestMessageLabel: string
     selected: string
@@ -568,7 +573,12 @@ export const translations: Record<Locale, TranslationTree> = {
       backToUpload: 'Yukleme',
       posterButton: 'A3 poster',
       posterPreparing: 'Poster hazirlaniyor...',
-      posterChoose: 'Poster icin once en fazla 15 fotograf sec.',
+      posterChoose: 'Poster icin en fazla 15 fotograf sec.',
+      posterLimitReached: '15 fotograf secildi. Poster hazir.',
+      posterMoreNeeded: 'fotograf daha secersen poster dolacak.',
+      posterLimitExceeded: 'Poster sadece ilk 15 fotografi kullanacak.',
+      posterExtraIgnored: 'fazla secim poster icin kullanilmayacak.',
+      posterBlackWhite: 'Siyah-beyaz poster',
       posterReady: 'A3 poster indirildi.',
       guestMessageLabel: 'Misafir mesaji',
       selected: 'Secildi',
@@ -975,7 +985,12 @@ export const translations: Record<Locale, TranslationTree> = {
       backToUpload: 'Naar upload',
       posterButton: 'A3-poster',
       posterPreparing: 'Poster wordt gemaakt...',
-      posterChoose: 'Selecteer eerst maximaal 15 foto’s voor de poster.',
+      posterChoose: 'Selecteer maximaal 15 foto’s voor de poster.',
+      posterLimitReached: '15 foto’s geselecteerd. De poster is klaar.',
+      posterMoreNeeded: 'foto’s extra om de poster te vullen.',
+      posterLimitExceeded: 'De poster gebruikt alleen de eerste 15 foto’s.',
+      posterExtraIgnored: 'extra selectie wordt niet gebruikt voor de poster.',
+      posterBlackWhite: 'Zwart-wit poster',
       posterReady: 'A3-poster is gedownload.',
       guestMessageLabel: 'Bericht van gast',
       selected: 'Geselecteerd',
@@ -1382,7 +1397,12 @@ export const translations: Record<Locale, TranslationTree> = {
       backToUpload: 'Upload',
       posterButton: 'A3 poster',
       posterPreparing: 'Preparing poster...',
-      posterChoose: 'Select up to 15 photos first for the poster.',
+      posterChoose: 'Select up to 15 photos for the poster.',
+      posterLimitReached: '15 photos selected. The poster is ready.',
+      posterMoreNeeded: 'more photos to fill the poster.',
+      posterLimitExceeded: 'The poster will use only the first 15 photos.',
+      posterExtraIgnored: 'extra selections will not be used for the poster.',
+      posterBlackWhite: 'Black-and-white poster',
       posterReady: 'A3 poster downloaded.',
       guestMessageLabel: 'Guest message',
       selected: 'Selected',

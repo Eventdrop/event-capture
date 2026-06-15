@@ -85,6 +85,23 @@ function drawCoverImage(
   context.drawImage(image, sourceX, sourceY, scaledWidth, scaledHeight)
 }
 
+function drawContainImage(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) {
+  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight)
+  const scaledWidth = image.naturalWidth * scale
+  const scaledHeight = image.naturalHeight * scale
+  const targetX = x + (width - scaledWidth) / 2
+  const targetY = y + (height - scaledHeight) / 2
+
+  context.drawImage(image, targetX, targetY, scaledWidth, scaledHeight)
+}
+
 
 function drawPosterTitle(
   context: CanvasRenderingContext2D,
@@ -132,7 +149,8 @@ function drawPosterTile(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
+  options?: { grayscale?: boolean }
 ) {
   context.save()
   context.fillStyle = '#000'
@@ -140,7 +158,9 @@ function drawPosterTile(
   context.beginPath()
   context.rect(x, y, width, height)
   context.clip()
-  drawCoverImage(context, image, x, y, width, height)
+  context.filter = options?.grayscale ? 'grayscale(100%)' : 'none'
+  drawContainImage(context, image, x, y, width, height)
+  context.filter = 'none'
   context.restore()
 }
 
@@ -184,7 +204,8 @@ function getPosterTileRects(
 function drawPosterGrid(
   context: CanvasRenderingContext2D,
   images: HTMLImageElement[],
-  area: { x: number; y: number; width: number; height: number }
+  area: { x: number; y: number; width: number; height: number },
+  options?: { grayscale?: boolean }
 ) {
   context.save()
   context.fillStyle = '#050505'
@@ -192,7 +213,15 @@ function drawPosterGrid(
   context.restore()
 
   getPosterTileRects(images, area).forEach((rect) => {
-    drawPosterTile(context, rect.image, rect.x, rect.y, rect.width, rect.height)
+    drawPosterTile(
+      context,
+      rect.image,
+      rect.x,
+      rect.y,
+      rect.width,
+      rect.height,
+      options
+    )
   })
 }
 
@@ -210,6 +239,7 @@ export default function Page() {
   const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [creatingPoster, setCreatingPoster] = useState(false)
+  const [posterBlackAndWhite, setPosterBlackAndWhite] = useState(false)
   const [albumPackageIndex, setAlbumPackageIndex] = useState(0)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
 
@@ -364,6 +394,16 @@ export default function Page() {
     items.length <= albumPackageSize
       ? t.gallery.downloadAll
       : `${t.gallery.downloadAlbumPackage} ${activeAlbumPackageIndex + 1}/${totalAlbumPackages} (${albumPackageStart + 1}-${albumPackageEnd})`
+  const posterSelectedCount = Math.min(selectedItems.length, POSTER_MAX_TILES)
+  const posterOverflowCount = Math.max(0, selectedItems.length - POSTER_MAX_TILES)
+  const posterRemainingCount = Math.max(0, POSTER_MAX_TILES - posterSelectedCount)
+  const posterSelectionLabel = posterOverflowCount > 0
+    ? `${t.gallery.posterLimitExceeded} ${posterOverflowCount} ${t.gallery.posterExtraIgnored}`
+    : posterSelectedCount === POSTER_MAX_TILES
+      ? t.gallery.posterLimitReached
+      : posterSelectedCount > 0
+        ? `${posterRemainingCount} ${t.gallery.posterMoreNeeded}`
+        : t.gallery.posterChoose
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -569,7 +609,8 @@ export default function Page() {
         drawPosterGrid(
           context,
           loadedImages.map(({ image }) => image),
-          POSTER_TEMPLATE_PHOTO_AREA
+          POSTER_TEMPLATE_PHOTO_AREA,
+          { grayscale: posterBlackAndWhite }
         )
 
         drawCoverImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
@@ -593,7 +634,8 @@ export default function Page() {
         drawPosterGrid(
           context,
           loadedImages.map(({ image }) => image),
-          gridArea
+          gridArea,
+          { grayscale: posterBlackAndWhite }
         )
 
         context.fillStyle = '#000'
@@ -873,23 +915,36 @@ export default function Page() {
             ) : null}
 
             {posterEnabled ? (
-              <button
-                type="button"
-                onClick={createPoster}
-                disabled={selectedItems.length === 0 || creatingPoster}
-                className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                  selectedItems.length === 0 || creatingPoster
-                    ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                    : 'bg-stone-950 text-white hover:bg-stone-800'
-                }`}
-              >
-                {creatingPoster
-                  ? t.gallery.posterPreparing
-                  : `${t.gallery.posterButton} (${Math.min(
-                      selectedItems.length,
-                      POSTER_MAX_TILES
-                    )}/${POSTER_MAX_TILES})`}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={createPoster}
+                  disabled={selectedItems.length === 0 || creatingPoster}
+                  className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
+                    selectedItems.length === 0 || creatingPoster
+                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                      : 'bg-stone-950 text-white hover:bg-stone-800'
+                  }`}
+                >
+                  {creatingPoster
+                    ? t.gallery.posterPreparing
+                    : `${t.gallery.posterButton} (${posterSelectedCount}/${POSTER_MAX_TILES})`}
+                </button>
+
+                <label className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-center text-xs font-semibold text-[#0F3D66] shadow-sm sm:flex-none">
+                  <input
+                    type="checkbox"
+                    checked={posterBlackAndWhite}
+                    onChange={(event) => setPosterBlackAndWhite(event.target.checked)}
+                    className="h-4 w-4 accent-[#0F3D66]"
+                  />
+                  {t.gallery.posterBlackWhite}
+                </label>
+
+                <p className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F]">
+                  {posterSelectionLabel}
+                </p>
+              </>
             ) : null}
 
             <Link
