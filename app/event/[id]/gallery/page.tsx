@@ -266,7 +266,7 @@ export default function Page() {
   const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [creatingPoster, setCreatingPoster] = useState(false)
-  const [posterBlackAndWhite, setPosterBlackAndWhite] = useState(false)
+  const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
   const [albumPackageIndex, setAlbumPackageIndex] = useState(0)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
 
@@ -600,12 +600,22 @@ export default function Page() {
     }
   }
 
-  const createPoster = async () => {
+  const openPosterStyleOptions = () => {
     if (selectedItems.length === 0 || creatingPoster) {
       setStatusMessage(t.gallery.posterChoose)
       return
     }
 
+    setPosterStyleModalOpen(true)
+  }
+
+  const createPoster = async (options?: { grayscale?: boolean }) => {
+    if (selectedItems.length === 0 || creatingPoster) {
+      setStatusMessage(t.gallery.posterChoose)
+      return
+    }
+
+    setPosterStyleModalOpen(false)
     setCreatingPoster(true)
     setStatusMessage(t.gallery.posterPreparing)
 
@@ -675,7 +685,7 @@ export default function Page() {
           context,
           loadedImages.map(({ image }) => image),
           POSTER_TEMPLATE_PHOTO_AREA,
-          { grayscale: posterBlackAndWhite }
+          { grayscale: options?.grayscale }
         )
 
         if (templateHasPhotoWindow) {
@@ -702,7 +712,7 @@ export default function Page() {
           context,
           loadedImages.map(({ image }) => image),
           gridArea,
-          { grayscale: posterBlackAndWhite }
+          { grayscale: options?.grayscale }
         )
 
         context.fillStyle = '#000'
@@ -985,7 +995,7 @@ export default function Page() {
               <>
                 <button
                   type="button"
-                  onClick={createPoster}
+                  onClick={openPosterStyleOptions}
                   disabled={selectedItems.length === 0 || creatingPoster}
                   className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
                     selectedItems.length === 0 || creatingPoster
@@ -998,15 +1008,6 @@ export default function Page() {
                     : `${t.gallery.posterButton} (${posterSelectedCount}/${POSTER_MAX_TILES})`}
                 </button>
 
-                <label className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-center text-xs font-semibold text-[#0F3D66] shadow-sm sm:flex-none">
-                  <input
-                    type="checkbox"
-                    checked={posterBlackAndWhite}
-                    onChange={(event) => setPosterBlackAndWhite(event.target.checked)}
-                    className="h-4 w-4 accent-[#0F3D66]"
-                  />
-                  {t.gallery.posterBlackWhite}
-                </label>
 
                 <p className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F]">
                   {posterSelectionLabel}
@@ -1258,6 +1259,62 @@ export default function Page() {
                   </button>
                 ) : null}
               </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {posterStyleModalOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          onClick={() => setPosterStyleModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-stone-950">{t.gallery.posterStyleTitle}</h2>
+                <p className="mt-1 text-sm font-medium text-[#597594]">
+                  {t.gallery.posterStyleDescription}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPosterStyleModalOpen(false)}
+                aria-label={t.gallery.cancel}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-700 hover:bg-stone-200"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
+                  <path d="M6 6l12 12" />
+                  <path d="M18 6 6 18" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid gap-3">
+              <button
+                type="button"
+                onClick={() => createPoster({ grayscale: false })}
+                className="rounded-2xl bg-[#F58220] px-4 py-4 text-left text-sm font-bold text-white shadow-sm hover:bg-[#DB6E12]"
+              >
+                {t.gallery.posterColorOption}
+              </button>
+              <button
+                type="button"
+                onClick={() => createPoster({ grayscale: true })}
+                className="rounded-2xl bg-stone-950 px-4 py-4 text-left text-sm font-bold text-white shadow-sm hover:bg-stone-800"
+              >
+                {t.gallery.posterBlackWhiteOption}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPosterStyleModalOpen(false)}
+                className="rounded-2xl border border-[#C8D3E5] bg-white px-4 py-3 text-sm font-bold text-[#0F3D66] hover:bg-[#EDF4FB]"
+              >
+                {t.gallery.cancel}
+              </button>
             </div>
           </div>
         </div>

@@ -236,6 +236,11 @@ type TranslationTree = {
     posterLimitExceeded: string
     posterExtraIgnored: string
     posterBlackWhite: string
+    posterStyleTitle: string
+    posterStyleDescription: string
+    posterColorOption: string
+    posterBlackWhiteOption: string
+    cancel: string
     posterHorizontalTip: string
     posterLimitPopup: string
     posterRatioPopup: string
@@ -583,6 +588,11 @@ export const translations: Record<Locale, TranslationTree> = {
       posterLimitExceeded: 'Poster sadece ilk 15 fotografi kullanacak.',
       posterExtraIgnored: 'fazla secim poster icin kullanilmayacak.',
       posterBlackWhite: 'Siyah-beyaz',
+      posterStyleTitle: 'Poster rengi sec',
+      posterStyleDescription: 'A3 posteri renkli veya siyah-beyaz olarak indir.',
+      posterColorOption: 'Renkli poster',
+      posterBlackWhiteOption: 'Siyah-beyaz poster',
+      cancel: 'Iptal',
       posterHorizontalTip: 'Poster icin yatay fotograflar daha iyi sonuc verir.',
       posterLimitPopup: '15 fotograf secildi. A3 poster en fazla 15 fotograf kullanir. Fazla secilenler albume iner ama posterde kullanilmaz.',
       posterRatioPopup: 'Cok uzun veya dar fotograf postere eklenmedi. Yatay fotograflar daha iyi sonuc verir.',
@@ -999,6 +1009,11 @@ export const translations: Record<Locale, TranslationTree> = {
       posterLimitExceeded: 'De poster gebruikt alleen de eerste 15 foto’s.',
       posterExtraIgnored: 'extra selectie wordt niet gebruikt voor de poster.',
       posterBlackWhite: 'Zwart-wit',
+      posterStyleTitle: 'Kies posterstijl',
+      posterStyleDescription: 'Download de A3-poster in kleur of zwart-wit.',
+      posterColorOption: 'Kleur poster',
+      posterBlackWhiteOption: 'Zwart-wit poster',
+      cancel: 'Annuleren',
       posterHorizontalTip: 'Liggende foto’s geven het beste resultaat op de poster.',
       posterLimitPopup: '15 foto’s geselecteerd. Een A3-poster gebruikt maximaal 15 foto’s. Extra foto’s blijven beschikbaar voor albumdownload, maar worden niet gebruikt op de poster.',
       posterRatioPopup: 'Een te lange of smalle foto is niet op de poster geplaatst. Liggende foto’s geven een beter resultaat.',
@@ -1415,6 +1430,11 @@ export const translations: Record<Locale, TranslationTree> = {
       posterLimitExceeded: 'The poster will use only the first 15 photos.',
       posterExtraIgnored: 'extra selections will not be used for the poster.',
       posterBlackWhite: 'Black and white',
+      posterStyleTitle: 'Choose poster style',
+      posterStyleDescription: 'Download the A3 poster in color or black and white.',
+      posterColorOption: 'Color poster',
+      posterBlackWhiteOption: 'Black and white poster',
+      cancel: 'Cancel',
       posterHorizontalTip: 'Landscape photos work best on the poster.',
       posterLimitPopup: '15 photos selected. An A3 poster uses up to 15 photos. Extra photos remain available for album download, but will not be used on the poster.',
       posterRatioPopup: 'A very long or narrow photo was not placed on the poster. Landscape photos work better.',
