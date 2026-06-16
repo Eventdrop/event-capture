@@ -1101,7 +1101,7 @@ export default function Page() {
                   className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
                     selectedItems.length === 0 || creatingPoster
                       ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                      : 'border border-[#C8D3E5] bg-white text-[#0F3D66] hover:bg-[#EDF4FB]'
+                      : 'bg-[#B52E2E] text-white hover:bg-[#982525]'
                   }`}
                 >
                   {creatingPoster
