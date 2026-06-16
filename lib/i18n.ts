@@ -236,6 +236,10 @@ type TranslationTree = {
     posterLimitExceeded: string
     posterExtraIgnored: string
     posterBlackWhite: string
+    posterHorizontalTip: string
+    posterLimitPopup: string
+    posterRatioPopup: string
+    posterNoUsablePhotos: string
     posterReady: string
     guestMessageLabel: string
     selected: string
@@ -578,7 +582,11 @@ export const translations: Record<Locale, TranslationTree> = {
       posterMoreNeeded: 'fotograf daha secersen poster dolacak.',
       posterLimitExceeded: 'Poster sadece ilk 15 fotografi kullanacak.',
       posterExtraIgnored: 'fazla secim poster icin kullanilmayacak.',
-      posterBlackWhite: 'Siyah-beyaz poster',
+      posterBlackWhite: 'Siyah-beyaz',
+      posterHorizontalTip: 'Poster icin yatay fotograflar daha iyi sonuc verir.',
+      posterLimitPopup: '15 fotograf secildi. A3 poster en fazla 15 fotograf kullanir. Fazla secilenler albume iner ama posterde kullanilmaz.',
+      posterRatioPopup: 'Cok uzun veya dar fotograf postere eklenmedi. Yatay fotograflar daha iyi sonuc verir.',
+      posterNoUsablePhotos: 'Postere uygun fotograf bulunamadi.',
       posterReady: 'A3 poster indirildi.',
       guestMessageLabel: 'Misafir mesaji',
       selected: 'Secildi',
@@ -990,7 +998,11 @@ export const translations: Record<Locale, TranslationTree> = {
       posterMoreNeeded: 'foto’s extra om de poster te vullen.',
       posterLimitExceeded: 'De poster gebruikt alleen de eerste 15 foto’s.',
       posterExtraIgnored: 'extra selectie wordt niet gebruikt voor de poster.',
-      posterBlackWhite: 'Zwart-wit poster',
+      posterBlackWhite: 'Zwart-wit',
+      posterHorizontalTip: 'Liggende foto’s geven het beste resultaat op de poster.',
+      posterLimitPopup: '15 foto’s geselecteerd. Een A3-poster gebruikt maximaal 15 foto’s. Extra foto’s blijven beschikbaar voor albumdownload, maar worden niet gebruikt op de poster.',
+      posterRatioPopup: 'Een te lange of smalle foto is niet op de poster geplaatst. Liggende foto’s geven een beter resultaat.',
+      posterNoUsablePhotos: 'Er zijn geen geschikte foto’s voor de poster gevonden.',
       posterReady: 'A3-poster is gedownload.',
       guestMessageLabel: 'Bericht van gast',
       selected: 'Geselecteerd',
@@ -1402,7 +1414,11 @@ export const translations: Record<Locale, TranslationTree> = {
       posterMoreNeeded: 'more photos to fill the poster.',
       posterLimitExceeded: 'The poster will use only the first 15 photos.',
       posterExtraIgnored: 'extra selections will not be used for the poster.',
-      posterBlackWhite: 'Black-and-white poster',
+      posterBlackWhite: 'Black and white',
+      posterHorizontalTip: 'Landscape photos work best on the poster.',
+      posterLimitPopup: '15 photos selected. An A3 poster uses up to 15 photos. Extra photos remain available for album download, but will not be used on the poster.',
+      posterRatioPopup: 'A very long or narrow photo was not placed on the poster. Landscape photos work better.',
+      posterNoUsablePhotos: 'No suitable photos were found for the poster.',
       posterReady: 'A3 poster downloaded.',
       guestMessageLabel: 'Guest message',
       selected: 'Selected',

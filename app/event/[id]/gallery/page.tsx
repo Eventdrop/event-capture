@@ -20,6 +20,7 @@ import { supabase } from '@/lib/supabase'
 const POSTER_WIDTH = 2480
 const POSTER_HEIGHT = 3508
 const POSTER_MAX_TILES = 15
+const POSTER_MAX_ASPECT_RATIO = 2.2
 const POSTER_GAP = 18
 const POSTER_MARGIN = 56
 const POSTER_FOOTER_HEIGHT = 160
@@ -85,23 +86,6 @@ function drawCoverImage(
   context.drawImage(image, sourceX, sourceY, scaledWidth, scaledHeight)
 }
 
-function drawContainImage(
-  context: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  x: number,
-  y: number,
-  width: number,
-  height: number
-) {
-  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight)
-  const scaledWidth = image.naturalWidth * scale
-  const scaledHeight = image.naturalHeight * scale
-  const targetX = x + (width - scaledWidth) / 2
-  const targetY = y + (height - scaledHeight) / 2
-
-  context.drawImage(image, targetX, targetY, scaledWidth, scaledHeight)
-}
-
 
 function drawPosterTitle(
   context: CanvasRenderingContext2D,
@@ -159,9 +143,22 @@ function drawPosterTile(
   context.rect(x, y, width, height)
   context.clip()
   context.filter = options?.grayscale ? 'grayscale(100%)' : 'none'
-  drawContainImage(context, image, x, y, width, height)
+  drawCoverImage(context, image, x, y, width, height)
   context.filter = 'none'
   context.restore()
+}
+
+function getCanvasImageAspectRatio(resource: CanvasImageResource) {
+  const width = resource.image.naturalWidth || resource.image.width
+  const height = resource.image.naturalHeight || resource.image.height
+
+  if (!width || !height) return 1
+
+  return Math.max(width / height, height / width)
+}
+
+function isPosterImageAllowed(resource: CanvasImageResource) {
+  return getCanvasImageAspectRatio(resource) <= POSTER_MAX_ASPECT_RATIO
 }
 
 function getPosterGridSize(imageCount: number) {
@@ -403,7 +400,7 @@ export default function Page() {
       ? t.gallery.posterLimitReached
       : posterSelectedCount > 0
         ? `${posterRemainingCount} ${t.gallery.posterMoreNeeded}`
-        : t.gallery.posterChoose
+        : t.gallery.posterHorizontalTip
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -416,7 +413,13 @@ export default function Page() {
         return prev
       }
 
-      return [...prev, id]
+      const next = [...prev, id]
+
+      if (posterEnabled && next.length >= POSTER_MAX_TILES) {
+        window.alert(t.gallery.posterLimitPopup)
+      }
+
+      return next
     })
   }
 
@@ -581,12 +584,35 @@ export default function Page() {
     let templateResource: CanvasImageResource | null = null
 
     try {
-      const posterItems = selectedItems.slice(0, POSTER_MAX_TILES)
-      const loadedImages = await Promise.all(
-        posterItems.map((item) => loadCanvasImage(item.file_url))
-      )
+      if (selectedItems.length > POSTER_MAX_TILES) {
+        window.alert(t.gallery.posterLimitPopup)
+      }
 
-      resources.push(...loadedImages)
+      const loadedImages: CanvasImageResource[] = []
+      let skippedPosterImages = 0
+
+      for (const item of selectedItems) {
+        if (loadedImages.length >= POSTER_MAX_TILES) break
+
+        const resource = await loadCanvasImage(item.file_url)
+        resources.push(resource)
+
+        if (!isPosterImageAllowed(resource)) {
+          skippedPosterImages += 1
+          continue
+        }
+
+        loadedImages.push(resource)
+      }
+
+      if (skippedPosterImages > 0) {
+        window.alert(t.gallery.posterRatioPopup)
+      }
+
+      if (loadedImages.length === 0) {
+        throw new Error(t.gallery.posterNoUsablePhotos)
+      }
+
       logoResource = await loadCanvasImage(POSTER_LOGO_URL).catch(() => null)
       templateResource = currentEvent?.posterTemplateUrl
         ? await loadCanvasImage(currentEvent.posterTemplateUrl).catch(() => null)
