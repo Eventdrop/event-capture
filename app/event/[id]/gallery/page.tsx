@@ -89,6 +89,22 @@ function drawCoverImage(
   context.drawImage(image, sourceX, sourceY, scaledWidth, scaledHeight)
 }
 
+function drawContainImage(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) {
+  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight)
+  const scaledWidth = image.naturalWidth * scale
+  const scaledHeight = image.naturalHeight * scale
+  const targetX = x + (width - scaledWidth) / 2
+  const targetY = y + (height - scaledHeight) / 2
+
+  context.drawImage(image, targetX, targetY, scaledWidth, scaledHeight)
+}
 
 function drawPosterTitle(
   context: CanvasRenderingContext2D,
@@ -711,7 +727,7 @@ export default function Page() {
 
       if (format === 'story') {
         if (templateResource) {
-          drawCoverImage(context, templateResource.image, 0, 0, STORY_WIDTH, STORY_HEIGHT)
+          drawContainImage(context, templateResource.image, 0, 0, STORY_WIDTH, STORY_HEIGHT)
         }
 
         const storyImages = loadedImages.slice(0, STORY_MAX_TILES)
