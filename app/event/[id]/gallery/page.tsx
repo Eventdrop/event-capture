@@ -21,6 +21,9 @@ const POSTER_WIDTH = 2480
 const POSTER_HEIGHT = 3508
 const POSTER_MAX_TILES = 15
 const POSTER_MAX_ASPECT_RATIO = 2.2
+const STORY_WIDTH = 1080
+const STORY_HEIGHT = 1920
+const STORY_MAX_TILES = 6
 const POSTER_GAP = 18
 const POSTER_MARGIN = 56
 const POSTER_FOOTER_HEIGHT = 160
@@ -609,7 +612,7 @@ export default function Page() {
     setPosterStyleModalOpen(true)
   }
 
-  const createPoster = async (options?: { grayscale?: boolean }) => {
+  const createPoster = async (options?: { grayscale?: boolean; format?: 'poster' | 'story' }) => {
     if (selectedItems.length === 0 || creatingPoster) {
       setStatusMessage(t.gallery.posterChoose)
       return
@@ -617,7 +620,9 @@ export default function Page() {
 
     setPosterStyleModalOpen(false)
     setCreatingPoster(true)
-    setStatusMessage(t.gallery.posterPreparing)
+    const format = options?.format || 'poster'
+
+    setStatusMessage(format === 'story' ? t.gallery.storyPreparing : t.gallery.posterPreparing)
 
     const resources: CanvasImageResource[] = []
     let logoResource: CanvasImageResource | null = null
@@ -659,8 +664,8 @@ export default function Page() {
         : null
 
       const canvas = document.createElement('canvas')
-      canvas.width = POSTER_WIDTH
-      canvas.height = POSTER_HEIGHT
+      canvas.width = format === 'story' ? STORY_WIDTH : POSTER_WIDTH
+      canvas.height = format === 'story' ? STORY_HEIGHT : POSTER_HEIGHT
 
       const context = canvas.getContext('2d')
 
@@ -669,9 +674,37 @@ export default function Page() {
       }
 
       context.fillStyle = '#050505'
-      context.fillRect(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+      context.fillRect(0, 0, canvas.width, canvas.height)
 
-      if (templateResource) {
+      if (format === 'story') {
+        if (templateResource) {
+          drawCoverImage(context, templateResource.image, 0, 0, STORY_WIDTH, STORY_HEIGHT)
+        }
+
+        const storyImages = loadedImages.slice(0, STORY_MAX_TILES)
+        const storyArea = { x: 64, y: 250, width: STORY_WIDTH - 128, height: 1280 }
+
+        drawPosterGrid(
+          context,
+          storyImages.map(({ image }) => image),
+          storyArea,
+          { grayscale: options?.grayscale }
+        )
+
+        context.fillStyle = 'rgba(0, 0, 0, 0.72)'
+        context.fillRect(0, 0, STORY_WIDTH, 220)
+        context.fillRect(0, STORY_HEIGHT - 220, STORY_WIDTH, 220)
+
+        context.fillStyle = '#fff'
+        context.font = '700 54px Arial, sans-serif'
+        context.textAlign = 'center'
+        context.fillText(eventName, STORY_WIDTH / 2, 115, STORY_WIDTH - 120)
+        context.font = '600 30px Arial, sans-serif'
+        context.fillText('Photobooth Holland', STORY_WIDTH / 2, STORY_HEIGHT - 118)
+        context.fillStyle = '#F7C96B'
+        context.fillText('Scan. Upload. Share.', STORY_WIDTH / 2, STORY_HEIGHT - 72)
+        context.textAlign = 'left'
+      } else if (templateResource) {
         const templateHasPhotoWindow = hasTransparentPixelsInArea(
           templateResource.image,
           POSTER_TEMPLATE_PHOTO_AREA
@@ -767,8 +800,9 @@ export default function Page() {
         throw new Error(t.gallery.loadError)
       }
 
-      saveBlob(blob, `${sanitizeDownloadName(eventName || 'photobooth-poster')}-poster-a3.png`)
-      setStatusMessage(t.gallery.posterReady)
+      const baseName = sanitizeDownloadName(eventName || 'photobooth-poster')
+      saveBlob(blob, format === 'story' ? `${baseName}-instagram-story.png` : `${baseName}-poster-a3.png`)
+      setStatusMessage(format === 'story' ? t.gallery.storyReady : t.gallery.posterReady)
     } catch (error) {
       console.error('Poster creation failed', error)
       setStatusMessage(error instanceof Error ? error.message : t.gallery.loadError)
@@ -1296,17 +1330,24 @@ export default function Page() {
             <div className="grid gap-3">
               <button
                 type="button"
-                onClick={() => createPoster({ grayscale: false })}
+                onClick={() => createPoster({ grayscale: false, format: 'poster' })}
                 className="rounded-2xl bg-[#F58220] px-4 py-4 text-left text-sm font-bold text-white shadow-sm hover:bg-[#DB6E12]"
               >
                 {t.gallery.posterColorOption}
               </button>
               <button
                 type="button"
-                onClick={() => createPoster({ grayscale: true })}
+                onClick={() => createPoster({ grayscale: true, format: 'poster' })}
                 className="rounded-2xl bg-stone-950 px-4 py-4 text-left text-sm font-bold text-white shadow-sm hover:bg-stone-800"
               >
                 {t.gallery.posterBlackWhiteOption}
+              </button>
+              <button
+                type="button"
+                onClick={() => createPoster({ grayscale: false, format: 'story' })}
+                className="rounded-2xl border border-[#C8D3E5] bg-white px-4 py-4 text-left text-sm font-bold text-[#0F3D66] hover:bg-[#EDF4FB]"
+              >
+                {t.gallery.storyOption}
               </button>
               <button
                 type="button"

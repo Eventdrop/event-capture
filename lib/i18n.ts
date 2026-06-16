@@ -240,6 +240,9 @@ type TranslationTree = {
     posterStyleDescription: string
     posterColorOption: string
     posterBlackWhiteOption: string
+    storyOption: string
+    storyPreparing: string
+    storyReady: string
     cancel: string
     posterHorizontalTip: string
     posterLimitPopup: string
@@ -592,6 +595,9 @@ export const translations: Record<Locale, TranslationTree> = {
       posterStyleDescription: 'A3 posteri renkli veya siyah-beyaz olarak indir.',
       posterColorOption: 'Renkli poster',
       posterBlackWhiteOption: 'Siyah-beyaz poster',
+      storyOption: 'Instagram story',
+      storyPreparing: 'Instagram story hazirlaniyor...',
+      storyReady: 'Instagram story indirildi.',
       cancel: 'Iptal',
       posterHorizontalTip: 'Poster icin yatay fotograflar daha iyi sonuc verir.',
       posterLimitPopup: '15 fotograf secildi. A3 poster en fazla 15 fotograf kullanir. Fazla secilenler albume iner ama posterde kullanilmaz.',
@@ -1013,6 +1019,9 @@ export const translations: Record<Locale, TranslationTree> = {
       posterStyleDescription: 'Download de A3-poster in kleur of zwart-wit.',
       posterColorOption: 'Kleur poster',
       posterBlackWhiteOption: 'Zwart-wit poster',
+      storyOption: 'Instagram story',
+      storyPreparing: 'Instagram story wordt gemaakt...',
+      storyReady: 'Instagram story is gedownload.',
       cancel: 'Annuleren',
       posterHorizontalTip: 'Liggende foto’s geven het beste resultaat op de poster.',
       posterLimitPopup: '15 foto’s geselecteerd. Een A3-poster gebruikt maximaal 15 foto’s. Extra foto’s blijven beschikbaar voor albumdownload, maar worden niet gebruikt op de poster.',
@@ -1434,6 +1443,9 @@ export const translations: Record<Locale, TranslationTree> = {
       posterStyleDescription: 'Download the A3 poster in color or black and white.',
       posterColorOption: 'Color poster',
       posterBlackWhiteOption: 'Black and white poster',
+      storyOption: 'Instagram story',
+      storyPreparing: 'Preparing Instagram story...',
+      storyReady: 'Instagram story downloaded.',
       cancel: 'Cancel',
       posterHorizontalTip: 'Landscape photos work best on the poster.',
       posterLimitPopup: '15 photos selected. An A3 poster uses up to 15 photos. Extra photos remain available for album download, but will not be used on the poster.',
