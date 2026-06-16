@@ -474,6 +474,7 @@ export default function Page() {
       ? t.gallery.downloadAll
       : `${t.gallery.downloadAlbumPackage} ${activeAlbumPackageIndex + 1}/${totalAlbumPackages} (${albumPackageStart + 1}-${albumPackageEnd})`
   const posterSelectedCount = Math.min(selectedItems.length, POSTER_MAX_TILES)
+  const storySelectedCount = Math.min(selectedItems.length, STORY_MAX_TILES)
   const posterOverflowCount = Math.max(0, selectedItems.length - POSTER_MAX_TILES)
   const posterRemainingCount = Math.max(0, POSTER_MAX_TILES - posterSelectedCount)
   const posterSelectionLabel = posterOverflowCount > 0
@@ -1093,6 +1094,20 @@ export default function Page() {
                     : `${t.gallery.posterButton} (${posterSelectedCount}/${POSTER_MAX_TILES})`}
                 </button>
 
+                <button
+                  type="button"
+                  onClick={() => createPoster({ grayscale: false, format: 'story' })}
+                  disabled={selectedItems.length === 0 || creatingPoster}
+                  className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
+                    selectedItems.length === 0 || creatingPoster
+                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                      : 'border border-[#C8D3E5] bg-white text-[#0F3D66] hover:bg-[#EDF4FB]'
+                  }`}
+                >
+                  {creatingPoster
+                    ? t.gallery.storyPreparing
+                    : `${t.gallery.storyButton} (${storySelectedCount}/${STORY_MAX_TILES})`}
+                </button>
 
                 <p className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F]">
                   {posterSelectionLabel}
@@ -1392,13 +1407,6 @@ export default function Page() {
                 className="rounded-2xl bg-stone-950 px-4 py-4 text-left text-sm font-bold text-white shadow-sm hover:bg-stone-800"
               >
                 {t.gallery.posterBlackWhiteOption}
-              </button>
-              <button
-                type="button"
-                onClick={() => createPoster({ grayscale: false, format: 'story' })}
-                className="rounded-2xl border border-[#C8D3E5] bg-white px-4 py-4 text-left text-sm font-bold text-[#0F3D66] hover:bg-[#EDF4FB]"
-              >
-                {t.gallery.storyOption}
               </button>
               <button
                 type="button"

@@ -241,6 +241,7 @@ type TranslationTree = {
     posterColorOption: string
     posterBlackWhiteOption: string
     storyOption: string
+    storyButton: string
     storyPreparing: string
     storyReady: string
     cancel: string
@@ -596,6 +597,7 @@ export const translations: Record<Locale, TranslationTree> = {
       posterColorOption: 'Renkli poster (15 foto)',
       posterBlackWhiteOption: 'Siyah-beyaz poster (15 foto)',
       storyOption: 'Instagram story (8 foto)',
+      storyButton: 'Instagram story',
       storyPreparing: 'Instagram story hazirlaniyor...',
       storyReady: 'Instagram story indirildi.',
       cancel: 'Iptal',
@@ -1020,6 +1022,7 @@ export const translations: Record<Locale, TranslationTree> = {
       posterColorOption: 'Kleur poster (15 foto’s)',
       posterBlackWhiteOption: 'Zwart-wit poster (15 foto’s)',
       storyOption: 'Instagram story (8 foto’s)',
+      storyButton: 'Instagram story',
       storyPreparing: 'Instagram story wordt gemaakt...',
       storyReady: 'Instagram story is gedownload.',
       cancel: 'Annuleren',
@@ -1444,6 +1447,7 @@ export const translations: Record<Locale, TranslationTree> = {
       posterColorOption: 'Color poster (15 photos)',
       posterBlackWhiteOption: 'Black and white poster (15 photos)',
       storyOption: 'Instagram story (8 photos)',
+      storyButton: 'Instagram story',
       storyPreparing: 'Preparing Instagram story...',
       storyReady: 'Instagram story downloaded.',
       cancel: 'Cancel',
