@@ -11,6 +11,7 @@ const eventVisualColumns = {
   cover: 'cover_image_url',
   background: 'background_image_url',
   posterTemplate: 'poster_template_url',
+  storyTemplate: 'story_template_url',
 } as const
 
 type EventVisualKind = keyof typeof eventVisualColumns
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
 
     if (!isEventVisualKind(kind)) {
       return NextResponse.json(
-        { ok: false, error: 'Het type moet omslag, achtergrond of A3-sjabloon zijn.' },
+        { ok: false, error: 'Het type moet omslag, achtergrond, A3-sjabloon of Story-sjabloon zijn.' },
         { status: 400 }
       )
     }
@@ -74,10 +75,14 @@ export async function POST(request: Request) {
 
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${storagePath}`
 
-    await supabase
+    const { error: updateError } = await supabase
       .from('events')
       .update({ [eventVisualColumns[kind]]: url })
       .eq('id', eventId)
+
+    if (updateError) {
+      throw updateError
+    }
 
     return NextResponse.json({ ok: true, url, storagePath })
   } catch (error) {

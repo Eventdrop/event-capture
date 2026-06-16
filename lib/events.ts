@@ -9,6 +9,7 @@ type EventRecordLike = {
   cover_image_url?: string | null
   background_image_url?: string | null
   poster_template_url?: string | null
+  story_template_url?: string | null
   event_date?: string | null
   allow_guest_share?: boolean | null
   allow_guest_download?: boolean | null
@@ -28,6 +29,7 @@ export type NormalizedEvent = {
   coverImageUrl: string
   backgroundImageUrl: string
   posterTemplateUrl: string
+  storyTemplateUrl: string
   eventDate: string | null
   allowGuestShare: boolean
   allowGuestDownload: boolean
@@ -129,6 +131,7 @@ export function buildEventInsertPayload(input: {
   coverImageUrl?: string
   backgroundImageUrl?: string
   posterTemplateUrl?: string
+  storyTemplateUrl?: string
   allowGuestShare?: boolean
   allowGuestDownload?: boolean
   allowAlbumDownload?: boolean
@@ -155,9 +158,11 @@ export function buildEventInsertPayload(input: {
     expires_at: null,
   }
 
-  return input.posterTemplateUrl
-    ? { ...payload, poster_template_url: input.posterTemplateUrl }
-    : payload
+  return {
+    ...payload,
+    ...(input.posterTemplateUrl ? { poster_template_url: input.posterTemplateUrl } : {}),
+    ...(input.storyTemplateUrl ? { story_template_url: input.storyTemplateUrl } : {}),
+  }
 }
 
 export function normalizeEventRecord(
@@ -174,6 +179,7 @@ export function normalizeEventRecord(
     coverImageUrl: record.cover_image_url || '',
     backgroundImageUrl: record.background_image_url || '',
     posterTemplateUrl: record.poster_template_url || '',
+    storyTemplateUrl: record.story_template_url || '',
     eventDate: record.event_date || null,
     allowGuestShare: record.allow_guest_share !== false,
     allowGuestDownload: record.allow_guest_download !== false,

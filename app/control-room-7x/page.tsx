@@ -59,15 +59,17 @@ export default function AdminPage() {
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('')
   const [posterTemplateUrl, setPosterTemplateUrl] = useState('')
+  const [storyTemplateUrl, setStoryTemplateUrl] = useState('')
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null)
   const [posterTemplateFile, setPosterTemplateFile] = useState<File | null>(null)
+  const [storyTemplateFile, setStoryTemplateFile] = useState<File | null>(null)
   const [uploadingVisual, setUploadingVisual] = useState<
-    'cover' | 'background' | 'posterTemplate' | null
+    'cover' | 'background' | 'posterTemplate' | 'storyTemplate' | null
   >(null)
   const [updatingEventVisual, setUpdatingEventVisual] = useState<{
     eventId: string
-    kind: 'cover' | 'background' | 'posterTemplate'
+    kind: 'cover' | 'background' | 'posterTemplate' | 'storyTemplate'
   } | null>(null)
   const [eventDraftsById, setEventDraftsById] = useState<
     Record<string, { name: string; albumName: string }>
@@ -340,6 +342,10 @@ export default function AdminPage() {
         posterTemplateUrl.startsWith('http://') || posterTemplateUrl.startsWith('https://')
           ? posterTemplateUrl
           : ''
+      const persistedStoryTemplateUrl =
+        storyTemplateUrl.startsWith('http://') || storyTemplateUrl.startsWith('https://')
+          ? storyTemplateUrl
+          : ''
 
       const payload = buildEventInsertPayload({
         name: eventName,
@@ -350,6 +356,7 @@ export default function AdminPage() {
         coverImageUrl: persistedCoverImageUrl,
         backgroundImageUrl: persistedBackgroundImageUrl,
         posterTemplateUrl: persistedPosterTemplateUrl,
+        storyTemplateUrl: persistedStoryTemplateUrl,
         allowGuestShare,
         allowGuestDownload,
         allowAlbumDownload,
@@ -372,6 +379,8 @@ export default function AdminPage() {
           backgroundImageUrl: payload.background_image_url,
           posterTemplateUrl:
             'poster_template_url' in payload ? payload.poster_template_url : undefined,
+          storyTemplateUrl:
+            'story_template_url' in payload ? payload.story_template_url : undefined,
           allowGuestShare: payload.allow_guest_share,
           allowGuestDownload: payload.allow_guest_download,
           allowAlbumDownload: payload.allow_album_download,
@@ -428,6 +437,18 @@ export default function AdminPage() {
           }
         }
 
+        if (storyTemplateFile) {
+          const uploadedStoryTemplateUrl = await uploadVisualForEvent(
+            normalized.id,
+            storyTemplateFile,
+            'storyTemplate'
+          )
+          nextEvent = {
+            ...nextEvent,
+            storyTemplateUrl: uploadedStoryTemplateUrl,
+          }
+        }
+
         setEvents((prev) => [nextEvent, ...prev.filter((item) => item.id !== nextEvent.id)])
         setEventDraftsById((prev) => ({
           ...prev,
@@ -461,9 +482,11 @@ export default function AdminPage() {
       setCoverImageFile(null)
       setBackgroundImageFile(null)
       setPosterTemplateFile(null)
+      setStoryTemplateFile(null)
       setCoverImageUrl('')
       setBackgroundImageUrl('')
       setPosterTemplateUrl('')
+      setStoryTemplateUrl('')
       setStatusMessage(t.admin.createSuccess)
     } catch (error) {
       console.error('Event creation failed', error)
@@ -503,7 +526,7 @@ export default function AdminPage() {
     async (
       eventId: string,
       file: File,
-      kind: 'cover' | 'background' | 'posterTemplate'
+      kind: 'cover' | 'background' | 'posterTemplate' | 'storyTemplate'
     ) => {
       setUploadingVisual(kind)
       setStatusMessage(t.admin.mediaUploading)
@@ -684,7 +707,7 @@ export default function AdminPage() {
   const updateEventVisual = async (
     event: NormalizedEvent,
     file: File | null,
-    kind: 'cover' | 'background' | 'posterTemplate'
+    kind: 'cover' | 'background' | 'posterTemplate' | 'storyTemplate'
   ) => {
     if (!file) return
 
@@ -703,6 +726,8 @@ export default function AdminPage() {
                   kind === 'background' ? uploadedUrl : item.backgroundImageUrl,
                 posterTemplateUrl:
                   kind === 'posterTemplate' ? uploadedUrl : item.posterTemplateUrl,
+                storyTemplateUrl:
+                  kind === 'storyTemplate' ? uploadedUrl : item.storyTemplateUrl,
               }
             : item
         )
@@ -1255,6 +1280,33 @@ export default function AdminPage() {
                       />
                     ) : null}
                   </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                      {t.admin.storyTemplateImage}
+                    </label>
+                    <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
+                      {uploadingVisual === 'storyTemplate'
+                        ? t.admin.mediaUploading
+                        : storyTemplateFile?.name || t.admin.uploadStoryTemplate}
+                      <input
+                        type="file"
+                        accept="image/png,image/*"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0] || null
+                          setStoryTemplateFile(file)
+                          setStoryTemplateUrl(file ? URL.createObjectURL(file) : '')
+                        }}
+                        className="sr-only"
+                      />
+                    </label>
+                    {storyTemplateUrl ? (
+                      <div
+                        className="mt-3 h-44 rounded-2xl border border-white/10 bg-black bg-contain bg-center bg-no-repeat"
+                        style={{ backgroundImage: `url(${storyTemplateUrl})` }}
+                      />
+                    ) : null}
+                  </div>
                 </div>
 
                 <button
@@ -1458,6 +1510,23 @@ export default function AdminPage() {
                           onChange={(inputEvent) => {
                             const file = inputEvent.target.files?.[0] || null
                             void updateEventVisual(event, file, 'posterTemplate')
+                            inputEvent.target.value = ''
+                          }}
+                          className="sr-only"
+                        />
+                      </label>
+
+                      <label className="flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
+                        {updatingEventVisual?.eventId === event.id &&
+                        updatingEventVisual.kind === 'storyTemplate'
+                          ? t.admin.mediaUploading
+                          : t.admin.updateStoryTemplate}
+                        <input
+                          type="file"
+                          accept="image/png,image/*"
+                          onChange={(inputEvent) => {
+                            const file = inputEvent.target.files?.[0] || null
+                            void updateEventVisual(event, file, 'storyTemplate')
                             inputEvent.target.value = ''
                           }}
                           className="sr-only"

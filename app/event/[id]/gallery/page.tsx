@@ -404,9 +404,10 @@ export default function Page() {
           coverImageUrl?: string
           backgroundImageUrl?: string
           posterTemplateUrl?: string
+          storyTemplateUrl?: string
         }
 
-        if (!payload.coverImageUrl && !payload.backgroundImageUrl && !payload.posterTemplateUrl) return
+        if (!payload.coverImageUrl && !payload.backgroundImageUrl && !payload.posterTemplateUrl && !payload.storyTemplateUrl) return
 
         setCurrentEvent((prev) =>
           prev
@@ -417,6 +418,8 @@ export default function Page() {
                   payload.backgroundImageUrl || prev.backgroundImageUrl,
                 posterTemplateUrl:
                   payload.posterTemplateUrl || prev.posterTemplateUrl,
+                storyTemplateUrl:
+                  payload.storyTemplateUrl || prev.storyTemplateUrl,
               }
             : prev
         )
@@ -677,6 +680,7 @@ export default function Page() {
     const resources: CanvasImageResource[] = []
     let logoResource: CanvasImageResource | null = null
     let templateResource: CanvasImageResource | null = null
+    let storyTemplateResource: CanvasImageResource | null = null
 
     try {
       if (selectedItems.length > POSTER_MAX_TILES) {
@@ -712,6 +716,9 @@ export default function Page() {
       templateResource = currentEvent?.posterTemplateUrl
         ? await loadCanvasImage(currentEvent.posterTemplateUrl).catch(() => null)
         : null
+      storyTemplateResource = format === 'story' && currentEvent?.storyTemplateUrl
+        ? await loadCanvasImage(currentEvent.storyTemplateUrl).catch(() => null)
+        : null
 
       const canvas = document.createElement('canvas')
       canvas.width = format === 'story' ? STORY_WIDTH : POSTER_WIDTH
@@ -727,7 +734,9 @@ export default function Page() {
       context.fillRect(0, 0, canvas.width, canvas.height)
 
       if (format === 'story') {
-        if (templateResource) {
+        if (storyTemplateResource) {
+          drawCoverImage(context, storyTemplateResource.image, 0, 0, STORY_WIDTH, STORY_HEIGHT)
+        } else if (templateResource) {
           drawContainImage(context, templateResource.image, 0, 0, STORY_WIDTH, STORY_HEIGHT)
         }
 
@@ -741,7 +750,7 @@ export default function Page() {
           { grayscale: options?.grayscale }
         )
 
-        if (!templateResource) {
+        if (!storyTemplateResource && !templateResource) {
           context.fillStyle = 'rgba(0, 0, 0, 0.72)'
           context.fillRect(0, 0, STORY_WIDTH, 220)
           context.fillRect(0, STORY_HEIGHT - 180, STORY_WIDTH, 180)
@@ -867,6 +876,10 @@ export default function Page() {
 
       if (templateResource) {
         window.URL.revokeObjectURL(templateResource.objectUrl)
+      }
+
+      if (storyTemplateResource) {
+        window.URL.revokeObjectURL(storyTemplateResource.objectUrl)
       }
 
       setCreatingPoster(false)

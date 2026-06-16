@@ -231,9 +231,10 @@ export default function Page() {
           coverImageUrl?: string
           backgroundImageUrl?: string
           posterTemplateUrl?: string
+          storyTemplateUrl?: string
         }
 
-        if (!payload.coverImageUrl && !payload.backgroundImageUrl && !payload.posterTemplateUrl) return
+        if (!payload.coverImageUrl && !payload.backgroundImageUrl && !payload.posterTemplateUrl && !payload.storyTemplateUrl) return
 
         setCurrentEvent((prev) =>
           prev
@@ -244,6 +245,8 @@ export default function Page() {
                   payload.backgroundImageUrl || prev.backgroundImageUrl,
                 posterTemplateUrl:
                   payload.posterTemplateUrl || prev.posterTemplateUrl,
+                storyTemplateUrl:
+                  payload.storyTemplateUrl || prev.storyTemplateUrl,
               }
             : prev
         )

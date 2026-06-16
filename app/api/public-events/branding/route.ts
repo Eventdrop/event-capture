@@ -57,6 +57,7 @@ export async function GET(request: Request) {
     const coverFromRow = `${event.cover_image_url || ''}`.trim()
     const backgroundFromRow = `${event.background_image_url || ''}`.trim()
     const posterTemplateFromRow = `${event.poster_template_url || ''}`.trim()
+    const storyTemplateFromRow = `${event.story_template_url || ''}`.trim()
 
     if (coverFromRow && backgroundFromRow && posterTemplateFromRow) {
       return NextResponse.json({
@@ -64,6 +65,7 @@ export async function GET(request: Request) {
         coverImageUrl: coverFromRow,
         backgroundImageUrl: backgroundFromRow,
         posterTemplateUrl: posterTemplateFromRow,
+        storyTemplateUrl: storyTemplateFromRow,
       })
     }
 
@@ -85,6 +87,9 @@ export async function GET(request: Request) {
     const latestPosterTemplate = files?.find((file) =>
       file.name.startsWith('posterTemplate-')
     )
+    const latestStoryTemplate = files?.find((file) =>
+      file.name.startsWith('storyTemplate-')
+    )
 
     return NextResponse.json({
       ok: true,
@@ -96,6 +101,9 @@ export async function GET(request: Request) {
         : ''),
       posterTemplateUrl: posterTemplateFromRow || (latestPosterTemplate
         ? buildPublicUrl(`event-branding/${event.id}/${latestPosterTemplate.name}`)
+        : ''),
+      storyTemplateUrl: storyTemplateFromRow || (latestStoryTemplate
+        ? buildPublicUrl(`event-branding/${event.id}/${latestStoryTemplate.name}`)
         : ''),
     })
   } catch (error) {

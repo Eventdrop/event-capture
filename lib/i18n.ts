@@ -108,12 +108,15 @@ type TranslationTree = {
     coverImage: string
     backgroundImage: string
     posterTemplateImage: string
+    storyTemplateImage: string
     uploadCover: string
     uploadBackground: string
     uploadPosterTemplate: string
+    uploadStoryTemplate: string
     updateCover: string
     updateBackground: string
     updatePosterTemplate: string
+    updateStoryTemplate: string
     eventDetails: string
     saveEventDetails: string
     eventDetailsSaved: string
@@ -451,12 +454,15 @@ export const translations: Record<Locale, TranslationTree> = {
       coverImage: 'Etkinlik gorseli',
       backgroundImage: 'Arka plan gorseli',
       posterTemplateImage: 'A3 poster sablonu',
+      storyTemplateImage: 'Instagram Story sablonu',
       uploadCover: 'Etkinlik gorseli yukle',
       uploadBackground: 'Arka plan yukle',
       uploadPosterTemplate: 'A3 sablon yukle',
+      uploadStoryTemplate: 'Story sablon yukle',
       updateCover: 'Kapak degistir',
       updateBackground: 'Arka plan degistir',
       updatePosterTemplate: 'A3 sablon degistir',
+      updateStoryTemplate: 'Story sablon degistir',
       eventDetails: 'Album bilgileri',
       saveEventDetails: 'Baslik ve album adini kaydet',
       eventDetailsSaved: 'Album bilgileri kaydedildi.',
@@ -876,12 +882,15 @@ export const translations: Record<Locale, TranslationTree> = {
       coverImage: 'Omslagafbeelding',
       backgroundImage: 'Achtergrondafbeelding',
       posterTemplateImage: 'A3-postersjabloon',
+      storyTemplateImage: 'Instagram Story-sjabloon',
       uploadCover: 'Omslagafbeelding uploaden',
       uploadBackground: 'Achtergrond uploaden',
       uploadPosterTemplate: 'A3-sjabloon uploaden',
+      uploadStoryTemplate: 'Story-sjabloon uploaden',
       updateCover: 'Omslag wijzigen',
       updateBackground: 'Achtergrond wijzigen',
       updatePosterTemplate: 'A3-sjabloon wijzigen',
+      updateStoryTemplate: 'Story-sjabloon wijzigen',
       eventDetails: 'Albumgegevens',
       saveEventDetails: 'Naam en album opslaan',
       eventDetailsSaved: 'Albumgegevens opgeslagen.',
@@ -1301,12 +1310,15 @@ export const translations: Record<Locale, TranslationTree> = {
       coverImage: 'Event cover image',
       backgroundImage: 'Background image',
       posterTemplateImage: 'A3 poster template',
+      storyTemplateImage: 'Instagram Story template',
       uploadCover: 'Upload cover image',
       uploadBackground: 'Upload background image',
       uploadPosterTemplate: 'Upload A3 template',
+      uploadStoryTemplate: 'Upload Story template',
       updateCover: 'Change cover',
       updateBackground: 'Change background',
       updatePosterTemplate: 'Change A3 template',
+      updateStoryTemplate: 'Change Story template',
       eventDetails: 'Album details',
       saveEventDetails: 'Save title and album name',
       eventDetailsSaved: 'Album details saved.',

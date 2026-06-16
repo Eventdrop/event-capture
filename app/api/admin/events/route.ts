@@ -139,6 +139,7 @@ export async function POST(request: Request) {
       coverImageUrl?: string
       backgroundImageUrl?: string
       posterTemplateUrl?: string
+      storyTemplateUrl?: string
       allowGuestShare?: boolean
       allowGuestDownload?: boolean
       allowAlbumDownload?: boolean
@@ -155,6 +156,7 @@ export async function POST(request: Request) {
   const coverImageUrl = body?.coverImageUrl?.trim() || ''
   const backgroundImageUrl = body?.backgroundImageUrl?.trim() || ''
   const posterTemplateUrl = body?.posterTemplateUrl?.trim() || ''
+  const storyTemplateUrl = body?.storyTemplateUrl?.trim() || ''
   const allowGuestShare = body?.allowGuestShare !== false
   const allowGuestDownload = body?.allowGuestDownload !== false
   const allowAlbumDownload = body?.allowAlbumDownload !== false
@@ -182,6 +184,7 @@ export async function POST(request: Request) {
       coverImageUrl,
       backgroundImageUrl,
       posterTemplateUrl,
+      storyTemplateUrl,
       allowGuestShare,
       allowGuestDownload,
       allowAlbumDownload,
@@ -202,6 +205,8 @@ export async function POST(request: Request) {
     if (richInsert.error) {
       const posterTemplatePayload =
         'poster_template_url' in payload ? payload.poster_template_url : null
+      const storyTemplatePayload =
+        'story_template_url' in payload ? payload.story_template_url : null
       const withoutAccessCode = {
         name: payload.name,
         album_name: payload.album_name,
@@ -210,6 +215,7 @@ export async function POST(request: Request) {
         cover_image_url: payload.cover_image_url,
         background_image_url: payload.background_image_url,
         ...(posterTemplatePayload ? { poster_template_url: posterTemplatePayload } : {}),
+        ...(storyTemplatePayload ? { story_template_url: storyTemplatePayload } : {}),
         allow_guest_share: payload.allow_guest_share,
         allow_guest_download: payload.allow_guest_download,
         allow_guest_delete: payload.allow_guest_delete,
