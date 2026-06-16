@@ -161,6 +161,36 @@ function isPosterImageAllowed(resource: CanvasImageResource) {
   return getCanvasImageAspectRatio(resource) <= POSTER_MAX_ASPECT_RATIO
 }
 
+function hasTransparentPixelsInArea(
+  image: HTMLImageElement,
+  area: { x: number; y: number; width: number; height: number }
+) {
+  const canvas = document.createElement('canvas')
+  canvas.width = POSTER_WIDTH
+  canvas.height = POSTER_HEIGHT
+
+  const context = canvas.getContext('2d', { willReadFrequently: true })
+
+  if (!context) return true
+
+  drawCoverImage(context, image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+
+  const data = context.getImageData(area.x, area.y, area.width, area.height).data
+  const sampleStride = 80
+  let transparentSamples = 0
+  let totalSamples = 0
+
+  for (let index = 3; index < data.length; index += sampleStride) {
+    totalSamples += 1
+
+    if (data[index] < 245) {
+      transparentSamples += 1
+    }
+  }
+
+  return totalSamples === 0 || transparentSamples / totalSamples > 0.01
+}
+
 function getPosterGridSize(imageCount: number) {
   if (imageCount <= 1) return { columns: 1, rows: 1 }
   if (imageCount <= 2) return { columns: 2, rows: 1 }
@@ -632,6 +662,15 @@ export default function Page() {
       context.fillRect(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
 
       if (templateResource) {
+        const templateHasPhotoWindow = hasTransparentPixelsInArea(
+          templateResource.image,
+          POSTER_TEMPLATE_PHOTO_AREA
+        )
+
+        if (!templateHasPhotoWindow) {
+          drawCoverImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+        }
+
         drawPosterGrid(
           context,
           loadedImages.map(({ image }) => image),
@@ -639,7 +678,9 @@ export default function Page() {
           { grayscale: posterBlackAndWhite }
         )
 
-        drawCoverImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+        if (templateHasPhotoWindow) {
+          drawCoverImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+        }
       } else {
         const titleBottom = drawPosterTitle(
           context,
