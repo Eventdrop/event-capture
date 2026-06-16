@@ -23,7 +23,7 @@ const POSTER_MAX_TILES = 15
 const POSTER_MAX_ASPECT_RATIO = 2.2
 const STORY_WIDTH = 1080
 const STORY_HEIGHT = 1920
-const STORY_MAX_TILES = 6
+const STORY_MAX_TILES = 8
 const POSTER_GAP = 18
 const POSTER_MARGIN = 56
 const POSTER_FOOTER_HEIGHT = 160
@@ -250,6 +250,39 @@ function drawPosterGrid(
       rect.y,
       rect.width,
       rect.height,
+      options
+    )
+  })
+}
+
+function drawStoryGrid(
+  context: CanvasRenderingContext2D,
+  images: HTMLImageElement[],
+  area: { x: number; y: number; width: number; height: number },
+  options?: { grayscale?: boolean }
+) {
+  const columns = 2
+  const rows = 4
+  const gap = 16
+  const tileWidth = (area.width - gap * (columns - 1)) / columns
+  const tileHeight = (area.height - gap * (rows - 1)) / rows
+
+  context.save()
+  context.fillStyle = 'rgba(0, 0, 0, 0.62)'
+  context.fillRect(area.x - 18, area.y - 18, area.width + 36, area.height + 36)
+  context.restore()
+
+  images.slice(0, STORY_MAX_TILES).forEach((image, index) => {
+    const row = Math.floor(index / columns)
+    const column = index % columns
+
+    drawPosterTile(
+      context,
+      image,
+      area.x + column * (tileWidth + gap),
+      area.y + row * (tileHeight + gap),
+      tileWidth,
+      tileHeight,
       options
     )
   })
@@ -682,28 +715,30 @@ export default function Page() {
         }
 
         const storyImages = loadedImages.slice(0, STORY_MAX_TILES)
-        const storyArea = { x: 64, y: 250, width: STORY_WIDTH - 128, height: 1280 }
+        const storyArea = { x: 72, y: 240, width: STORY_WIDTH - 144, height: 1420 }
 
-        drawPosterGrid(
+        drawStoryGrid(
           context,
           storyImages.map(({ image }) => image),
           storyArea,
           { grayscale: options?.grayscale }
         )
 
-        context.fillStyle = 'rgba(0, 0, 0, 0.72)'
-        context.fillRect(0, 0, STORY_WIDTH, 220)
-        context.fillRect(0, STORY_HEIGHT - 220, STORY_WIDTH, 220)
+        if (!templateResource) {
+          context.fillStyle = 'rgba(0, 0, 0, 0.72)'
+          context.fillRect(0, 0, STORY_WIDTH, 220)
+          context.fillRect(0, STORY_HEIGHT - 180, STORY_WIDTH, 180)
 
-        context.fillStyle = '#fff'
-        context.font = '700 54px Arial, sans-serif'
-        context.textAlign = 'center'
-        context.fillText(eventName, STORY_WIDTH / 2, 115, STORY_WIDTH - 120)
-        context.font = '600 30px Arial, sans-serif'
-        context.fillText('Photobooth Holland', STORY_WIDTH / 2, STORY_HEIGHT - 118)
-        context.fillStyle = '#F7C96B'
-        context.fillText('Scan. Upload. Share.', STORY_WIDTH / 2, STORY_HEIGHT - 72)
-        context.textAlign = 'left'
+          context.fillStyle = '#fff'
+          context.font = '700 54px Arial, sans-serif'
+          context.textAlign = 'center'
+          context.fillText(eventName, STORY_WIDTH / 2, 115, STORY_WIDTH - 120)
+          context.font = '600 30px Arial, sans-serif'
+          context.fillText('Photobooth Holland', STORY_WIDTH / 2, STORY_HEIGHT - 98)
+          context.fillStyle = '#F7C96B'
+          context.fillText('Scan. Upload. Share.', STORY_WIDTH / 2, STORY_HEIGHT - 54)
+          context.textAlign = 'left'
+        }
       } else if (templateResource) {
         const templateHasPhotoWindow = hasTransparentPixelsInArea(
           templateResource.image,
