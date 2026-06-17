@@ -22,6 +22,8 @@ function formatEventLabel(event: NormalizedEvent) {
   return formatEventDisplayName(event)
 }
 
+type EventVisualKind = 'cover' | 'background' | 'posterTemplate' | 'storyTemplate'
+
 type GuestAccessEntry = {
   email: string
   created_at: string | null
@@ -65,11 +67,11 @@ export default function AdminPage() {
   const [posterTemplateFile, setPosterTemplateFile] = useState<File | null>(null)
   const [storyTemplateFile, setStoryTemplateFile] = useState<File | null>(null)
   const [uploadingVisual, setUploadingVisual] = useState<
-    'cover' | 'background' | 'posterTemplate' | 'storyTemplate' | null
+    EventVisualKind | null
   >(null)
   const [updatingEventVisual, setUpdatingEventVisual] = useState<{
     eventId: string
-    kind: 'cover' | 'background' | 'posterTemplate' | 'storyTemplate'
+    kind: EventVisualKind
   } | null>(null)
   const [eventDraftsById, setEventDraftsById] = useState<
     Record<string, { name: string; albumName: string }>
@@ -89,6 +91,12 @@ export default function AdminPage() {
 
   const publicBaseUrl = getPublicAppUrl()
   const adminUrl = getPublicPath('/control-room-7x')
+  const eventVisualLabels: Record<EventVisualKind, string> = {
+    cover: t.admin.coverImage,
+    background: t.admin.backgroundImage,
+    posterTemplate: t.admin.posterTemplateImage,
+    storyTemplate: t.admin.storyTemplateImage,
+  }
 
   const latestEvent = useMemo(() => events[0] || null, [events])
 
@@ -554,7 +562,7 @@ export default function AdminPage() {
     async (
       eventId: string,
       file: File,
-      kind: 'cover' | 'background' | 'posterTemplate' | 'storyTemplate'
+      kind: EventVisualKind
     ) => {
       setUploadingVisual(kind)
       setStatusMessage(t.admin.mediaUploading)
@@ -735,7 +743,7 @@ export default function AdminPage() {
   const updateEventVisual = async (
     event: NormalizedEvent,
     file: File | null,
-    kind: 'cover' | 'background' | 'posterTemplate' | 'storyTemplate'
+    kind: EventVisualKind
   ) => {
     if (!file) return
 
@@ -760,7 +768,7 @@ export default function AdminPage() {
             : item
         )
       )
-      setStatusMessage(t.admin.eventDetailsSaved)
+      setStatusMessage(`${eventVisualLabels[kind]} ${t.admin.visualSaved}`)
     } catch (error) {
       console.error('Failed to update event visual', error)
       setStatusMessage(error instanceof Error ? error.message : t.admin.mediaUploadError)
@@ -1492,7 +1500,17 @@ export default function AdminPage() {
                       </label>
                     </div>
 
-                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="mt-4 rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
+                      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
+                          {t.admin.visualsSection}
+                        </p>
+                        <p className="text-xs font-semibold text-[#597594]">
+                          {t.admin.visualsHelp}
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
                       <label className="flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
                         {updatingEventVisual?.eventId === event.id &&
                         updatingEventVisual.kind === 'cover'
@@ -1560,6 +1578,27 @@ export default function AdminPage() {
                           className="sr-only"
                         />
                       </label>
+                      </div>
+
+                      <div className="mt-3 grid gap-2 text-xs font-semibold text-[#33516F] sm:grid-cols-2">
+                        {([
+                          [t.admin.coverImage, event.coverImageUrl],
+                          [t.admin.backgroundImage, event.backgroundImageUrl],
+                          [t.admin.posterTemplateImage, event.posterTemplateUrl],
+                          [t.admin.storyTemplateImage, event.storyTemplateUrl],
+                        ] as const).map(([label, value]) => (
+                          <div
+                            key={label}
+                            className={`rounded-xl px-3 py-2 ${
+                              value
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'bg-rose-50 text-rose-700'
+                            }`}
+                          >
+                            {label}: {value ? t.admin.visualReady : t.admin.visualMissing}
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     <button

@@ -117,6 +117,11 @@ type TranslationTree = {
     updateBackground: string
     updatePosterTemplate: string
     updateStoryTemplate: string
+    visualsSection: string
+    visualsHelp: string
+    visualReady: string
+    visualMissing: string
+    visualSaved: string
     eventDetails: string
     saveEventDetails: string
     eventDetailsSaved: string
@@ -463,6 +468,11 @@ export const translations: Record<Locale, TranslationTree> = {
       updateBackground: 'Arka plan degistir',
       updatePosterTemplate: 'A3 sablon degistir',
       updateStoryTemplate: 'Story sablon degistir',
+      visualsSection: 'Gorseller',
+      visualsHelp: 'Her gorseli ayri ayri yukle.',
+      visualReady: 'yuklu',
+      visualMissing: 'eksik',
+      visualSaved: 'kaydedildi.',
       eventDetails: 'Album bilgileri',
       saveEventDetails: 'Baslik ve album adini kaydet',
       eventDetailsSaved: 'Album bilgileri kaydedildi.',
@@ -891,6 +901,11 @@ export const translations: Record<Locale, TranslationTree> = {
       updateBackground: 'Achtergrond wijzigen',
       updatePosterTemplate: 'A3-sjabloon wijzigen',
       updateStoryTemplate: 'Story-sjabloon wijzigen',
+      visualsSection: 'Afbeeldingen',
+      visualsHelp: 'Upload elke afbeelding apart.',
+      visualReady: 'geüpload',
+      visualMissing: 'ontbreekt',
+      visualSaved: 'opgeslagen.',
       eventDetails: 'Albumgegevens',
       saveEventDetails: 'Naam en album opslaan',
       eventDetailsSaved: 'Albumgegevens opgeslagen.',
@@ -1319,6 +1334,11 @@ export const translations: Record<Locale, TranslationTree> = {
       updateBackground: 'Change background',
       updatePosterTemplate: 'Change A3 template',
       updateStoryTemplate: 'Change Story template',
+      visualsSection: 'Visuals',
+      visualsHelp: 'Upload each visual separately.',
+      visualReady: 'uploaded',
+      visualMissing: 'missing',
+      visualSaved: 'saved.',
       eventDetails: 'Album details',
       saveEventDetails: 'Save title and album name',
       eventDetailsSaved: 'Album details saved.',
