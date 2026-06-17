@@ -3,10 +3,12 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react'
+import { usePathname } from 'next/navigation'
 import { locales, type Locale, translations } from '@/lib/i18n'
 
 type LanguageContextValue = {
@@ -17,8 +19,18 @@ type LanguageContextValue = {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null)
 
+function getRouteDefaultLocale(pathname: string | null): Locale {
+  return pathname?.startsWith('/control-room-7x') ? 'tr' : 'nl'
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>('nl')
+  const pathname = usePathname()
+  const routeDefaultLocale = getRouteDefaultLocale(pathname)
+  const [locale, setLocale] = useState<Locale>(routeDefaultLocale)
+
+  useEffect(() => {
+    setLocale(routeDefaultLocale)
+  }, [routeDefaultLocale])
 
   const handleSetLocale = (nextLocale: Locale) => {
     if (locales.includes(nextLocale)) {
