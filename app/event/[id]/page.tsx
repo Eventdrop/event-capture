@@ -15,7 +15,6 @@ import {
   getPublicFileUrl,
 } from '@/lib/eventdrop'
 import {
-  formatEventDisplayName,
   getEventRoute,
   normalizeEventRecord,
   type NormalizedEvent,
@@ -202,11 +201,7 @@ export default function Page() {
       setEventMissing(false)
       const normalizedEvent = normalizeEventRecord(event)
       setCurrentEvent(normalizedEvent)
-      setEventName(
-        normalizedEvent
-          ? formatEventDisplayName(normalizedEvent)
-          : 'Gedeeld evenementalbum'
-      )
+      setEventName(normalizedEvent?.albumName || normalizedEvent?.name || 'Gedeeld evenementalbum')
       setResolvedEventId(normalizedEvent?.id || '')
       setMessage(t.upload.intro)
     }

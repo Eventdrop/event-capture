@@ -13,7 +13,7 @@ import {
   getUploadShortFileName,
   type UploadRecord,
 } from '@/lib/eventdrop'
-import { formatEventDisplayName, normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
+import { normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
 import { shareMedia } from '@/lib/share-media'
 import { supabase } from '@/lib/supabase'
 
@@ -368,11 +368,7 @@ export default function Page() {
       const activeUploads = (uploads || []) as UploadRecord[]
 
       setItems(activeUploads)
-      setEventName(
-        normalizedEvent
-          ? formatEventDisplayName(normalizedEvent)
-          : 'Gedeelde evenementgalerij'
-      )
+      setEventName(normalizedEvent?.albumName || normalizedEvent?.name || 'Gedeelde evenementgalerij')
       setStatusMessage(
         activeUploads.length === 0
           ? t.gallery.noUploads
