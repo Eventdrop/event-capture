@@ -29,6 +29,12 @@ type GuestAccessEntry = {
   created_at: string | null
 }
 
+type GuestMessageEntry = {
+  message: string
+  file_name: string | null
+  created_at: string | null
+}
+
 export default function AdminPage() {
   const { t } = useLanguage()
   const [authenticated, setAuthenticated] = useState(false)
@@ -47,6 +53,9 @@ export default function AdminPage() {
   const [events, setEvents] = useState<NormalizedEvent[]>([])
   const [guestAccessByEvent, setGuestAccessByEvent] = useState<
     Record<string, GuestAccessEntry[]>
+  >({})
+  const [guestMessagesByEvent, setGuestMessagesByEvent] = useState<
+    Record<string, GuestMessageEntry[]>
   >({})
   const [eventName, setEventName] = useState('')
   const [albumName, setAlbumName] = useState('')
@@ -123,6 +132,7 @@ export default function AdminPage() {
       ok?: boolean
       events?: Record<string, unknown>[]
       guestAccessByEvent?: Record<string, GuestAccessEntry[]>
+      guestMessagesByEvent?: Record<string, GuestMessageEntry[]>
       error?: string
     }
 
@@ -135,6 +145,7 @@ export default function AdminPage() {
       .filter((item): item is NormalizedEvent => Boolean(item))
 
     setEvents(normalized)
+    setGuestMessagesByEvent(payload.guestMessagesByEvent || {})
     setEventDraftsById(
       normalized.reduce<Record<string, { name: string; albumName: string }>>(
         (accumulator, event) => {
@@ -441,12 +452,12 @@ export default function AdminPage() {
 
         if (coverImageFile) {
           try {
-            const uploadedCoverUrl = await uploadVisualForEvent(
+            const uploadedCover = await uploadVisualForEvent(
               normalized.id,
               coverImageFile,
               'cover'
             )
-            nextEvent = { ...nextEvent, coverImageUrl: uploadedCoverUrl }
+            nextEvent = uploadedCover.event || { ...nextEvent, coverImageUrl: uploadedCover.url }
             updateCreatedEvent()
           } catch (error) {
             rememberMediaError(error)
@@ -455,14 +466,14 @@ export default function AdminPage() {
 
         if (backgroundImageFile) {
           try {
-            const uploadedBackgroundUrl = await uploadVisualForEvent(
+            const uploadedBackground = await uploadVisualForEvent(
               normalized.id,
               backgroundImageFile,
               'background'
             )
-            nextEvent = {
+            nextEvent = uploadedBackground.event || {
               ...nextEvent,
-              backgroundImageUrl: uploadedBackgroundUrl,
+              backgroundImageUrl: uploadedBackground.url,
             }
             updateCreatedEvent()
           } catch (error) {
@@ -472,14 +483,14 @@ export default function AdminPage() {
 
         if (posterTemplateFile) {
           try {
-            const uploadedPosterTemplateUrl = await uploadVisualForEvent(
+            const uploadedPosterTemplate = await uploadVisualForEvent(
               normalized.id,
               posterTemplateFile,
               'posterTemplate'
             )
-            nextEvent = {
+            nextEvent = uploadedPosterTemplate.event || {
               ...nextEvent,
-              posterTemplateUrl: uploadedPosterTemplateUrl,
+              posterTemplateUrl: uploadedPosterTemplate.url,
             }
             updateCreatedEvent()
           } catch (error) {
@@ -489,14 +500,14 @@ export default function AdminPage() {
 
         if (storyTemplateFile) {
           try {
-            const uploadedStoryTemplateUrl = await uploadVisualForEvent(
+            const uploadedStoryTemplate = await uploadVisualForEvent(
               normalized.id,
               storyTemplateFile,
               'storyTemplate'
             )
-            nextEvent = {
+            nextEvent = uploadedStoryTemplate.event || {
               ...nextEvent,
-              storyTemplateUrl: uploadedStoryTemplateUrl,
+              storyTemplateUrl: uploadedStoryTemplate.url,
             }
             updateCreatedEvent()
           } catch (error) {
@@ -581,6 +592,7 @@ export default function AdminPage() {
         const payload = (await response.json()) as {
           ok?: boolean
           url?: string
+          event?: Record<string, unknown>
           error?: string
         }
 
@@ -588,7 +600,7 @@ export default function AdminPage() {
           throw new Error(payload.error || t.admin.mediaUploadError)
         }
 
-        return payload.url
+        return { url: payload.url, event: normalizeEventRecord(payload.event) }
       } finally {
         setUploadingVisual(null)
       }
@@ -619,6 +631,11 @@ export default function AdminPage() {
 
       setEvents((prev) => prev.filter((event) => event.id !== eventId))
       setGuestAccessByEvent((prev) => {
+        const next = { ...prev }
+        delete next[eventId]
+        return next
+      })
+      setGuestMessagesByEvent((prev) => {
         const next = { ...prev }
         delete next[eventId]
         return next
@@ -750,20 +767,20 @@ export default function AdminPage() {
     setUpdatingEventVisual({ eventId: event.id, kind })
 
     try {
-      const uploadedUrl = await uploadVisualForEvent(event.id, file, kind)
+      const uploadedVisual = await uploadVisualForEvent(event.id, file, kind)
 
       setEvents((prev) =>
         prev.map((item) =>
           item.id === event.id
-            ? {
+            ? uploadedVisual.event || {
                 ...item,
-                coverImageUrl: kind === 'cover' ? uploadedUrl : item.coverImageUrl,
+                coverImageUrl: kind === 'cover' ? uploadedVisual.url : item.coverImageUrl,
                 backgroundImageUrl:
-                  kind === 'background' ? uploadedUrl : item.backgroundImageUrl,
+                  kind === 'background' ? uploadedVisual.url : item.backgroundImageUrl,
                 posterTemplateUrl:
-                  kind === 'posterTemplate' ? uploadedUrl : item.posterTemplateUrl,
+                  kind === 'posterTemplate' ? uploadedVisual.url : item.posterTemplateUrl,
                 storyTemplateUrl:
-                  kind === 'storyTemplate' ? uploadedUrl : item.storyTemplateUrl,
+                  kind === 'storyTemplate' ? uploadedVisual.url : item.storyTemplateUrl,
               }
             : item
         )
@@ -1772,6 +1789,39 @@ export default function AdminPage() {
                         {t.common.deleteEvent}
                       </button>
                     </div>
+                  </div>
+
+                  <div className="mt-4 rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
+                    <div className="flex flex-col gap-1">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
+                        Misafir notlari
+                      </p>
+                      <p className="text-sm font-semibold text-[#0B2742]">
+                        {guestMessagesByEvent[event.id]?.length || 0} not
+                      </p>
+                    </div>
+
+                    {guestMessagesByEvent[event.id]?.length ? (
+                      <div className="mt-3 space-y-2">
+                        {guestMessagesByEvent[event.id].map((entry, messageIndex) => (
+                          <div
+                            key={`${event.id}-message-${messageIndex}`}
+                            className="rounded-2xl bg-[#F7FAFD] px-3 py-2 text-sm text-[#33516F]"
+                          >
+                            <p className="break-words font-medium text-[#0B2742]">
+                              {entry.message}
+                            </p>
+                            <p className="mt-1 text-xs text-[#6A84A3]">
+                              {entry.file_name || 'Foto'} · {entry.created_at ? new Date(entry.created_at).toLocaleString() : t.admin.guestEmailTimeUnknown}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-[#6A84A3]">
+                        Bu album icin henuz misafir notu yok.
+                      </p>
+                    )}
                   </div>
 
                   <div className="mt-4 rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">

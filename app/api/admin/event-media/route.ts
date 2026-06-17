@@ -75,16 +75,38 @@ export async function POST(request: Request) {
 
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${storagePath}`
 
-    const { error: updateError } = await supabase
+    const { data: updatedEvent, error: updateError } = await supabase
       .from('events')
       .update({ [eventVisualColumns[kind]]: url })
       .eq('id', eventId)
+      .select('*')
+      .single()
 
     if (updateError) {
+      await supabase.storage.from(BUCKET_NAME).remove([storagePath]).catch(() => null)
+
+      const message = updateError.message.toLowerCase()
+      if (
+        message.includes(eventVisualColumns[kind]) ||
+        message.includes('column') ||
+        message.includes('schema cache') ||
+        message.includes('could not find')
+      ) {
+        throw new Error(
+          `Supabase events tablosunda \`${eventVisualColumns[kind]}\` kolonu eksik veya schema cache yenilenmedi. SQL dosyasindaki kolonlari ekleyip tekrar dene.`
+        )
+      }
+
       throw updateError
     }
 
-    return NextResponse.json({ ok: true, url, storagePath })
+    const savedUrl = String(updatedEvent?.[eventVisualColumns[kind]] || '').trim()
+
+    if (savedUrl !== url) {
+      throw new Error('Gorsel yuklendi ama album kaydina baglanamadi. Lutfen tekrar dene.')
+    }
+
+    return NextResponse.json({ ok: true, url, storagePath, event: updatedEvent })
   } catch (error) {
     return NextResponse.json(
       {

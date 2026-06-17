@@ -419,6 +419,12 @@ export default function Page() {
       throw new Error(`Database error: ${richError.message}`)
     }
 
+    if (payload.guestMessage) {
+      throw new Error(
+        'Database mist guest_message kolonu. Run docs/sql/eventdrop-required-columns.sql in Supabase en probeer opnieuw.'
+      )
+    }
+
     const { error: fallbackError } = await supabase
       .from('uploads')
       .insert([fallbackInsert])

@@ -50,6 +50,10 @@ export async function GET() {
       string,
       { email: string; created_at: string | null }[]
     > = {}
+    let guestMessagesByEvent: Record<
+      string,
+      { message: string; file_name: string | null; created_at: string | null }[]
+    > = {}
 
     if (eventIds.length > 0) {
       try {
@@ -108,9 +112,58 @@ export async function GET() {
           error: guestAccessError instanceof Error ? guestAccessError.message : 'Unknown error',
         })
       }
+
+      try {
+        const guestMessagesQuery = await withRetry(
+          () =>
+            supabase
+              .from('uploads')
+              .select('event_id,file_name,guest_message,created_at')
+              .in('event_id', eventIds)
+              .order('created_at', { ascending: false })
+              .limit(1000),
+          {
+            attempts: 3,
+            delayMs: 250,
+          }
+        )
+
+        if (!guestMessagesQuery.error) {
+          guestMessagesByEvent = ((guestMessagesQuery.data || []) as Array<{
+            event_id?: string | null
+            file_name?: string | null
+            guest_message?: string | null
+            created_at?: string | null
+          }>).reduce<
+            Record<string, { message: string; file_name: string | null; created_at: string | null }[]>
+          >((accumulator, item) => {
+            const eventId = item.event_id || ''
+            const message = (item.guest_message || '').trim()
+
+            if (!eventId || !message) {
+              return accumulator
+            }
+
+            accumulator[eventId] = [
+              ...(accumulator[eventId] || []),
+              {
+                message,
+                file_name: item.file_name || null,
+                created_at: item.created_at || null,
+              },
+            ]
+
+            return accumulator
+          }, {})
+        }
+      } catch (guestMessagesError) {
+        logOperation('warn', 'admin-events', 'Failed to load guest messages', {
+          error: guestMessagesError instanceof Error ? guestMessagesError.message : 'Unknown error',
+        })
+      }
     }
 
-    return NextResponse.json({ ok: true, events, guestAccessByEvent })
+    return NextResponse.json({ ok: true, events, guestAccessByEvent, guestMessagesByEvent })
   } catch (error) {
     logOperation('error', 'admin-events', 'Failed to load events', {
       error: error instanceof Error ? error.message : 'Unknown error',
