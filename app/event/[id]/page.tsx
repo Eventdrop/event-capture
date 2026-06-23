@@ -405,6 +405,17 @@ export default function Page() {
       type: payload.mediaType,
     }
 
+    const compatibleInsert = {
+      ...fallbackInsert,
+      share_code: payload.shareCode,
+      guest_message: payload.guestMessage,
+    }
+
+    const legacyMessageInsert = {
+      ...fallbackInsert,
+      message: payload.guestMessage,
+    }
+
     const { error: richError } = await supabase.from('uploads').insert([richInsert])
 
     if (!richError) return
@@ -419,15 +430,23 @@ export default function Page() {
       throw new Error(`Database error: ${richError.message}`)
     }
 
-    // Guest message fallback: do not block photo upload if rich insert fails.
+    const fallbackAttempts = payload.guestMessage
+      ? [compatibleInsert, legacyMessageInsert, fallbackInsert]
+      : [compatibleInsert, fallbackInsert]
 
-    const { error: fallbackError } = await supabase
-      .from('uploads')
-      .insert([fallbackInsert])
+    let lastFallbackError = richError
 
-    if (fallbackError) {
-      throw new Error(`Database error: ${fallbackError.message}`)
+    for (const insertPayload of fallbackAttempts) {
+      const { error: fallbackError } = await supabase
+        .from('uploads')
+        .insert([insertPayload])
+
+      if (!fallbackError) return
+
+      lastFallbackError = fallbackError
     }
+
+    throw new Error(`Database error: ${lastFallbackError.message}`)
   }
 
   const handleUpload = async () => {
