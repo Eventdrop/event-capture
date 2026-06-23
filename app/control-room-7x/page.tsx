@@ -58,7 +58,6 @@ export default function AdminPage() {
     Record<string, GuestMessageEntry[]>
   >({})
   const [eventName, setEventName] = useState('')
-  const [albumName, setAlbumName] = useState('')
   const [eventDate, setEventDate] = useState('')
   const [accessCodeEnabled, setAccessCodeEnabled] = useState(false)
   const [allowGuestShare, setAllowGuestShare] = useState(true)
@@ -340,7 +339,7 @@ export default function AdminPage() {
   }
 
   const createEventRecord = async () => {
-    if (!eventName.trim() || !albumName.trim()) {
+    if (!eventName.trim()) {
       setStatusMessage(t.admin.createError)
       return
     }
@@ -368,7 +367,7 @@ export default function AdminPage() {
 
       const payload = buildEventInsertPayload({
         name: eventName,
-        albumName,
+        albumName: eventName,
         eventDate,
         accessCode,
         accessCodeEnabled,
@@ -517,7 +516,6 @@ export default function AdminPage() {
       }
 
       setEventName('')
-      setAlbumName('')
       setEventDate('')
       setAccessCodeEnabled(false)
       setAllowGuestShare(true)
@@ -661,17 +659,12 @@ export default function AdminPage() {
     }
   }
 
-  const handleEventDraftChange = (
-    eventId: string,
-    key: 'name' | 'albumName',
-    value: string
-  ) => {
+  const handleEventDraftChange = (eventId: string, value: string) => {
     setEventDraftsById((prev) => ({
       ...prev,
       [eventId]: {
-        name: prev[eventId]?.name || '',
-        albumName: prev[eventId]?.albumName || '',
-        [key]: value,
+        name: value,
+        albumName: value,
       },
     }))
   }
@@ -682,7 +675,7 @@ export default function AdminPage() {
       albumName: event.albumName,
     }
 
-    if (!draft.name.trim() || !draft.albumName.trim()) {
+    if (!draft.name.trim()) {
       setStatusMessage(t.admin.eventDetailsSaveError)
       return
     }
@@ -698,7 +691,7 @@ export default function AdminPage() {
         body: JSON.stringify({
           id: event.id,
           name: draft.name,
-          albumName: draft.albumName,
+          albumName: draft.name,
           allowGuestShare: eventControlsById[event.id]?.allowGuestShare ?? event.allowGuestShare,
           allowGuestDownload:
             eventControlsById[event.id]?.allowGuestDownload ?? event.allowGuestDownload,
@@ -1099,18 +1092,6 @@ export default function AdminPage() {
 
                   <div>
                     <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                      {t.admin.albumName}
-                    </label>
-                    <input
-                      value={albumName}
-                      onChange={(event) => setAlbumName(event.target.value)}
-                      placeholder="Album voor de avond"
-                      className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742] placeholder:text-[#7D95AF]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
                       {t.common.eventDate}
                     </label>
                     <input
@@ -1495,26 +1476,7 @@ export default function AdminPage() {
                         <input
                           value={eventDraftsById[event.id]?.name ?? event.name}
                           onChange={(inputEvent) =>
-                            handleEventDraftChange(
-                              event.id,
-                              'name',
-                              inputEvent.target.value
-                            )
-                          }
-                          className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66]"
-                        />
-                      </label>
-
-                      <label className="block text-sm font-semibold text-[#33516F]">
-                        {t.admin.albumName}
-                        <input
-                          value={eventDraftsById[event.id]?.albumName ?? event.albumName}
-                          onChange={(inputEvent) =>
-                            handleEventDraftChange(
-                              event.id,
-                              'albumName',
-                              inputEvent.target.value
-                            )
+                            handleEventDraftChange(event.id, inputEvent.target.value)
                           }
                           className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66]"
                         />
