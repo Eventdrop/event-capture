@@ -179,6 +179,7 @@ type TranslationTree = {
     consentLabel: string
     consentHelp: string
     consentRequired: string
+    uploadNeedsConsent: string
     consentLinks: string
     consentButton: string
     uploadLabel: string
@@ -541,6 +542,7 @@ export const translations: Record<Locale, TranslationTree> = {
       consentHelp: '',
       consentRequired:
         'Devam etmek icin once onay kutusunu isaretleyin.',
+      uploadNeedsConsent: 'Ortak albume yuklemek icin once yukaridaki onay kutusunu isaretle.',
       consentLinks:
         'Devam ederek kullanim sartlarini ve gizlilik bilgisini de kabul ettigini beyan edersin.',
       consentButton: 'Devam et',
@@ -974,6 +976,7 @@ export const translations: Record<Locale, TranslationTree> = {
       consentHelp: '',
       consentRequired:
         'Vink eerst de toestemming aan om door te gaan.',
+      uploadNeedsConsent: 'Vink eerst de toestemming hierboven aan om naar het gedeelde album te uploaden.',
       consentLinks:
         'Door verder te gaan bevestig je ook dat je de gebruiksvoorwaarden en privacyinformatie hebt gelezen.',
       consentButton: 'Verdergaan',
@@ -1407,6 +1410,7 @@ export const translations: Record<Locale, TranslationTree> = {
       consentHelp: '',
       consentRequired:
         'Please tick the consent checkbox before continuing.',
+      uploadNeedsConsent: 'Tick the consent checkbox above before uploading to the shared album.',
       consentLinks:
         'By continuing, you also confirm that you have read the terms and privacy notice.',
       consentButton: 'Continue',

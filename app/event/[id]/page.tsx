@@ -610,6 +610,12 @@ export default function Page() {
                   {t.upload.photoOnlyNotice}
                 </p>
 
+                {!guidanceAccepted ? (
+                  <p className="mb-3 rounded-2xl border border-[#F9C58E] bg-[#FFF4E8] px-4 py-3 text-sm font-semibold text-[#8A4A07]">
+                    {t.upload.uploadNeedsConsent}
+                  </p>
+                ) : null}
+
                 <input
                   ref={inputRef}
                   id="event-media"
@@ -650,7 +656,11 @@ export default function Page() {
                         : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
                     }`}
                   >
-                    {uploading ? t.upload.uploadingButton : t.upload.uploadButton}
+                    {!guidanceAccepted
+                      ? t.upload.uploadNeedsConsent
+                      : uploading
+                        ? t.upload.uploadingButton
+                        : t.upload.uploadButton}
                   </button>
 
                   <button
