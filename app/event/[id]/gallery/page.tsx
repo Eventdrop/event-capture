@@ -319,7 +319,6 @@ export default function Page() {
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [creatingPoster, setCreatingPoster] = useState(false)
   const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
-  const [albumPackageIndex, setAlbumPackageIndex] = useState(0)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
 
   useEffect(() => {
@@ -378,10 +377,6 @@ export default function Page() {
 
     void load()
   }, [eventIdentifier, t.gallery.loadError, t.gallery.noUploads, t.gallery.notFound, t.gallery.showing])
-
-  useEffect(() => {
-    setAlbumPackageIndex(0)
-  }, [items.length])
 
   useEffect(() => {
     const loadBranding = async () => {
@@ -458,7 +453,7 @@ export default function Page() {
   const selectedLimit = 100
   // Keep ZIPs small enough for serverless runtimes and mobile browsers.
   // Large in-memory blobs can otherwise look as if the button does nothing.
-  const albumPackageSize = 20
+  const albumPackageSize = 40
   const shareEnabled = currentEvent?.allowGuestShare !== false
   const downloadEnabled = currentEvent?.allowGuestDownload !== false
   const albumDownloadEnabled = currentEvent?.allowAlbumDownload !== false
@@ -466,14 +461,10 @@ export default function Page() {
   const posterEnabled = currentEvent?.allowGuestPoster === true
   const downloadInProgress = downloadingSelected || downloadingAll || creatingPoster
   const totalAlbumPackages = Math.max(1, Math.ceil(items.length / albumPackageSize))
-  const activeAlbumPackageIndex = Math.min(albumPackageIndex, totalAlbumPackages - 1)
-  const albumPackageStart = activeAlbumPackageIndex * albumPackageSize
-  const albumPackageEnd = Math.min(albumPackageStart + albumPackageSize, items.length)
-  const albumPackageItems = items.slice(albumPackageStart, albumPackageEnd)
   const albumPackageButtonLabel =
     items.length <= albumPackageSize
       ? t.gallery.downloadAll
-      : `${t.gallery.downloadAlbumPackage} ${activeAlbumPackageIndex + 1}/${totalAlbumPackages} (${albumPackageStart + 1}-${albumPackageEnd})`
+      : `${t.gallery.downloadAll} (${totalAlbumPackages} ZIP)`
   const posterSelectedCount = Math.min(selectedItems.length, POSTER_MAX_TILES)
   const storySelectedCount = Math.min(selectedItems.length, STORY_MAX_TILES)
   const posterOverflowCount = Math.max(0, selectedItems.length - POSTER_MAX_TILES)
@@ -616,6 +607,7 @@ export default function Page() {
       setStatusMessage(
         error instanceof Error ? error.message : t.gallery.loadError
       )
+      throw error
     }
   }
 
@@ -641,14 +633,29 @@ export default function Page() {
     setStatusMessage(t.gallery.downloadingAll)
 
     try {
-      const downloadSingleAlbumZip = items.length <= albumPackageSize
+      if (items.length <= albumPackageSize) {
+        await downloadZip({ all: true })
+        return
+      }
 
-      await downloadZip({
-        all: downloadSingleAlbumZip,
-        packageNumber: items.length > albumPackageSize ? activeAlbumPackageIndex + 1 : undefined,
-        zipItems: downloadSingleAlbumZip ? undefined : albumPackageItems,
-      })
-      setAlbumPackageIndex((prev) => (prev + 1 >= totalAlbumPackages ? 0 : prev + 1))
+      for (let packageIndex = 0; packageIndex < totalAlbumPackages; packageIndex += 1) {
+        const packageStart = packageIndex * albumPackageSize
+        const packageItems = items.slice(packageStart, packageStart + albumPackageSize)
+
+        setStatusMessage(
+          `${t.gallery.downloadingAll} ${packageIndex + 1}/${totalAlbumPackages}`
+        )
+
+        await downloadZip({
+          all: false,
+          packageNumber: packageIndex + 1,
+          zipItems: packageItems,
+        })
+
+        await new Promise((resolve) => window.setTimeout(resolve, 400))
+      }
+
+      setStatusMessage(t.gallery.allDownloaded)
     } finally {
       setDownloadingAll(false)
     }
