@@ -319,6 +319,7 @@ export default function Page() {
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [creatingPoster, setCreatingPoster] = useState(false)
   const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
+  const [albumPackagesVisible, setAlbumPackagesVisible] = useState(false)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
 
   useEffect(() => {
@@ -465,6 +466,21 @@ export default function Page() {
     items.length <= albumPackageSize
       ? t.gallery.downloadAll
       : `${t.gallery.downloadAll} (${totalAlbumPackages} ZIP)`
+  const albumPackages = useMemo(
+    () => Array.from({ length: totalAlbumPackages }, (_, packageIndex) => {
+      const packageStart = packageIndex * albumPackageSize
+      const packageEnd = Math.min(packageStart + albumPackageSize, items.length)
+
+      return {
+        end: packageEnd,
+        index: packageIndex,
+        items: items.slice(packageStart, packageEnd),
+        label: `Paket ${packageIndex + 1} (${packageStart + 1}-${packageEnd})`,
+        start: packageStart + 1,
+      }
+    }),
+    [albumPackageSize, items, totalAlbumPackages]
+  )
   const posterSelectedCount = Math.min(selectedItems.length, POSTER_MAX_TILES)
   const storySelectedCount = Math.min(selectedItems.length, STORY_MAX_TILES)
   const posterOverflowCount = Math.max(0, selectedItems.length - POSTER_MAX_TILES)
@@ -594,33 +610,34 @@ export default function Page() {
   const downloadAll = async () => {
     if (items.length === 0 || downloadingAll) return
 
+    if (items.length > albumPackageSize) {
+      setAlbumPackagesVisible(true)
+      setStatusMessage(`${totalAlbumPackages} ZIP paketi hazir. Paketleri tek tek indir.`)
+      return
+    }
+
     setDownloadingAll(true)
     setStatusMessage(t.gallery.downloadingAll)
 
     try {
-      if (items.length <= albumPackageSize) {
-        await downloadZip({ all: true })
-        return
-      }
+      await downloadZip({ all: true })
+    } finally {
+      setDownloadingAll(false)
+    }
+  }
 
-      for (let packageIndex = 0; packageIndex < totalAlbumPackages; packageIndex += 1) {
-        const packageStart = packageIndex * albumPackageSize
-        const packageItems = items.slice(packageStart, packageStart + albumPackageSize)
+  const downloadAlbumPackage = async (packageIndex: number, packageItems: UploadRecord[]) => {
+    if (packageItems.length === 0 || downloadingAll) return
 
-        setStatusMessage(
-          `${t.gallery.downloadingAll} ${packageIndex + 1}/${totalAlbumPackages}`
-        )
+    setDownloadingAll(true)
+    setStatusMessage(`${t.gallery.downloadingAll} ${packageIndex + 1}/${totalAlbumPackages}`)
 
-        await downloadZip({
-          all: false,
-          packageNumber: packageIndex + 1,
-          zipItems: packageItems,
-        })
-
-        await new Promise((resolve) => window.setTimeout(resolve, 400))
-      }
-
-      setStatusMessage(t.gallery.allDownloaded)
+    try {
+      await downloadZip({
+        all: false,
+        packageNumber: packageIndex + 1,
+        zipItems: packageItems,
+      })
     } finally {
       setDownloadingAll(false)
     }
@@ -1065,6 +1082,31 @@ export default function Page() {
                 >
                   {downloadingAll ? t.gallery.downloadingAll : albumPackageButtonLabel}
                 </button>
+
+                {albumPackagesVisible && items.length > albumPackageSize ? (
+                  <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/88 p-3 shadow-sm">
+                    <p className="mb-2 text-xs font-semibold text-[#33516F]">
+                      Albüm güvenli indirme için {totalAlbumPackages} ZIP paketine bölündü.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {albumPackages.map((albumPackage) => (
+                        <button
+                          key={albumPackage.index}
+                          type="button"
+                          onClick={() => downloadAlbumPackage(albumPackage.index, albumPackage.items)}
+                          disabled={downloadingAll}
+                          className={`inline-flex min-h-9 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm ${
+                            downloadingAll
+                              ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                              : 'bg-[#EDF4FB] text-[#0F3D66] hover:bg-[#DCEAF7]'
+                          }`}
+                        >
+                          {albumPackage.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
 
               </>
             ) : null}
