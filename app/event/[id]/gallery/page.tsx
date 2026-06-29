@@ -475,11 +475,11 @@ export default function Page() {
         end: packageEnd,
         index: packageIndex,
         items: items.slice(packageStart, packageEnd),
-        label: `Paket ${packageIndex + 1} (${packageStart + 1}-${packageEnd})`,
+        label: `${t.gallery.albumPackageLabel} ${packageIndex + 1} (${packageStart + 1}-${packageEnd})`,
         start: packageStart + 1,
       }
     }),
-    [albumPackageSize, items, totalAlbumPackages]
+    [albumPackageSize, items, t.gallery.albumPackageLabel, totalAlbumPackages]
   )
   const posterSelectedCount = Math.min(selectedItems.length, POSTER_MAX_TILES)
   const storySelectedCount = Math.min(selectedItems.length, STORY_MAX_TILES)
@@ -612,7 +612,9 @@ export default function Page() {
 
     if (items.length > albumPackageSize) {
       setAlbumPackagesVisible(true)
-      setStatusMessage(`${totalAlbumPackages} ZIP paketi hazir. Paketleri tek tek indir.`)
+      setStatusMessage(
+        t.gallery.albumPackageReady.replace('{count}', String(totalAlbumPackages))
+      )
       return
     }
 
@@ -1086,7 +1088,7 @@ export default function Page() {
                 {albumPackagesVisible && items.length > albumPackageSize ? (
                   <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/88 p-3 shadow-sm">
                     <p className="mb-2 text-xs font-semibold text-[#33516F]">
-                      Albüm güvenli indirme için {totalAlbumPackages} ZIP paketine bölündü.
+                      {t.gallery.albumPackageNotice.replace('{count}', String(totalAlbumPackages))}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {albumPackages.map((albumPackage) => (

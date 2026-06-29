@@ -236,6 +236,9 @@ type TranslationTree = {
     downloadPreparing: string
     allDownloaded: string
     downloadSelected: string
+    albumPackageReady: string
+    albumPackageNotice: string
+    albumPackageLabel: string
     backToUpload: string
     posterButton: string
     posterPreparing: string
@@ -601,6 +604,9 @@ export const translations: Record<Locale, TranslationTree> = {
       downloadPreparing: 'ZIP dosyasi hazirlaniyor, lutfen bekle.',
       allDownloaded: 'Album indirme islemi baslatildi.',
       downloadSelected: 'Secilenleri indir',
+      albumPackageReady: '{count} ZIP paketi hazir. Paketleri tek tek indir.',
+      albumPackageNotice: 'Album guvenli indirme icin {count} ZIP paketine bolundu.',
+      albumPackageLabel: 'Paket',
       backToUpload: 'Yukleme',
       posterButton: 'A3 poster',
       posterPreparing: 'Poster hazirlaniyor...',
@@ -1035,6 +1041,9 @@ export const translations: Record<Locale, TranslationTree> = {
       downloadPreparing: 'Het ZIP-bestand wordt voorbereid, even geduld.',
       allDownloaded: 'Het downloaden van het album is gestart.',
       downloadSelected: 'Selectie downloaden',
+      albumPackageReady: '{count} ZIP-pakketten staan klaar. Download de pakketten één voor één.',
+      albumPackageNotice: 'Voor veilig downloaden is het album verdeeld in {count} ZIP-pakketten.',
+      albumPackageLabel: 'Pakket',
       backToUpload: 'Naar upload',
       posterButton: 'A3-poster',
       posterPreparing: 'Poster wordt gemaakt...',
@@ -1469,6 +1478,9 @@ export const translations: Record<Locale, TranslationTree> = {
       downloadPreparing: 'Preparing the ZIP file, please wait.',
       allDownloaded: 'The album download has started.',
       downloadSelected: 'Download selected',
+      albumPackageReady: '{count} ZIP packages are ready. Download the packages one by one.',
+      albumPackageNotice: 'For safe downloading, the album was split into {count} ZIP packages.',
+      albumPackageLabel: 'Package',
       backToUpload: 'Upload',
       posterButton: 'A3 poster',
       posterPreparing: 'Preparing poster...',
