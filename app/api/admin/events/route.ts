@@ -56,7 +56,7 @@ export async function GET() {
     > = {}
     let downloadStatsByEvent: Record<
       string,
-      { downloads: number; files: number; lastEmail: string | null; lastDownloadedAt: string | null }
+      { downloads: number; files: number; posters: number; stories: number; lastEmail: string | null; lastDownloadedAt: string | null }
     > = {}
 
     if (eventIds.length > 0) {
@@ -172,7 +172,7 @@ export async function GET() {
           () =>
             supabase
               .from('download_logs')
-              .select('event_id,email,item_count,created_at')
+              .select('event_id,email,download_type,item_count,created_at')
               .in('event_id', eventIds)
               .order('created_at', { ascending: false })
               .limit(5000),
@@ -187,6 +187,7 @@ export async function GET() {
             event_id?: string | null
             email?: string | null
             item_count?: number | null
+            download_type?: string | null
             created_at?: string | null
           }>).reduce<typeof downloadStatsByEvent>((accumulator, item) => {
             const eventId = item.event_id || ''
@@ -195,11 +196,19 @@ export async function GET() {
             const current = accumulator[eventId] || {
               downloads: 0,
               files: 0,
+              posters: 0,
+              stories: 0,
               lastEmail: null,
               lastDownloadedAt: null,
             }
-            current.downloads += 1
-            current.files += Number(item.item_count || 0)
+            if (item.download_type === 'poster') {
+              current.posters += 1
+            } else if (item.download_type === 'story') {
+              current.stories += 1
+            } else {
+              current.downloads += 1
+              current.files += Number(item.item_count || 0)
+            }
             if (!current.lastDownloadedAt) {
               current.lastEmail = item.email || null
               current.lastDownloadedAt = item.created_at || null

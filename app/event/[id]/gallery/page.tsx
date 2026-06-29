@@ -861,6 +861,15 @@ export default function Page() {
 
       const baseName = sanitizeDownloadName(eventName || 'photobooth-poster')
       saveBlob(blob, format === 'story' ? `${baseName}-instagram-story.png` : `${baseName}-poster-a3.png`)
+      void fetch('/api/gallery-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          activity: format,
+          eventIdentifier,
+          itemCount: format === 'story' ? storySelectedCount : posterSelectedCount,
+        }),
+      })
       setStatusMessage(format === 'story' ? t.gallery.storyReady : t.gallery.posterReady)
     } catch (error) {
       console.error('Poster creation failed', error)

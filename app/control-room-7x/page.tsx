@@ -38,6 +38,8 @@ type GuestMessageEntry = {
 type DownloadStatsEntry = {
   downloads: number
   files: number
+  posters: number
+  stories: number
   lastEmail: string | null
   lastDownloadedAt: string | null
 }
@@ -933,8 +935,9 @@ export default function AdminPage() {
                         {guestAccessByEvent[event.id]?.length || 0} e-mail
                       </p>
                       <p className="rounded-lg bg-white px-2.5 py-2 text-xs font-semibold text-[#0F3D66]">
-                        {downloadStatsByEvent[event.id]?.downloads || 0} indirme ·{' '}
-                        {downloadStatsByEvent[event.id]?.files || 0} dosya
+                        ZIP: {downloadStatsByEvent[event.id]?.downloads || 0} ·{' '}
+                        Poster: {downloadStatsByEvent[event.id]?.posters || 0} ·{' '}
+                        Instagram: {downloadStatsByEvent[event.id]?.stories || 0}
                         {downloadStatsByEvent[event.id]?.lastEmail
                           ? ` · Son: ${downloadStatsByEvent[event.id]?.lastEmail}`
                           : ''}
