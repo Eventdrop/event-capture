@@ -456,7 +456,9 @@ export default function Page() {
   )
 
   const selectedLimit = 100
-  const albumPackageSize = 100
+  // Keep ZIPs small enough for serverless runtimes and mobile browsers.
+  // Large in-memory blobs can otherwise look as if the button does nothing.
+  const albumPackageSize = 20
   const shareEnabled = currentEvent?.allowGuestShare !== false
   const downloadEnabled = currentEvent?.allowGuestDownload !== false
   const albumDownloadEnabled = currentEvent?.allowAlbumDownload !== false

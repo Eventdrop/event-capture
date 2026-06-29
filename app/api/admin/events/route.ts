@@ -54,6 +54,10 @@ export async function GET() {
       string,
       { message: string; file_name: string | null; created_at: string | null }[]
     > = {}
+    let downloadStatsByEvent: Record<
+      string,
+      { downloads: number; files: number; lastEmail: string | null; lastDownloadedAt: string | null }
+    > = {}
 
     if (eventIds.length > 0) {
       try {
@@ -161,9 +165,63 @@ export async function GET() {
           error: guestMessagesError instanceof Error ? guestMessagesError.message : 'Unknown error',
         })
       }
+
+
+      try {
+        const downloadLogsQuery = await withRetry(
+          () =>
+            supabase
+              .from('download_logs')
+              .select('event_id,email,item_count,created_at')
+              .in('event_id', eventIds)
+              .order('created_at', { ascending: false })
+              .limit(5000),
+          {
+            attempts: 2,
+            delayMs: 200,
+          }
+        )
+
+        if (!downloadLogsQuery.error) {
+          downloadStatsByEvent = ((downloadLogsQuery.data || []) as Array<{
+            event_id?: string | null
+            email?: string | null
+            item_count?: number | null
+            created_at?: string | null
+          }>).reduce<typeof downloadStatsByEvent>((accumulator, item) => {
+            const eventId = item.event_id || ''
+            if (!eventId) return accumulator
+
+            const current = accumulator[eventId] || {
+              downloads: 0,
+              files: 0,
+              lastEmail: null,
+              lastDownloadedAt: null,
+            }
+            current.downloads += 1
+            current.files += Number(item.item_count || 0)
+            if (!current.lastDownloadedAt) {
+              current.lastEmail = item.email || null
+              current.lastDownloadedAt = item.created_at || null
+            }
+            accumulator[eventId] = current
+            return accumulator
+          }, {})
+        }
+      } catch (downloadStatsError) {
+        logOperation('warn', 'admin-events', 'Failed to load download stats', {
+          error: downloadStatsError instanceof Error ? downloadStatsError.message : 'Unknown error',
+        })
+      }
     }
 
-    return NextResponse.json({ ok: true, events, guestAccessByEvent, guestMessagesByEvent })
+    return NextResponse.json({
+      ok: true,
+      events,
+      guestAccessByEvent,
+      guestMessagesByEvent,
+      downloadStatsByEvent,
+    })
   } catch (error) {
     logOperation('error', 'admin-events', 'Failed to load events', {
       error: error instanceof Error ? error.message : 'Unknown error',

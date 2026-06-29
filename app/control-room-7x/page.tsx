@@ -35,6 +35,13 @@ type GuestMessageEntry = {
   created_at: string | null
 }
 
+type DownloadStatsEntry = {
+  downloads: number
+  files: number
+  lastEmail: string | null
+  lastDownloadedAt: string | null
+}
+
 export default function AdminPage() {
   const { t } = useLanguage()
   const [authenticated, setAuthenticated] = useState(false)
@@ -56,6 +63,9 @@ export default function AdminPage() {
   >({})
   const [guestMessagesByEvent, setGuestMessagesByEvent] = useState<
     Record<string, GuestMessageEntry[]>
+  >({})
+  const [downloadStatsByEvent, setDownloadStatsByEvent] = useState<
+    Record<string, DownloadStatsEntry>
   >({})
   const [eventName, setEventName] = useState('')
   const [eventDate, setEventDate] = useState('')
@@ -132,6 +142,7 @@ export default function AdminPage() {
       events?: Record<string, unknown>[]
       guestAccessByEvent?: Record<string, GuestAccessEntry[]>
       guestMessagesByEvent?: Record<string, GuestMessageEntry[]>
+      downloadStatsByEvent?: Record<string, DownloadStatsEntry>
       error?: string
     }
 
@@ -145,6 +156,7 @@ export default function AdminPage() {
 
     setEvents(normalized)
     setGuestMessagesByEvent(payload.guestMessagesByEvent || {})
+    setDownloadStatsByEvent(payload.downloadStatsByEvent || {})
     setEventDraftsById(
       normalized.reduce<Record<string, { name: string; albumName: string }>>(
         (accumulator, event) => {
@@ -919,6 +931,13 @@ export default function AdminPage() {
                     <div className="mt-3 space-y-2">
                       <p className="text-xs text-[#6A84A3]">
                         {guestAccessByEvent[event.id]?.length || 0} e-mail
+                      </p>
+                      <p className="rounded-lg bg-white px-2.5 py-2 text-xs font-semibold text-[#0F3D66]">
+                        {downloadStatsByEvent[event.id]?.downloads || 0} indirme ·{' '}
+                        {downloadStatsByEvent[event.id]?.files || 0} dosya
+                        {downloadStatsByEvent[event.id]?.lastEmail
+                          ? ` · Son: ${downloadStatsByEvent[event.id]?.lastEmail}`
+                          : ''}
                       </p>
 
                       <div className="grid gap-2">

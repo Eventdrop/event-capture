@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import {
   getStoragePathFromUpload,
   getUploadShortFileName,
@@ -8,6 +9,10 @@ import { normalizeEventRecord } from '@/lib/events'
 import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { createZipStream, safeZipFileName, uniqueZipEntryName } from '@/lib/zip'
+import {
+  EVENT_ACCESS_COOKIE_NAME,
+  parseEventAccessCookie,
+} from '@/lib/event-access'
 
 export const runtime = 'nodejs'
 
@@ -20,6 +25,37 @@ type DownloadRequestBody = {
 
 const MAX_SELECTED_DOWNLOADS = 100
 const MAX_ALBUM_DOWNLOADS = 500
+
+async function recordDownload(input: {
+  eventId: string
+  downloadType: 'album' | 'selection'
+  itemCount: number
+}) {
+  try {
+    const cookieStore = await cookies()
+    const grants = parseEventAccessCookie(
+      cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
+    )
+    const email = grants.find((grant) => grant.eventId === input.eventId)?.email || null
+    const supabase = createAdminSupabaseClient()
+    const { error } = await supabase.from('download_logs').insert([{
+      event_id: input.eventId,
+      email,
+      download_type: input.downloadType,
+      item_count: input.itemCount,
+    }])
+
+    if (error) {
+      logOperation('warn', 'gallery-download', 'Download counter could not be saved', {
+        error: error.message,
+      })
+    }
+  } catch (error) {
+    logOperation('warn', 'gallery-download', 'Download counter could not be saved', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+}
 
 function jsonError(error: string, status: number) {
   return NextResponse.json({ ok: false, error }, { status })
@@ -126,6 +162,12 @@ export async function POST(request: Request) {
     if (uploads.length === 0) {
       return jsonError('Er zijn geen foto’s om te downloaden.', 404)
     }
+
+    await recordDownload({
+      eventId: event.id,
+      downloadType: downloadAll ? 'album' : 'selection',
+      itemCount: uploads.length,
+    })
 
     const namesById = body?.namesById || {}
     const usedNames = new Set<string>()
