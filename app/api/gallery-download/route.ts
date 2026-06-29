@@ -18,9 +18,20 @@ export const runtime = 'nodejs'
 
 type DownloadRequestBody = {
   all?: boolean
+  albumPackage?: boolean
   eventIdentifier?: string
   namesById?: Record<string, string>
+  packageNumber?: number
   uploadIds?: string[]
+}
+
+type DownloadInput = {
+  albumPackage?: boolean
+  all?: boolean
+  eventIdentifier: string
+  namesById?: Record<string, string>
+  packageNumber?: number
+  uploadIds: string[]
 }
 
 const MAX_SELECTED_DOWNLOADS = 100
@@ -84,19 +95,23 @@ async function downloadUploadBytes(upload: UploadRecord) {
   return new Uint8Array(await data.arrayBuffer())
 }
 
-function getZipName(eventName: string, selectedOnly: boolean) {
+function getZipName(eventName: string, selectedOnly: boolean, packageNumber?: number) {
   const baseName = safeZipFileName(eventName || 'eventdrop-album', 'eventdrop-album')
-  return `${baseName}${selectedOnly ? '-selectie' : ''}.zip`
+  const suffix = packageNumber
+    ? `-pakket-${packageNumber}`
+    : selectedOnly
+      ? '-selectie'
+      : ''
+
+  return `${baseName}${suffix}.zip`
 }
 
-export async function POST(request: Request) {
+async function createGalleryDownloadResponse(input: DownloadInput) {
   try {
-    const body = (await request.json().catch(() => null)) as DownloadRequestBody | null
-    const eventIdentifier = body?.eventIdentifier?.trim() || ''
-    const uploadIds = Array.isArray(body?.uploadIds)
-      ? body.uploadIds.filter((id): id is string => typeof id === 'string' && id.length > 0)
-      : []
-    const downloadAll = body?.all === true
+    const eventIdentifier = input.eventIdentifier.trim()
+    const uploadIds = input.uploadIds.filter((id) => id.length > 0)
+    const downloadAll = input.all === true
+    const albumPackage = input.albumPackage === true
 
     if (!eventIdentifier) {
       return jsonError('Een event ID is verplicht.', 400)
@@ -135,7 +150,7 @@ export async function POST(request: Request) {
       return jsonError('Deze galerij is niet gevonden.', 404)
     }
 
-    if (downloadAll && event.allowAlbumDownload === false) {
+    if ((downloadAll || albumPackage) && event.allowAlbumDownload === false) {
       return jsonError('Het volledige album downloaden is voor dit album uitgeschakeld.', 403)
     }
 
@@ -165,11 +180,11 @@ export async function POST(request: Request) {
 
     await recordDownload({
       eventId: event.id,
-      downloadType: downloadAll ? 'album' : 'selection',
+      downloadType: downloadAll || albumPackage ? 'album' : 'selection',
       itemCount: uploads.length,
     })
 
-    const namesById = body?.namesById || {}
+    const namesById = input.namesById || {}
     const usedNames = new Set<string>()
 
     async function* entries() {
@@ -186,7 +201,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const zipName = getZipName(event.albumName || event.name || eventIdentifier, !downloadAll)
+    const zipName = getZipName(
+      event.albumName || event.name || eventIdentifier,
+      !downloadAll && !albumPackage,
+      input.packageNumber
+    )
     const stream = createZipStream(entries())
 
     return new Response(stream, {
@@ -205,4 +224,37 @@ export async function POST(request: Request) {
       500
     )
   }
+}
+
+export async function GET(request: Request) {
+  const url = new URL(request.url)
+  const uploadIds = (url.searchParams.get('uploadIds') || '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean)
+  const packageNumber = Number(url.searchParams.get('packageNumber') || '')
+
+  return createGalleryDownloadResponse({
+    albumPackage: url.searchParams.get('albumPackage') === 'true',
+    all: url.searchParams.get('all') === 'true',
+    eventIdentifier: url.searchParams.get('eventIdentifier') || '',
+    packageNumber: Number.isFinite(packageNumber) && packageNumber > 0 ? packageNumber : undefined,
+    uploadIds,
+  })
+}
+
+export async function POST(request: Request) {
+  const body = (await request.json().catch(() => null)) as DownloadRequestBody | null
+  const uploadIds = Array.isArray(body?.uploadIds)
+    ? body.uploadIds.filter((id): id is string => typeof id === 'string' && id.length > 0)
+    : []
+
+  return createGalleryDownloadResponse({
+    albumPackage: body?.albumPackage === true,
+    all: body?.all === true,
+    eventIdentifier: body?.eventIdentifier || '',
+    namesById: body?.namesById || {},
+    packageNumber: body?.packageNumber,
+    uploadIds,
+  })
 }

@@ -530,20 +530,6 @@ export default function Page() {
     window.setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000)
   }
 
-  const getZipFileName = (options: { packageNumber?: number; selectedOnly: boolean }) => {
-    const baseName = (currentEvent?.albumName || currentEvent?.name || eventIdentifier)
-      .trim()
-      .replace(/[\\/:*?"<>|]+/g, '-')
-      .replace(/\s+/g, ' ')
-    const suffix = options.packageNumber
-      ? `-pakket-${options.packageNumber}`
-      : options.selectedOnly
-        ? '-selectie'
-        : ''
-
-    return `${baseName || 'eventdrop-album'}${suffix}.zip`
-  }
-
   const downloadZip = async (options: {
     all?: boolean
     packageNumber?: number
@@ -556,42 +542,27 @@ export default function Page() {
       return
     }
 
-    const namesById = zipItems.reduce<Record<string, string>>((accumulator, item) => {
-      accumulator[item.id] = getUploadShortFileName(item, {
-        eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
-        sequence: shareSequenceById[item.id],
-      })
-      return accumulator
-    }, {})
-
     try {
-      const response = await fetch('/api/gallery-download', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          all: options.all === true,
-          eventIdentifier,
-          namesById,
-          uploadIds: options.all ? undefined : zipItems.map((item) => item.id),
-        }),
+      const params = new URLSearchParams({
+        all: options.all === true ? 'true' : 'false',
+        eventIdentifier,
       })
 
-      if (!response.ok) {
-        const payload = (await response.json().catch(() => null)) as
-          | { error?: string }
-          | null
-        throw new Error(payload?.error || t.gallery.loadError)
+      if (options.packageNumber) {
+        params.set('albumPackage', 'true')
+        params.set('packageNumber', String(options.packageNumber))
       }
 
-      saveBlob(
-        await response.blob(),
-        getZipFileName({
-          packageNumber: options.packageNumber,
-          selectedOnly: options.all !== true && !options.packageNumber,
-        })
-      )
+      if (options.all !== true) {
+        params.set('uploadIds', zipItems.map((item) => item.id).join(','))
+      }
+
+      const anchor = document.createElement('a')
+      anchor.href = `/api/gallery-download?${params.toString()}`
+      anchor.rel = 'noopener'
+      document.body.appendChild(anchor)
+      anchor.click()
+      anchor.remove()
 
       setStatusMessage(
         options.all ? t.gallery.allDownloaded : `${zipItems.length} ${t.gallery.downloaded}`
