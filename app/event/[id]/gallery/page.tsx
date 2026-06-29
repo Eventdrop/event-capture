@@ -488,13 +488,7 @@ export default function Page() {
         return prev
       }
 
-      const next = [...prev, id]
-
-      if (posterEnabled && next.length >= POSTER_MAX_TILES) {
-        window.alert(t.gallery.posterLimitPopup)
-      }
-
-      return next
+      return [...prev, id]
     })
   }
 
@@ -688,7 +682,7 @@ export default function Page() {
     let storyTemplateResource: CanvasImageResource | null = null
 
     try {
-      if (selectedItems.length > POSTER_MAX_TILES) {
+      if (format === 'poster' && selectedItems.length > POSTER_MAX_TILES) {
         window.alert(t.gallery.posterLimitPopup)
       }
 
