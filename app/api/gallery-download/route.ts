@@ -106,6 +106,31 @@ function getZipName(eventName: string, selectedOnly: boolean, packageNumber?: nu
   return `${baseName}${suffix}.zip`
 }
 
+function getAsciiDownloadFileName(fileName: string) {
+  const extension = fileName.toLowerCase().endsWith('.zip') ? '.zip' : ''
+  const baseName = extension ? fileName.slice(0, -extension.length) : fileName
+  const asciiBaseName = baseName
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\x20-\x7E]+/g, '-')
+    .replace(/[\\/:*?"<>|;=]+/g, '-')
+    .replace(/\s+/g, ' ')
+    .replace(/-+/g, '-')
+    .replace(/^[\s.-]+|[\s.-]+$/g, '')
+    .slice(0, 140)
+
+  return `${asciiBaseName || 'eventdrop-album'}${extension || '.zip'}`
+}
+
+function getDownloadContentDisposition(fileName: string) {
+  const asciiFileName = getAsciiDownloadFileName(fileName)
+  const encodedFileName = encodeURIComponent(fileName)
+    .replace(/['()]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`)
+    .replace(/\*/g, '%2A')
+
+  return `attachment; filename="${asciiFileName}"; filename*=UTF-8''${encodedFileName}`
+}
+
 async function createGalleryDownloadResponse(input: DownloadInput) {
   try {
     const eventIdentifier = input.eventIdentifier.trim()
@@ -210,7 +235,7 @@ async function createGalleryDownloadResponse(input: DownloadInput) {
 
     return new Response(stream, {
       headers: {
-        'Content-Disposition': `attachment; filename="${zipName}"`,
+        'Content-Disposition': getDownloadContentDisposition(zipName),
         'Content-Type': 'application/zip',
       },
     })
