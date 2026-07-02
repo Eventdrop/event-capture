@@ -22,7 +22,7 @@ import {
 import { supabase } from '@/lib/supabase'
 
 const BUCKET_NAME = 'event-uploads'
-const MAX_SELECTION_FILES = 10
+const MAX_SELECTION_FILES = 30
 const PHOTO_MAX_BYTES = 20 * 1024 * 1024
 const PHOTO_COMPRESS_THRESHOLD_BYTES = 1.5 * 1024 * 1024
 const PHOTO_COMPRESS_MAX_DIMENSION = 2000
