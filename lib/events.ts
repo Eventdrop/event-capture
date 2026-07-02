@@ -49,6 +49,28 @@ function normalizeLabel(value: string) {
     .replace(/\s+/g, ' ')
 }
 
+export function cleanRepeatedEventLabel(value: string) {
+  const label = value.trim()
+  const separators = [' - ', ' · ', ' | ']
+
+  for (const separator of separators) {
+    let separatorIndex = label.indexOf(separator)
+
+    while (separatorIndex >= 0) {
+      const left = label.slice(0, separatorIndex).trim()
+      const right = label.slice(separatorIndex + separator.length).trim()
+
+      if (left && right && normalizeLabel(left) === normalizeLabel(right)) {
+        return left
+      }
+
+      separatorIndex = label.indexOf(separator, separatorIndex + separator.length)
+    }
+  }
+
+  return label
+}
+
 export function slugifyEventName(value: string) {
   return value
     .trim()
@@ -143,8 +165,8 @@ export function buildEventInsertPayload(input: {
     : normalizeEventAccessCode(input.accessCode || generateEventAccessCode())
   const slugBase = slugifyEventName(`${input.name}-${input.albumName}`) || 'eventdrop-event'
   const payload = {
-    name: input.name.trim(),
-    album_name: input.albumName.trim(),
+    name: cleanRepeatedEventLabel(input.name),
+    album_name: cleanRepeatedEventLabel(input.albumName),
     slug: `${slugBase}-${Math.random().toString(36).slice(2, 6)}`,
     access_code: accessCode,
     cover_image_url: input.coverImageUrl || null,
@@ -172,8 +194,8 @@ export function normalizeEventRecord(
 
   return {
     id: record.id,
-    name: record.name,
-    albumName: record.album_name || record.name,
+    name: cleanRepeatedEventLabel(record.name),
+    albumName: cleanRepeatedEventLabel(record.album_name || record.name),
     slug: record.slug || '',
     accessCode: deriveEventAccessCode(record),
     coverImageUrl: record.cover_image_url || '',
@@ -196,8 +218,8 @@ export function isEventCodeEnabled(event: Pick<NormalizedEvent, 'accessCode'>) {
 }
 
 export function formatEventDisplayName(event: Pick<NormalizedEvent, 'name' | 'albumName'>) {
-  const name = event.name.trim()
-  const albumName = event.albumName.trim()
+  const name = cleanRepeatedEventLabel(event.name)
+  const albumName = cleanRepeatedEventLabel(event.albumName)
 
   if (!name) return albumName
   if (!albumName) return name

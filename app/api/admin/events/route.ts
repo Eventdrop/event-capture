@@ -3,7 +3,7 @@ import { hasAdminSession } from '@/lib/admin-auth'
 import { getStoragePathFromUpload, type UploadRecord } from '@/lib/eventdrop'
 import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
-import { buildEventInsertPayload } from '@/lib/events'
+import { buildEventInsertPayload, cleanRepeatedEventLabel } from '@/lib/events'
 import { withRetry } from '@/lib/with-retry'
 
 export const runtime = 'nodejs'
@@ -436,7 +436,7 @@ export async function PATCH(request: Request) {
           { status: 400 }
         )
       }
-      updatePayload.name = name
+      updatePayload.name = cleanRepeatedEventLabel(name)
     }
 
     if (albumName !== undefined) {
@@ -446,7 +446,7 @@ export async function PATCH(request: Request) {
           { status: 400 }
         )
       }
-      updatePayload.album_name = albumName
+      updatePayload.album_name = cleanRepeatedEventLabel(albumName)
     }
 
     const richUpdate = await withRetry(
