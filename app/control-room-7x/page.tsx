@@ -567,6 +567,80 @@ export default function AdminPage() {
     }
   }
 
+  const getQrSvg = (eventId: string) =>
+    document.querySelector<SVGSVGElement>(`[data-event-qr="${eventId}"] svg`)
+
+  const getQrFileName = (event: NormalizedEvent, extension: 'png' | 'svg') => {
+    const safeName = formatEventLabel(event)
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80)
+
+    return `${safeName || 'event'}-qr.${extension}`
+  }
+
+  const downloadBlob = (blob: Blob, fileName: string) => {
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  const downloadQrSvg = (event: NormalizedEvent) => {
+    const svg = getQrSvg(event.id)
+    if (!svg) return
+
+    const copy = svg.cloneNode(true) as SVGSVGElement
+    copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+    const source = new XMLSerializer().serializeToString(copy)
+    downloadBlob(
+      new Blob([source], { type: 'image/svg+xml;charset=utf-8' }),
+      getQrFileName(event, 'svg')
+    )
+  }
+
+  const downloadQrPng = (event: NormalizedEvent) => {
+    const svg = getQrSvg(event.id)
+    if (!svg) return
+
+    const copy = svg.cloneNode(true) as SVGSVGElement
+    copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+    copy.setAttribute('width', '1024')
+    copy.setAttribute('height', '1024')
+    const source = new XMLSerializer().serializeToString(copy)
+    const sourceUrl = URL.createObjectURL(
+      new Blob([source], { type: 'image/svg+xml;charset=utf-8' })
+    )
+    const image = new Image()
+
+    image.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = 1024
+      canvas.height = 1024
+      const context = canvas.getContext('2d')
+      if (!context) {
+        URL.revokeObjectURL(sourceUrl)
+        return
+      }
+      context.fillStyle = '#FFFFFF'
+      context.fillRect(0, 0, canvas.width, canvas.height)
+      context.drawImage(image, 0, 0, canvas.width, canvas.height)
+      URL.revokeObjectURL(sourceUrl)
+      canvas.toBlob((blob) => {
+        if (blob) downloadBlob(blob, getQrFileName(event, 'png'))
+      }, 'image/png')
+    }
+
+    image.onerror = () => URL.revokeObjectURL(sourceUrl)
+    image.src = sourceUrl
+  }
+
   const copyGuestEmails = (eventId: string) => {
     const emails = (guestAccessByEvent[eventId] || [])
       .map((entry) => entry.email)
@@ -1676,12 +1750,37 @@ export default function AdminPage() {
                   </div>
 
                   <div className="mt-4 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
-                    <div className="flex justify-center">
+                    <div className="flex justify-center" data-event-qr={event.id}>
                       <QRCodeSVG value={getEventShareUrl(event)} size={160} />
                     </div>
                     <p className="mt-3 text-center text-xs uppercase tracking-[0.18em] text-[#6A84A3]">
                       {t.admin.qrLabel}
                     </p>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                      <button
+                        type="button"
+                        onClick={() => downloadQrPng(event)}
+                        className="rounded-full bg-[#0F3D66] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0B2F4F]"
+                      >
+                        {t.admin.downloadQrPng}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => downloadQrSvg(event)}
+                        className="rounded-full border border-[#B9CBE0] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#F2F6FA]"
+                      >
+                        {t.admin.downloadQrSvg}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          copyToClipboard(getEventShareUrl(event), t.admin.uploadCopied)
+                        }
+                        className="rounded-full border border-[#B9CBE0] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#F2F6FA]"
+                      >
+                        {t.common.copyUploadLink}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">

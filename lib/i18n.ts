@@ -133,6 +133,8 @@ type TranslationTree = {
     noEvents: string
     unlockToManage: string
     qrLabel: string
+    downloadQrPng: string
+    downloadQrSvg: string
     uploadCopied: string
     galleryCopied: string
     deleteConfirm: string
@@ -490,6 +492,8 @@ export const translations: Record<Locale, TranslationTree> = {
       unlockToManage:
         'Etkinlikleri listelemek, olusturmak veya silmek icin once paneli ac.',
       qrLabel: 'Misafir yukleme QR',
+      downloadQrPng: 'QR PNG indir',
+      downloadQrSvg: 'QR SVG indir',
       uploadCopied: 'Misafir yukleme linki kopyalandi.',
       galleryCopied: 'Galeri linki kopyalandi.',
       deleteConfirm:
@@ -927,6 +931,8 @@ export const translations: Record<Locale, TranslationTree> = {
       unlockToManage:
         'Open eerst het paneel om evenementen te bekijken, maken of verwijderen.',
       qrLabel: 'QR-code voor gastenupload',
+      downloadQrPng: 'QR als PNG',
+      downloadQrSvg: 'QR als SVG',
       uploadCopied: 'Gastuploadlink gekopieerd.',
       galleryCopied: 'Galerijlink gekopieerd.',
       deleteConfirm:
@@ -1364,6 +1370,8 @@ export const translations: Record<Locale, TranslationTree> = {
       unlockToManage:
         'Unlock the panel first to list, create, or delete events.',
       qrLabel: 'Guest upload QR',
+      downloadQrPng: 'Download QR PNG',
+      downloadQrSvg: 'Download QR SVG',
       uploadCopied: 'Guest upload link copied.',
       galleryCopied: 'Gallery link copied.',
       deleteConfirm:
