@@ -14,22 +14,19 @@ export function SiteHeader({ currentLabel }: SiteHeaderProps) {
   return (
     <header className="relative z-50 border-b border-[#D4DFEE] bg-white/82 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4 md:px-10">
-        <Link href={getPublicPath('/')} className="flex items-center gap-3">
+        <Link
+          href={getPublicPath('/')}
+          aria-label={brand.name}
+          className="relative h-[72px] w-[155px] shrink-0 overflow-hidden"
+        >
           <Image
-            src="/eventdrop-logo.svg"
+            src="/eventdrop-brand.png"
             alt={brand.name}
-            width={42}
-            height={42}
+            width={540}
+            height={540}
             priority
+            className="absolute left-[-8px] top-[-43px] h-[170px] w-[170px] max-w-none"
           />
-          <div>
-            <p className="text-base font-semibold tracking-[-0.03em] text-stone-950">
-              {brand.name}
-            </p>
-            <p className="text-xs tracking-[0.08em] text-[#6A84A3]">
-              {brand.tagline}
-            </p>
-          </div>
         </Link>
 
         <div className="flex items-center gap-3">
