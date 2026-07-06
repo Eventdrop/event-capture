@@ -1005,7 +1005,7 @@ export default function Page() {
       <SiteHeader currentLabel={t.gallery.badge} />
 
       <main
-        className="flex-1 bg-cover bg-center p-6"
+        className="flex-1 bg-cover bg-center p-3 sm:p-6"
         style={eventBackgroundStyle}
       >
         <div className="mx-auto max-w-6xl">
@@ -1026,7 +1026,7 @@ export default function Page() {
           <div
             role="status"
             aria-live="polite"
-            className="mb-4 flex flex-col gap-1 rounded-2xl border border-white/30 bg-white/85 px-4 py-3 text-sm font-semibold text-[#33516F] shadow-[0_12px_30px_rgba(15,33,53,0.1)] backdrop-blur sm:flex-row sm:items-center sm:justify-between"
+            className="mb-2 flex items-center justify-between gap-2 rounded-2xl border border-white/30 bg-white/85 px-3 py-2 text-sm font-semibold text-[#33516F] shadow-[0_12px_30px_rgba(15,33,53,0.1)] backdrop-blur sm:mb-4 sm:px-4 sm:py-3"
           >
             <span className="min-w-0 truncate text-stone-950">{eventName}</span>
             <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#597594]">
@@ -1043,10 +1043,10 @@ export default function Page() {
           </div>
         ) : null}
 
-        <div className="mb-4 flex flex-col gap-4 rounded-[1.5rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur">
+        <div className="mb-3 flex flex-col gap-2 rounded-[1.25rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-2 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:mb-4 sm:gap-4 sm:rounded-[1.5rem] sm:p-4">
           <div className="min-w-0 flex-1">
             <div
-              className="h-44 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-56 lg:aspect-[3/1] lg:h-auto xl:aspect-[18/5]"
+              className="h-24 w-full overflow-hidden rounded-[1rem] bg-[#EDF4FB] bg-cover bg-center sm:h-56 sm:rounded-[1.2rem] lg:aspect-[3/1] lg:h-auto xl:aspect-[18/5]"
               style={eventCoverStyle}
             />
             <h1 className="sr-only">
@@ -1054,7 +1054,7 @@ export default function Page() {
             </h1>
           </div>
 
-          <div className="flex w-full flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-1.5 sm:gap-2">
             {downloadEnabled ? (
               <button
                 onClick={downloadSelected}
@@ -1145,7 +1145,7 @@ export default function Page() {
                     : `${t.gallery.storyButton} (${storySelectedCount}/${STORY_MAX_TILES})`}
                 </button>
 
-                <p className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F]">
+                <p className={`basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F] ${selectedItems.length === 0 ? 'hidden sm:block' : ''}`}>
                   {posterSelectionLabel}
                 </p>
               </>
