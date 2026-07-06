@@ -20,6 +20,7 @@ import {
   type NormalizedEvent,
 } from '@/lib/events'
 import { supabase } from '@/lib/supabase'
+import { locales, type Locale } from '@/lib/i18n'
 
 const BUCKET_NAME = 'event-uploads'
 const MAX_SELECTION_FILES = 30
@@ -125,7 +126,7 @@ async function compressPhotoForUpload(file: File) {
 }
 
 export default function Page() {
-  const { t } = useLanguage()
+  const { t, locale, setLocale } = useLanguage()
   const params = useParams()
   const eventIdentifier = params.id as string
   const consentStorageKey = useMemo(
@@ -143,6 +144,16 @@ export default function Page() {
   const [eventMissing, setEventMissing] = useState(false)
   const [guidanceAccepted, setGuidanceAccepted] = useState(false)
   const [guestMessage, setGuestMessage] = useState('')
+
+  useEffect(() => {
+    if (!currentEvent) return
+    const requestedLocale = new URLSearchParams(window.location.search).get('lang')
+    setLocale(
+      requestedLocale && locales.includes(requestedLocale as Locale)
+        ? requestedLocale as Locale
+        : currentEvent.defaultLocale
+    )
+  }, [currentEvent?.id, currentEvent?.defaultLocale])
 
 
   useEffect(() => {
@@ -258,8 +269,8 @@ export default function Page() {
   }, [eventIdentifier])
 
   const galleryUrl = useMemo(
-    () => getPublicPath(`/event/${eventIdentifier}/gallery`),
-    [eventIdentifier]
+    () => getPublicPath(`/event/${eventIdentifier}/gallery?lang=${locale}`),
+    [eventIdentifier, locale]
   )
 
 

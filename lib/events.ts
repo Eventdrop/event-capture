@@ -1,4 +1,5 @@
 import { addHours } from '@/lib/eventdrop'
+import type { Locale } from '@/lib/i18n'
 
 type EventRecordLike = {
   id?: string | null
@@ -11,6 +12,7 @@ type EventRecordLike = {
   poster_template_url?: string | null
   story_template_url?: string | null
   event_date?: string | null
+  default_locale?: string | null
   allow_guest_share?: boolean | null
   allow_guest_download?: boolean | null
   allow_album_download?: boolean | null
@@ -31,6 +33,7 @@ export type NormalizedEvent = {
   posterTemplateUrl: string
   storyTemplateUrl: string
   eventDate: string | null
+  defaultLocale: Locale
   allowGuestShare: boolean
   allowGuestDownload: boolean
   allowAlbumDownload: boolean
@@ -97,6 +100,10 @@ export function generateEventAccessCode(length = 6) {
   return code
 }
 
+export function normalizeEventLocale(value?: string | null): Locale {
+  return value === 'tr' || value === 'en' || value === 'de' || value === 'fr' ? value : 'nl'
+}
+
 export function deriveLegacyEventAccessCode(id?: string | null) {
   if (!id) return ''
   return id.replace(/-/g, '').slice(0, 6).toUpperCase()
@@ -148,6 +155,7 @@ export function buildEventInsertPayload(input: {
   name: string
   albumName: string
   eventDate?: string
+  defaultLocale?: Locale
   accessCode?: string
   accessCodeEnabled?: boolean
   coverImageUrl?: string
@@ -172,6 +180,7 @@ export function buildEventInsertPayload(input: {
     cover_image_url: input.coverImageUrl || null,
     background_image_url: input.backgroundImageUrl || null,
     event_date: input.eventDate || null,
+    default_locale: normalizeEventLocale(input.defaultLocale),
     allow_guest_share: input.allowGuestShare !== false,
     allow_guest_download: input.allowGuestDownload !== false,
     allow_album_download: input.allowAlbumDownload !== false,
@@ -203,6 +212,7 @@ export function normalizeEventRecord(
     posterTemplateUrl: record.poster_template_url || '',
     storyTemplateUrl: record.story_template_url || '',
     eventDate: record.event_date || null,
+    defaultLocale: normalizeEventLocale(record.default_locale),
     allowGuestShare: record.allow_guest_share !== false,
     allowGuestDownload: record.allow_guest_download !== false,
     allowAlbumDownload: record.allow_album_download !== false,

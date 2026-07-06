@@ -16,6 +16,7 @@ import {
 import { normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
 import { shareMedia } from '@/lib/share-media'
 import { supabase } from '@/lib/supabase'
+import { locales, type Locale } from '@/lib/i18n'
 
 const POSTER_WIDTH = 2480
 const POSTER_HEIGHT = 3508
@@ -305,7 +306,7 @@ function drawStoryGrid(
 }
 
 export default function Page() {
-  const { t } = useLanguage()
+  const { t, locale, setLocale } = useLanguage()
   const params = useParams()
   const eventIdentifier = params.id as string
 
@@ -321,6 +322,16 @@ export default function Page() {
   const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
   const [albumPackagesVisible, setAlbumPackagesVisible] = useState(false)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
+
+  useEffect(() => {
+    if (!currentEvent) return
+    const requestedLocale = new URLSearchParams(window.location.search).get('lang')
+    setLocale(
+      requestedLocale && locales.includes(requestedLocale as Locale)
+        ? requestedLocale as Locale
+        : currentEvent.defaultLocale
+    )
+  }, [currentEvent?.id, currentEvent?.defaultLocale])
 
   useEffect(() => {
     setStatusMessage(t.gallery.loading)
@@ -447,8 +458,8 @@ export default function Page() {
   }, [items])
 
   const uploadPageUrl = useMemo(
-    () => getPublicPath(`/event/${eventIdentifier}`),
-    [eventIdentifier]
+    () => getPublicPath(`/event/${eventIdentifier}?lang=${locale}`),
+    [eventIdentifier, locale]
   )
 
   const selectedLimit = 100

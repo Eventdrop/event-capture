@@ -6,6 +6,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { useLanguage } from '@/app/_components/language-provider'
+import { localeLabels, locales, type Locale } from '@/lib/i18n'
 import { getPublicAppUrl, getPublicPath } from '@/lib/app-url'
 import {
   buildEventInsertPayload,
@@ -71,6 +72,7 @@ export default function AdminPage() {
   >({})
   const [eventName, setEventName] = useState('')
   const [eventDate, setEventDate] = useState('')
+  const [defaultLocale, setDefaultLocale] = useState<Locale>('nl')
   const [accessCodeEnabled, setAccessCodeEnabled] = useState(false)
   const [allowGuestShare, setAllowGuestShare] = useState(true)
   const [allowGuestDownload, setAllowGuestDownload] = useState(true)
@@ -383,6 +385,7 @@ export default function AdminPage() {
         name: eventName,
         albumName: eventName,
         eventDate,
+        defaultLocale,
         accessCode,
         accessCodeEnabled,
         coverImageUrl: persistedCoverImageUrl,
@@ -405,6 +408,7 @@ export default function AdminPage() {
           name: payload.name,
           albumName: payload.album_name,
           eventDate: payload.event_date,
+          defaultLocale: payload.default_locale,
           accessCode: payload.access_code,
           accessCodeEnabled,
           coverImageUrl: payload.cover_image_url,
@@ -531,6 +535,7 @@ export default function AdminPage() {
 
       setEventName('')
       setEventDate('')
+      setDefaultLocale('nl')
       setAccessCodeEnabled(false)
       setAllowGuestShare(true)
       setAllowGuestDownload(true)
@@ -1196,6 +1201,23 @@ export default function AdminPage() {
                       onChange={(event) => setEventDate(event.target.value)}
                       className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742]"
                     />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
+                      Album varsayilan dili
+                    </label>
+                    <select
+                      value={defaultLocale}
+                      onChange={(event) => setDefaultLocale(event.target.value as Locale)}
+                      className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742]"
+                    >
+                      {locales.map((locale) => (
+                        <option key={locale} value={locale}>
+                          {localeLabels[locale]}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="md:col-span-2">

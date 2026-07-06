@@ -4,6 +4,7 @@ import { getStoragePathFromUpload, type UploadRecord } from '@/lib/eventdrop'
 import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { buildEventInsertPayload, cleanRepeatedEventLabel } from '@/lib/events'
+import type { Locale } from '@/lib/i18n'
 import { withRetry } from '@/lib/with-retry'
 
 export const runtime = 'nodejs'
@@ -254,6 +255,7 @@ export async function POST(request: Request) {
         name?: string
         albumName?: string
       eventDate?: string
+      defaultLocale?: Locale
       accessCode?: string
       accessCodeEnabled?: boolean
       coverImageUrl?: string
@@ -271,6 +273,7 @@ export async function POST(request: Request) {
   const name = body?.name?.trim() || ''
   const albumName = body?.albumName?.trim() || ''
   const eventDate = body?.eventDate || ''
+  const defaultLocale = body?.defaultLocale || 'nl'
   const accessCode = body?.accessCode?.trim() || ''
   const accessCodeEnabled = body?.accessCodeEnabled !== false
   const coverImageUrl = body?.coverImageUrl?.trim() || ''
@@ -299,6 +302,7 @@ export async function POST(request: Request) {
       name,
       albumName,
       eventDate,
+      defaultLocale,
       accessCode,
       accessCodeEnabled,
       coverImageUrl,
