@@ -8,14 +8,15 @@ import { brand } from '@/lib/brand'
 
 type SiteHeaderProps = {
   currentLabel?: string
+  brandHref?: string
 }
 
-export function SiteHeader({ currentLabel }: SiteHeaderProps) {
+export function SiteHeader({ currentLabel, brandHref }: SiteHeaderProps) {
   return (
     <header className="relative z-50 border-b border-[#D4DFEE] bg-white/82 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-2 md:gap-4 md:px-10 md:py-4">
         <Link
-          href={getPublicPath('/')}
+          href={brandHref || getPublicPath('/')}
           aria-label={brand.name}
           className="relative h-[52px] w-[112px] shrink-0 overflow-hidden md:h-[72px] md:w-[155px]"
         >

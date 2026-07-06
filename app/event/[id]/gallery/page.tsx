@@ -1002,7 +1002,7 @@ export default function Page() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#f0ebe2_55%,_#edf4fb_100%)] text-stone-900">
-      <SiteHeader currentLabel={t.gallery.badge} />
+      <SiteHeader currentLabel={t.gallery.badge} brandHref={uploadPageUrl} />
 
       <main
         className="flex-1 bg-cover bg-center p-3 sm:p-6"
