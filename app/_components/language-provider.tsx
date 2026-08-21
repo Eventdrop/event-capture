@@ -2,14 +2,16 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react'
 import { usePathname } from 'next/navigation'
 import { locales, type Locale, translations } from '@/lib/i18n'
+
+export const LANGUAGE_STORAGE_KEY = 'eventdrop-locale'
 
 type LanguageContextValue = {
   locale: Locale
@@ -26,17 +28,33 @@ function getRouteDefaultLocale(pathname: string | null): Locale {
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const routeDefaultLocale = getRouteDefaultLocale(pathname)
-  const [locale, setLocale] = useState<Locale>(routeDefaultLocale)
+  const [locale, setLocale] = useState<Locale>(() => {
+    if (typeof window === 'undefined') return routeDefaultLocale
 
-  useEffect(() => {
-    setLocale(routeDefaultLocale)
-  }, [routeDefaultLocale])
+    try {
+      const storedLocale = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
 
-  const handleSetLocale = (nextLocale: Locale) => {
+      if (storedLocale && locales.includes(storedLocale as Locale)) {
+        return storedLocale as Locale
+      }
+    } catch {
+      return routeDefaultLocale
+    }
+
+    return routeDefaultLocale
+  })
+
+  const handleSetLocale = useCallback((nextLocale: Locale) => {
     if (locales.includes(nextLocale)) {
       setLocale(nextLocale)
+
+      try {
+        window.localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLocale)
+      } catch {
+        // The UI still updates even when the preference cannot be persisted.
+      }
     }
-  }
+  }, [])
 
   const value = useMemo(
     () => ({
@@ -44,7 +62,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       setLocale: handleSetLocale,
       t: translations[locale],
     }),
-    [locale]
+    [handleSetLocale, locale]
   )
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>

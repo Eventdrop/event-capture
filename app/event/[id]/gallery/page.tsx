@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useLanguage } from '@/app/_components/language-provider'
+import { LANGUAGE_STORAGE_KEY, useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicMediaUrl, getPublicPath } from '@/lib/app-url'
@@ -33,9 +33,15 @@ const POSTER_LAYOUT = {
   bottomAreaHeight: 417,
   photoAreaInsetX: 120,
   photoAreaInsetY: 56,
-  photoGap: 28,
   columns: 3,
-  rows: 4,
+  columnGap: 28,
+  rowGap: 28,
+  minSlotHeight: 360,
+  maxSlotHeight: 900,
+  minLayoutScale: 0.72,
+  maxLayoutScale: 1.12,
+  minRatio: 0.62,
+  maxRatio: 1.85,
 }
 const POSTER_TEMPLATE_PHOTO_AREA = {
   x: POSTER_LAYOUT.photoAreaInsetX,
@@ -46,6 +52,38 @@ const POSTER_TEMPLATE_PHOTO_AREA = {
 const STORY_LAYOUT = {
   gap: 16,
   photoArea: { x: 72, y: 240, width: STORY_WIDTH - 144, height: 1420 },
+  layouts: {
+    landscapeHeavy: [
+      { x: 72, y: 260, width: 936, height: 330 },
+      { x: 72, y: 606, width: 936, height: 330 },
+      { x: 72, y: 952, width: 936, height: 330 },
+      { x: 72, y: 1298, width: 936, height: 330 },
+    ],
+    portraitHeavy: [
+      { x: 72, y: 250, width: 452, height: 690 },
+      { x: 556, y: 250, width: 452, height: 690 },
+      { x: 72, y: 980, width: 452, height: 690 },
+      { x: 556, y: 980, width: 452, height: 690 },
+    ],
+    mixedLandscapeHero: [
+      { x: 72, y: 250, width: 936, height: 520 },
+      { x: 72, y: 806, width: 291, height: 820 },
+      { x: 394, y: 806, width: 291, height: 820 },
+      { x: 717, y: 806, width: 291, height: 820 },
+    ],
+    mixedPortraitHero: [
+      { x: 72, y: 250, width: 452, height: 1060 },
+      { x: 556, y: 250, width: 452, height: 330 },
+      { x: 556, y: 616, width: 452, height: 330 },
+      { x: 556, y: 982, width: 452, height: 330 },
+    ],
+    balanced: [
+      { x: 72, y: 250, width: 452, height: 670 },
+      { x: 556, y: 250, width: 452, height: 670 },
+      { x: 72, y: 956, width: 452, height: 670 },
+      { x: 556, y: 956, width: 452, height: 670 },
+    ],
+  },
 }
 
 type CanvasImageResource = {
@@ -54,6 +92,38 @@ type CanvasImageResource = {
 }
 
 type DesignFormat = 'poster' | 'story'
+type PhotoOrientation = 'landscape' | 'portrait' | 'neutral'
+
+type PhotoSlot = {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+type FaceFocus = {
+  x: number
+  y: number
+}
+
+type PosterPhoto = {
+  image: HTMLImageElement
+  originalIndex: number
+  orientation: PhotoOrientation
+  ratio: number
+  focus?: FaceFocus
+}
+
+type FaceDetectorResult = {
+  boundingBox: DOMRectReadOnly
+}
+
+type FaceDetectorConstructor = new (options?: {
+  fastMode?: boolean
+  maxDetectedFaces?: number
+}) => {
+  detect(image: CanvasImageSource): Promise<FaceDetectorResult[]>
+}
 
 function sanitizeDownloadName(value: string) {
   return value
@@ -104,6 +174,30 @@ function drawCoverImage(
   context.drawImage(image, sourceX, sourceY, scaledWidth, scaledHeight)
 }
 
+function drawFocusedCoverImage(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  focus?: FaceFocus
+) {
+  const imageWidth = image.naturalWidth || image.width
+  const imageHeight = image.naturalHeight || image.height
+  const scale = Math.max(width / imageWidth, height / imageHeight)
+  const scaledWidth = imageWidth * scale
+  const scaledHeight = imageHeight * scale
+  const focusX = focus ? focus.x * scaledWidth : scaledWidth / 2
+  const focusY = focus ? focus.y * scaledHeight : scaledHeight / 2
+  const minX = x + width - scaledWidth
+  const minY = y + height - scaledHeight
+  const sourceX = Math.min(x, Math.max(minX, x + width / 2 - focusX))
+  const sourceY = Math.min(y, Math.max(minY, y + height / 2 - focusY))
+
+  context.drawImage(image, sourceX, sourceY, scaledWidth, scaledHeight)
+}
+
 function drawContainImage(
   context: CanvasRenderingContext2D,
   image: HTMLImageElement,
@@ -119,6 +213,62 @@ function drawContainImage(
   const targetY = y + (height - scaledHeight) / 2
 
   context.drawImage(image, targetX, targetY, scaledWidth, scaledHeight)
+}
+
+function getImageRatio(image: HTMLImageElement) {
+  const width = image.naturalWidth || image.width
+  const height = image.naturalHeight || image.height
+
+  return width && height ? width / height : 1
+}
+
+function getPhotoOrientation(ratio: number): PhotoOrientation {
+  if (ratio > 1.18) return 'landscape'
+  if (ratio < 0.85) return 'portrait'
+  return 'neutral'
+}
+
+async function detectFaceFocus(image: HTMLImageElement): Promise<FaceFocus | undefined> {
+  const faceDetector = (window as Window & { FaceDetector?: FaceDetectorConstructor }).FaceDetector
+
+  if (!faceDetector) return undefined
+
+  try {
+    const detector = new faceDetector({ fastMode: true, maxDetectedFaces: 8 })
+    const faces = await detector.detect(image)
+
+    if (faces.length === 0) return undefined
+
+    const bounds = faces.reduce(
+      (accumulator, face) => {
+        const box = face.boundingBox
+
+        return {
+          bottom: Math.max(accumulator.bottom, box.y + box.height),
+          left: Math.min(accumulator.left, box.x),
+          right: Math.max(accumulator.right, box.x + box.width),
+          top: Math.min(accumulator.top, box.y),
+        }
+      },
+      {
+        bottom: Number.NEGATIVE_INFINITY,
+        left: Number.POSITIVE_INFINITY,
+        right: Number.NEGATIVE_INFINITY,
+        top: Number.POSITIVE_INFINITY,
+      }
+    )
+    const width = image.naturalWidth || image.width
+    const height = image.naturalHeight || image.height
+
+    if (!width || !height) return undefined
+
+    return {
+      x: Math.min(1, Math.max(0, (bounds.left + bounds.right) / 2 / width)),
+      y: Math.min(1, Math.max(0, (bounds.top + bounds.bottom) / 2 / height)),
+    }
+  } catch {
+    return undefined
+  }
 }
 
 function drawPosterTitle(
@@ -163,19 +313,21 @@ function drawPosterTitle(
 
 function drawPhotoSlot(
   context: CanvasRenderingContext2D,
-  image: HTMLImageElement,
+  photo: PosterPhoto,
   x: number,
   y: number,
   width: number,
   height: number,
   options?: { grayscale?: boolean }
 ) {
+  const { image } = photo
   const imageWidth = image.naturalWidth || image.width
   const imageHeight = image.naturalHeight || image.height
   const slotRatio = width / height
   const imageRatio = imageWidth && imageHeight ? imageWidth / imageHeight : slotRatio
   const ratioDelta = Math.abs(Math.log(imageRatio / slotRatio))
-  const needsSoftBackground = ratioDelta > 0.08
+  const canUseSoftCrop = ratioDelta <= 0.18
+  const needsSoftBackground = !canUseSoftCrop
 
   context.save()
   context.fillStyle = '#000'
@@ -187,7 +339,7 @@ function drawPhotoSlot(
   if (needsSoftBackground) {
     context.save()
     context.filter = `${options?.grayscale ? 'grayscale(100%) ' : ''}blur(24px)`
-    drawCoverImage(context, image, x - 18, y - 18, width + 36, height + 36)
+    drawFocusedCoverImage(context, image, x - 18, y - 18, width + 36, height + 36, photo.focus)
     context.restore()
 
     context.fillStyle = 'rgba(0, 0, 0, 0.30)'
@@ -195,7 +347,11 @@ function drawPhotoSlot(
   }
 
   context.filter = options?.grayscale ? 'grayscale(100%)' : 'none'
-  drawContainImage(context, image, x, y, width, height)
+  if (canUseSoftCrop) {
+    drawFocusedCoverImage(context, image, x, y, width, height, photo.focus)
+  } else {
+    drawContainImage(context, image, x, y, width, height)
+  }
   context.filter = 'none'
   context.restore()
 }
@@ -230,43 +386,101 @@ function hasTransparentPixelsInArea(
   return totalSamples === 0 || transparentSamples / totalSamples > 0.01
 }
 
-function getPosterGridSize(imageCount: number) {
-  if (imageCount <= 1) return { columns: 1, rows: 1 }
-  if (imageCount <= 2) return { columns: 2, rows: 1 }
-  if (imageCount <= 4) return { columns: 2, rows: 2 }
-  return { columns: POSTER_LAYOUT.columns, rows: POSTER_LAYOUT.rows }
+function clampNumber(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value))
 }
 
-function getPosterTileRects(
-  images: HTMLImageElement[],
+function getNormalizedPhotoRatio(photo: PosterPhoto) {
+  return clampNumber(photo.ratio, POSTER_LAYOUT.minRatio, POSTER_LAYOUT.maxRatio)
+}
+
+function getPosterSlotHeight(photo: PosterPhoto, columnWidth: number) {
+  const naturalHeight = columnWidth / getNormalizedPhotoRatio(photo)
+
+  return clampNumber(
+    naturalHeight,
+    POSTER_LAYOUT.minSlotHeight,
+    POSTER_LAYOUT.maxSlotHeight
+  )
+}
+
+function getPosterLayoutOrder(photos: PosterPhoto[], columnWidth: number) {
+  return [...photos].sort((left, right) => {
+    const heightDelta =
+      getPosterSlotHeight(right, columnWidth) - getPosterSlotHeight(left, columnWidth)
+
+    if (Math.abs(heightDelta) > 1) return heightDelta
+
+    const orientationWeight: Record<PhotoOrientation, number> = {
+      portrait: 3,
+      neutral: 2,
+      landscape: 1,
+    }
+    const orientationDelta =
+      orientationWeight[right.orientation] - orientationWeight[left.orientation]
+
+    if (orientationDelta !== 0) return orientationDelta
+
+    return left.originalIndex - right.originalIndex
+  })
+}
+
+function buildPosterMasonryLayout(
+  photos: PosterPhoto[],
   area: { x: number; y: number; width: number; height: number }
 ) {
-  if (images.length === 0) return []
+  const columnWidth =
+    (area.width - POSTER_LAYOUT.columnGap * (POSTER_LAYOUT.columns - 1)) /
+    POSTER_LAYOUT.columns
+  const columns = Array.from({ length: POSTER_LAYOUT.columns }, (_, index) => ({
+    height: 0,
+    index,
+    items: [] as Array<{ height: number; photo: PosterPhoto }>,
+  }))
 
-  const { columns, rows } = getPosterGridSize(images.length)
-  const tileWidth = (area.width - POSTER_LAYOUT.photoGap * (columns - 1)) / columns
-  const tileHeight = (area.height - POSTER_LAYOUT.photoGap * (rows - 1)) / rows
-  const usedRows = Math.ceil(images.length / columns)
-  const usedHeight = usedRows * tileHeight + Math.max(0, usedRows - 1) * POSTER_LAYOUT.photoGap
-  const topOffset = area.y + Math.max(0, (area.height - usedHeight) / 2)
+  getPosterLayoutOrder(photos.slice(0, POSTER_MAX_TILES), columnWidth).forEach((photo) => {
+    const height = getPosterSlotHeight(photo, columnWidth)
+    const targetColumn = columns.reduce((best, candidate) => {
+      if (candidate.height < best.height) return candidate
+      if (candidate.height === best.height && candidate.index < best.index) return candidate
+      return best
+    }, columns[0])
 
-  return images.map((image, index) => {
-    const row = Math.floor(index / columns)
-    const column = index % columns
+    targetColumn.items.push({ height, photo })
+    targetColumn.height += height + (targetColumn.items.length > 1 ? POSTER_LAYOUT.rowGap : 0)
+  })
 
-    return {
-      image,
-      x: area.x + column * (tileWidth + POSTER_LAYOUT.photoGap),
-      y: topOffset + row * (tileHeight + POSTER_LAYOUT.photoGap),
-      width: tileWidth,
-      height: tileHeight,
-    }
+  const maxColumnHeight = Math.max(...columns.map((column) => column.height), 1)
+  const scale = clampNumber(
+    area.height / maxColumnHeight,
+    POSTER_LAYOUT.minLayoutScale,
+    POSTER_LAYOUT.maxLayoutScale
+  )
+
+  return columns.flatMap((column) => {
+    const scaledColumnHeight =
+      column.items.reduce((total, item) => total + item.height * scale, 0) +
+      Math.max(0, column.items.length - 1) * POSTER_LAYOUT.rowGap * scale
+    let y = area.y + Math.max(0, (area.height - scaledColumnHeight) / 2)
+
+    return column.items.map((item) => {
+      const slot = {
+        height: item.height * scale,
+        width: columnWidth,
+        x: area.x + column.index * (columnWidth + POSTER_LAYOUT.columnGap),
+        y,
+      }
+
+      y += slot.height + POSTER_LAYOUT.rowGap * scale
+
+      return { photo: item.photo, slot }
+    })
   })
 }
 
 function drawPosterGrid(
   context: CanvasRenderingContext2D,
-  images: HTMLImageElement[],
+  photos: PosterPhoto[],
   area: { x: number; y: number; width: number; height: number },
   options?: { grayscale?: boolean }
 ) {
@@ -275,50 +489,101 @@ function drawPosterGrid(
   context.fillRect(area.x, area.y, area.width, area.height)
   context.restore()
 
-  getPosterTileRects(images, area).forEach((rect) => {
+  buildPosterMasonryLayout(photos, area).forEach(({ photo, slot }) => {
     drawPhotoSlot(
       context,
-      rect.image,
-      rect.x,
-      rect.y,
-      rect.width,
-      rect.height,
+      photo,
+      slot.x,
+      slot.y,
+      slot.width,
+      slot.height,
       options
     )
   })
 }
 
+function getStoryLayoutSlots(photos: PosterPhoto[]): PhotoSlot[] {
+  const portraitCount = photos.filter((photo) => photo.orientation === 'portrait').length
+  const landscapeCount = photos.filter((photo) => photo.orientation === 'landscape').length
+  const layouts = STORY_LAYOUT.layouts
+
+  if (photos.length <= 2) {
+    return layouts.balanced.slice(0, photos.length)
+  }
+
+  if (landscapeCount >= 3) {
+    return layouts.landscapeHeavy.slice(0, photos.length)
+  }
+
+  if (portraitCount >= 3 && landscapeCount === 1) {
+    return layouts.mixedLandscapeHero.slice(0, photos.length)
+  }
+
+  if (portraitCount === 1 && landscapeCount >= 2) {
+    return layouts.mixedPortraitHero.slice(0, photos.length)
+  }
+
+  if (portraitCount >= 3) {
+    return layouts.portraitHeavy.slice(0, photos.length)
+  }
+
+  return layouts.balanced.slice(0, photos.length)
+}
+
+function getStorySlotPenalty(photo: PosterPhoto, slot: PhotoSlot) {
+  const slotRatio = slot.width / slot.height
+
+  return Math.abs(Math.log(photo.ratio / slotRatio))
+}
+
+function assignStoryPhotosToSlots(photos: PosterPhoto[]) {
+  const visiblePhotos = photos.slice(0, STORY_MAX_TILES)
+  const slots = getStoryLayoutSlots(visiblePhotos)
+  const unused = visiblePhotos.map((photo) => photo)
+
+  return slots.map((slot) => {
+    let bestPhoto = unused[0]
+    let bestScore = Number.POSITIVE_INFINITY
+
+    for (const photo of unused) {
+      const score = getStorySlotPenalty(photo, slot)
+
+      if (
+        score < bestScore ||
+        (score === bestScore && photo.originalIndex < bestPhoto.originalIndex)
+      ) {
+        bestPhoto = photo
+        bestScore = score
+      }
+    }
+
+    unused.splice(unused.indexOf(bestPhoto), 1)
+
+    return { photo: bestPhoto, slot }
+  })
+}
+
 function drawStoryGrid(
   context: CanvasRenderingContext2D,
-  images: HTMLImageElement[],
+  photos: PosterPhoto[],
   area: { x: number; y: number; width: number; height: number },
   options?: { grayscale?: boolean }
 ) {
-  const visibleImages = images.slice(0, STORY_MAX_TILES)
-  const columns = visibleImages.length <= 1 ? 1 : 2
-  const rows = visibleImages.length <= 2 ? 1 : 2
-  const gap = STORY_LAYOUT.gap
-  const tileWidth = (area.width - gap * (columns - 1)) / columns
-  const tileHeight = (area.height - gap * (rows - 1)) / rows
-  const usedHeight = rows * tileHeight + Math.max(0, rows - 1) * gap
-  const topOffset = area.y + Math.max(0, (area.height - usedHeight) / 2)
+  const visiblePhotos = photos.slice(0, STORY_MAX_TILES)
 
   context.save()
   context.fillStyle = 'rgba(0, 0, 0, 0.62)'
   context.fillRect(area.x - 18, area.y - 18, area.width + 36, area.height + 36)
   context.restore()
 
-  visibleImages.forEach((image, index) => {
-    const row = Math.floor(index / columns)
-    const column = index % columns
-
+  assignStoryPhotosToSlots(visiblePhotos).forEach(({ photo, slot }) => {
     drawPhotoSlot(
       context,
-      image,
-      area.x + column * (tileWidth + gap),
-      topOffset + row * (tileHeight + gap),
-      tileWidth,
-      tileHeight,
+      photo,
+      slot.x,
+      slot.y,
+      slot.width,
+      slot.height,
       options
     )
   })
@@ -346,9 +611,19 @@ export default function Page() {
   useEffect(() => {
     if (!currentEvent) return
     const requestedLocale = new URLSearchParams(window.location.search).get('lang')
+    let storedLocale: string | null = null
+
+    try {
+      storedLocale = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
+    } catch {
+      storedLocale = null
+    }
+
     setLocale(
       requestedLocale && locales.includes(requestedLocale as Locale)
         ? requestedLocale as Locale
+        : storedLocale && locales.includes(storedLocale as Locale)
+          ? storedLocale as Locale
         : currentEvent.defaultLocale
     )
   }, [currentEvent, setLocale])
@@ -755,17 +1030,24 @@ export default function Page() {
         window.alert(t.gallery.posterLimitPopup)
       }
 
-      const loadedImages: CanvasImageResource[] = []
+      const posterPhotos: PosterPhoto[] = []
 
-      for (const item of selectedItems) {
-        if (loadedImages.length >= maxTiles) break
+      for (const [originalIndex, item] of selectedItems.entries()) {
+        if (posterPhotos.length >= maxTiles) break
 
         const resource = await loadCanvasImage(item.file_url)
+        const ratio = getImageRatio(resource.image)
         resources.push(resource)
-        loadedImages.push(resource)
+        posterPhotos.push({
+          focus: await detectFaceFocus(resource.image),
+          image: resource.image,
+          originalIndex,
+          orientation: getPhotoOrientation(ratio),
+          ratio,
+        })
       }
 
-      if (loadedImages.length === 0) {
+      if (posterPhotos.length === 0) {
         throw new Error(t.gallery.posterNoUsablePhotos)
       }
 
@@ -797,10 +1079,9 @@ export default function Page() {
           drawContainImage(context, templateResource.image, 0, 0, STORY_WIDTH, STORY_HEIGHT)
         }
 
-        const storyImages = loadedImages.slice(0, STORY_MAX_TILES)
         drawStoryGrid(
           context,
-          storyImages.map(({ image }) => image),
+          posterPhotos.slice(0, STORY_MAX_TILES),
           STORY_LAYOUT.photoArea,
           { grayscale: options?.grayscale }
         )
@@ -832,7 +1113,7 @@ export default function Page() {
 
         drawPosterGrid(
           context,
-          loadedImages.map(({ image }) => image),
+          posterPhotos,
           POSTER_TEMPLATE_PHOTO_AREA,
           { grayscale: options?.grayscale }
         )
@@ -859,7 +1140,7 @@ export default function Page() {
 
         drawPosterGrid(
           context,
-          loadedImages.map(({ image }) => image),
+          posterPhotos,
           gridArea,
           { grayscale: options?.grayscale }
         )
