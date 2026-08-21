@@ -20,26 +20,40 @@ import { locales, type Locale } from '@/lib/i18n'
 
 const POSTER_WIDTH = 2480
 const POSTER_HEIGHT = 3508
-const POSTER_MAX_TILES = 15
-const POSTER_MAX_ASPECT_RATIO = 2.2
+const POSTER_MAX_TILES = 12
 const STORY_WIDTH = 1080
 const STORY_HEIGHT = 1920
-const STORY_MAX_TILES = 8
-const POSTER_GAP = 18
+const STORY_MAX_TILES = 4
 const POSTER_MARGIN = 56
 const POSTER_FOOTER_HEIGHT = 160
 const POSTER_LOGO_URL = '/photobooth-holland-logo.png'
+const POSTER_LAYOUT = {
+  topAreaHeight: 585,
+  photoAreaHeight: 2506,
+  bottomAreaHeight: 417,
+  photoAreaInsetX: 120,
+  photoAreaInsetY: 56,
+  photoGap: 28,
+  columns: 3,
+  rows: 4,
+}
 const POSTER_TEMPLATE_PHOTO_AREA = {
-  x: 120,
-  y: 390,
-  width: POSTER_WIDTH - 240,
-  height: POSTER_HEIGHT - 760,
+  x: POSTER_LAYOUT.photoAreaInsetX,
+  y: POSTER_LAYOUT.topAreaHeight + POSTER_LAYOUT.photoAreaInsetY,
+  width: POSTER_WIDTH - POSTER_LAYOUT.photoAreaInsetX * 2,
+  height: POSTER_LAYOUT.photoAreaHeight - POSTER_LAYOUT.photoAreaInsetY * 2,
+}
+const STORY_LAYOUT = {
+  gap: 16,
+  photoArea: { x: 72, y: 240, width: STORY_WIDTH - 144, height: 1420 },
 }
 
 type CanvasImageResource = {
   image: HTMLImageElement
   objectUrl: string
 }
+
+type DesignFormat = 'poster' | 'story'
 
 function sanitizeDownloadName(value: string) {
   return value
@@ -147,7 +161,7 @@ function drawPosterTitle(
   return y + Math.max(1, lines.length) * lineHeight
 }
 
-function drawPosterTile(
+function drawPhotoSlot(
   context: CanvasRenderingContext2D,
   image: HTMLImageElement,
   x: number,
@@ -156,29 +170,34 @@ function drawPosterTile(
   height: number,
   options?: { grayscale?: boolean }
 ) {
+  const imageWidth = image.naturalWidth || image.width
+  const imageHeight = image.naturalHeight || image.height
+  const slotRatio = width / height
+  const imageRatio = imageWidth && imageHeight ? imageWidth / imageHeight : slotRatio
+  const ratioDelta = Math.abs(Math.log(imageRatio / slotRatio))
+  const needsSoftBackground = ratioDelta > 0.08
+
   context.save()
   context.fillStyle = '#000'
   context.fillRect(x, y, width, height)
   context.beginPath()
   context.rect(x, y, width, height)
   context.clip()
+
+  if (needsSoftBackground) {
+    context.save()
+    context.filter = `${options?.grayscale ? 'grayscale(100%) ' : ''}blur(24px)`
+    drawCoverImage(context, image, x - 18, y - 18, width + 36, height + 36)
+    context.restore()
+
+    context.fillStyle = 'rgba(0, 0, 0, 0.30)'
+    context.fillRect(x, y, width, height)
+  }
+
   context.filter = options?.grayscale ? 'grayscale(100%)' : 'none'
-  drawCoverImage(context, image, x, y, width, height)
+  drawContainImage(context, image, x, y, width, height)
   context.filter = 'none'
   context.restore()
-}
-
-function getCanvasImageAspectRatio(resource: CanvasImageResource) {
-  const width = resource.image.naturalWidth || resource.image.width
-  const height = resource.image.naturalHeight || resource.image.height
-
-  if (!width || !height) return 1
-
-  return Math.max(width / height, height / width)
-}
-
-function isPosterImageAllowed(resource: CanvasImageResource) {
-  return getCanvasImageAspectRatio(resource) <= POSTER_MAX_ASPECT_RATIO
 }
 
 function hasTransparentPixelsInArea(
@@ -193,7 +212,7 @@ function hasTransparentPixelsInArea(
 
   if (!context) return true
 
-  drawCoverImage(context, image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+  drawContainImage(context, image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
 
   const data = context.getImageData(area.x, area.y, area.width, area.height).data
   const sampleStride = 80
@@ -215,10 +234,7 @@ function getPosterGridSize(imageCount: number) {
   if (imageCount <= 1) return { columns: 1, rows: 1 }
   if (imageCount <= 2) return { columns: 2, rows: 1 }
   if (imageCount <= 4) return { columns: 2, rows: 2 }
-  if (imageCount <= 6) return { columns: 2, rows: 3 }
-  if (imageCount <= 9) return { columns: 3, rows: 3 }
-  if (imageCount <= 12) return { columns: 3, rows: 4 }
-  return { columns: 3, rows: 5 }
+  return { columns: POSTER_LAYOUT.columns, rows: POSTER_LAYOUT.rows }
 }
 
 function getPosterTileRects(
@@ -228,10 +244,10 @@ function getPosterTileRects(
   if (images.length === 0) return []
 
   const { columns, rows } = getPosterGridSize(images.length)
-  const tileWidth = (area.width - POSTER_GAP * (columns - 1)) / columns
-  const tileHeight = (area.height - POSTER_GAP * (rows - 1)) / rows
+  const tileWidth = (area.width - POSTER_LAYOUT.photoGap * (columns - 1)) / columns
+  const tileHeight = (area.height - POSTER_LAYOUT.photoGap * (rows - 1)) / rows
   const usedRows = Math.ceil(images.length / columns)
-  const usedHeight = usedRows * tileHeight + Math.max(0, usedRows - 1) * POSTER_GAP
+  const usedHeight = usedRows * tileHeight + Math.max(0, usedRows - 1) * POSTER_LAYOUT.photoGap
   const topOffset = area.y + Math.max(0, (area.height - usedHeight) / 2)
 
   return images.map((image, index) => {
@@ -240,8 +256,8 @@ function getPosterTileRects(
 
     return {
       image,
-      x: area.x + column * (tileWidth + POSTER_GAP),
-      y: topOffset + row * (tileHeight + POSTER_GAP),
+      x: area.x + column * (tileWidth + POSTER_LAYOUT.photoGap),
+      y: topOffset + row * (tileHeight + POSTER_LAYOUT.photoGap),
       width: tileWidth,
       height: tileHeight,
     }
@@ -260,7 +276,7 @@ function drawPosterGrid(
   context.restore()
 
   getPosterTileRects(images, area).forEach((rect) => {
-    drawPosterTile(
+    drawPhotoSlot(
       context,
       rect.image,
       rect.x,
@@ -278,26 +294,29 @@ function drawStoryGrid(
   area: { x: number; y: number; width: number; height: number },
   options?: { grayscale?: boolean }
 ) {
-  const columns = 2
-  const rows = 4
-  const gap = 16
+  const visibleImages = images.slice(0, STORY_MAX_TILES)
+  const columns = visibleImages.length <= 1 ? 1 : 2
+  const rows = visibleImages.length <= 2 ? 1 : 2
+  const gap = STORY_LAYOUT.gap
   const tileWidth = (area.width - gap * (columns - 1)) / columns
   const tileHeight = (area.height - gap * (rows - 1)) / rows
+  const usedHeight = rows * tileHeight + Math.max(0, rows - 1) * gap
+  const topOffset = area.y + Math.max(0, (area.height - usedHeight) / 2)
 
   context.save()
   context.fillStyle = 'rgba(0, 0, 0, 0.62)'
   context.fillRect(area.x - 18, area.y - 18, area.width + 36, area.height + 36)
   context.restore()
 
-  images.slice(0, STORY_MAX_TILES).forEach((image, index) => {
+  visibleImages.forEach((image, index) => {
     const row = Math.floor(index / columns)
     const column = index % columns
 
-    drawPosterTile(
+    drawPhotoSlot(
       context,
       image,
       area.x + column * (tileWidth + gap),
-      area.y + row * (tileHeight + gap),
+      topOffset + row * (tileHeight + gap),
       tileWidth,
       tileHeight,
       options
@@ -319,6 +338,7 @@ export default function Page() {
   const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [creatingPoster, setCreatingPoster] = useState(false)
+  const [designMode, setDesignMode] = useState<DesignFormat | null>(null)
   const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
   const [albumPackagesVisible, setAlbumPackagesVisible] = useState(false)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
@@ -494,6 +514,20 @@ export default function Page() {
   )
   const posterSelectedCount = Math.min(selectedItems.length, POSTER_MAX_TILES)
   const storySelectedCount = Math.min(selectedItems.length, STORY_MAX_TILES)
+  const designModeLimit =
+    designMode === 'poster'
+      ? POSTER_MAX_TILES
+      : designMode === 'story'
+        ? STORY_MAX_TILES
+        : selectedLimit
+  const designModeLabel =
+    designMode === 'poster'
+      ? t.gallery.posterButton
+      : designMode === 'story'
+        ? t.gallery.storyButton
+        : ''
+  const designSelectedCount = Math.min(selectedItems.length, designModeLimit)
+  const designLimitReached = Boolean(designMode && selectedItems.length >= designModeLimit)
   const posterOverflowCount = Math.max(0, selectedItems.length - POSTER_MAX_TILES)
   const posterRemainingCount = Math.max(0, POSTER_MAX_TILES - posterSelectedCount)
   const posterSelectionLabel = posterOverflowCount > 0
@@ -504,10 +538,43 @@ export default function Page() {
         ? `${posterRemainingCount} ${t.gallery.posterMoreNeeded}`
         : t.gallery.posterHorizontalTip
 
+  const chooseDesignMode = (format: DesignFormat) => {
+    if (designMode === format) return
+
+    if (designMode && selected.length > 0) {
+      const confirmed = window.confirm(t.gallery.designSwitchConfirm)
+
+      if (!confirmed) return
+
+      setSelected([])
+    } else if (!designMode && selected.length > (format === 'poster' ? POSTER_MAX_TILES : STORY_MAX_TILES)) {
+      const confirmed = window.confirm(t.gallery.designSwitchConfirm)
+
+      if (!confirmed) return
+
+      setSelected([])
+    }
+
+    setDesignMode(format)
+    setStatusMessage(
+      format === 'poster' ? t.gallery.designPosterActive : t.gallery.designStoryActive
+    )
+  }
+
+  const clearDesignSelection = () => {
+    setSelected([])
+    setStatusMessage(t.gallery.clearSelection)
+  }
+
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
       if (prev.includes(id)) {
         return prev.filter((itemId) => itemId !== id)
+      }
+
+      if (designMode && prev.length >= designModeLimit) {
+        setStatusMessage(t.gallery.designLimitReached)
+        return prev
       }
 
       if (prev.length >= selectedLimit) {
@@ -665,7 +732,7 @@ export default function Page() {
     setPosterStyleModalOpen(true)
   }
 
-  const createPoster = async (options?: { grayscale?: boolean; format?: 'poster' | 'story' }) => {
+  const createPoster = async (options?: { grayscale?: boolean; format?: DesignFormat }) => {
     if (selectedItems.length === 0 || creatingPoster) {
       setStatusMessage(t.gallery.posterChoose)
       return
@@ -674,6 +741,7 @@ export default function Page() {
     setPosterStyleModalOpen(false)
     setCreatingPoster(true)
     const format = options?.format || 'poster'
+    const maxTiles = format === 'story' ? STORY_MAX_TILES : POSTER_MAX_TILES
 
     setStatusMessage(format === 'story' ? t.gallery.storyPreparing : t.gallery.posterPreparing)
 
@@ -688,24 +756,13 @@ export default function Page() {
       }
 
       const loadedImages: CanvasImageResource[] = []
-      let skippedPosterImages = 0
 
       for (const item of selectedItems) {
-        if (loadedImages.length >= POSTER_MAX_TILES) break
+        if (loadedImages.length >= maxTiles) break
 
         const resource = await loadCanvasImage(item.file_url)
         resources.push(resource)
-
-        if (!isPosterImageAllowed(resource)) {
-          skippedPosterImages += 1
-          continue
-        }
-
         loadedImages.push(resource)
-      }
-
-      if (skippedPosterImages > 0) {
-        window.alert(t.gallery.posterRatioPopup)
       }
 
       if (loadedImages.length === 0) {
@@ -735,18 +792,16 @@ export default function Page() {
 
       if (format === 'story') {
         if (storyTemplateResource) {
-          drawCoverImage(context, storyTemplateResource.image, 0, 0, STORY_WIDTH, STORY_HEIGHT)
+          drawContainImage(context, storyTemplateResource.image, 0, 0, STORY_WIDTH, STORY_HEIGHT)
         } else if (templateResource) {
           drawContainImage(context, templateResource.image, 0, 0, STORY_WIDTH, STORY_HEIGHT)
         }
 
         const storyImages = loadedImages.slice(0, STORY_MAX_TILES)
-        const storyArea = { x: 72, y: 240, width: STORY_WIDTH - 144, height: 1420 }
-
         drawStoryGrid(
           context,
           storyImages.map(({ image }) => image),
-          storyArea,
+          STORY_LAYOUT.photoArea,
           { grayscale: options?.grayscale }
         )
 
@@ -772,7 +827,7 @@ export default function Page() {
         )
 
         if (!templateHasPhotoWindow) {
-          drawCoverImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+          drawContainImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
         }
 
         drawPosterGrid(
@@ -783,7 +838,7 @@ export default function Page() {
         )
 
         if (templateHasPhotoWindow) {
-          drawCoverImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+          drawContainImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
         }
       } else {
         const titleBottom = drawPosterTitle(
@@ -793,13 +848,13 @@ export default function Page() {
           POSTER_MARGIN + 56,
           POSTER_WIDTH - POSTER_MARGIN * 2
         )
-        const gridTop = Math.max(POSTER_MARGIN + 150, titleBottom + 30)
-        const footerTop = POSTER_HEIGHT - POSTER_MARGIN - POSTER_FOOTER_HEIGHT
+        const footerTop =
+          POSTER_HEIGHT -
+          POSTER_LAYOUT.bottomAreaHeight +
+          (POSTER_LAYOUT.bottomAreaHeight - POSTER_FOOTER_HEIGHT) / 2
         const gridArea = {
-          x: POSTER_MARGIN,
-          y: gridTop,
-          width: POSTER_WIDTH - POSTER_MARGIN * 2,
-          height: footerTop - gridTop - 12,
+          ...POSTER_TEMPLATE_PHOTO_AREA,
+          y: Math.max(POSTER_TEMPLATE_PHOTO_AREA.y, titleBottom + 30),
         }
 
         drawPosterGrid(
@@ -1128,36 +1183,40 @@ export default function Page() {
               <>
                 <button
                   type="button"
-                  onClick={openPosterStyleOptions}
-                  disabled={selectedItems.length === 0 || creatingPoster}
+                  onClick={() => chooseDesignMode('poster')}
+                  disabled={creatingPoster}
                   className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                    selectedItems.length === 0 || creatingPoster
-                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                      : 'bg-stone-950 text-white hover:bg-stone-800'
+                    designMode === 'poster'
+                      ? 'bg-stone-950 text-white ring-2 ring-stone-950/20'
+                      : creatingPoster
+                        ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                        : 'bg-white text-stone-950 hover:bg-stone-100'
                   }`}
                 >
-                  {creatingPoster
-                    ? t.gallery.posterPreparing
-                    : `${t.gallery.posterButton} (${posterSelectedCount}/${POSTER_MAX_TILES})`}
+                  {t.gallery.posterButton}
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => createPoster({ grayscale: false, format: 'story' })}
-                  disabled={selectedItems.length === 0 || creatingPoster}
+                  onClick={() => chooseDesignMode('story')}
+                  disabled={creatingPoster}
                   className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                    selectedItems.length === 0 || creatingPoster
-                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                      : 'bg-[#B52E2E] text-white hover:bg-[#982525]'
+                    designMode === 'story'
+                      ? 'bg-[#B52E2E] text-white ring-2 ring-[#B52E2E]/20'
+                      : creatingPoster
+                        ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                        : 'bg-white text-[#B52E2E] hover:bg-[#FFF1F1]'
                   }`}
                 >
-                  {creatingPoster
-                    ? t.gallery.storyPreparing
-                    : `${t.gallery.storyButton} (${storySelectedCount}/${STORY_MAX_TILES})`}
+                  {t.gallery.storyButton}
                 </button>
 
                 <p className={`basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F] ${selectedItems.length === 0 ? 'hidden sm:block' : ''}`}>
-                  {posterSelectionLabel}
+                  {designMode
+                    ? designMode === 'poster'
+                      ? posterSelectionLabel
+                      : t.gallery.designStoryActive
+                    : t.gallery.designChooseFormat}
                 </p>
               </>
             ) : null}
@@ -1171,6 +1230,63 @@ export default function Page() {
           </div>
         </div>
 
+        {posterEnabled && designMode ? (
+          <div className="sticky top-3 z-30 mb-3 rounded-2xl border border-white/40 bg-white/94 p-3 shadow-[0_18px_48px_rgba(15,33,53,0.18)] backdrop-blur sm:top-4 sm:mb-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#597594]">
+                  {designModeLabel}
+                </p>
+                <p className={`text-lg font-bold ${designLimitReached ? 'text-[#B52E2E]' : 'text-stone-950'}`}>
+                  {designSelectedCount} / {designModeLimit} {t.gallery.designSelected}
+                </p>
+                {designLimitReached ? (
+                  <p className="text-xs font-semibold text-[#B52E2E]">
+                    {t.gallery.designLimitReached}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => chooseDesignMode(designMode === 'poster' ? 'story' : 'poster')}
+                  disabled={creatingPoster}
+                  className="inline-flex min-h-9 flex-1 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-stone-500 sm:flex-none"
+                >
+                  {t.gallery.designChangeFormat}
+                </button>
+                <button
+                  type="button"
+                  onClick={clearDesignSelection}
+                  disabled={selectedItems.length === 0 || creatingPoster}
+                  className="inline-flex min-h-9 flex-1 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-stone-500 sm:flex-none"
+                >
+                  {t.gallery.clearSelection}
+                </button>
+                <button
+                  type="button"
+                  onClick={designMode === 'poster' ? openPosterStyleOptions : () => createPoster({ grayscale: false, format: 'story' })}
+                  disabled={selectedItems.length === 0 || creatingPoster}
+                  className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold text-white shadow-sm sm:flex-none ${
+                    selectedItems.length === 0 || creatingPoster
+                      ? 'cursor-not-allowed bg-stone-300'
+                      : designMode === 'poster'
+                        ? 'bg-stone-950 hover:bg-stone-800'
+                        : 'bg-[#B52E2E] hover:bg-[#982525]'
+                  }`}
+                >
+                  {creatingPoster
+                    ? designMode === 'story'
+                      ? t.gallery.storyPreparing
+                      : t.gallery.posterPreparing
+                    : t.gallery.designCreate}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {items.length === 0 ? (
           <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-10 text-center text-[#597594] shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
             {t.gallery.noUploads}
@@ -1179,6 +1295,7 @@ export default function Page() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => {
               const isSelected = selected.includes(item.id)
+              const isSelectionBlocked = Boolean(designMode && !isSelected && designLimitReached)
               const downloadName = getUploadShortFileName(item, {
                 eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
                 sequence: shareSequenceById[item.id],
@@ -1190,7 +1307,11 @@ export default function Page() {
                 <article
                   key={item.id}
                   className={`overflow-hidden rounded-[2rem] border bg-white shadow-[0_16px_40px_rgba(61,44,22,0.08)] ${
-                    isSelected ? 'border-stone-900 ring-2 ring-stone-900/10' : 'border-stone-200'
+                    isSelected
+                      ? 'border-stone-900 ring-2 ring-stone-900/10'
+                      : isSelectionBlocked
+                        ? 'border-stone-200 opacity-70'
+                        : 'border-stone-200'
                   }`}
                 >
                   <div className="relative">
@@ -1210,15 +1331,24 @@ export default function Page() {
                       className="absolute inset-0 z-10"
                     />
 
-                    {downloadEnabled || deleteEnabled ? (
+                    {downloadEnabled || deleteEnabled || posterEnabled ? (
                       <button
                         type="button"
                         onClick={() => toggleSelect(item.id)}
+                        disabled={isSelectionBlocked}
                         aria-label={isSelected ? t.gallery.selected : t.gallery.select}
-                        title={isSelected ? t.gallery.selected : t.gallery.select}
+                        title={
+                          isSelectionBlocked
+                            ? t.gallery.designLimitReached
+                            : isSelected
+                              ? t.gallery.selected
+                              : t.gallery.select
+                        }
                         className={`absolute left-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur ${
                           isSelected
                             ? 'border-white bg-[#0F3D66] text-white ring-2 ring-[#0F3D66]/30'
+                            : isSelectionBlocked
+                              ? 'cursor-not-allowed border-white bg-stone-200/95 text-stone-500'
                             : 'border-white bg-white/95 text-[#0F3D66] hover:bg-white'
                         }`}
                       >
