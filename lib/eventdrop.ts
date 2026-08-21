@@ -12,7 +12,6 @@ export type UploadRecord = {
   mime_type?: string | null
   guest_message?: string | null
   created_at?: string | null
-  expires_at?: string | null
 }
 
 const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'])
@@ -82,11 +81,6 @@ export function buildStoragePath(file: File, now = new Date()) {
 
 export function addHours(date: Date, hours: number) {
   return new Date(date.getTime() + hours * 60 * 60 * 1000)
-}
-
-export function isExpired(expiresAt?: string | null) {
-  if (!expiresAt) return false
-  return new Date(expiresAt).getTime() <= Date.now()
 }
 
 export function inferMediaKind(upload: UploadRecord): MediaKind {

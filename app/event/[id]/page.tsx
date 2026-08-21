@@ -153,7 +153,7 @@ export default function Page() {
         ? requestedLocale as Locale
         : currentEvent.defaultLocale
     )
-  }, [currentEvent?.id, currentEvent?.defaultLocale])
+  }, [currentEvent, setLocale])
 
 
   useEffect(() => {
@@ -394,7 +394,6 @@ export default function Page() {
     shareCode: string
     mediaType: 'photo'
     mimeType: string
-    expiresAt: string | null
     guestMessage: string | null
   }) => {
     const richInsert = {
@@ -405,7 +404,6 @@ export default function Page() {
       share_code: payload.shareCode,
       media_type: payload.mediaType,
       mime_type: payload.mimeType,
-      expires_at: payload.expiresAt,
       guest_message: payload.guestMessage,
       type: payload.mediaType,
     }
@@ -507,7 +505,6 @@ export default function Page() {
         const uploadFile = await compressPhotoForUpload(file)
         const now = new Date()
         const { fileName, storagePath } = buildStoragePath(uploadFile, now)
-        const expiresAt = null
 
         const { error: storageError } = await supabase.storage
           .from(BUCKET_NAME)
@@ -537,7 +534,6 @@ export default function Page() {
           shareCode,
           mediaType,
           mimeType: uploadFile.type || '',
-          expiresAt,
           guestMessage: uploadGuestMessage,
         })
       }

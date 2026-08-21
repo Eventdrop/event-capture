@@ -24,12 +24,10 @@ Onerilen alanlar:
 - `allow_guest_poster` boolean not null default false
 - `poster_template_url` text null
 - `created_at` timestamptz not null default now()
-- `expires_at` timestamptz null
 
 Not:
 
-- `expires_at`, etkinlik tarihi varsa o tarihi takip eden gece 00:00'dan 48 saat sonrasina set edilebilir.
-- Mevcut kod sadece `id` ve `name` alanlarini fiilen kullaniyor.
+- Eventler otomatik olarak expire olmaz. Event silme islemi admin panelinden manuel yapilir.
 
 ### uploads
 
@@ -47,7 +45,6 @@ Onerilen alanlar:
 - `media_type` text not null
 - `mime_type` text null
 - `created_at` timestamptz not null default now()
-- `expires_at` timestamptz not null
 
 Not:
 
@@ -116,17 +113,12 @@ Tam path ornegi:
 
 Bu yapi tarih bazli okunabilirlik ve dosya benzersizligini bir arada saglar.
 
-## Retention Fields
+## Deletion Model
 
-Her upload icin:
-
-- `created_at`
-- `expires_at`
-
-Onerilen kural:
-
-- `expires_at = ((event_date + interval '1 day')::timestamp + interval '48 hours')`
-- event_date yoksa fallback olarak `created_at + interval '48 hours'`
+Event ve medya silme islemleri otomatik degildir. Admin panelinden manuel event
+silindiginde ilgili upload kayitlari ve Supabase Storage dosyalari temizlenir.
+Legacy veritabanlarinda `expires_at` kolonu bulunabilir; mevcut urun kuralinda
+bu alan otomatik silme icin kullanilmaz.
 
 ## Suggested SQL Draft
 
@@ -145,8 +137,7 @@ create table if not exists public.events (
   allow_guest_delete boolean not null default false,
   allow_guest_poster boolean not null default false,
   poster_template_url text,
-  created_at timestamptz not null default now(),
-  expires_at timestamptz
+  created_at timestamptz not null default now()
 );
 
 create table if not exists public.uploads (
@@ -159,8 +150,7 @@ create table if not exists public.uploads (
   guest_message text,
   media_type text not null,
   mime_type text,
-  created_at timestamptz not null default now(),
-  expires_at timestamptz not null default (now() + interval '48 hours')
+  created_at timestamptz not null default now()
 );
 
 create table if not exists public.admin_credentials (
@@ -186,9 +176,6 @@ create table if not exists public.guest_access_logs (
 create index if not exists uploads_event_id_idx
   on public.uploads (event_id);
 
-create index if not exists uploads_expires_at_idx
-  on public.uploads (expires_at);
-
 create unique index if not exists uploads_share_code_idx
   on public.uploads (share_code)
   where share_code is not null;
@@ -203,17 +190,11 @@ create index if not exists guest_access_logs_created_at_idx
   on public.guest_access_logs (created_at desc);
 ```
 
-## Cleanup Query Draft
+## Manual Delete Direction
 
-Bu sorgu, cleanup job tarafinda kullanilabilecek temel secim mantigini temsil eder:
-
-```sql
-select id, storage_path
-from public.uploads
-where expires_at <= now();
-```
-
-Ardindan ilgili storage dosyalari silinmeli ve metadata kayitlari temizlenmelidir.
+Admin event silme akisi once event'e bagli upload kayitlarini okumali, guvenli
+`storage_path` degerleri ile Storage dosyalarini silmeli, ardindan upload
+metadata kayitlarini ve event kaydini temizlemelidir.
 
 ## RLS Direction
 

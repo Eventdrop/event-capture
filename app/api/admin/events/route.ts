@@ -344,7 +344,6 @@ export async function POST(request: Request) {
         allow_guest_download: payload.allow_guest_download,
         allow_guest_delete: payload.allow_guest_delete,
         allow_guest_poster: payload.allow_guest_poster,
-        expires_at: payload.expires_at,
       }
 
       const fallbackInsert = await withRetry(

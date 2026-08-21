@@ -331,7 +331,7 @@ export default function Page() {
         ? requestedLocale as Locale
         : currentEvent.defaultLocale
     )
-  }, [currentEvent?.id, currentEvent?.defaultLocale])
+  }, [currentEvent, setLocale])
 
   useEffect(() => {
     setStatusMessage(t.gallery.loading)

@@ -30,13 +30,21 @@ export async function GET(request: Request) {
     )
   }
 
-  logOperation('info', 'cleanup', 'Automatic media cleanup is disabled')
+  logOperation('info', 'cleanup', 'Automatic cleanup is not part of EventDrop')
 
   return NextResponse.json({
     ok: true,
     disabled: true,
-    deletedRecords: 0,
+    manualDeletion: true,
+    scannedEvents: 0,
+    candidateEvents: 0,
+    candidateUploads: 0,
     deletedFiles: 0,
+    deletedUploads: 0,
+    deletedEvents: 0,
+    skippedMissingPath: 0,
+    errors: [],
+    dryRun: false,
   })
 }
 

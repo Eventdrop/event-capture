@@ -20,7 +20,7 @@ Urunun ana amaci, etkinlik organizatorunun profesyonel ekipman veya karmasik uyg
 - Misafir fotograf ve video yukleyebilir.
 - Ortak galeride diger yuklemeleri gorebilir.
 - Istedigi medya dosyalarini indirebilir.
-- Yuklemeler, etkinlikten kisa bir sure sonra otomatik temizlenir.
+- Host/admin gerektiginde albumu veya yuklemeleri manuel olarak siler.
 
 ## User Roles
 
@@ -50,15 +50,15 @@ Not: Uygulamada gizli bir admin paneli bulunur. Admin kullanici adi ve sifre ile
 6. Medya dosyalari ortak albume yuklenir.
 7. Sistem galeride bu icerikleri listeler.
 8. Katilimcilar isterse galeriden medya indirebilir.
-9. Yuklemeler 48 saat sonunda otomatik silinir.
+9. Gerektiginde host/admin albumu veya yuklemeleri manuel olarak siler.
 
 ## Product Rules
 
 - Her etkinlik icin tek bir album mantigi vardir.
 - Albume erisim baglanti veya QR kod bilen herkes icin kolay olmalidir.
 - Kullanici deneyimi mobil odakli ve cok basit olmalidir.
-- Medya dosyalari en fazla 48 saat tutulmalidir.
-- 48 saat sonunda hem storage dosyalari hem veritabani kayitlari silinmelidir.
+- Medya dosyalari otomatik olarak expire olmaz.
+- Album ve medya silme islemleri admin panelinden manuel yapilir.
 - Album ve dosya isimlendirme kurali tarih tabanli olmalidir.
 
 ## Naming Rules
@@ -111,5 +111,5 @@ Not: Mevcut kod tabani su an agirlikli olarak fotograf yuklemeye hazir. Video de
 - Misafirler telefondan hizli yukleme yapabilmeli
 - Galeri sayfasi dogru listeleme yapmali
 - Medya indirilebilmeli
-- 48 saat sonra medya otomatik temizlenmeli
+- Admin panelinden album ve medya silme guvenli sekilde calismali
 - Kurulum ve deploy tek kisilik ekip tarafindan kolay yapilabilmeli

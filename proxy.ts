@@ -5,7 +5,7 @@ import {
   hasEventAccess,
 } from '@/lib/event-access'
 
-const ADMIN_COOKIE_NAME = 'eventdrop_admin_session'
+const ADMIN_PROXY_COOKIE_NAME = 'eventdrop_admin_proxy_session'
 
 function getAdminSessionValue() {
   const username = process.env.ADMIN_USERNAME || 'admin'
@@ -22,7 +22,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const adminSession = request.cookies.get(ADMIN_COOKIE_NAME)?.value
+  const adminSession = request.cookies.get(ADMIN_PROXY_COOKIE_NAME)?.value
 
   if (adminSession === getAdminSessionValue()) {
     return NextResponse.next()

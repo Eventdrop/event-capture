@@ -27,7 +27,7 @@ Uygulamanin temel amaci, dugun, dogum gunu, sirket etkinligi gibi gunubirlik org
 
 - Her etkinlik kendi ozel albumu, linki ve event code bilgisi ile calisir.
 - Public tarafta etkinlik listesi gosterilmez.
-- Yuklenen medya dosyalari 48 saat sonra otomatik olarak silinmelidir.
+- Event ve medya silme islemleri admin panelinden manuel yapilir.
 - Album klasorleri tarih bazli isimlendirilmelidir.
 - Dosya isimleri tarih bilgisini tasimalidir.
 - Sistem mobil kullanim icin hizli ve sade olmalidir.
@@ -51,7 +51,7 @@ Bu proje icin sade ve makul teknoloji yaklasimi:
 - Next.js arayuzu
 - Supabase Storage ile medya saklama
 - Supabase Database ile etkinlik ve yukleme kayitlari
-- Supabase Cron veya zamanlanmis bir cleanup gorevi ile 48 saat sonra otomatik silme
+- Admin panelinden manuel event ve medya silme
 - Vercel veya benzeri basit bir hosting ortami
 
 ## Deploy Yaklasimi
@@ -70,8 +70,6 @@ Kaynaklar:
 - [Vercel plan docs](https://vercel.com/docs/plans)
 - [Cloudflare Pages pricing docs](https://developers.cloudflare.com/pages/functions/pricing/)
 - [Cloudflare Pages limits docs](https://developers.cloudflare.com/pages/platform/limits/)
-- [Supabase Cron docs](https://supabase.com/docs/guides/cron)
-- [Supabase scheduled Edge Functions docs](https://supabase.com/docs/guides/functions/schedule-functions)
 - [Supabase Storage docs](https://supabase.com/docs/guides/storage)
 
 ## Development Workflow

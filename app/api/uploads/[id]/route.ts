@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import { hasAdminSession } from '@/lib/admin-auth'
+import {
+  EVENT_ACCESS_COOKIE_NAME,
+  hasEventAccess,
+} from '@/lib/event-access'
 import { getStoragePathFromUpload } from '@/lib/eventdrop'
+import { normalizeEventRecord } from '@/lib/events'
 import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
@@ -38,6 +45,54 @@ export async function DELETE(
         },
         { status: 404 }
       )
+    }
+
+    const adminAllowed = await hasAdminSession()
+
+    if (!adminAllowed) {
+      const eventId = `${upload.event_id || ''}`.trim()
+
+      if (!eventId) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: 'Geen toegang.',
+          },
+          { status: 401 }
+        )
+      }
+
+      const { data: eventRecord, error: eventError } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', eventId)
+        .single()
+
+      if (eventError) throw eventError
+
+      const event = normalizeEventRecord(eventRecord)
+      const cookieStore = await cookies()
+      const accessCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
+
+      if (!event || !hasEventAccess(accessCookie, event.slug || event.id)) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: 'Geen toegang.',
+          },
+          { status: 401 }
+        )
+      }
+
+      if (event.allowGuestDelete !== true) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: 'Verwijderen is voor dit album uitgeschakeld.',
+          },
+          { status: 403 }
+        )
+      }
     }
 
     const storagePath = getStoragePathFromUpload(upload)

@@ -2,7 +2,8 @@ import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypt
 import { cookies } from 'next/headers'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
-const ADMIN_COOKIE_NAME = 'eventdrop_admin_session'
+export const ADMIN_COOKIE_NAME = 'eventdrop_admin_session'
+export const ADMIN_PROXY_COOKIE_NAME = 'eventdrop_admin_proxy_session'
 const ADMIN_CREDENTIALS_ROW_ID = 'primary'
 
 type AdminCredentialSource = 'env' | 'database'
@@ -28,6 +29,10 @@ function getEnvAdminPassword() {
 
 function getAdminSessionSecret() {
   return process.env.ADMIN_SESSION_SECRET || 'eventdrop-admin-session'
+}
+
+export function getAdminProxySessionValue() {
+  return `${getEnvAdminUsername()}:${getAdminSessionSecret()}`
 }
 
 function hashPassword(password: string, salt = randomBytes(16).toString('hex')) {
@@ -203,11 +208,19 @@ export async function createAdminSession() {
     path: '/',
     maxAge: 60 * 60 * 8,
   })
+  cookieStore.set(ADMIN_PROXY_COOKIE_NAME, getAdminProxySessionValue(), {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 60 * 60 * 8,
+  })
 }
 
 export async function clearAdminSession() {
   const cookieStore = await cookies()
   cookieStore.delete(ADMIN_COOKIE_NAME)
+  cookieStore.delete(ADMIN_PROXY_COOKIE_NAME)
 }
 
 export async function updateAdminPassword(input: {

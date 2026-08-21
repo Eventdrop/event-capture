@@ -18,7 +18,7 @@ import { withRetry } from '@/lib/with-retry'
 
 export const runtime = 'nodejs'
 
-function isEventActive(event: Pick<NormalizedEvent, 'expiresAt'>) {
+function isEventActive(event: NormalizedEvent) {
   void event
   return true
 }

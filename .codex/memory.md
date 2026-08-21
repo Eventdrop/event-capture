@@ -4,9 +4,10 @@
 
 - Project name: EventDrop
 - Repository path: `/Users/3worksmedia/event-capture`
-- Primary integration branch: `develop`
+- Source of truth branch: `main`
 - Production branch: `main`
-- Current pushed commit on `develop`: `08fee5b`
+- Stabilization and feature work should branch from current `main`
+- `develop` is no longer the primary integration branch
 
 ## Product Direction
 
@@ -14,7 +15,9 @@
 - Guests join via QR code
 - Guests upload photos and eventually videos to a shared album
 - Guests can browse and download from the shared gallery
-- Uploaded media should be automatically deleted after 48 hours
+- Events do not expire automatically
+- Uploaded media is not deleted automatically
+- Event and photo deletion is manual from the hidden admin panel
 
 ## Naming Rules
 
@@ -26,7 +29,8 @@
 
 - Keep the stack simple
 - Current preferred MVP deployment: Vercel + Supabase
-- Supabase is expected to handle database, storage, and scheduled cleanup
+- Supabase handles database and storage
+- Automatic cleanup, cron-based deletion, and 48-hour deletion are not part of the current product rules
 - Supabase MCP server is configured in Codex config and should be preferred for Supabase-related operations when credentials are set
 - Avoid overly complex infrastructure choices unless needed
 - Public homepage should surface the latest created album as the main upload entry point
@@ -50,8 +54,8 @@
 - User prefers direct execution without repeated confirmation during a task
 - User wants work pushed cleanly to git for review
 - User wants stepwise progress, but does not want to be blocked by unnecessary questions
-- Every code change should be pushed to `develop` first
-- `develop` is the preview or staging deployment branch
-- After `develop` checks pass, changes should move to `main` through PR and code review
+- New work should branch from `main`
+- Preview/stabilization work should happen on dedicated branches from `main`
+- Changes should move back to `main` through PR and code review
 - Every `main` deployment should go directly to production
 - Supabase-related actions should use the MCP server when available instead of ad hoc manual workflows

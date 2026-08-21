@@ -375,7 +375,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         'Her etkinligin kendi ozel event code bilgisi vardir',
         'Misafirler QR veya link ile girer, kodla dogrulanir',
         'Fotograflar sadece ilgili albumde toplanir',
-        'Icerikler 48 saat sonra temizlenir',
+        'Album ve fotograf silme islemleri admin tarafindan manuel yapilir',
       ],
       sections: [
         {
@@ -597,7 +597,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
     gallery: {
       badge: 'Ortak galeri',
       intro:
-        'Misafir yuklemelerini incele, sec ve 48 saatlik sure dolmadan istediklerini indir.',
+        'Misafir yuklemelerini incele, sec ve istediklerini indir.',
       loading: 'Bu etkinlik galerisi yukleniyor...',
       noUploads: 'Bu galeride henuz aktif yukleme yok.',
       showing: 'yukleme gosteriliyor',
@@ -688,9 +688,9 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         {
           title: 'Saklama suresi',
           points: [
-            'Yuklenen icerikler varsayilan olarak etkinlikten sonra 48 saat boyunca saklanir.',
-            'Bu surenin ardindan icerikler otomatik olarak silinebilir.',
-            'Organizator farkli bir sure belirlemis olabilir.',
+            'Yuklenen icerikler etkinlik albumunde saklanir.',
+            'Album ve fotograf silme islemleri admin tarafindan manuel yapilir.',
+            'Gerekli durumlarda icerik kaldirma talebi iletilebilir.',
           ],
         },
         {
@@ -723,8 +723,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         {
           title: 'Saklama ve silme',
           points: [
-            'Yuklenen medya varsayilan olarak 48 saat sonunda silinir.',
-            'Teknik loglar sinirli sure boyunca saklanir ve ardindan otomatik olarak kaldirilir.',
+            'Yuklenen medya etkinlik albumunde saklanir ve admin tarafindan manuel silinebilir.',
+            'Teknik loglar guvenlik ve hata takibi icin sinirli sure boyunca saklanabilir.',
           ],
         },
         {
@@ -1125,9 +1125,9 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         {
           title: 'Bewaartermijn',
           points: [
-            'Geüploade inhoud wordt standaard tot 48 uur na het evenement bewaard.',
-            'Daarna kan de inhoud automatisch worden verwijderd.',
-            'De organisator kan een andere bewaartermijn hebben ingesteld.',
+            'Geüploade inhoud wordt bewaard in het evenementalbum.',
+            'Albums en foto’s worden handmatig verwijderd via het beheerpanel.',
+            'Wanneer nodig kan verwijdering van inhoud worden aangevraagd.',
           ],
         },
         {
@@ -1160,8 +1160,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         {
           title: 'Bewaren en verwijderen',
           points: [
-            'Media wordt standaard na 48 uur verwijderd, tenzij een andere bewaartermijn is ingesteld.',
-            'Technische logs worden beperkt bewaard en daarna automatisch verwijderd.',
+            'Geüploade media wordt bewaard in het evenementalbum en kan handmatig worden verwijderd door de beheerder.',
+            'Technische logs kunnen tijdelijk worden bewaard voor beveiliging en foutopsporing.',
           ],
         },
         {
@@ -1253,7 +1253,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         'Every event gets its own event code',
         'Guests are checked through QR or a private link',
         'Photos stay inside the correct album',
-        'Media is cleaned up after 48 hours',
+        'Albums and photos are deleted manually by the admin',
       ],
       sections: [
         {
@@ -1564,9 +1564,9 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         {
           title: 'Retention period',
           points: [
-            'Uploaded content is normally stored for 48 hours after the event.',
-            'After that, content may be removed automatically.',
-            'The organizer may have configured a different retention period.',
+            'Uploaded content is stored inside the event album.',
+            'Albums and photos are deleted manually from the admin panel.',
+            'Content removal can be requested when needed.',
           ],
         },
         {
@@ -1599,8 +1599,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         {
           title: 'Storage and deletion',
           points: [
-            'Uploaded media is normally deleted after 48 hours.',
-            'Technical logs are kept for a limited period and then removed automatically.',
+            'Uploaded media is stored inside the event album and can be removed manually by the admin.',
+            'Technical logs may be kept temporarily for security and troubleshooting.',
           ],
         },
         {

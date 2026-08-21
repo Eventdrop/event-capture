@@ -16,7 +16,7 @@ EventDrop hafif bir istemci tarafi Next.js uygulamasi olarak calisir. Temel is m
 4. Dosya storage bucket icine yuklenir
 5. Yuklemeye ait metadata `uploads` tablosuna yazilir
 6. Galeri sayfasi `uploads` tablosunu okuyarak liste olusturur
-7. Cleanup gorevi 48 saati gecen kayitlari ve dosyalari siler
+7. Admin gerekli oldugunda event veya medya kayitlarini manuel olarak siler
 
 ## Current App Structure
 
@@ -44,7 +44,7 @@ MVP icin ayrica klasik bir custom backend zorunlu degildir. Bu sorumluluklar Sup
 
 - Storage dosya saklama
 - Database metadata kaydi
-- Scheduled job ile cleanup
+- Admin panelinden manuel silme
 
 ## Data Model Concept
 
@@ -61,25 +61,26 @@ Kayit iki farkli seyi baglar:
 - Storage icindeki fiziksel dosya
 - Database icindeki metadata
 
-## Retention Strategy
+## Deletion Strategy
 
 Sistemin kritik urun kurali:
 
-- Her yukleme en fazla 48 saat saklanir
+- Eventler ve yuklemeler otomatik olarak expire olmaz
+- Silme islemleri admin panelinden manuel yapilir
 
-Bunun icin onerilen yaklasim:
+Manuel event silme icin onerilen yaklasim:
 
-1. `uploads` tablosunda `created_at` tutulur
-2. Zamanlanmis bir job periyodik olarak 48 saati asan kayitlari bulur
-3. Ilgili storage dosyalari silinir
-4. Ardindan `uploads` tablosundaki metadata silinir
+1. Event'e bagli upload kayitlari okunur
+2. Ilgili storage dosyalari guvenli path bilgisi ile silinir
+3. Ardindan `uploads` tablosundaki metadata silinir
+4. Son olarak event kaydi silinir
 
 ## Recommended Deployment Shape
 
 ### Option 1: Recommended MVP
 
 - Frontend: Vercel
-- Database + Storage + Scheduler: Supabase
+- Database + Storage: Supabase
 
 Bu secenek en dusuk kurulum karmasikligina sahiptir.
 
@@ -102,5 +103,5 @@ Bu secenek dusunulebilir ancak ilk asama icin operasyonel olarak daha fazla uyar
 - Storage yolu urun kuralindaki tarih tabanli klasor standardina uymuyor
 - Dosya adlari deterministik naming standardina gecmemis
 - `uploads` kaydinda storage path ayrica tutulmuyor
-- Cleanup islemi icin gerekli operasyon katmani henuz yok
+- Silme islemlerinde storage path bilgisi legacy kayitlar icin eksik olabilir
 - Video dosyalari icin boyut, tip ve onizleme stratejisi eksik

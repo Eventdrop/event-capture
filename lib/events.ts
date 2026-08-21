@@ -1,4 +1,3 @@
-import { addHours } from '@/lib/eventdrop'
 import type { Locale } from '@/lib/i18n'
 
 type EventRecordLike = {
@@ -19,7 +18,6 @@ type EventRecordLike = {
   allow_guest_delete?: boolean | null
   allow_guest_poster?: boolean | null
   created_at?: string | null
-  expires_at?: string | null
 }
 
 export type NormalizedEvent = {
@@ -40,7 +38,6 @@ export type NormalizedEvent = {
   allowGuestDelete: boolean
   allowGuestPoster: boolean
   createdAt: string | null
-  expiresAt: string | null
 }
 
 function normalizeLabel(value: string) {
@@ -120,37 +117,6 @@ export function deriveEventAccessCode(
   )
 }
 
-export function getEventExpiryDate(eventDate?: string | null) {
-  const normalizedDate = (eventDate || '').trim()
-
-  if (!normalizedDate) {
-    return addHours(new Date(), 48)
-  }
-
-  const match = normalizedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/)
-
-  if (!match) {
-    return addHours(new Date(), 48)
-  }
-
-  const [, year, month, day] = match
-  const localExpiry = new Date(
-    Number(year),
-    Number(month) - 1,
-    Number(day) + 3,
-    0,
-    0,
-    0,
-    0
-  )
-
-  if (Number.isNaN(localExpiry.getTime())) {
-    return addHours(new Date(), 48)
-  }
-
-  return localExpiry
-}
-
 export function buildEventInsertPayload(input: {
   name: string
   albumName: string
@@ -186,7 +152,6 @@ export function buildEventInsertPayload(input: {
     allow_album_download: input.allowAlbumDownload !== false,
     allow_guest_delete: input.allowGuestDelete === true,
     allow_guest_poster: input.allowGuestPoster === true,
-    expires_at: null,
   }
 
   return {
@@ -219,7 +184,6 @@ export function normalizeEventRecord(
     allowGuestDelete: record.allow_guest_delete === true,
     allowGuestPoster: record.allow_guest_poster === true,
     createdAt: record.created_at || null,
-    expiresAt: record.expires_at || null,
   }
 }
 

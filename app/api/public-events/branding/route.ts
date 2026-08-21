@@ -59,7 +59,7 @@ export async function GET(request: Request) {
     const posterTemplateFromRow = `${event.poster_template_url || ''}`.trim()
     const storyTemplateFromRow = `${event.story_template_url || ''}`.trim()
 
-    if (coverFromRow && backgroundFromRow && posterTemplateFromRow) {
+    if (coverFromRow && backgroundFromRow && posterTemplateFromRow && storyTemplateFromRow) {
       return NextResponse.json({
         ok: true,
         coverImageUrl: coverFromRow,

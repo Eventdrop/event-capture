@@ -1,16 +1,18 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { hasAdminSession } from '@/lib/admin-auth'
 import {
   getStoragePathFromUpload,
   getUploadShortFileName,
   type UploadRecord,
 } from '@/lib/eventdrop'
-import { normalizeEventRecord } from '@/lib/events'
+import { normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
 import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { createZipStream, safeZipFileName, uniqueZipEntryName } from '@/lib/zip'
 import {
   EVENT_ACCESS_COOKIE_NAME,
+  hasEventAccess,
   parseEventAccessCookie,
 } from '@/lib/event-access'
 
@@ -70,6 +72,17 @@ async function recordDownload(input: {
 
 function jsonError(error: string, status: number) {
   return NextResponse.json({ ok: false, error }, { status })
+}
+
+async function canAccessEventDownload(event: NormalizedEvent) {
+  if (await hasAdminSession()) {
+    return true
+  }
+
+  const cookieStore = await cookies()
+  const accessCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
+
+  return hasEventAccess(accessCookie, event.slug || event.id)
 }
 
 async function downloadUploadBytes(upload: UploadRecord) {
@@ -173,6 +186,10 @@ async function createGalleryDownloadResponse(input: DownloadInput) {
 
     if (!event) {
       return jsonError('Deze galerij is niet gevonden.', 404)
+    }
+
+    if (!(await canAccessEventDownload(event))) {
+      return jsonError('Geen toegang tot deze galerij.', 401)
     }
 
     if ((downloadAll || albumPackage) && event.allowAlbumDownload === false) {

@@ -7,7 +7,7 @@ MVP icin en makul kurulum:
 - Frontend: Vercel
 - Database: Supabase
 - Storage: Supabase Storage
-- Cleanup: Supabase Cron veya scheduled function
+- Silme: Admin panelinden manuel event/medya silme
 
 Bu secenek, mevcut Next.js kod tabanina en az surtunmeyle uyar.
 
@@ -78,5 +78,5 @@ Cloudflare Pages dusunulebilir. Ancak bu proje icin ilk cikista su sebeplerle ik
 - `main` production deploy'u calisiyor mu
 - Storage bucket olustu mu
 - RLS ve bucket policy test edildi mi
-- 48 saat cleanup gorevi aktif mi
+- Admin panelinden manuel event/medya silme akisi test edildi mi
 - En az bir test etkinligi ile yukleme yapildi mi
