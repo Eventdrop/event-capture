@@ -279,6 +279,7 @@ export default function Page() {
     () => selectedFiles.filter((file) => getMediaKind(file) !== null),
     [selectedFiles]
   )
+  const hasSelectedPhotos = acceptedFiles.length > 0
 
   const selectionSummary = useMemo(() => {
     if (acceptedFiles.length === 0) return null
@@ -689,13 +690,13 @@ export default function Page() {
                   </label>
 
                   <p className="min-w-0 flex-1 truncate text-sm text-[#597594]">
-                    {selectedFiles.length > 0
-                      ? `${selectedFiles.length} ${t.upload.filesSelected}`
+                    {hasSelectedPhotos
+                      ? `${acceptedFiles.length} ${t.upload.filesSelected}`
                       : t.upload.noFilesChosen}
                   </p>
                 </div>
 
-                {selectedFiles.length === 0 ? (
+                {!hasSelectedPhotos ? (
                   <p className="mt-3 rounded-2xl border border-[#F9D8B8] bg-[#FFF8F0] px-4 py-3 text-sm font-semibold text-[#8A4A07]">
                     {t.upload.guestbookHint}
                   </p>
