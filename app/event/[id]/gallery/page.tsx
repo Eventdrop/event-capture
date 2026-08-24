@@ -1912,7 +1912,7 @@ export default function Page() {
         </div>
 
         {posterEnabled && designMode ? (
-          <div className="sticky top-3 z-30 mb-3 rounded-2xl border border-white/40 bg-white/94 p-3 shadow-[0_18px_48px_rgba(15,33,53,0.18)] backdrop-blur sm:top-4 sm:mb-4">
+          <div className="sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-40 mb-3 rounded-2xl border border-white/40 bg-white/94 p-3 shadow-[0_18px_48px_rgba(15,33,53,0.18)] backdrop-blur sm:top-4 sm:mb-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#597594]">
