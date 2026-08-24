@@ -235,6 +235,7 @@ type CanvasImageResource = {
 }
 
 type DesignFormat = 'poster' | 'story'
+type GalleryView = 'photos' | 'guestbook'
 type DesignMode =
   | 'posterPortrait'
   | 'posterLandscape'
@@ -699,6 +700,7 @@ export default function Page() {
   const [creatingPoster, setCreatingPoster] = useState(false)
   const [designFormat, setDesignFormat] = useState<DesignFormat | null>(null)
   const [designMode, setDesignMode] = useState<DesignMode | null>(null)
+  const [galleryView, setGalleryView] = useState<GalleryView>('photos')
   const [photoMetricsById, setPhotoMetricsById] = useState<Record<string, PhotoMetrics>>({})
   const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
   const [albumPackagesVisible, setAlbumPackagesVisible] = useState(false)
@@ -828,6 +830,11 @@ export default function Page() {
   const selectedItems = useMemo(
     () => items.filter((item) => selected.includes(item.id)),
     [items, selected]
+  )
+
+  const guestbookItems = useMemo(
+    () => items.filter((item) => (item.guest_message || '').trim()),
+    [items]
   )
 
   const shareSequenceById = useMemo(() => {
@@ -1887,11 +1894,31 @@ export default function Page() {
           </div>
         ) : null}
 
-        {items.length === 0 ? (
+        <div className="mb-5 inline-flex rounded-full border border-[#D4DFEE] bg-white p-1 shadow-[0_12px_30px_rgba(61,44,22,0.08)]">
+          {([
+            ['photos', t.gallery.photosTab],
+            ['guestbook', t.gallery.guestbookTab],
+          ] as const).map(([view, label]) => (
+            <button
+              key={view}
+              type="button"
+              onClick={() => setGalleryView(view)}
+              className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                galleryView === view
+                  ? 'bg-[#0F3D66] text-white'
+                  : 'text-[#0F3D66] hover:bg-[#EDF4FB]'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {galleryView === 'photos' && items.length === 0 ? (
           <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-10 text-center text-[#597594] shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
             {t.gallery.noUploads}
           </div>
-        ) : (
+        ) : galleryView === 'photos' ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => {
               const isSelected = selected.includes(item.id)
@@ -2042,6 +2069,62 @@ export default function Page() {
               )
             })}
           </div>
+        ) : guestbookItems.length === 0 ? (
+          <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-10 text-center shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
+            <p className="text-lg font-bold text-[#0B2742]">
+              {t.gallery.guestbookEmptyTitle}
+            </p>
+            <p className="mt-2 text-sm text-[#597594]">
+              {t.gallery.guestbookEmptyText}
+            </p>
+          </div>
+        ) : (
+          <section className="space-y-3">
+            <h2 className="text-xl font-bold text-[#0B2742]">
+              {t.gallery.guestbookTitle}
+            </h2>
+            {guestbookItems.map((item) => {
+              const downloadName = getUploadShortFileName(item, {
+                eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
+                sequence: shareSequenceById[item.id],
+              })
+
+              return (
+                <article
+                  key={`guestbook-${item.id}`}
+                  className="flex gap-3 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-3 shadow-[0_12px_32px_rgba(61,44,22,0.08)] sm:items-start"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setPreviewItem(item)}
+                    className="relative h-24 w-20 shrink-0 overflow-hidden rounded-2xl bg-stone-950 sm:h-28 sm:w-24"
+                    aria-label={t.gallery.openPreview}
+                    title={t.gallery.openPreview}
+                  >
+                    <Image
+                      src={item.file_url}
+                      alt={downloadName}
+                      fill
+                      unoptimized
+                      sizes="96px"
+                      className="object-cover"
+                    />
+                  </button>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="break-words text-sm font-semibold leading-relaxed text-[#0B2742] sm:text-base">
+                      {item.guest_message}
+                    </p>
+                    <p className="mt-2 text-xs font-medium text-[#6A84A3]">
+                      {item.created_at
+                        ? new Date(item.created_at).toLocaleString(locale)
+                        : t.gallery.uploadTimeUnavailable}
+                    </p>
+                  </div>
+                </article>
+              )
+            })}
+          </section>
         )}
         </div>
       </main>

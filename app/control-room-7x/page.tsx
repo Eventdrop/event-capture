@@ -110,6 +110,9 @@ export default function AdminPage() {
       }
     >
   >({})
+  const [demoCloneSource, setDemoCloneSource] = useState<NormalizedEvent | null>(null)
+  const [demoCustomerName, setDemoCustomerName] = useState('')
+  const [createdDemoEvent, setCreatedDemoEvent] = useState<NormalizedEvent | null>(null)
 
   const publicBaseUrl = getPublicAppUrl()
   const adminUrl = getPublicPath('/control-room-7x')
@@ -569,6 +572,107 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Clipboard copy failed', error)
       setStatusMessage(t.admin.loadError)
+    }
+  }
+
+  const openDemoCloneModal = (event: NormalizedEvent) => {
+    setDemoCloneSource(event)
+    setDemoCustomerName('')
+    setCreatedDemoEvent(null)
+    setStatusMessage(t.admin.demoCloneIntro)
+  }
+
+  const closeDemoCloneModal = () => {
+    setDemoCloneSource(null)
+    setDemoCustomerName('')
+    setCreatedDemoEvent(null)
+  }
+
+  const createDemoClone = async () => {
+    if (!demoCloneSource) return
+
+    const customerName = demoCustomerName.trim()
+
+    if (!customerName) {
+      setStatusMessage(t.admin.demoNameRequired)
+      return
+    }
+
+    setSubmitting(true)
+
+    try {
+      const demoName = `Demo - ${customerName}`
+      const response = await fetch('/api/admin/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: demoName,
+          albumName: demoName,
+          defaultLocale: demoCloneSource.defaultLocale,
+          accessCode: demoCloneSource.accessCode ? generateEventAccessCode() : '',
+          accessCodeEnabled: Boolean(demoCloneSource.accessCode),
+          coverImageUrl: demoCloneSource.coverImageUrl,
+          backgroundImageUrl: demoCloneSource.backgroundImageUrl,
+          posterTemplateUrl: demoCloneSource.posterTemplateUrl,
+          storyTemplateUrl: demoCloneSource.storyTemplateUrl,
+          allowGuestShare: demoCloneSource.allowGuestShare,
+          allowGuestDownload: demoCloneSource.allowGuestDownload,
+          allowAlbumDownload: demoCloneSource.allowAlbumDownload,
+          allowGuestDelete: demoCloneSource.allowGuestDelete,
+          allowGuestPoster: demoCloneSource.allowGuestPoster,
+        }),
+      })
+
+      const result = (await response.json()) as {
+        ok?: boolean
+        event?: Record<string, unknown>
+        error?: string
+      }
+
+      if (!response.ok) {
+        throw new Error(result.error || t.admin.createError)
+      }
+
+      const normalized = normalizeEventRecord(result.event)
+
+      if (!normalized) {
+        throw new Error(t.admin.createError)
+      }
+
+      setEvents((prev) => [normalized, ...prev.filter((event) => event.id !== normalized.id)])
+      setEventDraftsById((prev) => ({
+        ...prev,
+        [normalized.id]: {
+          name: normalized.name,
+          albumName: normalized.albumName,
+        },
+      }))
+      setEventControlsById((prev) => ({
+        ...prev,
+        [normalized.id]: {
+          allowGuestShare: normalized.allowGuestShare,
+          allowGuestDownload: normalized.allowGuestDownload,
+          allowAlbumDownload: normalized.allowAlbumDownload,
+          allowGuestDelete: normalized.allowGuestDelete,
+          allowGuestPoster: normalized.allowGuestPoster,
+        },
+      }))
+      setGuestAccessByEvent((prev) => ({ ...prev, [normalized.id]: [] }))
+      setGuestMessagesByEvent((prev) => ({ ...prev, [normalized.id]: [] }))
+      setDownloadStatsByEvent((prev) => {
+        const next = { ...prev }
+        delete next[normalized.id]
+        return next
+      })
+      setCreatedDemoEvent(normalized)
+      setStatusMessage(t.admin.demoCreated)
+    } catch (error) {
+      console.error('Demo clone failed', error)
+      setStatusMessage(error instanceof Error ? error.message : t.admin.createError)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -1859,6 +1963,20 @@ export default function AdminPage() {
                       </div>
                     </div>
 
+                    <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
+                        Demo
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => openDemoCloneModal(event)}
+                        disabled={submitting}
+                        className="mt-3 inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {t.admin.demoCloneAction}
+                      </button>
+                    </div>
+
                     {event.accessCode ? (
                       <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
@@ -1988,6 +2106,99 @@ export default function AdminPage() {
           )}
         </section>
       </main>
+
+      {demoCloneSource ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-lg rounded-[1.5rem] bg-white p-5 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-lg font-bold text-[#0B2742]">
+                  {t.admin.demoCloneTitle}
+                </p>
+                <p className="mt-1 text-sm text-[#597594]">
+                  {t.admin.demoCloneIntro}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeDemoCloneModal}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#F2F6FA] text-[#0F3D66] hover:bg-[#E2ECF6]"
+                aria-label={t.gallery.cancel}
+                title={t.gallery.cancel}
+              >
+                ×
+              </button>
+            </div>
+
+            <label className="mt-5 block text-sm font-semibold text-[#33516F]">
+              {t.admin.demoCustomerName}
+              <input
+                value={demoCustomerName}
+                onChange={(event) => setDemoCustomerName(event.target.value)}
+                disabled={submitting || Boolean(createdDemoEvent)}
+                placeholder={t.admin.demoCustomerPlaceholder}
+                className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66] disabled:opacity-60"
+              />
+            </label>
+
+            {createdDemoEvent ? (
+              <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="font-semibold text-emerald-800">{t.admin.demoCreated}</p>
+                <p className="mt-1 break-words text-sm text-emerald-700">
+                  {formatEventLabel(createdDemoEvent)}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link
+                    href={getPublicJoinPath(createdDemoEvent)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-4 py-2 text-sm font-semibold text-white hover:bg-[#DB6E12]"
+                  >
+                    {t.admin.demoOpenUpload}
+                  </Link>
+                  <Link
+                    href={getPublicGalleryPath(createdDemoEvent)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
+                  >
+                    {t.admin.demoOpenGallery}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      copyToClipboard(getGalleryShareUrl(createdDemoEvent), t.admin.galleryCopied)
+                    }
+                    className="inline-flex items-center justify-center rounded-full border border-[#B9CBE0] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#F2F6FA]"
+                  >
+                    {t.admin.demoCopyLink}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={closeDemoCloneModal}
+                className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+              >
+                {t.gallery.cancel}
+              </button>
+              {!createdDemoEvent ? (
+                <button
+                  type="button"
+                  onClick={createDemoClone}
+                  disabled={submitting}
+                  className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F] disabled:cursor-not-allowed disabled:bg-stone-300"
+                >
+                  {submitting ? t.admin.saving : t.admin.demoCreate}
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <SiteFooter />
     </div>

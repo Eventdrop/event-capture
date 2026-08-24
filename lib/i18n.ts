@@ -172,6 +172,17 @@ type TranslationTree = {
     saveVisibility: string
     visibilitySaved: string
     visibilitySaveError: string
+    demoCloneAction: string
+    demoCloneTitle: string
+    demoCloneIntro: string
+    demoCustomerName: string
+    demoCustomerPlaceholder: string
+    demoCreate: string
+    demoCreated: string
+    demoNameRequired: string
+    demoOpenUpload: string
+    demoOpenGallery: string
+    demoCopyLink: string
   }
   upload: {
     badge: string
@@ -318,6 +329,11 @@ type TranslationTree = {
     selectionLimitReached: string
     uploadTimeUnavailable: string
     photo: string
+    photosTab: string
+    guestbookTab: string
+    guestbookTitle: string
+    guestbookEmptyTitle: string
+    guestbookEmptyText: string
   }
   legal: {
     termsTitle: string
@@ -560,6 +576,17 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       saveVisibility: 'Aksiyon ayarlarini kaydet',
       visibilitySaved: 'Etkinlik aksiyon ayarlari guncellendi.',
       visibilitySaveError: 'Etkinlik aksiyon ayarlari kaydedilemedi.',
+      demoCloneAction: 'Demo kopyasi olustur',
+      demoCloneTitle: 'Demo kopyasi olustur',
+      demoCloneIntro: 'Bu etkinligin ayarlariyla bos ve bagimsiz bir demo albumu olustur.',
+      demoCustomerName: 'Musteri adi',
+      demoCustomerPlaceholder: 'Studio Nova',
+      demoCreate: 'Demo olustur',
+      demoCreated: 'Demo albumu olusturuldu.',
+      demoNameRequired: 'Musteri adi gerekli.',
+      demoOpenUpload: 'Yukleme linkini ac',
+      demoOpenGallery: 'Galeri linkini ac',
+      demoCopyLink: 'Linki kopyala',
     },
     upload: {
       badge: 'Misafir yukleme sayfasi',
@@ -715,6 +742,11 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectionLimitReached: 'Bir kerede en fazla 100 fotograf secebilirsin.',
       uploadTimeUnavailable: 'Yukleme zamani yok',
       photo: 'Fotograf',
+      photosTab: "Foto's",
+      guestbookTab: 'Gastenboek',
+      guestbookTitle: 'Gastenboek',
+      guestbookEmptyTitle: 'Nog geen berichten.',
+      guestbookEmptyText: "Berichten die gasten bij hun foto's achterlaten verschijnen hier.",
     },
       legal: {
       termsTitle: 'Kullanim Sartlari',
@@ -1026,6 +1058,17 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       saveVisibility: 'Instellingen opslaan',
       visibilitySaved: 'Actie-instellingen voor dit evenement zijn bijgewerkt.',
       visibilitySaveError: 'Actie-instellingen konden niet worden opgeslagen.',
+      demoCloneAction: 'Demo kopie maken',
+      demoCloneTitle: 'Demo kopie maken',
+      demoCloneIntro: 'Maak een leeg, zelfstandig demoalbum met de instellingen van dit evenement.',
+      demoCustomerName: 'Klantnaam',
+      demoCustomerPlaceholder: 'Studio Nova',
+      demoCreate: 'Demo aanmaken',
+      demoCreated: 'Demoalbum aangemaakt.',
+      demoNameRequired: 'Klantnaam is verplicht.',
+      demoOpenUpload: 'Uploadlink openen',
+      demoOpenGallery: 'Galerijlink openen',
+      demoCopyLink: 'Link kopiëren',
     },
     upload: {
       badge: 'Gastenupload',
@@ -1181,6 +1224,11 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectionLimitReached: 'Je kunt maximaal 100 foto’s tegelijk selecteren.',
       uploadTimeUnavailable: 'Uploadtijd onbekend',
       photo: 'Foto',
+      photosTab: "Foto's",
+      guestbookTab: 'Gastenboek',
+      guestbookTitle: 'Gastenboek',
+      guestbookEmptyTitle: 'Nog geen berichten.',
+      guestbookEmptyText: "Berichten die gasten bij hun foto's achterlaten verschijnen hier.",
     },
     legal: {
       termsTitle: 'Algemene voorwaarden',
@@ -1492,6 +1540,17 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       saveVisibility: 'Save action settings',
       visibilitySaved: 'Event action settings were updated.',
       visibilitySaveError: 'Event action settings could not be saved.',
+      demoCloneAction: 'Create demo copy',
+      demoCloneTitle: 'Create demo copy',
+      demoCloneIntro: 'Create an empty, independent demo album with this event’s settings.',
+      demoCustomerName: 'Customer name',
+      demoCustomerPlaceholder: 'Studio Nova',
+      demoCreate: 'Create demo',
+      demoCreated: 'Demo album created.',
+      demoNameRequired: 'Customer name is required.',
+      demoOpenUpload: 'Open upload link',
+      demoOpenGallery: 'Open gallery link',
+      demoCopyLink: 'Copy link',
     },
     upload: {
       badge: 'Guest upload page',
@@ -1647,6 +1706,11 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectionLimitReached: 'You can select up to 100 photos at a time.',
       uploadTimeUnavailable: 'Upload time unavailable',
       photo: 'Photo',
+      photosTab: "Photos",
+      guestbookTab: 'Guestbook',
+      guestbookTitle: 'Guestbook',
+      guestbookEmptyTitle: 'No messages yet.',
+      guestbookEmptyText: 'Messages guests leave with their photos will appear here.',
     },
     legal: {
       termsTitle: 'Terms',
@@ -1879,6 +1943,9 @@ const germanTranslation: TranslationTree = {
     downloaded: 'Dateien heruntergeladen', chooseBeforeDownload: 'Wählen Sie vor dem Download mindestens ein Foto aus.',
     selectionLimitReached: 'Sie können bis zu 100 Fotos gleichzeitig auswählen.',
     uploadTimeUnavailable: 'Upload-Zeit nicht verfügbar', photo: 'Foto',
+    photosTab: 'Fotos', guestbookTab: 'Gästebuch', guestbookTitle: 'Gästebuch',
+    guestbookEmptyTitle: 'Noch keine Nachrichten.',
+    guestbookEmptyText: 'Nachrichten, die Gäste zu ihren Fotos hinterlassen, erscheinen hier.',
   },
   legal: {
     ...baseTranslations.en.legal,
@@ -2042,6 +2109,9 @@ const frenchTranslation: TranslationTree = {
     downloaded: 'fichiers téléchargés', chooseBeforeDownload: 'Sélectionnez au moins une photo avant de télécharger.',
     selectionLimitReached: "Vous pouvez sélectionner jusqu’à 100 photos à la fois.",
     uploadTimeUnavailable: "Heure d’envoi indisponible", photo: 'Photo',
+    photosTab: 'Photos', guestbookTab: "Livre d’or", guestbookTitle: "Livre d’or",
+    guestbookEmptyTitle: 'Aucun message pour le moment.',
+    guestbookEmptyText: 'Les messages laissés par les invités avec leurs photos apparaissent ici.',
   },
   legal: {
     ...baseTranslations.en.legal,
