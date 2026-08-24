@@ -15,7 +15,7 @@ export const LANGUAGE_STORAGE_KEY = 'eventdrop-locale'
 
 type LanguageContextValue = {
   locale: Locale
-  setLocale: (locale: Locale) => void
+  setLocale: (locale: Locale, options?: { persist?: boolean }) => void
   t: typeof translations.en
 }
 
@@ -44,9 +44,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return routeDefaultLocale
   })
 
-  const handleSetLocale = useCallback((nextLocale: Locale) => {
+  const handleSetLocale = useCallback((nextLocale: Locale, options?: { persist?: boolean }) => {
     if (locales.includes(nextLocale)) {
       setLocale(nextLocale)
+
+      if (options?.persist === false) return
 
       try {
         window.localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLocale)

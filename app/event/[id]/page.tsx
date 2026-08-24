@@ -152,7 +152,8 @@ export default function Page() {
     setLocale(
       requestedLocale && locales.includes(requestedLocale as Locale)
         ? requestedLocale as Locale
-        : currentEvent.defaultLocale
+        : currentEvent.defaultLocale,
+      { persist: false }
     )
   }, [currentEvent, setLocale])
 

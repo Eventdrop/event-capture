@@ -16,14 +16,30 @@ import { withRetry } from '@/lib/with-retry'
 export const runtime = 'nodejs'
 
 const PAGE_MARGIN = 54
-const FONT_REGULAR_PATH = path.join(
-  process.cwd(),
-  'node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-400-normal.woff'
-)
-const FONT_BOLD_PATH = path.join(
-  process.cwd(),
-  'node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-700-normal.woff'
-)
+const FONT_REGULAR_PATHS = [
+  path.join(
+    process.cwd(),
+    'node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-400-normal.woff'
+  ),
+  path.join(
+    process.cwd(),
+    'node_modules/@fontsource/noto-sans/files/noto-sans-latin-400-normal.woff'
+  ),
+]
+const FONT_BOLD_PATHS = [
+  path.join(
+    process.cwd(),
+    'node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-700-normal.woff'
+  ),
+  path.join(
+    process.cwd(),
+    'node_modules/@fontsource/noto-sans/files/noto-sans-latin-700-normal.woff'
+  ),
+]
+const REGISTERED_FONTS = {
+  bold: '',
+  regular: '',
+}
 
 type PdfUploadRow = UploadRecord & {
   event_id?: string | null
@@ -94,22 +110,46 @@ function collectPdfBuffer(document: PDFKit.PDFDocument) {
   })
 }
 
+function resolveFontPath(candidates: string[]) {
+  return candidates.find((candidate) => candidate && fs.existsSync(candidate)) || ''
+}
+
 function registerFonts(document: PDFKit.PDFDocument) {
-  if (fs.existsSync(FONT_REGULAR_PATH)) {
-    document.registerFont('NotoSans', FONT_REGULAR_PATH)
+  const regularPath = resolveFontPath(FONT_REGULAR_PATHS)
+  const boldPath = resolveFontPath(FONT_BOLD_PATHS)
+
+  REGISTERED_FONTS.regular = ''
+  REGISTERED_FONTS.bold = ''
+
+  if (regularPath) {
+    document.registerFont('NotoSans', regularPath)
+    REGISTERED_FONTS.regular = 'NotoSans'
   }
 
-  if (fs.existsSync(FONT_BOLD_PATH)) {
-    document.registerFont('NotoSansBold', FONT_BOLD_PATH)
+  if (boldPath) {
+    document.registerFont('NotoSansBold', boldPath)
+    REGISTERED_FONTS.bold = 'NotoSansBold'
   }
 }
 
 function setRegularFont(document: PDFKit.PDFDocument) {
-  document.font(fs.existsSync(FONT_REGULAR_PATH) ? 'NotoSans' : 'Helvetica')
+  const fontName = REGISTERED_FONTS.regular || REGISTERED_FONTS.bold
+
+  if (!fontName) {
+    throw new Error('No bundled PDF font could be registered.')
+  }
+
+  document.font(fontName)
 }
 
 function setBoldFont(document: PDFKit.PDFDocument) {
-  document.font(fs.existsSync(FONT_BOLD_PATH) ? 'NotoSansBold' : 'Helvetica-Bold')
+  const fontName = REGISTERED_FONTS.bold || REGISTERED_FONTS.regular
+
+  if (!fontName) {
+    throw new Error('No bundled PDF font could be registered.')
+  }
+
+  document.font(fontName)
 }
 
 function drawFooter(document: PDFKit.PDFDocument, event: NormalizedEvent) {

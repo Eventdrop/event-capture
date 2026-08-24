@@ -730,7 +730,8 @@ export default function Page() {
         ? requestedLocale as Locale
         : storedLocale && locales.includes(storedLocale as Locale)
           ? storedLocale as Locale
-        : currentEvent.defaultLocale
+        : currentEvent.defaultLocale,
+      { persist: false }
     )
   }, [currentEvent, setLocale])
 

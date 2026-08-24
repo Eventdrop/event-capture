@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns,
   },
+  outputFileTracingIncludes: {
+    '/api/admin/guestbook-pdf': [
+      './node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-400-normal.woff',
+      './node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-700-normal.woff',
+      './node_modules/@fontsource/noto-sans/files/noto-sans-latin-400-normal.woff',
+      './node_modules/@fontsource/noto-sans/files/noto-sans-latin-700-normal.woff',
+    ],
+  },
 }
 
 export default nextConfig
