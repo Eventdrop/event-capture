@@ -18,6 +18,7 @@ import {
   normalizeEventRecord,
   type NormalizedEvent,
 } from '@/lib/events'
+import { formatGuestbookDate } from '@/lib/guestbook'
 
 function formatEventLabel(event: NormalizedEvent) {
   return formatEventDisplayName(event)
@@ -34,6 +35,7 @@ type GuestMessageEntry = {
   guest_name?: string | null
   message: string
   file_name: string | null
+  related_upload_id?: string | null
   created_at: string | null
   source?: 'guestbook' | 'upload'
 }
@@ -48,7 +50,7 @@ type DownloadStatsEntry = {
 }
 
 export default function AdminPage() {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [authenticated, setAuthenticated] = useState(false)
   const [configured, setConfigured] = useState(true)
   const [canChangePassword, setCanChangePassword] = useState(false)
@@ -2060,7 +2062,7 @@ export default function AdminPage() {
                               {entry.message}
                             </p>
                             <p className="mt-1 text-xs text-[#6A84A3]">
-                              {entry.file_name || (entry.source === 'guestbook' ? 'Gastenboek' : 'Foto')} · {entry.created_at ? new Date(entry.created_at).toLocaleString() : t.admin.guestEmailTimeUnknown}
+                              {entry.file_name || (entry.source === 'guestbook' ? 'Gastenboek' : 'Foto')} · {formatGuestbookDate(entry.created_at, locale) || t.admin.guestEmailTimeUnknown}
                             </p>
                           </div>
                         ))}

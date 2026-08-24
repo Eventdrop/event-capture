@@ -143,6 +143,7 @@ export default function Page() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [eventMissing, setEventMissing] = useState(false)
   const [guidanceAccepted, setGuidanceAccepted] = useState(false)
+  const [guestName, setGuestName] = useState('')
   const [guestMessage, setGuestMessage] = useState('')
 
   useEffect(() => {
@@ -320,12 +321,18 @@ export default function Page() {
     }
   }
 
+  const resetGuestbookFields = () => {
+    setGuestName('')
+    setGuestMessage('')
+  }
+
   const resetSelection = (options?: { keepMessage?: boolean }) => {
     if (inputRef.current) {
       inputRef.current.value = ''
     }
 
     setSelectedFiles([])
+    resetGuestbookFields()
     if (!options?.keepMessage) {
       setMessage(t.upload.selectionCleared)
     }
@@ -370,6 +377,7 @@ export default function Page() {
     ].filter(Boolean)
 
     if (validFiles.length === 0) {
+      resetGuestbookFields()
       setMessage([t.upload.chooseSupported, ...notes].join(' • '))
       return
     }
@@ -425,9 +433,13 @@ export default function Page() {
       message: payload.guestMessage,
     }
 
-    const { error: richError } = await supabase.from('uploads').insert([richInsert])
+    const { data: richData, error: richError } = await supabase
+      .from('uploads')
+      .insert([richInsert])
+      .select('*')
+      .single()
 
-    if (!richError) return
+    if (!richError) return richData as { id?: string } | null
 
     const message = richError.message.toLowerCase()
     const needsFallback =
@@ -446,16 +458,45 @@ export default function Page() {
     let lastFallbackError = richError
 
     for (const insertPayload of fallbackAttempts) {
-      const { error: fallbackError } = await supabase
+      const { data: fallbackData, error: fallbackError } = await supabase
         .from('uploads')
         .insert([insertPayload])
+        .select('*')
+        .single()
 
-      if (!fallbackError) return
+      if (!fallbackError) return fallbackData as { id?: string } | null
 
       lastFallbackError = fallbackError
     }
 
     throw new Error(`Database error: ${lastFallbackError.message}`)
+  }
+
+  const createUploadLinkedGuestbookEntry = async (input: {
+    guestName: string
+    message: string
+    relatedUploadId: string
+  }) => {
+    const response = await fetch('/api/guestbook-messages', {
+      body: JSON.stringify({
+        event: resolvedEventId || eventIdentifier,
+        guestName: input.guestName,
+        message: input.message,
+        relatedUploadId: input.relatedUploadId,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    })
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => null)) as
+        | { error?: string }
+        | null
+
+      throw new Error(payload?.error || 'Gastenboekbericht kon niet worden geplaatst.')
+    }
   }
 
   const handleUpload = async () => {
@@ -476,7 +517,9 @@ export default function Page() {
       return
     }
 
-    const uploadGuestMessage = limitGuestMessage(guestMessage).trim() || null
+    const uploadGuestName = guestName.trim()
+    const uploadGuestMessage = limitGuestMessage(guestMessage).trim()
+    let firstSuccessfulUploadId = ''
 
     setUploading(true)
     setMessage(t.upload.uploadInProgress)
@@ -526,7 +569,7 @@ export default function Page() {
           buildUploadShareCode(shareLabel, nextShareSequence) ||
           fileName.replace(/\.[^.]+$/, '')
 
-        await createUploadRecord({
+        const uploadRecord = await createUploadRecord({
           eventId: resolvedEventId,
           fileUrl,
           storagePath,
@@ -534,12 +577,24 @@ export default function Page() {
           shareCode,
           mediaType,
           mimeType: uploadFile.type || '',
-          guestMessage: uploadGuestMessage,
+          guestMessage: null,
+        })
+
+        if (!firstSuccessfulUploadId && uploadRecord?.id) {
+          firstSuccessfulUploadId = uploadRecord.id
+        }
+      }
+
+      if (uploadGuestMessage && firstSuccessfulUploadId) {
+        await createUploadLinkedGuestbookEntry({
+          guestName: uploadGuestName,
+          message: uploadGuestMessage,
+          relatedUploadId: firstSuccessfulUploadId,
         })
       }
 
       setMessage(t.upload.uploadComplete)
-      setGuestMessage('')
+      resetGuestbookFields()
       resetSelection({ keepMessage: true })
       window.location.assign(galleryUrl)
     } catch (error) {
@@ -598,23 +653,6 @@ export default function Page() {
                 <span>{t.upload.consentLabel}</span>
               </label>
 
-              <label className="mt-4 block rounded-[1.1rem] border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#33516F]">
-                <span className="block text-sm font-semibold text-[#0B2742]">
-                  {t.upload.messageLabel}
-                </span>
-                <textarea
-                  value={guestMessage}
-                  onChange={(event) => setGuestMessage(limitGuestMessage(event.target.value))}
-                  maxLength={GUEST_MESSAGE_MAX_LENGTH}
-                  placeholder={t.upload.messagePlaceholder}
-                  rows={3}
-                  className="mt-2 w-full resize-none rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-3 py-2 text-sm text-[#0B2742] outline-none focus:border-[#F58220]"
-                />
-                <span className="mt-1 block text-xs text-[#6A84A3]">
-                  {t.upload.messageHelp}
-                </span>
-              </label>
-
               <div className="mt-4 rounded-[1.25rem] border-2 border-dashed border-[#C8D3E5] bg-[#FDFEFE] p-3">
                 <p className="mb-3 rounded-full bg-[#EDF4FB] px-4 py-2 text-center text-xs font-semibold text-[#0F3D66]">
                   {t.upload.photoOnlyNotice}
@@ -655,7 +693,54 @@ export default function Page() {
                       ? `${selectedFiles.length} ${t.upload.filesSelected}`
                       : t.upload.noFilesChosen}
                   </p>
+                </div>
 
+                {selectedFiles.length === 0 ? (
+                  <p className="mt-3 rounded-2xl border border-[#F9D8B8] bg-[#FFF8F0] px-4 py-3 text-sm font-semibold text-[#8A4A07]">
+                    {t.upload.guestbookHint}
+                  </p>
+                ) : (
+                  <div className="mt-3 rounded-[1.1rem] border border-[#F9D8B8] bg-[#FFF8F0] px-4 py-3 text-sm text-[#33516F] shadow-[0_10px_24px_rgba(245,130,32,0.08)]">
+                    <p className="text-base font-bold text-[#0B2742]">
+                      {t.upload.guestbookCardTitle}
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-[#597594]">
+                      {t.upload.guestbookCardDescription}
+                    </p>
+
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      <label className="block text-sm font-semibold text-[#33516F]">
+                        {t.upload.guestNameLabel}
+                        <input
+                          value={guestName}
+                          onChange={(event) => setGuestName(event.target.value)}
+                          disabled={uploading}
+                          placeholder={t.upload.guestNamePlaceholder}
+                          className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-white px-3 py-2 text-sm text-[#0B2742] outline-none focus:border-[#F58220] disabled:opacity-60"
+                        />
+                      </label>
+
+                      <label className="block text-sm font-semibold text-[#33516F] sm:col-span-2">
+                        {t.upload.messageLabel}
+                        <textarea
+                          value={guestMessage}
+                          onChange={(event) => setGuestMessage(limitGuestMessage(event.target.value))}
+                          disabled={uploading}
+                          maxLength={GUEST_MESSAGE_MAX_LENGTH}
+                          placeholder={t.upload.messagePlaceholder}
+                          rows={3}
+                          className="mt-2 w-full resize-none rounded-2xl border border-[#D4DFEE] bg-white px-3 py-2 text-sm text-[#0B2742] outline-none focus:border-[#F58220] disabled:opacity-60"
+                        />
+                      </label>
+                    </div>
+
+                    <span className="mt-2 block text-xs font-medium text-[#6A84A3]">
+                      {t.upload.messageHelp}
+                    </span>
+                  </div>
+                )}
+
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
                   <button
                     type="button"
                     onClick={handleUpload}

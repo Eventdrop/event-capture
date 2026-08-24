@@ -22,6 +22,7 @@ type GuestbookMessageRow = {
   created_at?: string | null
   guest_name?: string | null
   message?: string | null
+  related_upload_id?: string | null
 }
 
 function isMissingGuestbookTableError(error: { message?: string } | null | undefined) {
@@ -41,6 +42,7 @@ function serializeGuestbookMessage(row: GuestbookMessageRow) {
     createdAt: row.created_at || null,
     guestName: sanitizeGuestbookName(row.guest_name),
     message: sanitizeGuestbookMessage(row.message),
+    relatedUploadId: row.related_upload_id || null,
   }
 }
 
@@ -142,7 +144,7 @@ export async function GET(request: Request) {
       () =>
         supabase
           .from('guestbook_messages')
-          .select('guest_name,message,created_at')
+          .select('guest_name,message,related_upload_id,created_at')
           .eq('event_id', event.id)
           .order('created_at', { ascending: false })
           .limit(500),
@@ -186,11 +188,13 @@ export async function POST(request: Request) {
         event?: string
         guestName?: string | null
         message?: string | null
+        relatedUploadId?: string | null
       }
     | null
   const identifier = (body?.event || '').trim()
   const guestName = sanitizeGuestbookName(body?.guestName)
   const message = sanitizeGuestbookMessage(body?.message)
+  const relatedUploadId = (body?.relatedUploadId || '').trim()
 
   if (!identifier) {
     return NextResponse.json(
@@ -223,11 +227,50 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { error, event } = await getAuthorizedEvent(identifier)
-    if (error) return error
-    if (!event) throw new Error('Authorized event missing')
-
     const supabase = createAdminSupabaseClient()
+    const event = await resolveEvent(identifier)
+
+    if (!event) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Event niet gevonden.',
+        },
+        { status: 404 }
+      )
+    }
+
+    let verifiedRelatedUploadId: string | null = null
+
+    if (relatedUploadId) {
+      const relatedUploadLookup = await withRetry(
+        () =>
+          supabase
+            .from('uploads')
+            .select('id,event_id')
+            .eq('id', relatedUploadId)
+            .eq('event_id', event.id)
+            .maybeSingle(),
+        {
+          attempts: 3,
+          delayMs: 250,
+        }
+      )
+
+      if (relatedUploadLookup.error) throw relatedUploadLookup.error
+      verifiedRelatedUploadId = relatedUploadLookup.data?.id || null
+    }
+
+    if (!verifiedRelatedUploadId && !(await authorizeEventAccess(event))) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Geen toegang.',
+        },
+        { status: 401 }
+      )
+    }
+
     const result = await withRetry(
       () =>
         supabase
@@ -237,9 +280,10 @@ export async function POST(request: Request) {
               event_id: event.id,
               guest_name: guestName,
               message,
+              related_upload_id: verifiedRelatedUploadId,
             },
           ])
-          .select('guest_name,message,created_at')
+          .select('guest_name,message,related_upload_id,created_at')
           .single(),
       {
         attempts: 3,

@@ -16,6 +16,7 @@ import {
 import { normalizeEventRecord, type NormalizedEvent } from '@/lib/events'
 import {
   buildGuestbookEntries,
+  formatGuestbookDate,
   type GuestbookStandaloneRecord,
 } from '@/lib/guestbook'
 import { shareMedia } from '@/lib/share-media'
@@ -239,7 +240,7 @@ type CanvasImageResource = {
 }
 
 type DesignFormat = 'poster' | 'story'
-type GalleryView = 'photos' | 'guestbook'
+type GalleryView = 'photos' | 'guestbook' | 'designs' | 'downloads'
 type DesignMode =
   | 'posterPortrait'
   | 'posterLandscape'
@@ -708,10 +709,6 @@ export default function Page() {
   const [standaloneGuestbookMessages, setStandaloneGuestbookMessages] = useState<
     GuestbookStandaloneRecord[]
   >([])
-  const [guestbookName, setGuestbookName] = useState('')
-  const [guestbookMessage, setGuestbookMessage] = useState('')
-  const [guestbookSubmitting, setGuestbookSubmitting] = useState(false)
-  const [guestbookFeedback, setGuestbookFeedback] = useState('')
   const [photoMetricsById, setPhotoMetricsById] = useState<Record<string, PhotoMetrics>>({})
   const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
   const [albumPackagesVisible, setAlbumPackagesVisible] = useState(false)
@@ -1149,55 +1146,6 @@ export default function Page() {
       setStatusMessage(
         error instanceof Error ? error.message : t.gallery.loadError
       )
-    }
-  }
-
-  const submitGuestbookMessage = async () => {
-    const message = guestbookMessage.trim()
-
-    if (!message) {
-      setGuestbookFeedback(t.gallery.guestbookMessageRequired)
-      return
-    }
-
-    if (message.length > 500) {
-      setGuestbookFeedback(t.gallery.guestbookMessageTooLong)
-      return
-    }
-
-    setGuestbookSubmitting(true)
-    setGuestbookFeedback('')
-
-    try {
-      const response = await fetch('/api/guestbook-messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          event: eventIdentifier,
-          guestName: guestbookName,
-          message,
-        }),
-      })
-      const payload = (await response.json()) as {
-        message?: GuestbookStandaloneRecord
-        error?: string
-      }
-
-      if (!response.ok || !payload.message) {
-        throw new Error(payload.error || t.gallery.guestbookSubmitError)
-      }
-
-      setStandaloneGuestbookMessages((prev) => [payload.message!, ...prev])
-      setGuestbookMessage('')
-      setGuestbookFeedback(t.gallery.guestbookSubmitSuccess)
-    } catch (error) {
-      setGuestbookFeedback(
-        error instanceof Error ? error.message : t.gallery.guestbookSubmitError
-      )
-    } finally {
-      setGuestbookSubmitting(false)
     }
   }
 
@@ -1744,29 +1692,56 @@ export default function Page() {
             </h1>
           </div>
 
-          <div className="flex w-full flex-wrap items-center gap-1.5 sm:gap-2">
-            {downloadEnabled ? (
+        </div>
+
+        <div className="sticky top-[calc(env(safe-area-inset-top)+0.5rem)] z-30 mb-3 rounded-[1.25rem] border border-[#D4DFEE] bg-white/94 p-1 shadow-[0_12px_30px_rgba(61,44,22,0.12)] backdrop-blur sm:static sm:mb-5 sm:inline-flex">
+          <div className="grid grid-cols-4 gap-1 sm:flex">
+            {([
+              ['photos', t.gallery.photosTab],
+              ['guestbook', t.gallery.guestbookTab],
+              ['designs', t.gallery.designsTab],
+              ['downloads', t.gallery.downloadsTab],
+            ] as const).map(([view, label]) => (
               <button
-                onClick={downloadSelected}
-                disabled={selected.length === 0 || downloadingSelected}
-                className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                  selected.length === 0 || downloadingSelected
-                    ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                    : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
+                key={view}
+                type="button"
+                onClick={() => setGalleryView(view)}
+                className={`min-h-10 rounded-[1rem] px-2 py-2 text-center text-[11px] font-semibold sm:px-4 sm:text-sm ${
+                  galleryView === view
+                    ? 'bg-[#0F3D66] text-white'
+                    : 'text-[#0F3D66] hover:bg-[#EDF4FB]'
                 }`}
               >
-                {downloadingSelected
-                  ? t.gallery.downloadingSelected
-                  : `${t.gallery.downloadSelected} (${selected.length}/${selectedLimit})`}
+                {label}
               </button>
-            ) : null}
+            ))}
+          </div>
+        </div>
 
-            {downloadEnabled && albumDownloadEnabled ? (
-              <>
+        {galleryView === 'downloads' ? (
+          <section className="mb-3 rounded-[1.5rem] border border-white/30 bg-white/90 p-3 shadow-[0_16px_40px_rgba(61,44,22,0.1)] backdrop-blur sm:mb-4 sm:p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {downloadEnabled ? (
+                <button
+                  onClick={downloadSelected}
+                  disabled={selected.length === 0 || downloadingSelected}
+                  className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
+                    selected.length === 0 || downloadingSelected
+                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                      : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
+                  }`}
+                >
+                  {downloadingSelected
+                    ? t.gallery.downloadingSelected
+                    : `${t.gallery.downloadSelected} (${selected.length}/${selectedLimit})`}
+                </button>
+              ) : null}
+
+              {downloadEnabled && albumDownloadEnabled ? (
                 <button
                   onClick={downloadAll}
                   disabled={items.length === 0 || downloadingAll}
-                  className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
+                  className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
                     items.length === 0 || downloadingAll
                       ? 'cursor-not-allowed bg-stone-300 text-stone-500'
                       : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
@@ -1774,145 +1749,139 @@ export default function Page() {
                 >
                   {downloadingAll ? t.gallery.downloadingAll : albumPackageButtonLabel}
                 </button>
+              ) : null}
+            </div>
 
-                {albumPackagesVisible && items.length > albumPackageSize ? (
-                  <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/88 p-3 shadow-sm">
-                    <p className="mb-2 text-xs font-semibold text-[#33516F]">
-                      {t.gallery.albumPackageNotice.replace('{count}', String(totalAlbumPackages))}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {albumPackages.map((albumPackage) => (
-                        <button
-                          key={albumPackage.index}
-                          type="button"
-                          onClick={() => downloadAlbumPackage(albumPackage.index, albumPackage.items)}
-                          disabled={downloadingAll}
-                          className={`inline-flex min-h-9 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm ${
-                            downloadingAll
-                              ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                              : 'bg-[#EDF4FB] text-[#0F3D66] hover:bg-[#DCEAF7]'
-                          }`}
-                        >
-                          {albumPackage.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
-              </>
-            ) : null}
-
-            {posterEnabled ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => chooseDesignFormat('poster')}
-                  disabled={creatingPoster}
-                  className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                    designFormat === 'poster'
-                      ? 'bg-stone-950 text-white ring-2 ring-stone-950/20'
-                      : creatingPoster
-                        ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                        : 'bg-white text-stone-950 hover:bg-stone-100'
-                  }`}
-                >
-                  {t.gallery.posterButton}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => chooseDesignFormat('story')}
-                  disabled={creatingPoster}
-                  className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                    designFormat === 'story'
-                      ? 'bg-[#B52E2E] text-white ring-2 ring-[#B52E2E]/20'
-                      : creatingPoster
-                        ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                        : 'bg-white text-[#B52E2E] hover:bg-[#FFF1F1]'
-                  }`}
-                >
-                  {t.gallery.storyButton}
-                </button>
-
-                {designFormat === 'poster' ? (
-                  <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 p-2">
-                    <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#597594]">
-                      {t.gallery.designChoosePosterMode}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {([
-                        ['posterPortrait', t.gallery.posterPortraitMode],
-                        ['posterLandscape', t.gallery.posterLandscapeMode],
-                        ['posterMixed', t.gallery.posterMixedMode],
-                      ] as const).map(([mode, label]) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => chooseDesignMode(mode)}
-                          disabled={creatingPoster}
-                          className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm sm:flex-none ${
-                            designMode === mode
-                              ? 'bg-stone-950 text-white'
-                              : 'bg-white text-stone-950 hover:bg-stone-100'
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
-                {designFormat === 'story' ? (
-                  <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 p-2">
-                    <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#597594]">
-                      {t.gallery.designChooseStoryMode}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {([
-                        ['storyPortrait', t.gallery.storyPortraitMode],
-                        ['storyLandscape', t.gallery.storyLandscapeMode],
-                      ] as const).map(([mode, label]) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => chooseDesignMode(mode)}
-                          disabled={creatingPoster}
-                          className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm sm:flex-none ${
-                            designMode === mode
-                              ? 'bg-[#B52E2E] text-white'
-                              : 'bg-white text-[#B52E2E] hover:bg-[#FFF1F1]'
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
-                <p className={`basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F] ${selectedItems.length === 0 ? 'hidden sm:block' : ''}`}>
-                  {designMode
-                    ? designMode === 'posterMixed'
-                      ? t.gallery.designMixedHint
-                      : `${designModeLabel} — ${designSelectedCount} / ${designModeLimit} ${t.gallery.designSelected}`
-                    : t.gallery.designChooseFormat}
+            {downloadEnabled && albumDownloadEnabled && albumPackagesVisible && items.length > albumPackageSize ? (
+              <div className="mt-3 rounded-2xl border border-[#D4DFEE] bg-white/88 p-3 shadow-sm">
+                <p className="mb-2 text-xs font-semibold text-[#33516F]">
+                  {t.gallery.albumPackageNotice.replace('{count}', String(totalAlbumPackages))}
                 </p>
-              </>
+                <div className="flex flex-wrap gap-2">
+                  {albumPackages.map((albumPackage) => (
+                    <button
+                      key={albumPackage.index}
+                      type="button"
+                      onClick={() => downloadAlbumPackage(albumPackage.index, albumPackage.items)}
+                      disabled={downloadingAll}
+                      className={`inline-flex min-h-9 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm ${
+                        downloadingAll
+                          ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                          : 'bg-[#EDF4FB] text-[#0F3D66] hover:bg-[#DCEAF7]'
+                      }`}
+                    >
+                      {albumPackage.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ) : null}
+          </section>
+        ) : null}
 
-            <Link
-              href={uploadPageUrl}
-              className="inline-flex min-h-9 flex-1 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-center text-xs font-semibold text-[#0F3D66] shadow-sm hover:bg-[#EDF4FB] sm:flex-none"
-            >
-              {t.gallery.backToUpload}
-            </Link>
-          </div>
-        </div>
+        {galleryView === 'designs' && posterEnabled ? (
+          <section className="mb-3 rounded-[1.5rem] border border-white/30 bg-white/90 p-3 shadow-[0_16px_40px_rgba(61,44,22,0.1)] backdrop-blur sm:mb-4 sm:p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => chooseDesignFormat('poster')}
+                disabled={creatingPoster}
+                className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
+                  designFormat === 'poster'
+                    ? 'bg-stone-950 text-white ring-2 ring-stone-950/20'
+                    : creatingPoster
+                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                      : 'bg-white text-stone-950 hover:bg-stone-100'
+                }`}
+              >
+                {t.gallery.posterButton}
+              </button>
 
-        {posterEnabled && designMode ? (
-          <div className="sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-40 mb-3 rounded-2xl border border-white/40 bg-white/94 p-3 shadow-[0_18px_48px_rgba(15,33,53,0.18)] backdrop-blur sm:top-4 sm:mb-4">
+              <button
+                type="button"
+                onClick={() => chooseDesignFormat('story')}
+                disabled={creatingPoster}
+                className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
+                  designFormat === 'story'
+                    ? 'bg-[#B52E2E] text-white ring-2 ring-[#B52E2E]/20'
+                    : creatingPoster
+                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                      : 'bg-white text-[#B52E2E] hover:bg-[#FFF1F1]'
+                }`}
+              >
+                {t.gallery.storyButton}
+              </button>
+
+              {designFormat === 'poster' ? (
+                <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 p-2">
+                  <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#597594]">
+                    {t.gallery.designChoosePosterMode}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {([
+                      ['posterPortrait', t.gallery.posterPortraitMode],
+                      ['posterLandscape', t.gallery.posterLandscapeMode],
+                      ['posterMixed', t.gallery.posterMixedMode],
+                    ] as const).map(([mode, label]) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        onClick={() => chooseDesignMode(mode)}
+                        disabled={creatingPoster}
+                        className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm sm:flex-none ${
+                          designMode === mode
+                            ? 'bg-stone-950 text-white'
+                            : 'bg-white text-stone-950 hover:bg-stone-100'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {designFormat === 'story' ? (
+                <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 p-2">
+                  <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#597594]">
+                    {t.gallery.designChooseStoryMode}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {([
+                      ['storyPortrait', t.gallery.storyPortraitMode],
+                      ['storyLandscape', t.gallery.storyLandscapeMode],
+                    ] as const).map(([mode, label]) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        onClick={() => chooseDesignMode(mode)}
+                        disabled={creatingPoster}
+                        className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm sm:flex-none ${
+                          designMode === mode
+                            ? 'bg-[#B52E2E] text-white'
+                            : 'bg-white text-[#B52E2E] hover:bg-[#FFF1F1]'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              <p className={`basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F] ${selectedItems.length === 0 ? 'hidden sm:block' : ''}`}>
+                {designMode
+                  ? designMode === 'posterMixed'
+                    ? t.gallery.designMixedHint
+                    : `${designModeLabel} — ${designSelectedCount} / ${designModeLimit} ${t.gallery.designSelected}`
+                  : t.gallery.designChooseFormat}
+              </p>
+            </div>
+          </section>
+        ) : null}
+
+        {galleryView === 'designs' && posterEnabled && designMode ? (
+          <div className="sticky top-[calc(env(safe-area-inset-top)+4rem)] z-40 mb-3 rounded-2xl border border-white/40 bg-white/94 p-3 shadow-[0_18px_48px_rgba(15,33,53,0.18)] backdrop-blur sm:top-4 sm:mb-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#597594]">
@@ -1983,31 +1952,22 @@ export default function Page() {
           </div>
         ) : null}
 
-        <div className="mb-5 inline-flex rounded-full border border-[#D4DFEE] bg-white p-1 shadow-[0_12px_30px_rgba(61,44,22,0.08)]">
-          {([
-            ['photos', t.gallery.photosTab],
-            ['guestbook', t.gallery.guestbookTab],
-          ] as const).map(([view, label]) => (
-            <button
-              key={view}
-              type="button"
-              onClick={() => setGalleryView(view)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                galleryView === view
-                  ? 'bg-[#0F3D66] text-white'
-                  : 'text-[#0F3D66] hover:bg-[#EDF4FB]'
-              }`}
+        {galleryView === 'photos' ? (
+          <div className="mb-3 flex justify-end sm:mb-4">
+            <Link
+              href={uploadPageUrl}
+              className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-center text-sm font-semibold text-[#0F3D66] shadow-sm hover:bg-[#EDF4FB]"
             >
-              {label}
-            </button>
-          ))}
-        </div>
+              {t.gallery.backToUpload}
+            </Link>
+          </div>
+        ) : null}
 
-        {galleryView === 'photos' && items.length === 0 ? (
+        {galleryView !== 'guestbook' && items.length === 0 ? (
           <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-10 text-center text-[#597594] shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
             {t.gallery.noUploads}
           </div>
-        ) : galleryView === 'photos' ? (
+        ) : galleryView !== 'guestbook' ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => {
               const isSelected = selected.includes(item.id)
@@ -2158,57 +2118,8 @@ export default function Page() {
               )
             })}
           </div>
-        ) : (
+        ) : galleryView === 'guestbook' ? (
           <section className="space-y-3">
-            <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-4 shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
-              <h2 className="text-lg font-bold text-[#0B2742]">
-                {t.gallery.guestbookFormTitle}
-              </h2>
-              <div className="mt-4 grid gap-3">
-                <label className="block text-sm font-semibold text-[#33516F]">
-                  {t.gallery.guestbookNameLabel}
-                  <input
-                    value={guestbookName}
-                    onChange={(event) => setGuestbookName(event.target.value)}
-                    disabled={guestbookSubmitting}
-                    className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66] disabled:opacity-60"
-                  />
-                </label>
-                <label className="block text-sm font-semibold text-[#33516F]">
-                  {t.gallery.guestbookMessageLabel}
-                  <textarea
-                    value={guestbookMessage}
-                    onChange={(event) => setGuestbookMessage(event.target.value)}
-                    disabled={guestbookSubmitting}
-                    maxLength={500}
-                    rows={4}
-                    placeholder={t.gallery.guestbookMessagePlaceholder}
-                    className="mt-2 w-full resize-none rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66] disabled:opacity-60"
-                  />
-                </label>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-xs font-semibold text-[#6A84A3]">
-                    {guestbookMessage.trim().length} / 500
-                  </p>
-                  <button
-                    type="button"
-                    onClick={submitGuestbookMessage}
-                    disabled={guestbookSubmitting || guestbookMessage.trim().length === 0}
-                    className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#0F3D66] px-5 text-sm font-semibold text-white hover:bg-[#0B2F4F] disabled:cursor-not-allowed disabled:bg-stone-300"
-                  >
-                    {guestbookSubmitting
-                      ? t.gallery.guestbookSubmitting
-                      : t.gallery.guestbookSubmit}
-                  </button>
-                </div>
-                {guestbookFeedback ? (
-                  <p className="text-sm font-semibold text-[#33516F]">
-                    {guestbookFeedback}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
             {guestbookFeedItems.length === 0 ? (
               <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-10 text-center shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
                 <p className="text-lg font-bold text-[#0B2742]">
@@ -2222,24 +2133,51 @@ export default function Page() {
               <div className="space-y-3">
                 {guestbookFeedItems.map((item) => {
                   if (item.source === 'standalone') {
+                    const relatedUpload = item.relatedUpload || null
+                    const relatedDownloadName = relatedUpload
+                      ? getUploadShortFileName(relatedUpload, {
+                          eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
+                          sequence: shareSequenceById[relatedUpload.id],
+                        })
+                      : ''
+
                     return (
                       <article
                         key={item.key}
-                        className="rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4 shadow-[0_12px_32px_rgba(61,44,22,0.08)]"
+                        className="flex gap-3 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-3 shadow-[0_12px_32px_rgba(61,44,22,0.08)] sm:items-start"
                       >
-                        {item.guestName ? (
-                          <p className="mb-2 text-sm font-bold text-[#0F3D66]">
-                            {item.guestName}
-                          </p>
+                        {relatedUpload ? (
+                          <button
+                            type="button"
+                            onClick={() => setPreviewItem(relatedUpload)}
+                            className="relative h-24 w-20 shrink-0 overflow-hidden rounded-2xl bg-stone-950 sm:h-28 sm:w-24"
+                            aria-label={t.gallery.openPreview}
+                            title={t.gallery.openPreview}
+                          >
+                            <Image
+                              src={relatedUpload.file_url}
+                              alt={relatedDownloadName}
+                              fill
+                              unoptimized
+                              sizes="96px"
+                              className="object-cover"
+                            />
+                          </button>
                         ) : null}
-                        <p className="break-words text-sm font-semibold leading-relaxed text-[#0B2742] sm:text-base">
-                          {item.message}
-                        </p>
-                        <p className="mt-3 text-xs font-medium text-[#6A84A3]">
-                          {item.createdAt
-                            ? new Date(item.createdAt).toLocaleString(locale)
-                            : t.gallery.uploadTimeUnavailable}
-                        </p>
+
+                        <div className="min-w-0 flex-1">
+                          {item.guestName ? (
+                            <p className="mb-1 text-sm font-bold text-[#0F3D66]">
+                              {item.guestName}
+                            </p>
+                          ) : null}
+                          <p className="break-words text-sm font-semibold leading-relaxed text-[#0B2742] sm:text-base">
+                            {item.message}
+                          </p>
+                          <p className="mt-2 text-xs font-medium text-[#6A84A3]">
+                            {formatGuestbookDate(item.createdAt, locale) || t.gallery.uploadTimeUnavailable}
+                          </p>
+                        </div>
                       </article>
                     )
                   }
@@ -2276,9 +2214,7 @@ export default function Page() {
                           {item.message}
                         </p>
                         <p className="mt-2 text-xs font-medium text-[#6A84A3]">
-                          {item.createdAt
-                            ? new Date(item.createdAt).toLocaleString(locale)
-                            : t.gallery.uploadTimeUnavailable}
+                          {formatGuestbookDate(item.createdAt, locale) || t.gallery.uploadTimeUnavailable}
                         </p>
                       </div>
                     </article>
@@ -2287,7 +2223,7 @@ export default function Page() {
               </div>
             )}
           </section>
-        )}
+        ) : null}
         </div>
       </main>
 

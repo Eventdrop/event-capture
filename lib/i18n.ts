@@ -207,6 +207,11 @@ type TranslationTree = {
     selectLabel: string
     selectButton: string
     photoOnlyNotice: string
+    guestbookHint: string
+    guestbookCardTitle: string
+    guestbookCardDescription: string
+    guestNameLabel: string
+    guestNamePlaceholder: string
     messageLabel: string
     messagePlaceholder: string
     messageHelp: string
@@ -333,6 +338,8 @@ type TranslationTree = {
     photo: string
     photosTab: string
     guestbookTab: string
+    designsTab: string
+    downloadsTab: string
     guestbookTitle: string
     guestbookFormTitle: string
     guestbookNameLabel: string
@@ -631,9 +638,14 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectLabel: 'Fotograf sec',
       selectButton: 'Dosyalari sec',
       photoOnlyNotice: 'Bu album su anda sadece fotograf yuklemeleri icindir.',
-      messageLabel: 'Mesaj birak',
-      messagePlaceholder: 'Orn. Gefeliciteerd! ❤️',
-      messageHelp: 'Istersen kisa bir tebrik mesaji ekleyebilirsin.',
+      guestbookHint: '❤️ Fotograflarina gastenboek icin bir mesaj da ekleyebilirsin.',
+      guestbookCardTitle: 'Gastenboek icin bir not birak ❤️',
+      guestbookCardDescription: 'Istersen ismini ve fotograflarina kisisel bir mesaj ekle.',
+      guestNameLabel: 'Isim (opsiyonel)',
+      guestNamePlaceholder: 'Ismin',
+      messageLabel: 'Mesaj (opsiyonel)',
+      messagePlaceholder: 'Orn. Ne guzel bir gun! Birlikte cok mutlu olun ❤️',
+      messageHelp: 'Opsiyonel · Mesajin gastenboek icinde gorunur.',
       noFilesChosen: 'Henuz dosya secilmedi',
       readyPrefix: 'Hazir',
       photos: 'fotograf',
@@ -758,6 +770,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photo: 'Fotograf',
       photosTab: "Foto's",
       guestbookTab: 'Gastenboek',
+      designsTab: 'Tasarla',
+      downloadsTab: 'Indir',
       guestbookTitle: 'Gastenboek',
       guestbookFormTitle: 'Mesaj birak',
       guestbookNameLabel: 'Isim (opsiyonel)',
@@ -1125,9 +1139,14 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectLabel: 'Kies foto’s',
       selectButton: 'Bestanden kiezen',
       photoOnlyNotice: 'Dit album is op dit moment alleen bedoeld voor foto-uploads.',
-      messageLabel: 'Laat een bericht achter',
-      messagePlaceholder: 'Bijv. Gefeliciteerd! ❤️',
-      messageHelp: 'Optioneel: schrijf een korte wens bij je upload.',
+      guestbookHint: "❤️ Voeg bij je foto's ook een bericht toe aan het gastenboek.",
+      guestbookCardTitle: 'Laat iets achter in het gastenboek ❤️',
+      guestbookCardDescription: "Voeg eventueel je naam en een persoonlijk bericht toe aan je foto's.",
+      guestNameLabel: 'Naam (optioneel)',
+      guestNamePlaceholder: 'Je naam',
+      messageLabel: 'Bericht (optioneel)',
+      messagePlaceholder: 'Bijv. Wat een prachtige dag! Veel geluk samen ❤️',
+      messageHelp: 'Optioneel · Je bericht verschijnt in het gastenboek.',
       noFilesChosen: 'Nog geen bestanden gekozen',
       readyPrefix: 'Klaar',
       photos: 'foto',
@@ -1252,6 +1271,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photo: 'Foto',
       photosTab: "Foto's",
       guestbookTab: 'Gastenboek',
+      designsTab: 'Ontwerpen',
+      downloadsTab: 'Downloaden',
       guestbookTitle: 'Gastenboek',
       guestbookFormTitle: 'Laat een bericht achter',
       guestbookNameLabel: 'Naam (optioneel)',
@@ -1619,9 +1640,14 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectLabel: 'Select photos',
       selectButton: 'Choose files',
       photoOnlyNotice: 'This album is currently for photo uploads only.',
-      messageLabel: 'Leave a message',
-      messagePlaceholder: 'E.g. Congratulations! ❤️',
-      messageHelp: 'Optional: add a short wish with your upload.',
+      guestbookHint: '❤️ You can also add a message to the guestbook with your photos.',
+      guestbookCardTitle: 'Leave something in the guestbook ❤️',
+      guestbookCardDescription: 'Optionally add your name and a personal message to your photos.',
+      guestNameLabel: 'Name (optional)',
+      guestNamePlaceholder: 'Your name',
+      messageLabel: 'Message (optional)',
+      messagePlaceholder: 'E.g. What a beautiful day! Wishing you lots of happiness ❤️',
+      messageHelp: 'Optional · Your message appears in the guestbook.',
       noFilesChosen: 'No files selected yet',
       readyPrefix: 'Ready',
       photos: 'photos',
@@ -1746,6 +1772,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photo: 'Photo',
       photosTab: "Photos",
       guestbookTab: 'Guestbook',
+      designsTab: 'Designs',
+      downloadsTab: 'Downloads',
       guestbookTitle: 'Guestbook',
       guestbookFormTitle: 'Leave a message',
       guestbookNameLabel: 'Name (optional)',
@@ -1910,8 +1938,12 @@ const germanTranslation: TranslationTree = {
     namingText: 'Dateien werden in datumsbasierten Ordnern gespeichert.', retentionLabel: 'Speicherdauer',
     selectLabel: 'Fotos auswählen', selectButton: 'Dateien auswählen',
     photoOnlyNotice: 'Dieses Album akzeptiert derzeit nur Fotos.',
-    messageLabel: 'Nachricht hinterlassen', messagePlaceholder: 'Zum Beispiel: Herzlichen Glückwunsch! ❤️',
-    messageHelp: 'Optional: Fügen Sie Ihrem Upload einen kurzen Wunsch hinzu.',
+    guestbookHint: '❤️ Du kannst zu deinen Fotos auch eine Nachricht ins Gästebuch schreiben.',
+    guestbookCardTitle: 'Hinterlasse etwas im Gästebuch ❤️',
+    guestbookCardDescription: 'Optional kannst du deinen Namen und eine persönliche Nachricht zu deinen Fotos hinzufügen.',
+    guestNameLabel: 'Name (optional)', guestNamePlaceholder: 'Dein Name',
+    messageLabel: 'Nachricht (optional)', messagePlaceholder: 'Zum Beispiel: Was für ein schöner Tag! Alles Glück für euch ❤️',
+    messageHelp: 'Optional · Deine Nachricht erscheint im Gästebuch.',
     noFilesChosen: 'Noch keine Dateien ausgewählt', readyPrefix: 'Bereit', photos: 'Fotos',
     filesSelected: 'Dateien ausgewählt', unsupportedIgnored: 'nicht unterstützte Dateien wurden ignoriert',
     photoTooLarge: 'Foto überschreitet das Limit von 20 MB',
@@ -1996,7 +2028,7 @@ const germanTranslation: TranslationTree = {
     downloaded: 'Dateien heruntergeladen', chooseBeforeDownload: 'Wählen Sie vor dem Download mindestens ein Foto aus.',
     selectionLimitReached: 'Sie können bis zu 100 Fotos gleichzeitig auswählen.',
     uploadTimeUnavailable: 'Upload-Zeit nicht verfügbar', photo: 'Foto',
-    photosTab: 'Fotos', guestbookTab: 'Gästebuch', guestbookTitle: 'Gästebuch',
+    photosTab: 'Fotos', guestbookTab: 'Gästebuch', designsTab: 'Designs', downloadsTab: 'Downloads', guestbookTitle: 'Gästebuch',
     guestbookFormTitle: 'Nachricht hinterlassen',
     guestbookNameLabel: 'Name (optional)',
     guestbookMessageLabel: 'Nachricht',
@@ -2097,8 +2129,12 @@ const frenchTranslation: TranslationTree = {
     namingText: 'Les fichiers sont classés dans des dossiers par date.', retentionLabel: 'Durée de conservation',
     selectLabel: 'Sélectionner des photos', selectButton: 'Choisir des fichiers',
     photoOnlyNotice: "Cet album accepte actuellement uniquement les photos.",
-    messageLabel: 'Laisser un message', messagePlaceholder: 'Par exemple : Félicitations ! ❤️',
-    messageHelp: 'Facultatif : ajoutez un petit mot à votre envoi.',
+    guestbookHint: '❤️ Vous pouvez aussi ajouter un message au livre d’or avec vos photos.',
+    guestbookCardTitle: 'Laissez un mot dans le livre d’or ❤️',
+    guestbookCardDescription: 'Ajoutez éventuellement votre nom et un message personnel à vos photos.',
+    guestNameLabel: 'Nom (facultatif)', guestNamePlaceholder: 'Votre nom',
+    messageLabel: 'Message (facultatif)', messagePlaceholder: 'Par exemple : Quelle belle journée ! Beaucoup de bonheur à vous ❤️',
+    messageHelp: 'Facultatif · Votre message apparaîtra dans le livre d’or.',
     noFilesChosen: 'Aucun fichier sélectionné', readyPrefix: 'Prêt', photos: 'photos',
     filesSelected: 'fichiers sélectionnés', unsupportedIgnored: 'fichiers non pris en charge ignorés',
     photoTooLarge: 'la photo dépasse la limite de 20 Mo', photoBadRatio: "la photo très étroite ou très longue n’a pas été ajoutée",
@@ -2177,7 +2213,7 @@ const frenchTranslation: TranslationTree = {
     downloaded: 'fichiers téléchargés', chooseBeforeDownload: 'Sélectionnez au moins une photo avant de télécharger.',
     selectionLimitReached: "Vous pouvez sélectionner jusqu’à 100 photos à la fois.",
     uploadTimeUnavailable: "Heure d’envoi indisponible", photo: 'Photo',
-    photosTab: 'Photos', guestbookTab: "Livre d’or", guestbookTitle: "Livre d’or",
+    photosTab: 'Photos', guestbookTab: "Livre d’or", designsTab: 'Créations', downloadsTab: 'Télécharger', guestbookTitle: "Livre d’or",
     guestbookFormTitle: 'Laisser un message',
     guestbookNameLabel: 'Nom (facultatif)',
     guestbookMessageLabel: 'Message',

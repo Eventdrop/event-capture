@@ -9,6 +9,35 @@ import { withRetry } from '@/lib/with-retry'
 
 export const runtime = 'nodejs'
 
+type AdminGuestMessage = {
+  guest_name?: string | null
+  message: string
+  file_name: string | null
+  related_upload_id?: string | null
+  created_at: string | null
+  source?: 'guestbook' | 'upload'
+}
+
+function sortGuestMessages(messages: AdminGuestMessage[]) {
+  return [...messages].sort((left, right) => {
+    const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0
+    const rightTime = right.created_at ? new Date(right.created_at).getTime() : 0
+
+    return rightTime - leftTime
+  })
+}
+
+function appendGuestMessage(
+  messagesByEvent: Record<string, AdminGuestMessage[]>,
+  eventId: string,
+  message: AdminGuestMessage
+) {
+  messagesByEvent[eventId] = sortGuestMessages([
+    ...(messagesByEvent[eventId] || []),
+    message,
+  ])
+}
+
 async function ensureAdmin() {
   const authenticated = await hasAdminSession()
 
@@ -51,16 +80,7 @@ export async function GET() {
       string,
       { email: string; created_at: string | null }[]
     > = {}
-    let guestMessagesByEvent: Record<
-      string,
-      {
-        guest_name?: string | null
-        message: string
-        file_name: string | null
-        created_at: string | null
-        source?: 'guestbook' | 'upload'
-      }[]
-    > = {}
+    let guestMessagesByEvent: Record<string, AdminGuestMessage[]> = {}
     let downloadStatsByEvent: Record<
       string,
       { downloads: number; files: number; posters: number; stories: number; lastEmail: string | null; lastDownloadedAt: string | null }
@@ -129,7 +149,7 @@ export async function GET() {
           () =>
             supabase
               .from('uploads')
-              .select('event_id,file_name,guest_message,created_at')
+              .select('*')
               .in('event_id', eventIds)
               .order('created_at', { ascending: false })
               .limit(1000),
@@ -153,15 +173,12 @@ export async function GET() {
               return accumulator
             }
 
-            accumulator[eventId] = [
-              ...(accumulator[eventId] || []),
-              {
-                message,
-                file_name: item.file_name || null,
-                created_at: item.created_at || null,
-                source: 'upload',
-              },
-            ]
+            appendGuestMessage(accumulator, eventId, {
+              message,
+              file_name: item.file_name || null,
+              created_at: item.created_at || null,
+              source: 'upload',
+            })
 
             return accumulator
           }, {})
@@ -177,7 +194,7 @@ export async function GET() {
           () =>
             supabase
               .from('guestbook_messages')
-              .select('event_id,guest_name,message,created_at')
+              .select('event_id,guest_name,message,related_upload_id,created_at')
               .in('event_id', eventIds)
               .order('created_at', { ascending: false })
               .limit(1000),
@@ -192,6 +209,7 @@ export async function GET() {
             event_id?: string | null
             guest_name?: string | null
             message?: string | null
+            related_upload_id?: string | null
             created_at?: string | null
           }>).forEach((item) => {
             const eventId = item.event_id || ''
@@ -199,20 +217,13 @@ export async function GET() {
 
             if (!eventId || !message) return
 
-            guestMessagesByEvent[eventId] = [
-              ...(guestMessagesByEvent[eventId] || []),
-              {
-                guest_name: item.guest_name || null,
-                message,
-                file_name: null,
-                created_at: item.created_at || null,
-                source: 'guestbook' as const,
-              },
-            ].sort((left, right) => {
-              const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0
-              const rightTime = right.created_at ? new Date(right.created_at).getTime() : 0
-
-              return rightTime - leftTime
+            appendGuestMessage(guestMessagesByEvent, eventId, {
+              guest_name: item.guest_name || null,
+              message,
+              file_name: null,
+              related_upload_id: item.related_upload_id || null,
+              created_at: item.created_at || null,
+              source: 'guestbook',
             })
           })
         }

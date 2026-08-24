@@ -34,6 +34,7 @@ type GuestbookMessageRow = {
   guestName?: string | null
   guest_name?: string | null
   message?: string | null
+  related_upload_id?: string | null
 }
 
 function jsonError(message: string, status: number) {
@@ -218,7 +219,10 @@ function estimateCardHeight(document: PDFKit.PDFDocument, entry: GuestbookEntry)
     width: textWidth,
   })
 
-  return Math.max(height + 28, entry.source === 'upload' ? 136 : 96)
+  return Math.max(
+    height + 28,
+    entry.source === 'upload' || entry.relatedUpload ? 136 : 96
+  )
 }
 
 function drawMessageCard(input: {
@@ -259,7 +263,7 @@ function drawMessageCard(input: {
   let textX = innerX
   let textWidth = width - 32
 
-  if (entry.source === 'upload' && photo) {
+  if (photo) {
     try {
       document.image(photo, innerX, innerY, {
         fit: [104, 104],
@@ -340,8 +344,9 @@ async function buildGuestbookPdf(input: {
     .moveDown(0.8)
 
   for (const entry of input.entries) {
-    const photo =
-      entry.source === 'upload' ? await fetchImageBuffer(entry.upload.file_url) : null
+    const photoUpload =
+      entry.source === 'upload' ? entry.upload : entry.relatedUpload || null
+    const photo = photoUpload ? await fetchImageBuffer(photoUpload.file_url) : null
 
     drawMessageCard({
       document,
@@ -394,7 +399,7 @@ async function loadGuestbookData(eventId: string) {
     () =>
       supabase
         .from('guestbook_messages')
-        .select('guest_name,message,created_at')
+        .select('guest_name,message,related_upload_id,created_at')
         .eq('event_id', event.id)
         .order('created_at', { ascending: true })
         .limit(1000),
