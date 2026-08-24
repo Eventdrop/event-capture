@@ -183,6 +183,8 @@ type TranslationTree = {
     demoOpenUpload: string
     demoOpenGallery: string
     demoCopyLink: string
+    downloadGuestbookPdf: string
+    noGuestbookMessages: string
   }
   upload: {
     badge: string
@@ -332,6 +334,16 @@ type TranslationTree = {
     photosTab: string
     guestbookTab: string
     guestbookTitle: string
+    guestbookFormTitle: string
+    guestbookNameLabel: string
+    guestbookMessageLabel: string
+    guestbookMessagePlaceholder: string
+    guestbookSubmit: string
+    guestbookSubmitting: string
+    guestbookSubmitSuccess: string
+    guestbookSubmitError: string
+    guestbookMessageRequired: string
+    guestbookMessageTooLong: string
     guestbookEmptyTitle: string
     guestbookEmptyText: string
   }
@@ -587,6 +599,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       demoOpenUpload: 'Yukleme linkini ac',
       demoOpenGallery: 'Galeri linkini ac',
       demoCopyLink: 'Linki kopyala',
+      downloadGuestbookPdf: 'Gastenboek indir',
+      noGuestbookMessages: 'Indirilecek gastenboek mesaji yok.',
     },
     upload: {
       badge: 'Misafir yukleme sayfasi',
@@ -745,8 +759,18 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photosTab: "Foto's",
       guestbookTab: 'Gastenboek',
       guestbookTitle: 'Gastenboek',
+      guestbookFormTitle: 'Mesaj birak',
+      guestbookNameLabel: 'Isim (opsiyonel)',
+      guestbookMessageLabel: 'Mesaj',
+      guestbookMessagePlaceholder: 'Mesajini buraya yaz...',
+      guestbookSubmit: 'Mesaj gonder',
+      guestbookSubmitting: 'Gonderiliyor...',
+      guestbookSubmitSuccess: 'Mesajin eklendi.',
+      guestbookSubmitError: 'Mesaj eklenemedi.',
+      guestbookMessageRequired: 'Once bir mesaj yaz.',
+      guestbookMessageTooLong: 'Mesaj en fazla 500 karakter olabilir.',
       guestbookEmptyTitle: 'Nog geen berichten.',
-      guestbookEmptyText: "Berichten die gasten bij hun foto's achterlaten verschijnen hier.",
+      guestbookEmptyText: 'Ilk mesaji sen birak.',
     },
       legal: {
       termsTitle: 'Kullanim Sartlari',
@@ -1069,6 +1093,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       demoOpenUpload: 'Uploadlink openen',
       demoOpenGallery: 'Galerijlink openen',
       demoCopyLink: 'Link kopiëren',
+      downloadGuestbookPdf: 'Gastenboek downloaden',
+      noGuestbookMessages: 'Er zijn geen gastenboekberichten om te downloaden.',
     },
     upload: {
       badge: 'Gastenupload',
@@ -1227,8 +1253,18 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photosTab: "Foto's",
       guestbookTab: 'Gastenboek',
       guestbookTitle: 'Gastenboek',
+      guestbookFormTitle: 'Laat een bericht achter',
+      guestbookNameLabel: 'Naam (optioneel)',
+      guestbookMessageLabel: 'Bericht',
+      guestbookMessagePlaceholder: 'Schrijf hier je bericht...',
+      guestbookSubmit: 'Bericht plaatsen',
+      guestbookSubmitting: 'Plaatsen...',
+      guestbookSubmitSuccess: 'Je bericht is geplaatst.',
+      guestbookSubmitError: 'Je bericht kon niet worden geplaatst.',
+      guestbookMessageRequired: 'Schrijf eerst een bericht.',
+      guestbookMessageTooLong: 'Je bericht mag maximaal 500 tekens zijn.',
       guestbookEmptyTitle: 'Nog geen berichten.',
-      guestbookEmptyText: "Berichten die gasten bij hun foto's achterlaten verschijnen hier.",
+      guestbookEmptyText: 'Laat als eerste een bericht achter.',
     },
     legal: {
       termsTitle: 'Algemene voorwaarden',
@@ -1551,6 +1587,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       demoOpenUpload: 'Open upload link',
       demoOpenGallery: 'Open gallery link',
       demoCopyLink: 'Copy link',
+      downloadGuestbookPdf: 'Download guestbook',
+      noGuestbookMessages: 'There are no guestbook messages to download.',
     },
     upload: {
       badge: 'Guest upload page',
@@ -1709,8 +1747,18 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photosTab: "Photos",
       guestbookTab: 'Guestbook',
       guestbookTitle: 'Guestbook',
+      guestbookFormTitle: 'Leave a message',
+      guestbookNameLabel: 'Name (optional)',
+      guestbookMessageLabel: 'Message',
+      guestbookMessagePlaceholder: 'Write your message here...',
+      guestbookSubmit: 'Post message',
+      guestbookSubmitting: 'Posting...',
+      guestbookSubmitSuccess: 'Your message was posted.',
+      guestbookSubmitError: 'Your message could not be posted.',
+      guestbookMessageRequired: 'Write a message first.',
+      guestbookMessageTooLong: 'Your message can be up to 500 characters.',
       guestbookEmptyTitle: 'No messages yet.',
-      guestbookEmptyText: 'Messages guests leave with their photos will appear here.',
+      guestbookEmptyText: 'Be the first to leave a message.',
     },
     legal: {
       termsTitle: 'Terms',
@@ -1839,6 +1887,11 @@ const germanTranslation: TranslationTree = {
       { title: 'Erinnerungen sofort verfügbar', body: ['Fotos erscheinen direkt in der gemeinsamen Galerie.', 'Ausgewählte Fotos, Poster und Storys können heruntergeladen werden.'] },
     ],
   },
+  admin: {
+    ...baseTranslations.en.admin,
+    downloadGuestbookPdf: 'Gästebuch herunterladen',
+    noGuestbookMessages: 'Es gibt keine Gästebuchnachrichten zum Herunterladen.',
+  },
   upload: {
     ...baseTranslations.en.upload,
     badge: 'Gäste-Upload', intro: 'Fotos auswählen und zum Album hochladen.',
@@ -1944,8 +1997,18 @@ const germanTranslation: TranslationTree = {
     selectionLimitReached: 'Sie können bis zu 100 Fotos gleichzeitig auswählen.',
     uploadTimeUnavailable: 'Upload-Zeit nicht verfügbar', photo: 'Foto',
     photosTab: 'Fotos', guestbookTab: 'Gästebuch', guestbookTitle: 'Gästebuch',
+    guestbookFormTitle: 'Nachricht hinterlassen',
+    guestbookNameLabel: 'Name (optional)',
+    guestbookMessageLabel: 'Nachricht',
+    guestbookMessagePlaceholder: 'Schreiben Sie hier Ihre Nachricht...',
+    guestbookSubmit: 'Nachricht senden',
+    guestbookSubmitting: 'Wird gesendet...',
+    guestbookSubmitSuccess: 'Ihre Nachricht wurde hinzugefügt.',
+    guestbookSubmitError: 'Ihre Nachricht konnte nicht gesendet werden.',
+    guestbookMessageRequired: 'Schreiben Sie zuerst eine Nachricht.',
+    guestbookMessageTooLong: 'Ihre Nachricht darf höchstens 500 Zeichen lang sein.',
     guestbookEmptyTitle: 'Noch keine Nachrichten.',
-    guestbookEmptyText: 'Nachrichten, die Gäste zu ihren Fotos hinterlassen, erscheinen hier.',
+    guestbookEmptyText: 'Hinterlassen Sie die erste Nachricht.',
   },
   legal: {
     ...baseTranslations.en.legal,
@@ -2010,6 +2073,11 @@ const frenchTranslation: TranslationTree = {
       { title: 'Simple et sécurisé', body: ['Chaque événement possède son propre lien et éventuellement un code.', 'Les droits de partage et de téléchargement sont réglés par album.'] },
       { title: 'Des souvenirs disponibles immédiatement', body: ['Les photos apparaissent directement dans la galerie partagée.', 'Les photos sélectionnées, posters et stories peuvent être téléchargés.'] },
     ],
+  },
+  admin: {
+    ...baseTranslations.en.admin,
+    downloadGuestbookPdf: "Télécharger le livre d’or",
+    noGuestbookMessages: "Aucun message du livre d’or à télécharger.",
   },
   upload: {
     ...baseTranslations.en.upload,
@@ -2110,8 +2178,18 @@ const frenchTranslation: TranslationTree = {
     selectionLimitReached: "Vous pouvez sélectionner jusqu’à 100 photos à la fois.",
     uploadTimeUnavailable: "Heure d’envoi indisponible", photo: 'Photo',
     photosTab: 'Photos', guestbookTab: "Livre d’or", guestbookTitle: "Livre d’or",
+    guestbookFormTitle: 'Laisser un message',
+    guestbookNameLabel: 'Nom (facultatif)',
+    guestbookMessageLabel: 'Message',
+    guestbookMessagePlaceholder: 'Écrivez votre message ici...',
+    guestbookSubmit: 'Publier le message',
+    guestbookSubmitting: 'Publication...',
+    guestbookSubmitSuccess: 'Votre message a été ajouté.',
+    guestbookSubmitError: "Votre message n’a pas pu être publié.",
+    guestbookMessageRequired: 'Écrivez d’abord un message.',
+    guestbookMessageTooLong: 'Votre message peut contenir 500 caractères maximum.',
     guestbookEmptyTitle: 'Aucun message pour le moment.',
-    guestbookEmptyText: 'Les messages laissés par les invités avec leurs photos apparaissent ici.',
+    guestbookEmptyText: 'Soyez le premier à laisser un message.',
   },
   legal: {
     ...baseTranslations.en.legal,

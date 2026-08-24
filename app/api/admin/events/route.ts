@@ -53,7 +53,13 @@ export async function GET() {
     > = {}
     let guestMessagesByEvent: Record<
       string,
-      { message: string; file_name: string | null; created_at: string | null }[]
+      {
+        guest_name?: string | null
+        message: string
+        file_name: string | null
+        created_at: string | null
+        source?: 'guestbook' | 'upload'
+      }[]
     > = {}
     let downloadStatsByEvent: Record<
       string,
@@ -139,9 +145,7 @@ export async function GET() {
             file_name?: string | null
             guest_message?: string | null
             created_at?: string | null
-          }>).reduce<
-            Record<string, { message: string; file_name: string | null; created_at: string | null }[]>
-          >((accumulator, item) => {
+          }>).reduce<typeof guestMessagesByEvent>((accumulator, item) => {
             const eventId = item.event_id || ''
             const message = (item.guest_message || '').trim()
 
@@ -155,6 +159,7 @@ export async function GET() {
                 message,
                 file_name: item.file_name || null,
                 created_at: item.created_at || null,
+                source: 'upload',
               },
             ]
 
@@ -164,6 +169,59 @@ export async function GET() {
       } catch (guestMessagesError) {
         logOperation('warn', 'admin-events', 'Failed to load guest messages', {
           error: guestMessagesError instanceof Error ? guestMessagesError.message : 'Unknown error',
+        })
+      }
+
+      try {
+        const standaloneMessagesQuery = await withRetry(
+          () =>
+            supabase
+              .from('guestbook_messages')
+              .select('event_id,guest_name,message,created_at')
+              .in('event_id', eventIds)
+              .order('created_at', { ascending: false })
+              .limit(1000),
+          {
+            attempts: 3,
+            delayMs: 250,
+          }
+        )
+
+        if (!standaloneMessagesQuery.error) {
+          ((standaloneMessagesQuery.data || []) as Array<{
+            event_id?: string | null
+            guest_name?: string | null
+            message?: string | null
+            created_at?: string | null
+          }>).forEach((item) => {
+            const eventId = item.event_id || ''
+            const message = (item.message || '').trim()
+
+            if (!eventId || !message) return
+
+            guestMessagesByEvent[eventId] = [
+              ...(guestMessagesByEvent[eventId] || []),
+              {
+                guest_name: item.guest_name || null,
+                message,
+                file_name: null,
+                created_at: item.created_at || null,
+                source: 'guestbook' as const,
+              },
+            ].sort((left, right) => {
+              const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0
+              const rightTime = right.created_at ? new Date(right.created_at).getTime() : 0
+
+              return rightTime - leftTime
+            })
+          })
+        }
+      } catch (standaloneMessagesError) {
+        logOperation('warn', 'admin-events', 'Failed to load standalone guestbook messages', {
+          error:
+            standaloneMessagesError instanceof Error
+              ? standaloneMessagesError.message
+              : 'Unknown error',
         })
       }
 

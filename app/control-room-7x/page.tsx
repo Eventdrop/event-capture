@@ -31,9 +31,11 @@ type GuestAccessEntry = {
 }
 
 type GuestMessageEntry = {
+  guest_name?: string | null
   message: string
   file_name: string | null
   created_at: string | null
+  source?: 'guestbook' | 'upload'
 }
 
 type DownloadStatsEntry = {
@@ -2015,13 +2017,31 @@ export default function AdminPage() {
                   </div>
 
                   <div className="mt-4 rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex flex-col gap-1">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                         Misafir notlari
                       </p>
                       <p className="text-sm font-semibold text-[#0B2742]">
                         {guestMessagesByEvent[event.id]?.length || 0} not
                       </p>
+                      </div>
+                      {guestMessagesByEvent[event.id]?.length ? (
+                        <a
+                          href={`/api/admin/guestbook-pdf?eventId=${encodeURIComponent(event.id)}`}
+                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                        >
+                          {t.admin.downloadGuestbookPdf}
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setStatusMessage(t.admin.noGuestbookMessages)}
+                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] opacity-60"
+                        >
+                          {t.admin.downloadGuestbookPdf}
+                        </button>
+                      )}
                     </div>
 
                     {guestMessagesByEvent[event.id]?.length ? (
@@ -2031,11 +2051,16 @@ export default function AdminPage() {
                             key={`${event.id}-message-${messageIndex}`}
                             className="rounded-2xl bg-[#F7FAFD] px-3 py-2 text-sm text-[#33516F]"
                           >
+                            {entry.guest_name ? (
+                              <p className="mb-1 text-xs font-bold uppercase tracking-[0.12em] text-[#0F3D66]">
+                                {entry.guest_name}
+                              </p>
+                            ) : null}
                             <p className="break-words font-medium text-[#0B2742]">
                               {entry.message}
                             </p>
                             <p className="mt-1 text-xs text-[#6A84A3]">
-                              {entry.file_name || 'Foto'} · {entry.created_at ? new Date(entry.created_at).toLocaleString() : t.admin.guestEmailTimeUnknown}
+                              {entry.file_name || (entry.source === 'guestbook' ? 'Gastenboek' : 'Foto')} · {entry.created_at ? new Date(entry.created_at).toLocaleString() : t.admin.guestEmailTimeUnknown}
                             </p>
                           </div>
                         ))}
