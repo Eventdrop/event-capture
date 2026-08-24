@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import {
   EVENT_ACCESS_COOKIE_NAME,
+  getSafeEventReturnToPath,
   grantEventAccess,
-  isSafeReturnToPath,
   isValidGuestEmail,
   normalizeEventAccessInput,
 } from '@/lib/event-access'
@@ -243,11 +243,10 @@ export async function POST(request: Request) {
     }
 
     const redirectTo =
-      isSafeReturnToPath(returnTo) &&
-      (returnTo === getEventRoute(matchedEvent.slug || matchedEvent.id) ||
-        returnTo === `${getEventRoute(matchedEvent.slug || matchedEvent.id)}/gallery`)
-        ? returnTo
-        : getEventRoute(matchedEvent.slug || matchedEvent.id)
+      getSafeEventReturnToPath(returnTo, {
+        eventId: matchedEvent.id,
+        eventSlug: matchedEvent.slug,
+      }) || getEventRoute(matchedEvent.slug || matchedEvent.id)
 
     const cookieStore = await cookies()
     const existingCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value

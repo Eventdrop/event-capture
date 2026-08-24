@@ -81,5 +81,34 @@ export function normalizeEventAccessInput(input: {
 }
 
 export function isSafeReturnToPath(value: string) {
-  return value.startsWith('/event/') && !value.startsWith('//')
+  return value.startsWith('/event/') && !value.startsWith('//') && !value.startsWith('/\\')
+}
+
+export function getSafeEventReturnToPath(
+  value: string,
+  event: {
+    eventId: string
+    eventSlug?: string | null
+  }
+) {
+  if (!isSafeReturnToPath(value)) return null
+
+  try {
+    const url = new URL(value, 'https://eventdrop.local')
+    const allowedPaths = new Set([
+      `/event/${event.eventId}`,
+      `/event/${event.eventId}/gallery`,
+    ])
+
+    if (event.eventSlug) {
+      allowedPaths.add(`/event/${event.eventSlug}`)
+      allowedPaths.add(`/event/${event.eventSlug}/gallery`)
+    }
+
+    if (!allowedPaths.has(url.pathname)) return null
+
+    return `${url.pathname}${url.search}`
+  } catch {
+    return null
+  }
 }

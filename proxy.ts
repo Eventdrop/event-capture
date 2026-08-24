@@ -35,7 +35,7 @@ export function proxy(request: NextRequest) {
   }
 
   const redirectUrl = new URL(`/join/${identifier}`, request.url)
-  redirectUrl.searchParams.set('returnTo', pathname)
+  redirectUrl.searchParams.set('returnTo', `${pathname}${request.nextUrl.search}`)
 
   return NextResponse.redirect(redirectUrl)
 }

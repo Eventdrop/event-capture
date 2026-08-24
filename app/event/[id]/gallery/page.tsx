@@ -21,69 +21,212 @@ import { locales, type Locale } from '@/lib/i18n'
 const POSTER_WIDTH = 2480
 const POSTER_HEIGHT = 3508
 const POSTER_MAX_TILES = 12
+const MIXED_POSTER_PORTRAIT_TILES = 8
+const MIXED_POSTER_LANDSCAPE_TILES = 4
 const STORY_WIDTH = 1080
 const STORY_HEIGHT = 1920
-const STORY_MAX_TILES = 4
 const POSTER_MARGIN = 56
 const POSTER_FOOTER_HEIGHT = 160
 const POSTER_LOGO_URL = '/photobooth-holland-logo.png'
-const POSTER_LAYOUT = {
-  topAreaHeight: 585,
-  photoAreaHeight: 2506,
-  bottomAreaHeight: 417,
+const ORIENTATION_CONFIG = {
+  portraitMaxRatio: 0.9,
+  landscapeMinRatio: 1.1,
+  softCropMaxDelta: 0.36,
+}
+const POSTER_PHOTO_AREA = {
+  topAreaHeight: 720,
+  photoAreaHeight: 2608,
+  bottomAreaHeight: 180,
   photoAreaInsetX: 120,
-  photoAreaInsetY: 56,
-  columns: 3,
-  columnGap: 28,
-  rowGap: 28,
-  minSlotHeight: 360,
-  maxSlotHeight: 900,
-  minLayoutScale: 0.72,
-  maxLayoutScale: 1.12,
-  minRatio: 0.62,
-  maxRatio: 1.85,
+  photoAreaInsetY: 40,
 }
 const POSTER_TEMPLATE_PHOTO_AREA = {
-  x: POSTER_LAYOUT.photoAreaInsetX,
-  y: POSTER_LAYOUT.topAreaHeight + POSTER_LAYOUT.photoAreaInsetY,
-  width: POSTER_WIDTH - POSTER_LAYOUT.photoAreaInsetX * 2,
-  height: POSTER_LAYOUT.photoAreaHeight - POSTER_LAYOUT.photoAreaInsetY * 2,
+  x: POSTER_PHOTO_AREA.photoAreaInsetX,
+  y: POSTER_PHOTO_AREA.topAreaHeight + POSTER_PHOTO_AREA.photoAreaInsetY,
+  width: POSTER_WIDTH - POSTER_PHOTO_AREA.photoAreaInsetX * 2,
+  height: POSTER_PHOTO_AREA.photoAreaHeight - POSTER_PHOTO_AREA.photoAreaInsetY * 2,
 }
+const MIXED_POSTER_GRID = {
+  columnGap: 24,
+  columnWidth: 542,
+  landscapeHeight: 450,
+  middlePortraitHeight: 730,
+  rowGap: 24,
+  stackGap: 24,
+  tallPortraitHeight: 924,
+  x: 120,
+  y: 660,
+}
+const MIXED_POSTER_GRID_X = {
+  column1: MIXED_POSTER_GRID.x,
+  column2: MIXED_POSTER_GRID.x + MIXED_POSTER_GRID.columnWidth + MIXED_POSTER_GRID.columnGap,
+  column3:
+    MIXED_POSTER_GRID.x +
+    (MIXED_POSTER_GRID.columnWidth + MIXED_POSTER_GRID.columnGap) * 2,
+  column4:
+    MIXED_POSTER_GRID.x +
+    (MIXED_POSTER_GRID.columnWidth + MIXED_POSTER_GRID.columnGap) * 3,
+}
+const MIXED_POSTER_GRID_Y = {
+  top: MIXED_POSTER_GRID.y,
+  topLandscape2:
+    MIXED_POSTER_GRID.y +
+    MIXED_POSTER_GRID.landscapeHeight +
+    MIXED_POSTER_GRID.stackGap,
+  middle:
+    MIXED_POSTER_GRID.y +
+    MIXED_POSTER_GRID.tallPortraitHeight +
+    MIXED_POSTER_GRID.rowGap,
+  bottom:
+    MIXED_POSTER_GRID.y +
+    MIXED_POSTER_GRID.tallPortraitHeight +
+    MIXED_POSTER_GRID.rowGap +
+    MIXED_POSTER_GRID.middlePortraitHeight +
+    MIXED_POSTER_GRID.rowGap,
+  bottomLandscape2:
+    MIXED_POSTER_GRID.y +
+    MIXED_POSTER_GRID.tallPortraitHeight +
+    MIXED_POSTER_GRID.rowGap +
+    MIXED_POSTER_GRID.middlePortraitHeight +
+    MIXED_POSTER_GRID.rowGap +
+    MIXED_POSTER_GRID.landscapeHeight +
+    MIXED_POSTER_GRID.stackGap,
+}
+const MIXED_POSTER_LANDSCAPE_WIDTH =
+  MIXED_POSTER_GRID.columnWidth * 2 + MIXED_POSTER_GRID.columnGap
 const STORY_LAYOUT = {
-  gap: 16,
-  photoArea: { x: 72, y: 240, width: STORY_WIDTH - 144, height: 1420 },
-  layouts: {
-    landscapeHeavy: [
-      { x: 72, y: 260, width: 936, height: 330 },
-      { x: 72, y: 606, width: 936, height: 330 },
-      { x: 72, y: 952, width: 936, height: 330 },
-      { x: 72, y: 1298, width: 936, height: 330 },
-    ],
-    portraitHeavy: [
-      { x: 72, y: 250, width: 452, height: 690 },
-      { x: 556, y: 250, width: 452, height: 690 },
-      { x: 72, y: 980, width: 452, height: 690 },
-      { x: 556, y: 980, width: 452, height: 690 },
-    ],
-    mixedLandscapeHero: [
-      { x: 72, y: 250, width: 936, height: 520 },
-      { x: 72, y: 806, width: 291, height: 820 },
-      { x: 394, y: 806, width: 291, height: 820 },
-      { x: 717, y: 806, width: 291, height: 820 },
-    ],
-    mixedPortraitHero: [
-      { x: 72, y: 250, width: 452, height: 1060 },
-      { x: 556, y: 250, width: 452, height: 330 },
-      { x: 556, y: 616, width: 452, height: 330 },
-      { x: 556, y: 982, width: 452, height: 330 },
-    ],
-    balanced: [
-      { x: 72, y: 250, width: 452, height: 670 },
-      { x: 556, y: 250, width: 452, height: 670 },
-      { x: 72, y: 956, width: 452, height: 670 },
-      { x: 556, y: 956, width: 452, height: 670 },
-    ],
-  },
+  portrait: [
+    { x: 72, y: 560, width: 452, height: 592 },
+    { x: 556, y: 560, width: 452, height: 592 },
+    { x: 72, y: 1184, width: 452, height: 592 },
+    { x: 556, y: 1184, width: 452, height: 592 },
+  ],
+  landscape: [
+    { x: 72, y: 650, width: 452, height: 260 },
+    { x: 556, y: 650, width: 452, height: 260 },
+    { x: 72, y: 938, width: 452, height: 260 },
+    { x: 556, y: 938, width: 452, height: 260 },
+    { x: 72, y: 1226, width: 452, height: 260 },
+    { x: 556, y: 1226, width: 452, height: 260 },
+    { x: 72, y: 1514, width: 452, height: 260 },
+    { x: 556, y: 1514, width: 452, height: 260 },
+  ],
+}
+const POSTER_LAYOUTS = {
+  portrait: [
+    { x: 120, y: 760, width: 536, height: 820 },
+    { x: 688, y: 760, width: 536, height: 820 },
+    { x: 1256, y: 760, width: 536, height: 820 },
+    { x: 1824, y: 760, width: 536, height: 820 },
+    { x: 120, y: 1612, width: 536, height: 820 },
+    { x: 688, y: 1612, width: 536, height: 820 },
+    { x: 1256, y: 1612, width: 536, height: 820 },
+    { x: 1824, y: 1612, width: 536, height: 820 },
+    { x: 120, y: 2464, width: 536, height: 820 },
+    { x: 688, y: 2464, width: 536, height: 820 },
+    { x: 1256, y: 2464, width: 536, height: 820 },
+    { x: 1824, y: 2464, width: 536, height: 820 },
+  ],
+  landscape: [
+    { x: 120, y: 760, width: 724, height: 607 },
+    { x: 878, y: 760, width: 724, height: 607 },
+    { x: 1636, y: 760, width: 724, height: 607 },
+    { x: 120, y: 1399, width: 724, height: 607 },
+    { x: 878, y: 1399, width: 724, height: 607 },
+    { x: 1636, y: 1399, width: 724, height: 607 },
+    { x: 120, y: 2038, width: 724, height: 607 },
+    { x: 878, y: 2038, width: 724, height: 607 },
+    { x: 1636, y: 2038, width: 724, height: 607 },
+    { x: 120, y: 2677, width: 724, height: 607 },
+    { x: 878, y: 2677, width: 724, height: 607 },
+    { x: 1636, y: 2677, width: 724, height: 607 },
+  ],
+  mixed: [
+    {
+      x: MIXED_POSTER_GRID_X.column1,
+      y: MIXED_POSTER_GRID_Y.top,
+      width: MIXED_POSTER_GRID.columnWidth,
+      height: MIXED_POSTER_GRID.tallPortraitHeight,
+      orientation: 'portrait',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column2,
+      y: MIXED_POSTER_GRID_Y.top,
+      width: MIXED_POSTER_LANDSCAPE_WIDTH,
+      height: MIXED_POSTER_GRID.landscapeHeight,
+      orientation: 'landscape',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column2,
+      y: MIXED_POSTER_GRID_Y.topLandscape2,
+      width: MIXED_POSTER_LANDSCAPE_WIDTH,
+      height: MIXED_POSTER_GRID.landscapeHeight,
+      orientation: 'landscape',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column4,
+      y: MIXED_POSTER_GRID_Y.top,
+      width: MIXED_POSTER_GRID.columnWidth,
+      height: MIXED_POSTER_GRID.tallPortraitHeight,
+      orientation: 'portrait',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column1,
+      y: MIXED_POSTER_GRID_Y.middle,
+      width: MIXED_POSTER_GRID.columnWidth,
+      height: MIXED_POSTER_GRID.middlePortraitHeight,
+      orientation: 'portrait',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column2,
+      y: MIXED_POSTER_GRID_Y.middle,
+      width: MIXED_POSTER_GRID.columnWidth,
+      height: MIXED_POSTER_GRID.middlePortraitHeight,
+      orientation: 'portrait',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column3,
+      y: MIXED_POSTER_GRID_Y.middle,
+      width: MIXED_POSTER_GRID.columnWidth,
+      height: MIXED_POSTER_GRID.middlePortraitHeight,
+      orientation: 'portrait',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column4,
+      y: MIXED_POSTER_GRID_Y.middle,
+      width: MIXED_POSTER_GRID.columnWidth,
+      height: MIXED_POSTER_GRID.middlePortraitHeight,
+      orientation: 'portrait',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column1,
+      y: MIXED_POSTER_GRID_Y.bottom,
+      width: MIXED_POSTER_GRID.columnWidth,
+      height: MIXED_POSTER_GRID.tallPortraitHeight,
+      orientation: 'portrait',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column2,
+      y: MIXED_POSTER_GRID_Y.bottom,
+      width: MIXED_POSTER_LANDSCAPE_WIDTH,
+      height: MIXED_POSTER_GRID.landscapeHeight,
+      orientation: 'landscape',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column2,
+      y: MIXED_POSTER_GRID_Y.bottomLandscape2,
+      width: MIXED_POSTER_LANDSCAPE_WIDTH,
+      height: MIXED_POSTER_GRID.landscapeHeight,
+      orientation: 'landscape',
+    },
+    {
+      x: MIXED_POSTER_GRID_X.column4,
+      y: MIXED_POSTER_GRID_Y.bottom,
+      width: MIXED_POSTER_GRID.columnWidth,
+      height: MIXED_POSTER_GRID.tallPortraitHeight,
+      orientation: 'portrait',
+    },
+  ],
 }
 
 type CanvasImageResource = {
@@ -92,14 +235,13 @@ type CanvasImageResource = {
 }
 
 type DesignFormat = 'poster' | 'story'
+type DesignMode =
+  | 'posterPortrait'
+  | 'posterLandscape'
+  | 'posterMixed'
+  | 'storyPortrait'
+  | 'storyLandscape'
 type PhotoOrientation = 'landscape' | 'portrait' | 'neutral'
-
-type PhotoSlot = {
-  x: number
-  y: number
-  width: number
-  height: number
-}
 
 type FaceFocus = {
   x: number
@@ -112,6 +254,62 @@ type PosterPhoto = {
   orientation: PhotoOrientation
   ratio: number
   focus?: FaceFocus
+}
+
+type PhotoMetrics = {
+  orientation: PhotoOrientation
+  ratio: number
+}
+
+const DESIGN_MODE_CONFIG: Record<
+  DesignMode,
+  {
+    allowedOrientations: PhotoOrientation[]
+    format: DesignFormat
+    max: number
+  }
+> = {
+  posterLandscape: {
+    allowedOrientations: ['landscape', 'neutral'],
+    format: 'poster',
+    max: 12,
+  },
+  posterMixed: {
+    allowedOrientations: ['landscape', 'portrait'],
+    format: 'poster',
+    max: 12,
+  },
+  posterPortrait: {
+    allowedOrientations: ['portrait', 'neutral'],
+    format: 'poster',
+    max: 12,
+  },
+  storyLandscape: {
+    allowedOrientations: ['landscape', 'neutral'],
+    format: 'story',
+    max: 8,
+  },
+  storyPortrait: {
+    allowedOrientations: ['portrait', 'neutral'],
+    format: 'story',
+    max: 4,
+  },
+}
+
+function getPhotoMetricsFromImage(image: HTMLImageElement): PhotoMetrics {
+  const ratio = getImageRatio(image)
+
+  return {
+    orientation: getPhotoOrientation(ratio),
+    ratio,
+  }
+}
+
+function getFallbackPhotoMetrics(): PhotoMetrics {
+  return {
+    orientation: 'neutral',
+    ratio: 1,
+  }
 }
 
 type FaceDetectorResult = {
@@ -223,8 +421,8 @@ function getImageRatio(image: HTMLImageElement) {
 }
 
 function getPhotoOrientation(ratio: number): PhotoOrientation {
-  if (ratio > 1.18) return 'landscape'
-  if (ratio < 0.85) return 'portrait'
+  if (ratio > ORIENTATION_CONFIG.landscapeMinRatio) return 'landscape'
+  if (ratio < ORIENTATION_CONFIG.portraitMaxRatio) return 'portrait'
   return 'neutral'
 }
 
@@ -318,15 +516,16 @@ function drawPhotoSlot(
   y: number,
   width: number,
   height: number,
-  options?: { grayscale?: boolean }
+  options?: { fit?: 'smart' | 'cover'; grayscale?: boolean }
 ) {
   const { image } = photo
   const imageWidth = image.naturalWidth || image.width
   const imageHeight = image.naturalHeight || image.height
+  const fit = options?.fit || 'smart'
   const slotRatio = width / height
   const imageRatio = imageWidth && imageHeight ? imageWidth / imageHeight : slotRatio
   const ratioDelta = Math.abs(Math.log(imageRatio / slotRatio))
-  const canUseSoftCrop = ratioDelta <= 0.18
+  const canUseSoftCrop = fit === 'cover' || ratioDelta <= ORIENTATION_CONFIG.softCropMaxDelta
   const needsSoftBackground = !canUseSoftCrop
 
   context.save()
@@ -386,206 +585,101 @@ function hasTransparentPixelsInArea(
   return totalSamples === 0 || transparentSamples / totalSamples > 0.01
 }
 
-function clampNumber(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value))
-}
-
-function getNormalizedPhotoRatio(photo: PosterPhoto) {
-  return clampNumber(photo.ratio, POSTER_LAYOUT.minRatio, POSTER_LAYOUT.maxRatio)
-}
-
-function getPosterSlotHeight(photo: PosterPhoto, columnWidth: number) {
-  const naturalHeight = columnWidth / getNormalizedPhotoRatio(photo)
-
-  return clampNumber(
-    naturalHeight,
-    POSTER_LAYOUT.minSlotHeight,
-    POSTER_LAYOUT.maxSlotHeight
-  )
-}
-
-function getPosterLayoutOrder(photos: PosterPhoto[], columnWidth: number) {
-  return [...photos].sort((left, right) => {
-    const heightDelta =
-      getPosterSlotHeight(right, columnWidth) - getPosterSlotHeight(left, columnWidth)
-
-    if (Math.abs(heightDelta) > 1) return heightDelta
-
-    const orientationWeight: Record<PhotoOrientation, number> = {
-      portrait: 3,
-      neutral: 2,
-      landscape: 1,
-    }
-    const orientationDelta =
-      orientationWeight[right.orientation] - orientationWeight[left.orientation]
-
-    if (orientationDelta !== 0) return orientationDelta
-
-    return left.originalIndex - right.originalIndex
-  })
-}
-
-function buildPosterMasonryLayout(
-  photos: PosterPhoto[],
-  area: { x: number; y: number; width: number; height: number }
-) {
-  const columnWidth =
-    (area.width - POSTER_LAYOUT.columnGap * (POSTER_LAYOUT.columns - 1)) /
-    POSTER_LAYOUT.columns
-  const columns = Array.from({ length: POSTER_LAYOUT.columns }, (_, index) => ({
-    height: 0,
-    index,
-    items: [] as Array<{ height: number; photo: PosterPhoto }>,
-  }))
-
-  getPosterLayoutOrder(photos.slice(0, POSTER_MAX_TILES), columnWidth).forEach((photo) => {
-    const height = getPosterSlotHeight(photo, columnWidth)
-    const targetColumn = columns.reduce((best, candidate) => {
-      if (candidate.height < best.height) return candidate
-      if (candidate.height === best.height && candidate.index < best.index) return candidate
-      return best
-    }, columns[0])
-
-    targetColumn.items.push({ height, photo })
-    targetColumn.height += height + (targetColumn.items.length > 1 ? POSTER_LAYOUT.rowGap : 0)
-  })
-
-  const maxColumnHeight = Math.max(...columns.map((column) => column.height), 1)
-  const scale = clampNumber(
-    area.height / maxColumnHeight,
-    POSTER_LAYOUT.minLayoutScale,
-    POSTER_LAYOUT.maxLayoutScale
-  )
-
-  return columns.flatMap((column) => {
-    const scaledColumnHeight =
-      column.items.reduce((total, item) => total + item.height * scale, 0) +
-      Math.max(0, column.items.length - 1) * POSTER_LAYOUT.rowGap * scale
-    let y = area.y + Math.max(0, (area.height - scaledColumnHeight) / 2)
-
-    return column.items.map((item) => {
-      const slot = {
-        height: item.height * scale,
-        width: columnWidth,
-        x: area.x + column.index * (columnWidth + POSTER_LAYOUT.columnGap),
-        y,
-      }
-
-      y += slot.height + POSTER_LAYOUT.rowGap * scale
-
-      return { photo: item.photo, slot }
-    })
-  })
-}
-
 function drawPosterGrid(
   context: CanvasRenderingContext2D,
   photos: PosterPhoto[],
-  area: { x: number; y: number; width: number; height: number },
+  mode: Extract<DesignMode, 'posterPortrait' | 'posterLandscape' | 'posterMixed'>,
   options?: { grayscale?: boolean }
 ) {
   context.save()
   context.fillStyle = '#050505'
-  context.fillRect(area.x, area.y, area.width, area.height)
+  context.fillRect(
+    POSTER_TEMPLATE_PHOTO_AREA.x,
+    POSTER_TEMPLATE_PHOTO_AREA.y,
+    POSTER_TEMPLATE_PHOTO_AREA.width,
+    POSTER_TEMPLATE_PHOTO_AREA.height
+  )
   context.restore()
 
-  buildPosterMasonryLayout(photos, area).forEach(({ photo, slot }) => {
-    drawPhotoSlot(
-      context,
-      photo,
-      slot.x,
-      slot.y,
-      slot.width,
-      slot.height,
-      options
-    )
-  })
-}
+  if (mode === 'posterMixed') {
+    const portraitPhotos = photos.filter((photo) => photo.orientation === 'portrait')
+    const landscapePhotos = photos.filter((photo) => photo.orientation === 'landscape')
+    let portraitIndex = 0
+    let landscapeIndex = 0
 
-function getStoryLayoutSlots(photos: PosterPhoto[]): PhotoSlot[] {
-  const portraitCount = photos.filter((photo) => photo.orientation === 'portrait').length
-  const landscapeCount = photos.filter((photo) => photo.orientation === 'landscape').length
-  const layouts = STORY_LAYOUT.layouts
+    POSTER_LAYOUTS.mixed.forEach((slot) => {
+      const photo =
+        slot.orientation === 'portrait'
+          ? portraitPhotos[portraitIndex++]
+          : landscapePhotos[landscapeIndex++]
 
-  if (photos.length <= 2) {
-    return layouts.balanced.slice(0, photos.length)
+      if (!photo) return
+
+      drawPhotoSlot(context, photo, slot.x, slot.y, slot.width, slot.height, {
+        ...options,
+        fit: 'cover',
+      })
+    })
+    return
   }
 
-  if (landscapeCount >= 3) {
-    return layouts.landscapeHeavy.slice(0, photos.length)
-  }
+  const slots =
+    mode === 'posterPortrait' ? POSTER_LAYOUTS.portrait : POSTER_LAYOUTS.landscape
 
-  if (portraitCount >= 3 && landscapeCount === 1) {
-    return layouts.mixedLandscapeHero.slice(0, photos.length)
-  }
+  photos.slice(0, POSTER_MAX_TILES).forEach((photo, index) => {
+    const slot = slots[index]
 
-  if (portraitCount === 1 && landscapeCount >= 2) {
-    return layouts.mixedPortraitHero.slice(0, photos.length)
-  }
+    if (!slot) return
 
-  if (portraitCount >= 3) {
-    return layouts.portraitHeavy.slice(0, photos.length)
-  }
-
-  return layouts.balanced.slice(0, photos.length)
-}
-
-function getStorySlotPenalty(photo: PosterPhoto, slot: PhotoSlot) {
-  const slotRatio = slot.width / slot.height
-
-  return Math.abs(Math.log(photo.ratio / slotRatio))
-}
-
-function assignStoryPhotosToSlots(photos: PosterPhoto[]) {
-  const visiblePhotos = photos.slice(0, STORY_MAX_TILES)
-  const slots = getStoryLayoutSlots(visiblePhotos)
-  const unused = visiblePhotos.map((photo) => photo)
-
-  return slots.map((slot) => {
-    let bestPhoto = unused[0]
-    let bestScore = Number.POSITIVE_INFINITY
-
-    for (const photo of unused) {
-      const score = getStorySlotPenalty(photo, slot)
-
-      if (
-        score < bestScore ||
-        (score === bestScore && photo.originalIndex < bestPhoto.originalIndex)
-      ) {
-        bestPhoto = photo
-        bestScore = score
-      }
-    }
-
-    unused.splice(unused.indexOf(bestPhoto), 1)
-
-    return { photo: bestPhoto, slot }
+    drawPhotoSlot(context, photo, slot.x, slot.y, slot.width, slot.height, {
+      ...options,
+      fit: mode === 'posterLandscape' ? 'cover' : 'smart',
+    })
   })
 }
 
 function drawStoryGrid(
   context: CanvasRenderingContext2D,
   photos: PosterPhoto[],
-  area: { x: number; y: number; width: number; height: number },
+  mode: Extract<DesignMode, 'storyPortrait' | 'storyLandscape'>,
   options?: { grayscale?: boolean }
 ) {
-  const visiblePhotos = photos.slice(0, STORY_MAX_TILES)
+  const slots = mode === 'storyPortrait' ? STORY_LAYOUT.portrait : STORY_LAYOUT.landscape
+  const visiblePhotos = photos.slice(0, slots.length)
+  const photoArea = slots.reduce(
+    (area, slot) => ({
+      bottom: Math.max(area.bottom, slot.y + slot.height),
+      left: Math.min(area.left, slot.x),
+      right: Math.max(area.right, slot.x + slot.width),
+      top: Math.min(area.top, slot.y),
+    }),
+    {
+      bottom: Number.NEGATIVE_INFINITY,
+      left: Number.POSITIVE_INFINITY,
+      right: Number.NEGATIVE_INFINITY,
+      top: Number.POSITIVE_INFINITY,
+    }
+  )
 
   context.save()
   context.fillStyle = 'rgba(0, 0, 0, 0.62)'
-  context.fillRect(area.x - 18, area.y - 18, area.width + 36, area.height + 36)
+  context.fillRect(
+    photoArea.left - 18,
+    photoArea.top - 18,
+    photoArea.right - photoArea.left + 36,
+    photoArea.bottom - photoArea.top + 36
+  )
   context.restore()
 
-  assignStoryPhotosToSlots(visiblePhotos).forEach(({ photo, slot }) => {
-    drawPhotoSlot(
-      context,
-      photo,
-      slot.x,
-      slot.y,
-      slot.width,
-      slot.height,
-      options
-    )
+  visiblePhotos.forEach((photo, index) => {
+    const slot = slots[index]
+
+    if (!slot) return
+
+    drawPhotoSlot(context, photo, slot.x, slot.y, slot.width, slot.height, {
+      ...options,
+      fit: mode === 'storyLandscape' ? 'cover' : 'smart',
+    })
   })
 }
 
@@ -603,7 +697,9 @@ export default function Page() {
   const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [creatingPoster, setCreatingPoster] = useState(false)
-  const [designMode, setDesignMode] = useState<DesignFormat | null>(null)
+  const [designFormat, setDesignFormat] = useState<DesignFormat | null>(null)
+  const [designMode, setDesignMode] = useState<DesignMode | null>(null)
+  const [photoMetricsById, setPhotoMetricsById] = useState<Record<string, PhotoMetrics>>({})
   const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
   const [albumPackagesVisible, setAlbumPackagesVisible] = useState(false)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
@@ -787,52 +883,169 @@ export default function Page() {
     }),
     [albumPackageSize, items, t.gallery.albumPackageLabel, totalAlbumPackages]
   )
-  const posterSelectedCount = Math.min(selectedItems.length, POSTER_MAX_TILES)
-  const storySelectedCount = Math.min(selectedItems.length, STORY_MAX_TILES)
-  const designModeLimit =
-    designMode === 'poster'
-      ? POSTER_MAX_TILES
-      : designMode === 'story'
-        ? STORY_MAX_TILES
-        : selectedLimit
+  const selectedDesignMetrics = selectedItems.map(
+    (item) => photoMetricsById[item.id] || getFallbackPhotoMetrics()
+  )
+  const selectedPortraitCount = selectedDesignMetrics.filter(
+    (metrics) => metrics.orientation === 'portrait'
+  ).length
+  const selectedLandscapeCount = selectedDesignMetrics.filter(
+    (metrics) => metrics.orientation === 'landscape'
+  ).length
+  const designModeConfig = designMode ? DESIGN_MODE_CONFIG[designMode] : null
+  const designModeLimit = designModeConfig?.max || selectedLimit
   const designModeLabel =
-    designMode === 'poster'
-      ? t.gallery.posterButton
-      : designMode === 'story'
-        ? t.gallery.storyButton
-        : ''
+    designMode === 'posterPortrait'
+      ? t.gallery.posterPortraitMode
+      : designMode === 'posterLandscape'
+        ? t.gallery.posterLandscapeMode
+        : designMode === 'posterMixed'
+          ? t.gallery.posterMixedMode
+          : designMode === 'storyPortrait'
+            ? t.gallery.storyPortraitMode
+            : designMode === 'storyLandscape'
+              ? t.gallery.storyLandscapeMode
+              : ''
   const designSelectedCount = Math.min(selectedItems.length, designModeLimit)
   const designLimitReached = Boolean(designMode && selectedItems.length >= designModeLimit)
-  const posterOverflowCount = Math.max(0, selectedItems.length - POSTER_MAX_TILES)
-  const posterRemainingCount = Math.max(0, POSTER_MAX_TILES - posterSelectedCount)
-  const posterSelectionLabel = posterOverflowCount > 0
-    ? `${t.gallery.posterLimitExceeded} ${posterOverflowCount} ${t.gallery.posterExtraIgnored}`
-    : posterSelectedCount === POSTER_MAX_TILES
-      ? t.gallery.posterLimitReached
-      : posterSelectedCount > 0
-        ? `${posterRemainingCount} ${t.gallery.posterMoreNeeded}`
-        : t.gallery.posterHorizontalTip
+  const mixedPosterReady =
+    designMode === 'posterMixed' &&
+    selectedPortraitCount === MIXED_POSTER_PORTRAIT_TILES &&
+    selectedLandscapeCount === MIXED_POSTER_LANDSCAPE_TILES
+  const designReady = Boolean(
+    designMode &&
+      selectedItems.length > 0 &&
+      (designMode !== 'posterMixed' || mixedPosterReady)
+  )
 
-  const chooseDesignMode = (format: DesignFormat) => {
-    if (designMode === format) return
+  const getPhotoMetrics = (item: UploadRecord) =>
+    photoMetricsById[item.id] || getFallbackPhotoMetrics()
 
-    if (designMode && selected.length > 0) {
-      const confirmed = window.confirm(t.gallery.designSwitchConfirm)
+  const getOrientationBlockedMessage = (orientation: PhotoOrientation) => {
+    if (!designMode || !designModeConfig) return ''
 
-      if (!confirmed) return
-
-      setSelected([])
-    } else if (!designMode && selected.length > (format === 'poster' ? POSTER_MAX_TILES : STORY_MAX_TILES)) {
-      const confirmed = window.confirm(t.gallery.designSwitchConfirm)
-
-      if (!confirmed) return
-
-      setSelected([])
+    if (designMode === 'posterMixed' && orientation === 'neutral') {
+      return t.gallery.designNeutralDisabled
     }
 
-    setDesignMode(format)
+    if (designModeConfig.allowedOrientations.includes(orientation)) return ''
+
+    return orientation === 'portrait'
+      ? t.gallery.designPortraitFitsBetter
+      : t.gallery.designLandscapeFitsBetter
+  }
+
+  const getSelectionBlockMessage = (item: UploadRecord) => {
+    if (designFormat && !designMode) return t.gallery.designChooseMode
+    if (!designMode || !designModeConfig) return ''
+
+    const metrics = photoMetricsById[item.id]
+
+    if (designMode === 'posterMixed' && !metrics) {
+      return t.gallery.designOrientationPending
+    }
+
+    const orientation = (metrics || getFallbackPhotoMetrics()).orientation
+    const orientationMessage = getOrientationBlockedMessage(orientation)
+
+    if (orientationMessage) return orientationMessage
+
+    if (designMode === 'posterMixed') {
+      if (
+        orientation === 'portrait' &&
+        selectedPortraitCount >= MIXED_POSTER_PORTRAIT_TILES
+      ) {
+        return t.gallery.designPortraitLimitReached
+      }
+
+      if (
+        orientation === 'landscape' &&
+        selectedLandscapeCount >= MIXED_POSTER_LANDSCAPE_TILES
+      ) {
+        return t.gallery.designLandscapeLimitReached
+      }
+    }
+
+    if (selectedItems.length >= designModeLimit) {
+      return t.gallery.designLimitReached
+    }
+
+    return ''
+  }
+
+  const registerPhotoMetrics = (item: UploadRecord, image: HTMLImageElement) => {
+    const nextMetrics = getPhotoMetricsFromImage(image)
+
+    setPhotoMetricsById((prev) => {
+      const current = prev[item.id]
+
+      if (
+        current &&
+        current.orientation === nextMetrics.orientation &&
+        Math.abs(current.ratio - nextMetrics.ratio) < 0.001
+      ) {
+        return prev
+      }
+
+      return {
+        ...prev,
+        [item.id]: nextMetrics,
+      }
+    })
+  }
+
+  const resetDesignSelection = () => {
+    setSelected([])
+  }
+
+  const chooseDesignFormat = (format: DesignFormat) => {
+    if (designFormat === format && !designMode) return
+
+    if ((designFormat || designMode) && selected.length > 0) {
+      const confirmed = window.confirm(t.gallery.designSwitchConfirm)
+
+      if (!confirmed) return
+
+      resetDesignSelection()
+    } else if (designMode) {
+      setDesignMode(null)
+    }
+
+    setDesignFormat(format)
+    setDesignMode(null)
     setStatusMessage(
-      format === 'poster' ? t.gallery.designPosterActive : t.gallery.designStoryActive
+      format === 'poster' ? t.gallery.designChoosePosterMode : t.gallery.designChooseStoryMode
+    )
+  }
+
+  const chooseDesignMode = (mode: DesignMode) => {
+    if (designMode === mode) return
+
+    if (selected.length > 0) {
+      const confirmed = window.confirm(t.gallery.designSwitchConfirm)
+
+      if (!confirmed) return
+
+      resetDesignSelection()
+    }
+
+    setDesignFormat(DESIGN_MODE_CONFIG[mode].format)
+    setDesignMode(mode)
+    const nextLabel =
+      mode === 'posterPortrait'
+        ? t.gallery.posterPortraitMode
+        : mode === 'posterLandscape'
+          ? t.gallery.posterLandscapeMode
+          : mode === 'posterMixed'
+            ? t.gallery.posterMixedMode
+            : mode === 'storyPortrait'
+              ? t.gallery.storyPortraitMode
+              : t.gallery.storyLandscapeMode
+
+    setStatusMessage(
+      mode === 'posterMixed'
+        ? t.gallery.designMixedHint
+        : `${nextLabel} — 0 / ${DESIGN_MODE_CONFIG[mode].max} ${t.gallery.designSelected}`
     )
   }
 
@@ -847,8 +1060,14 @@ export default function Page() {
         return prev.filter((itemId) => itemId !== id)
       }
 
-      if (designMode && prev.length >= designModeLimit) {
-        setStatusMessage(t.gallery.designLimitReached)
+      const item = items.find((candidate) => candidate.id === id)
+
+      if (!item) return prev
+
+      const blockMessage = getSelectionBlockMessage(item)
+
+      if (blockMessage) {
+        setStatusMessage(blockMessage)
         return prev
       }
 
@@ -999,24 +1218,37 @@ export default function Page() {
   }
 
   const openPosterStyleOptions = () => {
-    if (selectedItems.length === 0 || creatingPoster) {
+    if (!designMode || selectedItems.length === 0 || creatingPoster) {
       setStatusMessage(t.gallery.posterChoose)
+      return
+    }
+
+    if (designMode === 'posterMixed' && !mixedPosterReady) {
+      setStatusMessage(t.gallery.designMixedIncomplete)
       return
     }
 
     setPosterStyleModalOpen(true)
   }
 
-  const createPoster = async (options?: { grayscale?: boolean; format?: DesignFormat }) => {
-    if (selectedItems.length === 0 || creatingPoster) {
+  const createPoster = async (options?: { grayscale?: boolean; mode?: DesignMode }) => {
+    const activeMode = options?.mode || designMode
+
+    if (!activeMode || selectedItems.length === 0 || creatingPoster) {
       setStatusMessage(t.gallery.posterChoose)
+      return
+    }
+
+    if (activeMode === 'posterMixed' && !mixedPosterReady) {
+      setStatusMessage(t.gallery.designMixedIncomplete)
       return
     }
 
     setPosterStyleModalOpen(false)
     setCreatingPoster(true)
-    const format = options?.format || 'poster'
-    const maxTiles = format === 'story' ? STORY_MAX_TILES : POSTER_MAX_TILES
+    const modeConfig = DESIGN_MODE_CONFIG[activeMode]
+    const format = modeConfig.format
+    const maxTiles = modeConfig.max
 
     setStatusMessage(format === 'story' ? t.gallery.storyPreparing : t.gallery.posterPreparing)
 
@@ -1031,8 +1263,19 @@ export default function Page() {
       }
 
       const posterPhotos: PosterPhoto[] = []
+      const orderedItems =
+        activeMode === 'posterMixed'
+          ? [
+              ...selectedItems.filter(
+                (item) => getPhotoMetrics(item).orientation === 'portrait'
+              ),
+              ...selectedItems.filter(
+                (item) => getPhotoMetrics(item).orientation === 'landscape'
+              ),
+            ]
+          : selectedItems
 
-      for (const [originalIndex, item] of selectedItems.entries()) {
+      for (const [originalIndex, item] of orderedItems.entries()) {
         if (posterPhotos.length >= maxTiles) break
 
         const resource = await loadCanvasImage(item.file_url)
@@ -1081,8 +1324,8 @@ export default function Page() {
 
         drawStoryGrid(
           context,
-          posterPhotos.slice(0, STORY_MAX_TILES),
-          STORY_LAYOUT.photoArea,
+          posterPhotos,
+          activeMode === 'storyLandscape' ? 'storyLandscape' : 'storyPortrait',
           { grayscale: options?.grayscale }
         )
 
@@ -1114,7 +1357,11 @@ export default function Page() {
         drawPosterGrid(
           context,
           posterPhotos,
-          POSTER_TEMPLATE_PHOTO_AREA,
+          activeMode === 'posterMixed'
+            ? 'posterMixed'
+            : activeMode === 'posterLandscape'
+              ? 'posterLandscape'
+              : 'posterPortrait',
           { grayscale: options?.grayscale }
         )
 
@@ -1122,7 +1369,7 @@ export default function Page() {
           drawContainImage(context, templateResource.image, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
         }
       } else {
-        const titleBottom = drawPosterTitle(
+        drawPosterTitle(
           context,
           eventName,
           POSTER_MARGIN,
@@ -1131,17 +1378,17 @@ export default function Page() {
         )
         const footerTop =
           POSTER_HEIGHT -
-          POSTER_LAYOUT.bottomAreaHeight +
-          (POSTER_LAYOUT.bottomAreaHeight - POSTER_FOOTER_HEIGHT) / 2
-        const gridArea = {
-          ...POSTER_TEMPLATE_PHOTO_AREA,
-          y: Math.max(POSTER_TEMPLATE_PHOTO_AREA.y, titleBottom + 30),
-        }
+          POSTER_PHOTO_AREA.bottomAreaHeight +
+          (POSTER_PHOTO_AREA.bottomAreaHeight - POSTER_FOOTER_HEIGHT) / 2
 
         drawPosterGrid(
           context,
           posterPhotos,
-          gridArea,
+          activeMode === 'posterMixed'
+            ? 'posterMixed'
+            : activeMode === 'posterLandscape'
+              ? 'posterLandscape'
+              : 'posterPortrait',
           { grayscale: options?.grayscale }
         )
 
@@ -1205,7 +1452,7 @@ export default function Page() {
         body: JSON.stringify({
           activity: format,
           eventIdentifier,
-          itemCount: format === 'story' ? storySelectedCount : posterSelectedCount,
+          itemCount: Math.min(selectedItems.length, maxTiles),
         }),
       })
       setStatusMessage(format === 'story' ? t.gallery.storyReady : t.gallery.posterReady)
@@ -1464,10 +1711,10 @@ export default function Page() {
               <>
                 <button
                   type="button"
-                  onClick={() => chooseDesignMode('poster')}
+                  onClick={() => chooseDesignFormat('poster')}
                   disabled={creatingPoster}
                   className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                    designMode === 'poster'
+                    designFormat === 'poster'
                       ? 'bg-stone-950 text-white ring-2 ring-stone-950/20'
                       : creatingPoster
                         ? 'cursor-not-allowed bg-stone-300 text-stone-500'
@@ -1479,10 +1726,10 @@ export default function Page() {
 
                 <button
                   type="button"
-                  onClick={() => chooseDesignMode('story')}
+                  onClick={() => chooseDesignFormat('story')}
                   disabled={creatingPoster}
                   className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                    designMode === 'story'
+                    designFormat === 'story'
                       ? 'bg-[#B52E2E] text-white ring-2 ring-[#B52E2E]/20'
                       : creatingPoster
                         ? 'cursor-not-allowed bg-stone-300 text-stone-500'
@@ -1492,11 +1739,68 @@ export default function Page() {
                   {t.gallery.storyButton}
                 </button>
 
+                {designFormat === 'poster' ? (
+                  <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 p-2">
+                    <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#597594]">
+                      {t.gallery.designChoosePosterMode}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {([
+                        ['posterPortrait', t.gallery.posterPortraitMode],
+                        ['posterLandscape', t.gallery.posterLandscapeMode],
+                        ['posterMixed', t.gallery.posterMixedMode],
+                      ] as const).map(([mode, label]) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => chooseDesignMode(mode)}
+                          disabled={creatingPoster}
+                          className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm sm:flex-none ${
+                            designMode === mode
+                              ? 'bg-stone-950 text-white'
+                              : 'bg-white text-stone-950 hover:bg-stone-100'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                {designFormat === 'story' ? (
+                  <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 p-2">
+                    <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#597594]">
+                      {t.gallery.designChooseStoryMode}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {([
+                        ['storyPortrait', t.gallery.storyPortraitMode],
+                        ['storyLandscape', t.gallery.storyLandscapeMode],
+                      ] as const).map(([mode, label]) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => chooseDesignMode(mode)}
+                          disabled={creatingPoster}
+                          className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm sm:flex-none ${
+                            designMode === mode
+                              ? 'bg-[#B52E2E] text-white'
+                              : 'bg-white text-[#B52E2E] hover:bg-[#FFF1F1]'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
                 <p className={`basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F] ${selectedItems.length === 0 ? 'hidden sm:block' : ''}`}>
                   {designMode
-                    ? designMode === 'poster'
-                      ? posterSelectionLabel
-                      : t.gallery.designStoryActive
+                    ? designMode === 'posterMixed'
+                      ? t.gallery.designMixedHint
+                      : `${designModeLabel} — ${designSelectedCount} / ${designModeLimit} ${t.gallery.designSelected}`
                     : t.gallery.designChooseFormat}
                 </p>
               </>
@@ -1518,10 +1822,25 @@ export default function Page() {
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#597594]">
                   {designModeLabel}
                 </p>
-                <p className={`text-lg font-bold ${designLimitReached ? 'text-[#B52E2E]' : 'text-stone-950'}`}>
-                  {designSelectedCount} / {designModeLimit} {t.gallery.designSelected}
-                </p>
-                {designLimitReached ? (
+                {designMode === 'posterMixed' ? (
+                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                    <p className={`text-base font-bold ${selectedPortraitCount >= MIXED_POSTER_PORTRAIT_TILES ? 'text-[#B52E2E]' : 'text-stone-950'}`}>
+                      {t.gallery.designPortraitCount} {selectedPortraitCount} / {MIXED_POSTER_PORTRAIT_TILES}
+                    </p>
+                    <p className={`text-base font-bold ${selectedLandscapeCount >= MIXED_POSTER_LANDSCAPE_TILES ? 'text-[#B52E2E]' : 'text-stone-950'}`}>
+                      {t.gallery.designLandscapeCount} {selectedLandscapeCount} / {MIXED_POSTER_LANDSCAPE_TILES}
+                    </p>
+                  </div>
+                ) : (
+                  <p className={`text-lg font-bold ${designLimitReached ? 'text-[#B52E2E]' : 'text-stone-950'}`}>
+                    {designSelectedCount} / {designModeLimit} {t.gallery.designSelected}
+                  </p>
+                )}
+                {designMode === 'posterMixed' && !mixedPosterReady && selectedItems.length > 0 ? (
+                  <p className="text-xs font-semibold text-[#B52E2E]">
+                    {t.gallery.designMixedIncomplete}
+                  </p>
+                ) : designLimitReached ? (
                   <p className="text-xs font-semibold text-[#B52E2E]">
                     {t.gallery.designLimitReached}
                   </p>
@@ -1531,7 +1850,7 @@ export default function Page() {
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => chooseDesignMode(designMode === 'poster' ? 'story' : 'poster')}
+                  onClick={() => chooseDesignFormat(designFormat === 'poster' ? 'story' : 'poster')}
                   disabled={creatingPoster}
                   className="inline-flex min-h-9 flex-1 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-stone-500 sm:flex-none"
                 >
@@ -1547,18 +1866,18 @@ export default function Page() {
                 </button>
                 <button
                   type="button"
-                  onClick={designMode === 'poster' ? openPosterStyleOptions : () => createPoster({ grayscale: false, format: 'story' })}
-                  disabled={selectedItems.length === 0 || creatingPoster}
+                  onClick={designFormat === 'poster' ? openPosterStyleOptions : () => createPoster({ grayscale: false, mode: designMode })}
+                  disabled={!designReady || creatingPoster}
                   className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold text-white shadow-sm sm:flex-none ${
-                    selectedItems.length === 0 || creatingPoster
+                    !designReady || creatingPoster
                       ? 'cursor-not-allowed bg-stone-300'
-                      : designMode === 'poster'
+                      : designFormat === 'poster'
                         ? 'bg-stone-950 hover:bg-stone-800'
                         : 'bg-[#B52E2E] hover:bg-[#982525]'
                   }`}
                 >
                   {creatingPoster
-                    ? designMode === 'story'
+                    ? designFormat === 'story'
                       ? t.gallery.storyPreparing
                       : t.gallery.posterPreparing
                     : t.gallery.designCreate}
@@ -1576,7 +1895,8 @@ export default function Page() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => {
               const isSelected = selected.includes(item.id)
-              const isSelectionBlocked = Boolean(designMode && !isSelected && designLimitReached)
+              const selectionBlockMessage = !isSelected ? getSelectionBlockMessage(item) : ''
+              const isSelectionBlocked = Boolean(selectionBlockMessage)
               const downloadName = getUploadShortFileName(item, {
                 eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
                 sequence: shareSequenceById[item.id],
@@ -1602,6 +1922,7 @@ export default function Page() {
                       width={1200}
                       height={1200}
                       unoptimized
+                      onLoad={(event) => registerPhotoMetrics(item, event.currentTarget)}
                       className="aspect-[4/5] w-full bg-stone-950 object-contain"
                     />
                     <button
@@ -1620,7 +1941,7 @@ export default function Page() {
                         aria-label={isSelected ? t.gallery.selected : t.gallery.select}
                         title={
                           isSelectionBlocked
-                            ? t.gallery.designLimitReached
+                            ? selectionBlockMessage
                             : isSelected
                               ? t.gallery.selected
                               : t.gallery.select
@@ -1643,6 +1964,12 @@ export default function Page() {
                           </svg>
                         )}
                       </button>
+                    ) : null}
+
+                    {isSelectionBlocked ? (
+                      <div className="absolute left-3 right-3 top-16 z-20 rounded-2xl bg-white/92 px-3 py-2 text-[10px] font-semibold text-[#B52E2E] shadow-sm backdrop-blur">
+                        {selectionBlockMessage}
+                      </div>
                     ) : null}
 
                     {deleteEnabled ? (
@@ -1854,14 +2181,14 @@ export default function Page() {
             <div className="grid gap-3">
               <button
                 type="button"
-                onClick={() => createPoster({ grayscale: false, format: 'poster' })}
+                onClick={() => createPoster({ grayscale: false, mode: designMode || undefined })}
                 className="rounded-2xl bg-[#F58220] px-4 py-4 text-left text-sm font-bold text-white shadow-sm hover:bg-[#DB6E12]"
               >
                 {t.gallery.posterColorOption}
               </button>
               <button
                 type="button"
-                onClick={() => createPoster({ grayscale: true, format: 'poster' })}
+                onClick={() => createPoster({ grayscale: true, mode: designMode || undefined })}
                 className="rounded-2xl bg-stone-950 px-4 py-4 text-left text-sm font-bold text-white shadow-sm hover:bg-stone-800"
               >
                 {t.gallery.posterBlackWhiteOption}

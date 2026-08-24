@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react'
 import { useLanguage } from '@/app/_components/language-provider'
-import { getPublicPath } from '@/lib/app-url'
 
 type EventAccessFormProps = {
   eventIdentifier?: string
@@ -81,7 +80,7 @@ export function EventAccessForm({
       setStatusMessage(t.home.accessGranted)
 
       startTransition(() => {
-        window.location.assign(getPublicPath(payload.redirectTo!))
+        window.location.assign(payload.redirectTo!)
       })
     } catch (error) {
       setStatusMessage(

@@ -5,8 +5,8 @@ import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
 import {
   EVENT_ACCESS_COOKIE_NAME,
+  getSafeEventReturnToPath,
   hasEventAccess,
-  isSafeReturnToPath,
 } from '@/lib/event-access'
 import { getEventRoute } from '@/lib/events'
 
@@ -24,7 +24,12 @@ export default async function JoinPage({
   const accessCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
 
   if (hasEventAccess(accessCookie, id)) {
-    redirect(isSafeReturnToPath(returnTo || '') ? returnTo! : getEventRoute(id))
+    redirect(
+      getSafeEventReturnToPath(returnTo || '', {
+        eventId: id,
+        eventSlug: id,
+      }) || getEventRoute(id)
+    )
   }
 
   return (
