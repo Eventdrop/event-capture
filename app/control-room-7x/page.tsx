@@ -49,6 +49,8 @@ type DownloadStatsEntry = {
   lastDownloadedAt: string | null
 }
 
+type AdminEventSection = 'events' | 'templates'
+
 export default function AdminPage() {
   const { t, locale } = useLanguage()
   const [authenticated, setAuthenticated] = useState(false)
@@ -74,6 +76,7 @@ export default function AdminPage() {
   const [downloadStatsByEvent, setDownloadStatsByEvent] = useState<
     Record<string, DownloadStatsEntry>
   >({})
+  const [adminSection, setAdminSection] = useState<AdminEventSection>('events')
   const [eventName, setEventName] = useState('')
   const [eventDate, setEventDate] = useState('')
   const [defaultLocale, setDefaultLocale] = useState<Locale>('nl')
@@ -127,7 +130,17 @@ export default function AdminPage() {
     storyTemplate: t.admin.storyTemplateImage,
   }
 
-  const latestEvent = useMemo(() => events[0] || null, [events])
+  const customerEvents = useMemo(
+    () => events.filter((event) => !event.isDemoTemplate),
+    [events]
+  )
+  const demoTemplateEvents = useMemo(
+    () => events.filter((event) => event.isDemoTemplate),
+    [events]
+  )
+  const visibleEvents = adminSection === 'templates' ? demoTemplateEvents : customerEvents
+  const latestEvent = useMemo(() => customerEvents[0] || null, [customerEvents])
+  const creatingDemoTemplate = adminSection === 'templates'
 
   const getEventIdentifier = (event: NormalizedEvent) => event.slug || event.id
   const getEventShareUrl = (event: NormalizedEvent) =>
@@ -391,10 +404,11 @@ export default function AdminPage() {
       const payload = buildEventInsertPayload({
         name: eventName,
         albumName: eventName,
-        eventDate,
+        eventDate: creatingDemoTemplate ? '' : eventDate,
         defaultLocale,
         accessCode,
         accessCodeEnabled,
+        isDemoTemplate: creatingDemoTemplate,
         coverImageUrl: persistedCoverImageUrl,
         backgroundImageUrl: persistedBackgroundImageUrl,
         posterTemplateUrl: persistedPosterTemplateUrl,
@@ -418,6 +432,7 @@ export default function AdminPage() {
           defaultLocale: payload.default_locale,
           accessCode: payload.access_code,
           accessCodeEnabled,
+          isDemoTemplate: creatingDemoTemplate,
           coverImageUrl: payload.cover_image_url,
           backgroundImageUrl: payload.background_image_url,
           posterTemplateUrl:
@@ -592,6 +607,22 @@ export default function AdminPage() {
     setCreatedDemoEvent(null)
   }
 
+  const generateDemoAccessCode = () => {
+    const existingCodes = new Set(
+      events
+        .map((event) => event.accessCode)
+        .filter((code): code is string => Boolean(code))
+    )
+
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      const code = generateEventAccessCode()
+
+      if (!existingCodes.has(code)) return code
+    }
+
+    return generateEventAccessCode(8)
+  }
+
   const createDemoClone = async () => {
     if (!demoCloneSource) return
 
@@ -614,9 +645,11 @@ export default function AdminPage() {
         body: JSON.stringify({
           name: demoName,
           albumName: demoName,
+          eventDate: '',
           defaultLocale: demoCloneSource.defaultLocale,
-          accessCode: demoCloneSource.accessCode ? generateEventAccessCode() : '',
+          accessCode: demoCloneSource.accessCode ? generateDemoAccessCode() : '',
           accessCodeEnabled: Boolean(demoCloneSource.accessCode),
+          isDemoTemplate: false,
           coverImageUrl: demoCloneSource.coverImageUrl,
           backgroundImageUrl: demoCloneSource.backgroundImageUrl,
           posterTemplateUrl: demoCloneSource.posterTemplateUrl,
@@ -1076,6 +1109,28 @@ export default function AdminPage() {
       <SiteHeader currentLabel={t.common.restrictedAdmin} />
 
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 md:px-8">
+        <nav className="rounded-[1.6rem] border border-[#D4DFEE] bg-white/85 p-2 shadow-[0_14px_36px_rgba(15,61,102,0.08)]">
+          <div className="grid gap-2 sm:grid-cols-2">
+            {([
+              ['events', t.admin.eventsTab],
+              ['templates', t.admin.demoTemplatesTab],
+            ] as const).map(([section, label]) => (
+              <button
+                key={section}
+                type="button"
+                onClick={() => setAdminSection(section)}
+                className={`rounded-[1.1rem] px-4 py-3 text-sm font-semibold transition ${
+                  adminSection === section
+                    ? 'bg-[#0F3D66] text-white shadow-[0_10px_24px_rgba(15,61,102,0.18)]'
+                    : 'text-[#0F3D66] hover:bg-[#EDF4FB]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
         <section className="grid gap-5 lg:grid-cols-[0.62fr_1.38fr]">
           <div className="rounded-[1.8rem] border border-[#D4DFEE] bg-white/85 p-5 shadow-[0_18px_54px_rgba(15,61,102,0.08)]">
             <div className="flex items-center justify-between gap-3">
@@ -1084,7 +1139,7 @@ export default function AdminPage() {
                   {t.admin.recentAlbums}
                 </p>
                 <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#0B2742]">
-                  {events.length} album
+                  {visibleEvents.length} album
                 </h1>
               </div>
 
@@ -1101,13 +1156,13 @@ export default function AdminPage() {
               <p className="mt-5 rounded-[1.2rem] bg-[#F7FAFD] p-4 text-sm text-[#597594]">
                 {t.admin.unlockToManage}
               </p>
-            ) : events.length === 0 ? (
+            ) : visibleEvents.length === 0 ? (
               <p className="mt-5 rounded-[1.2rem] bg-[#F7FAFD] p-4 text-sm text-[#597594]">
-                {t.admin.noEvents}
+                {creatingDemoTemplate ? t.admin.noDemoTemplates : t.admin.noEvents}
               </p>
             ) : (
               <div className="mt-5 space-y-3">
-                {events.slice(0, 8).map((event, index) => (
+                {visibleEvents.slice(0, 8).map((event, index) => (
                   <details
                     key={event.id}
                     open={index === 0}
@@ -1289,16 +1344,21 @@ export default function AdminPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="md:col-span-2">
                     <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                      {t.admin.eventName}
+                      {creatingDemoTemplate ? t.admin.demoTemplateName : t.admin.eventName}
                     </label>
                     <input
                       value={eventName}
                       onChange={(event) => setEventName(event.target.value)}
-                      placeholder="Voorjaarsbruiloft aan de gracht"
+                      placeholder={
+                        creatingDemoTemplate
+                          ? t.admin.demoTemplateNamePlaceholder
+                          : 'Voorjaarsbruiloft aan de gracht'
+                      }
                       className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742] placeholder:text-[#7D95AF]"
                     />
                   </div>
 
+                  {creatingDemoTemplate ? null : (
                   <div>
                     <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
                       {t.common.eventDate}
@@ -1310,6 +1370,7 @@ export default function AdminPage() {
                       className="w-full rounded-2xl border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#0B2742]"
                     />
                   </div>
+                  )}
 
                   <div>
                     <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
@@ -1582,7 +1643,11 @@ export default function AdminPage() {
                       : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
                   }`}
                 >
-                  {submitting ? t.admin.saving : t.admin.createButton}
+                  {submitting
+                    ? t.admin.saving
+                    : creatingDemoTemplate
+                      ? t.admin.createDemoTemplateButton
+                      : t.admin.createButton}
                 </button>
               </div>
             ) : (
@@ -1655,11 +1720,13 @@ export default function AdminPage() {
 
           {!authenticated ? (
             <p className="mt-6 text-sm text-[#597594]">{t.admin.unlockToManage}</p>
-          ) : events.length === 0 ? (
-            <p className="mt-6 text-sm text-[#597594]">{t.admin.noEvents}</p>
+          ) : visibleEvents.length === 0 ? (
+            <p className="mt-6 text-sm text-[#597594]">
+              {creatingDemoTemplate ? t.admin.noDemoTemplates : t.admin.noEvents}
+            </p>
           ) : (
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
-              {events.map((event, index) => (
+              {visibleEvents.map((event, index) => (
                 <details
                   key={event.id}
                   open={index === 0}
@@ -1977,7 +2044,7 @@ export default function AdminPage() {
                         disabled={submitting}
                         className="mt-3 inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {t.admin.demoCloneAction}
+                        {event.isDemoTemplate ? t.admin.createDemoFromTemplate : t.admin.demoCloneAction}
                       </button>
                     </div>
 

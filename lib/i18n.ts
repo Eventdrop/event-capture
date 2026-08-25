@@ -96,8 +96,12 @@ type TranslationTree = {
     passwordTooShort: string
     passwordChangeSuccess: string
     passwordChangeError: string
+    eventsTab: string
+    demoTemplatesTab: string
     createTitle: string
     eventName: string
+    demoTemplateName: string
+    demoTemplateNamePlaceholder: string
     albumName: string
     accessCodeField: string
     accessCodeHelp: string
@@ -131,8 +135,10 @@ type TranslationTree = {
     mediaUploading: string
     mediaUploadError: string
     createButton: string
+    createDemoTemplateButton: string
     saving: string
     noEvents: string
+    noDemoTemplates: string
     unlockToManage: string
     qrLabel: string
     downloadQrPng: string
@@ -172,6 +178,7 @@ type TranslationTree = {
     saveVisibility: string
     visibilitySaved: string
     visibilitySaveError: string
+    createDemoFromTemplate: string
     demoCloneAction: string
     demoCloneTitle: string
     demoCloneIntro: string
@@ -512,8 +519,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       passwordTooShort: 'Yeni sifre en az 8 karakter olmali.',
       passwordChangeSuccess: 'Admin sifresi basariyla guncellendi.',
       passwordChangeError: 'Admin sifresi guncellenemedi.',
+      eventsTab: 'Etkinlikler',
+      demoTemplatesTab: 'Demo sablonlari',
       createTitle: 'Son public album burada yonetilir.',
       eventName: 'Etkinlik adi',
+      demoTemplateName: 'Sablon adi',
+      demoTemplateNamePlaceholder: 'Wedding Master',
       albumName: 'Album adi',
       accessCodeField: 'Olusacak event code',
       accessCodeHelp:
@@ -550,9 +561,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       mediaUploading: 'Gorsel yukleniyor...',
       mediaUploadError: 'Gorsel yuklenemedi.',
       createButton: 'Etkinlik albumu olustur',
+      createDemoTemplateButton: 'Demo sablonu olustur',
       saving: 'Kaydediliyor...',
       noEvents:
         'Henuz etkinlik kaydi yok. Burada ilk albumu olustur ve anasayfada yayinla.',
+      noDemoTemplates:
+        'Henuz demo sablonu yok. Hazir tasarim ve ayarlar icin ilk master sablonu olustur.',
       unlockToManage:
         'Etkinlikleri listelemek, olusturmak veya silmek icin once paneli ac.',
       qrLabel: 'Misafir yukleme QR',
@@ -595,6 +609,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       saveVisibility: 'Aksiyon ayarlarini kaydet',
       visibilitySaved: 'Etkinlik aksiyon ayarlari guncellendi.',
       visibilitySaveError: 'Etkinlik aksiyon ayarlari kaydedilemedi.',
+      createDemoFromTemplate: 'Demo olustur',
       demoCloneAction: 'Demo kopyasi olustur',
       demoCloneTitle: 'Demo kopyasi olustur',
       demoCloneIntro: 'Bu etkinligin ayarlariyla bos ve bagimsiz bir demo albumu olustur.',
@@ -1013,8 +1028,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       passwordTooShort: 'Het nieuwe wachtwoord moet minimaal 8 tekens hebben.',
       passwordChangeSuccess: 'Het beheerderswachtwoord is bijgewerkt.',
       passwordChangeError: 'Het beheerderswachtwoord kon niet worden bijgewerkt.',
+      eventsTab: 'Evenementen',
+      demoTemplatesTab: 'Demo-sjablonen',
       createTitle: 'Beheer hier je evenementen en albums.',
       eventName: 'Naam van het evenement',
+      demoTemplateName: 'Naam van het sjabloon',
+      demoTemplateNamePlaceholder: 'Wedding Master',
       albumName: 'Naam van het album',
       accessCodeField: 'Nieuwe eventcode',
       accessCodeHelp:
@@ -1051,9 +1070,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       mediaUploading: 'Afbeelding wordt geüpload...',
       mediaUploadError: 'De afbeelding kon niet worden geüpload.',
       createButton: 'Evenementalbum aanmaken',
+      createDemoTemplateButton: 'Demo-sjabloon aanmaken',
       saving: 'Opslaan...',
       noEvents:
         'Er zijn nog geen evenementen aangemaakt. Maak hier je eerste album aan.',
+      noDemoTemplates:
+        'Er zijn nog geen demo-sjablonen. Maak een master met vaste vormgeving en instellingen.',
       unlockToManage:
         'Open eerst het paneel om evenementen te bekijken, maken of verwijderen.',
       qrLabel: 'QR-code voor gastenupload',
@@ -1096,6 +1118,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       saveVisibility: 'Instellingen opslaan',
       visibilitySaved: 'Actie-instellingen voor dit evenement zijn bijgewerkt.',
       visibilitySaveError: 'Actie-instellingen konden niet worden opgeslagen.',
+      createDemoFromTemplate: 'Demo aanmaken',
       demoCloneAction: 'Demo kopie maken',
       demoCloneTitle: 'Demo kopie maken',
       demoCloneIntro: 'Maak een leeg, zelfstandig demoalbum met de instellingen van dit evenement.',
@@ -1514,8 +1537,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       passwordTooShort: 'The new password must be at least 8 characters.',
       passwordChangeSuccess: 'Admin password updated successfully.',
       passwordChangeError: 'Admin password could not be updated.',
+      eventsTab: 'Events',
+      demoTemplatesTab: 'Demo templates',
       createTitle: 'Manage the latest public album from here.',
       eventName: 'Event name',
+      demoTemplateName: 'Template name',
+      demoTemplateNamePlaceholder: 'Wedding Master',
       albumName: 'Album name',
       accessCodeField: 'Generated event code',
       accessCodeHelp:
@@ -1552,9 +1579,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       mediaUploading: 'Uploading image...',
       mediaUploadError: 'Image upload failed.',
       createButton: 'Create event album',
+      createDemoTemplateButton: 'Create demo template',
       saving: 'Saving...',
       noEvents:
         'No events exist yet. Create the first album here and publish it on the homepage.',
+      noDemoTemplates:
+        'No demo templates exist yet. Create a master with reusable design and settings.',
       unlockToManage:
         'Unlock the panel first to list, create, or delete events.',
       qrLabel: 'Guest upload QR',
@@ -1597,6 +1627,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       saveVisibility: 'Save action settings',
       visibilitySaved: 'Event action settings were updated.',
       visibilitySaveError: 'Event action settings could not be saved.',
+      createDemoFromTemplate: 'Create demo',
       demoCloneAction: 'Create demo copy',
       demoCloneTitle: 'Create demo copy',
       demoCloneIntro: 'Create an empty, independent demo album with this event’s settings.',

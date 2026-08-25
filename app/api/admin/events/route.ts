@@ -327,6 +327,7 @@ export async function POST(request: Request) {
       defaultLocale?: Locale
       accessCode?: string
       accessCodeEnabled?: boolean
+      isDemoTemplate?: boolean
       coverImageUrl?: string
       backgroundImageUrl?: string
       posterTemplateUrl?: string
@@ -345,6 +346,7 @@ export async function POST(request: Request) {
   const defaultLocale = body?.defaultLocale || 'nl'
   const accessCode = body?.accessCode?.trim() || ''
   const accessCodeEnabled = body?.accessCodeEnabled !== false
+  const isDemoTemplate = body?.isDemoTemplate === true
   const coverImageUrl = body?.coverImageUrl?.trim() || ''
   const backgroundImageUrl = body?.backgroundImageUrl?.trim() || ''
   const posterTemplateUrl = body?.posterTemplateUrl?.trim() || ''
@@ -374,6 +376,7 @@ export async function POST(request: Request) {
       defaultLocale,
       accessCode,
       accessCodeEnabled,
+      isDemoTemplate,
       coverImageUrl,
       backgroundImageUrl,
       posterTemplateUrl,
@@ -396,6 +399,12 @@ export async function POST(request: Request) {
     let createdRecord = richInsert.data
 
     if (richInsert.error) {
+      if (isDemoTemplate) {
+        throw new Error(
+          'Supabase mist nog is_demo_template. Run eerst de demo template SQL migration.'
+        )
+      }
+
       const posterTemplatePayload =
         'poster_template_url' in payload ? payload.poster_template_url : null
       const storyTemplatePayload =
@@ -411,6 +420,7 @@ export async function POST(request: Request) {
         ...(storyTemplatePayload ? { story_template_url: storyTemplatePayload } : {}),
         allow_guest_share: payload.allow_guest_share,
         allow_guest_download: payload.allow_guest_download,
+        allow_album_download: payload.allow_album_download,
         allow_guest_delete: payload.allow_guest_delete,
         allow_guest_poster: payload.allow_guest_poster,
       }
