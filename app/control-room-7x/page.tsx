@@ -1729,6 +1729,7 @@ export default function AdminPage() {
               {visibleEvents.map((event, index) => (
                 <details
                   key={event.id}
+                  id={`event-editor-${event.id}`}
                   open={index === 0}
                   className="rounded-[1.8rem] border border-[#D4DFEE] bg-[#F8FBFE] p-5"
                 >
@@ -1981,6 +1982,25 @@ export default function AdminPage() {
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {event.isDemoTemplate ? (
+                      <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
+                          {t.admin.editAction}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            document
+                              .getElementById(`event-editor-${event.id}`)
+                              ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                          }
+                          className="mt-3 inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                        >
+                          {t.admin.editAction}
+                        </button>
+                      </div>
+                    ) : null}
+
                     <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                         Misafir linki

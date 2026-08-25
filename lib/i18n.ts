@@ -178,6 +178,7 @@ type TranslationTree = {
     saveVisibility: string
     visibilitySaved: string
     visibilitySaveError: string
+    editAction: string
     createDemoFromTemplate: string
     demoCloneAction: string
     demoCloneTitle: string
@@ -520,7 +521,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       passwordChangeSuccess: 'Admin sifresi basariyla guncellendi.',
       passwordChangeError: 'Admin sifresi guncellenemedi.',
       eventsTab: 'Etkinlikler',
-      demoTemplatesTab: 'Demo sablonlari',
+      demoTemplatesTab: "Master Demo'lar",
       createTitle: 'Son public album burada yonetilir.',
       eventName: 'Etkinlik adi',
       demoTemplateName: 'Sablon adi',
@@ -561,12 +562,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       mediaUploading: 'Gorsel yukleniyor...',
       mediaUploadError: 'Gorsel yuklenemedi.',
       createButton: 'Etkinlik albumu olustur',
-      createDemoTemplateButton: 'Demo sablonu olustur',
+      createDemoTemplateButton: 'Master Demo olustur',
       saving: 'Kaydediliyor...',
       noEvents:
         'Henuz etkinlik kaydi yok. Burada ilk albumu olustur ve anasayfada yayinla.',
       noDemoTemplates:
-        'Henuz demo sablonu yok. Hazir tasarim ve ayarlar icin ilk master sablonu olustur.',
+        'Henuz Master Demo yok. Hazir tasarim ve ayarlar icin ilk master demo olustur.',
       unlockToManage:
         'Etkinlikleri listelemek, olusturmak veya silmek icin once paneli ac.',
       qrLabel: 'Misafir yukleme QR',
@@ -609,10 +610,11 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       saveVisibility: 'Aksiyon ayarlarini kaydet',
       visibilitySaved: 'Etkinlik aksiyon ayarlari guncellendi.',
       visibilitySaveError: 'Etkinlik aksiyon ayarlari kaydedilemedi.',
+      editAction: 'Duzenle',
       createDemoFromTemplate: 'Demo olustur',
-      demoCloneAction: 'Demo kopyasi olustur',
-      demoCloneTitle: 'Demo kopyasi olustur',
-      demoCloneIntro: 'Bu etkinligin ayarlariyla bos ve bagimsiz bir demo albumu olustur.',
+      demoCloneAction: 'Yeni demo kopyala',
+      demoCloneTitle: 'Yeni demo kopyala',
+      demoCloneIntro: 'Bu Master Demo tasarimi ve ayarlariyla bos, bagimsiz bir demo albumu olustur.',
       demoCustomerName: 'Musteri adi',
       demoCustomerPlaceholder: 'Studio Nova',
       demoCreate: 'Demo olustur',
@@ -1029,7 +1031,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       passwordChangeSuccess: 'Het beheerderswachtwoord is bijgewerkt.',
       passwordChangeError: 'Het beheerderswachtwoord kon niet worden bijgewerkt.',
       eventsTab: 'Evenementen',
-      demoTemplatesTab: 'Demo-sjablonen',
+      demoTemplatesTab: "Master Demo's",
       createTitle: 'Beheer hier je evenementen en albums.',
       eventName: 'Naam van het evenement',
       demoTemplateName: 'Naam van het sjabloon',
@@ -1070,12 +1072,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       mediaUploading: 'Afbeelding wordt geüpload...',
       mediaUploadError: 'De afbeelding kon niet worden geüpload.',
       createButton: 'Evenementalbum aanmaken',
-      createDemoTemplateButton: 'Demo-sjabloon aanmaken',
+      createDemoTemplateButton: 'Master Demo aanmaken',
       saving: 'Opslaan...',
       noEvents:
         'Er zijn nog geen evenementen aangemaakt. Maak hier je eerste album aan.',
       noDemoTemplates:
-        'Er zijn nog geen demo-sjablonen. Maak een master met vaste vormgeving en instellingen.',
+        "Er zijn nog geen Master Demo's. Maak een master met vaste vormgeving en instellingen.",
       unlockToManage:
         'Open eerst het paneel om evenementen te bekijken, maken of verwijderen.',
       qrLabel: 'QR-code voor gastenupload',
@@ -1118,10 +1120,11 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       saveVisibility: 'Instellingen opslaan',
       visibilitySaved: 'Actie-instellingen voor dit evenement zijn bijgewerkt.',
       visibilitySaveError: 'Actie-instellingen konden niet worden opgeslagen.',
+      editAction: 'Bewerken',
       createDemoFromTemplate: 'Demo aanmaken',
-      demoCloneAction: 'Demo kopie maken',
-      demoCloneTitle: 'Demo kopie maken',
-      demoCloneIntro: 'Maak een leeg, zelfstandig demoalbum met de instellingen van dit evenement.',
+      demoCloneAction: 'Nieuwe demo kopiëren',
+      demoCloneTitle: 'Nieuwe demo kopiëren',
+      demoCloneIntro: 'Maak een leeg, zelfstandig demoalbum met het ontwerp en de instellingen van deze Master Demo.',
       demoCustomerName: 'Klantnaam',
       demoCustomerPlaceholder: 'Studio Nova',
       demoCreate: 'Demo aanmaken',
@@ -1538,7 +1541,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       passwordChangeSuccess: 'Admin password updated successfully.',
       passwordChangeError: 'Admin password could not be updated.',
       eventsTab: 'Events',
-      demoTemplatesTab: 'Demo templates',
+      demoTemplatesTab: 'Master Demos',
       createTitle: 'Manage the latest public album from here.',
       eventName: 'Event name',
       demoTemplateName: 'Template name',
@@ -1579,12 +1582,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       mediaUploading: 'Uploading image...',
       mediaUploadError: 'Image upload failed.',
       createButton: 'Create event album',
-      createDemoTemplateButton: 'Create demo template',
+      createDemoTemplateButton: 'Create Master Demo',
       saving: 'Saving...',
       noEvents:
         'No events exist yet. Create the first album here and publish it on the homepage.',
       noDemoTemplates:
-        'No demo templates exist yet. Create a master with reusable design and settings.',
+        'No Master Demos exist yet. Create a master with reusable design and settings.',
       unlockToManage:
         'Unlock the panel first to list, create, or delete events.',
       qrLabel: 'Guest upload QR',
@@ -1627,10 +1630,11 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       saveVisibility: 'Save action settings',
       visibilitySaved: 'Event action settings were updated.',
       visibilitySaveError: 'Event action settings could not be saved.',
+      editAction: 'Edit',
       createDemoFromTemplate: 'Create demo',
-      demoCloneAction: 'Create demo copy',
-      demoCloneTitle: 'Create demo copy',
-      demoCloneIntro: 'Create an empty, independent demo album with this event’s settings.',
+      demoCloneAction: 'Copy new demo',
+      demoCloneTitle: 'Copy new demo',
+      demoCloneIntro: 'Create an empty, independent demo album with this Master Demo design and settings.',
       demoCustomerName: 'Customer name',
       demoCustomerPlaceholder: 'Studio Nova',
       demoCreate: 'Create demo',
