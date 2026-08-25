@@ -134,6 +134,7 @@ export default function Page() {
     [eventIdentifier]
   )
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const initializedLocaleForEventRef = useRef('')
 
   const [resolvedEventId, setResolvedEventId] = useState('')
   const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
@@ -148,14 +149,18 @@ export default function Page() {
 
   useEffect(() => {
     if (!currentEvent) return
+    if (initializedLocaleForEventRef.current === eventIdentifier) return
+
     const requestedLocale = new URLSearchParams(window.location.search).get('lang')
+
     setLocale(
       requestedLocale && locales.includes(requestedLocale as Locale)
         ? requestedLocale as Locale
         : currentEvent.defaultLocale,
       { persist: false }
     )
-  }, [currentEvent, setLocale])
+    initializedLocaleForEventRef.current = eventIdentifier
+  }, [currentEvent, eventIdentifier, setLocale])
 
 
   useEffect(() => {

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { LANGUAGE_STORAGE_KEY, useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
@@ -693,6 +693,7 @@ export default function Page() {
   const { t, locale, setLocale } = useLanguage()
   const params = useParams()
   const eventIdentifier = params.id as string
+  const initializedLocaleForEventRef = useRef('')
 
   const [items, setItems] = useState<UploadRecord[]>([])
   const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
@@ -716,6 +717,8 @@ export default function Page() {
 
   useEffect(() => {
     if (!currentEvent) return
+    if (initializedLocaleForEventRef.current === eventIdentifier) return
+
     const requestedLocale = new URLSearchParams(window.location.search).get('lang')
     let storedLocale: string | null = null
 
@@ -733,7 +736,8 @@ export default function Page() {
         : currentEvent.defaultLocale,
       { persist: false }
     )
-  }, [currentEvent, setLocale])
+    initializedLocaleForEventRef.current = eventIdentifier
+  }, [currentEvent, eventIdentifier, setLocale])
 
   useEffect(() => {
     setStatusMessage(t.gallery.loading)
