@@ -16,25 +16,19 @@ import { withRetry } from '@/lib/with-retry'
 export const runtime = 'nodejs'
 
 const PAGE_MARGIN = 54
+const CARD_GAP = 14
+const CARD_PADDING = 16
+const DATE_FONT_SIZE = 8.5
+const FOOTER_RESERVED_HEIGHT = 42
+const MESSAGE_FONT_SIZE = 12
+const NAME_FONT_SIZE = 12
+const THUMBNAIL_GAP = 20
+const THUMBNAIL_SIZE = 104
 const FONT_REGULAR_PATHS = [
-  path.join(
-    process.cwd(),
-    'node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-400-normal.woff'
-  ),
-  path.join(
-    process.cwd(),
-    'node_modules/@fontsource/noto-sans/files/noto-sans-latin-400-normal.woff'
-  ),
+  path.join(process.cwd(), 'public/pdf-fonts/NotoSans-Regular.ttf'),
 ]
 const FONT_BOLD_PATHS = [
-  path.join(
-    process.cwd(),
-    'node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-700-normal.woff'
-  ),
-  path.join(
-    process.cwd(),
-    'node_modules/@fontsource/noto-sans/files/noto-sans-latin-700-normal.woff'
-  ),
+  path.join(process.cwd(), 'public/pdf-fonts/NotoSans-Bold.ttf'),
 ]
 const REGISTERED_FONTS = {
   bold: '',
@@ -160,6 +154,7 @@ function setBoldFont(document: PDFKit.PDFDocument) {
 
 function drawFooter(document: PDFKit.PDFDocument, event: NormalizedEvent) {
   const bottom = document.page.height - 34
+  const previousY = document.y
 
   document
     .save()
@@ -175,12 +170,19 @@ function drawFooter(document: PDFKit.PDFDocument, event: NormalizedEvent) {
     .fillColor('#6A84A3')
     .text('EventDrop / Photobooth Holland', PAGE_MARGIN, bottom, {
       continued: false,
+      height: 10,
+      lineBreak: false,
+      width: document.page.width - PAGE_MARGIN * 2,
     })
     .text(`${getEventTitle(event)} · ${document.bufferedPageRange().count}`, PAGE_MARGIN, bottom, {
       align: 'right',
+      height: 10,
+      lineBreak: false,
       width: document.page.width - PAGE_MARGIN * 2,
     })
     .restore()
+
+  document.y = previousY
 }
 
 function drawCoverPage(
@@ -251,44 +253,73 @@ function drawCoverPage(
     })
 }
 
-function estimateCardHeight(document: PDFKit.PDFDocument, entry: GuestbookEntry) {
-  const contentWidth = document.page.width - PAGE_MARGIN * 2 - 32
-  const textWidth = entry.source === 'upload' ? contentWidth - 130 : contentWidth
-  let height = 34
+function getPageContentBottom(document: PDFKit.PDFDocument) {
+  return document.page.height - PAGE_MARGIN - FOOTER_RESERVED_HEIGHT
+}
+
+function entryHasPhoto(entry: GuestbookEntry, photo?: Buffer | null) {
+  return Boolean(photo && (entry.source === 'upload' || entry.relatedUpload))
+}
+
+function estimateCardHeight(
+  document: PDFKit.PDFDocument,
+  entry: GuestbookEntry,
+  photo?: Buffer | null
+) {
+  const hasPhoto = entryHasPhoto(entry, photo)
+  const contentWidth = document.page.width - PAGE_MARGIN * 2 - CARD_PADDING * 2
+  const textWidth = hasPhoto
+    ? contentWidth - THUMBNAIL_SIZE - THUMBNAIL_GAP
+    : contentWidth
+  let height = CARD_PADDING * 2
 
   if (entry.source === 'standalone' && entry.guestName) {
-    height += 22
+    setBoldFont(document)
+    document.fontSize(NAME_FONT_SIZE)
+    height += document.heightOfString(entry.guestName, {
+      width: textWidth,
+    })
+    height += 6
   }
 
   setRegularFont(document)
+  document.fontSize(MESSAGE_FONT_SIZE)
   height += document.heightOfString(entry.message, {
+    lineGap: 3,
     width: textWidth,
   })
 
-  return Math.max(
-    height + 28,
-    entry.source === 'upload' || entry.relatedUpload ? 136 : 96
-  )
+  const date = formatPdfDate(entry.createdAt)
+
+  if (date) {
+    document.fontSize(DATE_FONT_SIZE)
+    height += 6
+    height += document.heightOfString(date, {
+      width: textWidth,
+    })
+  }
+
+  return Math.max(height, hasPhoto ? CARD_PADDING * 2 + THUMBNAIL_SIZE : 72)
+}
+
+function drawGuestbookPageHeader(document: PDFKit.PDFDocument) {
+  document.y = PAGE_MARGIN
+  setBoldFont(document)
+  document
+    .fontSize(20)
+    .fillColor('#0B2742')
+    .text('Berichten', PAGE_MARGIN, PAGE_MARGIN)
+    .moveDown(0.8)
 }
 
 function drawMessageCard(input: {
   document: PDFKit.PDFDocument
   entry: GuestbookEntry
-  event: NormalizedEvent
   photo?: Buffer | null
 }) {
-  const { document, entry, event, photo } = input
-  const pageBottom = document.page.height - PAGE_MARGIN - 26
-  const cardHeight = Math.min(
-    estimateCardHeight(document, entry),
-    pageBottom - PAGE_MARGIN
-  )
-
-  if (document.y + cardHeight > pageBottom) {
-    drawFooter(document, event)
-    document.addPage()
-    document.y = PAGE_MARGIN
-  }
+  const { document, entry, photo } = input
+  const hasPhoto = entryHasPhoto(entry, photo)
+  const cardHeight = estimateCardHeight(document, entry, photo)
 
   const x = PAGE_MARGIN
   const y = document.y
@@ -309,14 +340,14 @@ function drawMessageCard(input: {
   let textX = innerX
   let textWidth = width - 32
 
-  if (photo) {
+  if (hasPhoto && photo) {
     try {
       document.image(photo, innerX, innerY, {
-        fit: [104, 104],
+        fit: [THUMBNAIL_SIZE, THUMBNAIL_SIZE],
         valign: 'center',
       })
-      textX += 124
-      textWidth -= 124
+      textX += THUMBNAIL_SIZE + THUMBNAIL_GAP
+      textWidth -= THUMBNAIL_SIZE + THUMBNAIL_GAP
     } catch {
       // Ignore unsupported message photos.
     }
@@ -325,7 +356,7 @@ function drawMessageCard(input: {
   if (entry.source === 'standalone' && entry.guestName) {
     setBoldFont(document)
     document
-      .fontSize(12)
+      .fontSize(NAME_FONT_SIZE)
       .fillColor('#0F3D66')
       .text(entry.guestName, textX, innerY, {
         width: textWidth,
@@ -337,7 +368,7 @@ function drawMessageCard(input: {
 
   setRegularFont(document)
   document
-    .fontSize(12)
+    .fontSize(MESSAGE_FONT_SIZE)
     .fillColor('#0B2742')
     .text(entry.message, textX, document.y, {
       lineGap: 3,
@@ -349,14 +380,14 @@ function drawMessageCard(input: {
   if (date) {
     document
       .moveDown(0.5)
-      .fontSize(8.5)
+      .fontSize(DATE_FONT_SIZE)
       .fillColor('#6A84A3')
       .text(date, textX, document.y, {
         width: textWidth,
       })
   }
 
-  document.y = y + cardHeight + 14
+  document.y = y + cardHeight + CARD_GAP
 }
 
 async function buildGuestbookPdf(input: {
@@ -384,25 +415,31 @@ async function buildGuestbookPdf(input: {
   document.addPage()
   drawCoverPage(document, input.event, input.coverImage)
   document.addPage()
-
-  setBoldFont(document)
-  document
-    .fontSize(20)
-    .fillColor('#0B2742')
-    .text('Berichten', PAGE_MARGIN, PAGE_MARGIN)
-    .moveDown(0.8)
+  drawGuestbookPageHeader(document)
+  let entriesOnCurrentPage = 0
 
   for (const entry of input.entries) {
     const photoUpload =
       entry.source === 'upload' ? entry.upload : entry.relatedUpload || null
     const photo = photoUpload ? await fetchImageBuffer(photoUpload.file_url) : null
+    const cardHeight = estimateCardHeight(document, entry, photo)
+
+    if (
+      entriesOnCurrentPage > 0 &&
+      document.y + cardHeight > getPageContentBottom(document)
+    ) {
+      drawFooter(document, input.event)
+      document.addPage()
+      drawGuestbookPageHeader(document)
+      entriesOnCurrentPage = 0
+    }
 
     drawMessageCard({
       document,
       entry,
-      event: input.event,
       photo,
     })
+    entriesOnCurrentPage += 1
   }
 
   drawFooter(document, input.event)
