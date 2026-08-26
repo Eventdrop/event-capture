@@ -455,6 +455,14 @@ export async function POST(request: Request) {
       }
     }
 
+    if (!createdRecord?.id) {
+      throw new Error('Supabase heeft geen nieuw event teruggegeven.')
+    }
+
+    if (isDemoTemplate && createdRecord.is_demo_template !== true) {
+      throw new Error('Master Demo is aangemaakt zonder is_demo_template=true.')
+    }
+
     return NextResponse.json({ ok: true, event: createdRecord })
   } catch (error) {
     logOperation('error', 'admin-events', 'Failed to create event', {

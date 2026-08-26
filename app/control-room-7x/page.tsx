@@ -453,105 +453,126 @@ export default function AdminPage() {
         error?: string
       }
 
-      if (!response.ok) {
+      if (!response.ok || result.ok !== true) {
         throw new Error(result.error || t.admin.createError)
       }
 
       const normalized = normalizeEventRecord(result.event)
 
+      if (!normalized) {
+        throw new Error(result.error || t.admin.createError)
+      }
+
+      if (creatingDemoTemplate && !normalized.isDemoTemplate) {
+        throw new Error(t.admin.createError)
+      }
+
       let mediaUploadError = ''
 
-      if (normalized) {
-        let nextEvent = normalized
-        const updateCreatedEvent = () => {
-          setEvents((prev) => [nextEvent, ...prev.filter((item) => item.id !== nextEvent.id)])
-          setEventDraftsById((prev) => ({
-            ...prev,
-            [nextEvent.id]: {
-              name: nextEvent.name,
-              albumName: nextEvent.albumName,
-            },
-          }))
-          setEventControlsById((prev) => ({
-            ...prev,
-            [nextEvent.id]: {
-              allowGuestShare: nextEvent.allowGuestShare,
-              allowGuestDownload: nextEvent.allowGuestDownload,
-              allowAlbumDownload: nextEvent.allowAlbumDownload,
-              allowGuestDelete: nextEvent.allowGuestDelete,
-              allowGuestPoster: nextEvent.allowGuestPoster,
-            },
-          }))
-        }
-        const rememberMediaError = (error: unknown) => {
-          mediaUploadError = error instanceof Error ? error.message : t.admin.mediaUploadError
-        }
+      let nextEvent = normalized
+      const updateCreatedEvent = () => {
+        setEvents((prev) => [nextEvent, ...prev.filter((item) => item.id !== nextEvent.id)])
+        setEventDraftsById((prev) => ({
+          ...prev,
+          [nextEvent.id]: {
+            name: nextEvent.name,
+            albumName: nextEvent.albumName,
+          },
+        }))
+        setEventControlsById((prev) => ({
+          ...prev,
+          [nextEvent.id]: {
+            allowGuestShare: nextEvent.allowGuestShare,
+            allowGuestDownload: nextEvent.allowGuestDownload,
+            allowAlbumDownload: nextEvent.allowAlbumDownload,
+            allowGuestDelete: nextEvent.allowGuestDelete,
+            allowGuestPoster: nextEvent.allowGuestPoster,
+          },
+        }))
+      }
+      const rememberMediaError = (error: unknown) => {
+        mediaUploadError = error instanceof Error ? error.message : t.admin.mediaUploadError
+      }
 
-        updateCreatedEvent()
+      updateCreatedEvent()
 
-        if (coverImageFile) {
-          try {
-            const uploadedCover = await uploadVisualForEvent(
-              normalized.id,
-              coverImageFile,
-              'cover'
-            )
-            nextEvent = uploadedCover.event || { ...nextEvent, coverImageUrl: uploadedCover.url }
-            updateCreatedEvent()
-          } catch (error) {
-            rememberMediaError(error)
-          }
+      if (coverImageFile) {
+        try {
+          const uploadedCover = await uploadVisualForEvent(
+            normalized.id,
+            coverImageFile,
+            'cover'
+          )
+          nextEvent =
+            uploadedCover.event && (!creatingDemoTemplate || uploadedCover.event.isDemoTemplate)
+              ? uploadedCover.event
+              : { ...nextEvent, coverImageUrl: uploadedCover.url }
+          updateCreatedEvent()
+        } catch (error) {
+          rememberMediaError(error)
         }
+      }
 
-        if (backgroundImageFile) {
-          try {
-            const uploadedBackground = await uploadVisualForEvent(
-              normalized.id,
-              backgroundImageFile,
-              'background'
-            )
-            nextEvent = uploadedBackground.event || {
-              ...nextEvent,
-              backgroundImageUrl: uploadedBackground.url,
-            }
-            updateCreatedEvent()
-          } catch (error) {
-            rememberMediaError(error)
-          }
+      if (backgroundImageFile) {
+        try {
+          const uploadedBackground = await uploadVisualForEvent(
+            normalized.id,
+            backgroundImageFile,
+            'background'
+          )
+          nextEvent =
+            uploadedBackground.event &&
+            (!creatingDemoTemplate || uploadedBackground.event.isDemoTemplate)
+              ? uploadedBackground.event
+              : {
+                  ...nextEvent,
+                  backgroundImageUrl: uploadedBackground.url,
+                }
+          updateCreatedEvent()
+        } catch (error) {
+          rememberMediaError(error)
         }
+      }
 
-        if (posterTemplateFile) {
-          try {
-            const uploadedPosterTemplate = await uploadVisualForEvent(
-              normalized.id,
-              posterTemplateFile,
-              'posterTemplate'
-            )
-            nextEvent = uploadedPosterTemplate.event || {
-              ...nextEvent,
-              posterTemplateUrl: uploadedPosterTemplate.url,
-            }
-            updateCreatedEvent()
-          } catch (error) {
-            rememberMediaError(error)
-          }
+      if (posterTemplateFile) {
+        try {
+          const uploadedPosterTemplate = await uploadVisualForEvent(
+            normalized.id,
+            posterTemplateFile,
+            'posterTemplate'
+          )
+          nextEvent =
+            uploadedPosterTemplate.event &&
+            (!creatingDemoTemplate || uploadedPosterTemplate.event.isDemoTemplate)
+              ? uploadedPosterTemplate.event
+              : {
+                  ...nextEvent,
+                  posterTemplateUrl: uploadedPosterTemplate.url,
+                }
+          updateCreatedEvent()
+        } catch (error) {
+          rememberMediaError(error)
         }
+      }
 
-        if (storyTemplateFile) {
-          try {
-            const uploadedStoryTemplate = await uploadVisualForEvent(
-              normalized.id,
-              storyTemplateFile,
-              'storyTemplate'
-            )
-            nextEvent = uploadedStoryTemplate.event || {
-              ...nextEvent,
-              storyTemplateUrl: uploadedStoryTemplate.url,
-            }
-            updateCreatedEvent()
-          } catch (error) {
-            rememberMediaError(error)
-          }
+      if (storyTemplateFile) {
+        try {
+          const uploadedStoryTemplate = await uploadVisualForEvent(
+            normalized.id,
+            storyTemplateFile,
+            'storyTemplate'
+          )
+          nextEvent =
+            uploadedStoryTemplate.event &&
+            (!creatingDemoTemplate || uploadedStoryTemplate.event.isDemoTemplate)
+              ? uploadedStoryTemplate.event
+              : {
+                  ...nextEvent,
+                  storyTemplateUrl: uploadedStoryTemplate.url,
+                }
+          updateCreatedEvent()
+        } catch (error) {
+          rememberMediaError(error)
         }
       }
 
@@ -828,7 +849,7 @@ export default function AdminPage() {
           error?: string
         }
 
-        if (!response.ok || !payload.url) {
+        if (!response.ok || payload.ok !== true || !payload.url) {
           throw new Error(payload.error || t.admin.mediaUploadError)
         }
 
