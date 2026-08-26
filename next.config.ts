@@ -18,8 +18,6 @@ const nextConfig: NextConfig = {
   },
   outputFileTracingIncludes: {
     '/api/admin/guestbook-pdf': [
-      './node_modules/pdfkit/js/standard-fonts/**/*',
-      './node_modules/pdfkit/js/data/**/*',
       './node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-400-normal.woff',
       './node_modules/@fontsource/noto-sans/files/noto-sans-latin-ext-700-normal.woff',
       './node_modules/@fontsource/noto-sans/files/noto-sans-latin-400-normal.woff',

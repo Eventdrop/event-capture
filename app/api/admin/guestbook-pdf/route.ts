@@ -40,6 +40,10 @@ const REGISTERED_FONTS = {
   bold: '',
   regular: '',
 }
+type ResolvedPdfFonts = {
+  bold: string
+  regular: string
+}
 
 type PdfUploadRow = UploadRecord & {
   event_id?: string | null
@@ -114,42 +118,44 @@ function resolveFontPath(candidates: string[]) {
   return candidates.find((candidate) => candidate && fs.existsSync(candidate)) || ''
 }
 
-function registerFonts(document: PDFKit.PDFDocument) {
+function resolveRequiredPdfFonts(): ResolvedPdfFonts {
   const regularPath = resolveFontPath(FONT_REGULAR_PATHS)
   const boldPath = resolveFontPath(FONT_BOLD_PATHS)
 
+  if (!regularPath || !boldPath) {
+    throw new Error('Noto Sans font asset missing')
+  }
+
+  return {
+    bold: boldPath,
+    regular: regularPath,
+  }
+}
+
+function registerFonts(document: PDFKit.PDFDocument, fonts: ResolvedPdfFonts) {
   REGISTERED_FONTS.regular = ''
   REGISTERED_FONTS.bold = ''
 
-  if (regularPath) {
-    document.registerFont('NotoSans', regularPath)
-    REGISTERED_FONTS.regular = 'NotoSans'
-  }
-
-  if (boldPath) {
-    document.registerFont('NotoSansBold', boldPath)
-    REGISTERED_FONTS.bold = 'NotoSansBold'
-  }
+  document.registerFont('NotoSans', fonts.regular)
+  document.registerFont('NotoSansBold', fonts.bold)
+  REGISTERED_FONTS.regular = 'NotoSans'
+  REGISTERED_FONTS.bold = 'NotoSansBold'
 }
 
 function setRegularFont(document: PDFKit.PDFDocument) {
-  const fontName = REGISTERED_FONTS.regular || REGISTERED_FONTS.bold
-
-  if (!fontName) {
-    throw new Error('No bundled PDF font could be registered.')
+  if (!REGISTERED_FONTS.regular) {
+    throw new Error('Noto Sans font asset missing')
   }
 
-  document.font(fontName)
+  document.font(REGISTERED_FONTS.regular)
 }
 
 function setBoldFont(document: PDFKit.PDFDocument) {
-  const fontName = REGISTERED_FONTS.bold || REGISTERED_FONTS.regular
-
-  if (!fontName) {
-    throw new Error('No bundled PDF font could be registered.')
+  if (!REGISTERED_FONTS.bold) {
+    throw new Error('Noto Sans font asset missing')
   }
 
-  document.font(fontName)
+  document.font(REGISTERED_FONTS.bold)
 }
 
 function drawFooter(document: PDFKit.PDFDocument, event: NormalizedEvent) {
@@ -358,9 +364,11 @@ async function buildGuestbookPdf(input: {
   entries: GuestbookEntry[]
   event: NormalizedEvent
 }) {
+  const fonts = resolveRequiredPdfFonts()
   const document = new PDFDocument({
     autoFirstPage: false,
     bufferPages: true,
+    font: fonts.regular,
     margins: {
       bottom: PAGE_MARGIN,
       left: PAGE_MARGIN,
@@ -371,7 +379,8 @@ async function buildGuestbookPdf(input: {
   })
   const bufferPromise = collectPdfBuffer(document)
 
-  registerFonts(document)
+  registerFonts(document, fonts)
+  setRegularFont(document)
   document.addPage()
   drawCoverPage(document, input.event, input.coverImage)
   document.addPage()
