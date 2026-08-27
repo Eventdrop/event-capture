@@ -114,6 +114,7 @@ export default function AdminPage() {
         allowAlbumDownload: boolean
         allowGuestDelete: boolean
         allowGuestPoster: boolean
+        guestbookEnabled: boolean
       }
     >
   >({})
@@ -204,6 +205,7 @@ export default function AdminPage() {
             allowAlbumDownload: boolean
             allowGuestDelete: boolean
             allowGuestPoster: boolean
+            guestbookEnabled: boolean
           }
         >
       >((accumulator, event) => {
@@ -213,6 +215,7 @@ export default function AdminPage() {
           allowAlbumDownload: event.allowAlbumDownload,
           allowGuestDelete: event.allowGuestDelete,
           allowGuestPoster: event.allowGuestPoster,
+          guestbookEnabled: event.guestbookEnabled,
         }
 
         return accumulator
@@ -418,6 +421,7 @@ export default function AdminPage() {
         allowAlbumDownload,
         allowGuestDelete,
         allowGuestPoster,
+        guestbookEnabled: true,
       })
 
       const response = await fetch('/api/admin/events', {
@@ -444,6 +448,7 @@ export default function AdminPage() {
           allowAlbumDownload: payload.allow_album_download,
           allowGuestDelete: payload.allow_guest_delete,
           allowGuestPoster: payload.allow_guest_poster,
+          guestbookEnabled: payload.guestbook_enabled,
         }),
       })
 
@@ -487,6 +492,7 @@ export default function AdminPage() {
             allowAlbumDownload: nextEvent.allowAlbumDownload,
             allowGuestDelete: nextEvent.allowGuestDelete,
             allowGuestPoster: nextEvent.allowGuestPoster,
+            guestbookEnabled: nextEvent.guestbookEnabled,
           },
         }))
       }
@@ -715,6 +721,7 @@ export default function AdminPage() {
           allowAlbumDownload: normalized.allowAlbumDownload,
           allowGuestDelete: normalized.allowGuestDelete,
           allowGuestPoster: normalized.allowGuestPoster,
+          guestbookEnabled: normalized.guestbookEnabled,
         },
       }))
       setGuestAccessByEvent((prev) => ({ ...prev, [normalized.id]: [] }))
@@ -956,6 +963,8 @@ export default function AdminPage() {
             eventControlsById[event.id]?.allowGuestDelete ?? event.allowGuestDelete,
           allowGuestPoster:
             eventControlsById[event.id]?.allowGuestPoster ?? event.allowGuestPoster,
+          guestbookEnabled:
+            eventControlsById[event.id]?.guestbookEnabled ?? event.guestbookEnabled,
         }),
       })
 
@@ -990,6 +999,7 @@ export default function AdminPage() {
             allowAlbumDownload: normalized.allowAlbumDownload,
             allowGuestDelete: normalized.allowGuestDelete,
             allowGuestPoster: normalized.allowGuestPoster,
+            guestbookEnabled: normalized.guestbookEnabled,
           },
         }))
       }
@@ -1049,7 +1059,8 @@ export default function AdminPage() {
       | 'allowGuestDownload'
       | 'allowAlbumDownload'
       | 'allowGuestDelete'
-      | 'allowGuestPoster',
+      | 'allowGuestPoster'
+      | 'guestbookEnabled',
     value: boolean
   ) => {
     setEventControlsById((prev) => ({
@@ -1060,6 +1071,7 @@ export default function AdminPage() {
         allowAlbumDownload: prev[eventId]?.allowAlbumDownload ?? true,
         allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
         allowGuestPoster: prev[eventId]?.allowGuestPoster ?? false,
+        guestbookEnabled: prev[eventId]?.guestbookEnabled ?? true,
         [key]: value,
       },
     }))
@@ -1085,6 +1097,7 @@ export default function AdminPage() {
           allowAlbumDownload: currentSettings.allowAlbumDownload,
           allowGuestDelete: currentSettings.allowGuestDelete,
           allowGuestPoster: currentSettings.allowGuestPoster,
+          guestbookEnabled: currentSettings.guestbookEnabled,
         }),
       })
 
@@ -1110,6 +1123,7 @@ export default function AdminPage() {
             allowAlbumDownload: normalized.allowAlbumDownload,
             allowGuestDelete: normalized.allowGuestDelete,
             allowGuestPoster: normalized.allowGuestPoster,
+            guestbookEnabled: normalized.guestbookEnabled,
           },
         }))
       }
@@ -1925,6 +1939,7 @@ export default function AdminPage() {
                         ['allowAlbumDownload', t.admin.albumDownloadEnabled],
                         ['allowGuestDelete', t.admin.deleteEnabled],
                         ['allowGuestPoster', t.admin.posterEnabled],
+                        ['guestbookEnabled', 'Gastenboek'],
                       ] as const).map(([key, label]) => (
                         <div
                           key={key}
@@ -2126,6 +2141,7 @@ export default function AdminPage() {
                     </div>
                   </div>
 
+                  {event.guestbookEnabled ? (
                   <div className="mt-4 rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex flex-col gap-1">
@@ -2181,6 +2197,7 @@ export default function AdminPage() {
                       </p>
                     )}
                   </div>
+                  ) : null}
 
                   <div className="mt-4 rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

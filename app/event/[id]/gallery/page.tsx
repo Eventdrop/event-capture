@@ -714,6 +714,7 @@ export default function Page() {
   const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
   const [albumPackagesVisible, setAlbumPackagesVisible] = useState(false)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
+  const guestbookEnabled = currentEvent?.guestbookEnabled !== false
 
   useEffect(() => {
     if (!currentEvent) return
@@ -742,6 +743,12 @@ export default function Page() {
   useEffect(() => {
     setStatusMessage(t.gallery.loading)
   }, [t.gallery.loading])
+
+  useEffect(() => {
+    if (!guestbookEnabled && galleryView === 'guestbook') {
+      setGalleryView('photos')
+    }
+  }, [galleryView, guestbookEnabled])
 
   useEffect(() => {
     const load = async () => {
@@ -843,6 +850,10 @@ export default function Page() {
   useEffect(() => {
     const loadGuestbookMessages = async () => {
       if (!currentEvent?.id) return
+      if (!guestbookEnabled) {
+        setStandaloneGuestbookMessages([])
+        return
+      }
 
       try {
         const response = await fetch(
@@ -862,7 +873,7 @@ export default function Page() {
     }
 
     void loadGuestbookMessages()
-  }, [currentEvent?.id, eventIdentifier])
+  }, [currentEvent?.id, eventIdentifier, guestbookEnabled])
 
   const selectedItems = useMemo(
     () => items.filter((item) => selected.includes(item.id)),
@@ -1703,7 +1714,7 @@ export default function Page() {
           <div className="grid grid-cols-4 gap-1 sm:flex">
             {([
               ['photos', t.gallery.photosTab],
-              ['guestbook', t.gallery.guestbookTab],
+              ...(guestbookEnabled ? [['guestbook', t.gallery.guestbookTab] as const] : []),
               ['designs', t.gallery.designsTab],
               ['downloads', t.gallery.downloadsTab],
             ] as const).map(([view, label]) => (

@@ -17,6 +17,7 @@ type EventRecordLike = {
   allow_album_download?: boolean | null
   allow_guest_delete?: boolean | null
   allow_guest_poster?: boolean | null
+  guestbook_enabled?: boolean | null
   is_demo_template?: boolean | null
   created_at?: string | null
 }
@@ -38,6 +39,7 @@ export type NormalizedEvent = {
   allowAlbumDownload: boolean
   allowGuestDelete: boolean
   allowGuestPoster: boolean
+  guestbookEnabled: boolean
   isDemoTemplate: boolean
   createdAt: string | null
 }
@@ -135,6 +137,7 @@ export function buildEventInsertPayload(input: {
   allowAlbumDownload?: boolean
   allowGuestDelete?: boolean
   allowGuestPoster?: boolean
+  guestbookEnabled?: boolean
   isDemoTemplate?: boolean
 }) {
   const accessCode = input.accessCodeEnabled === false
@@ -155,6 +158,7 @@ export function buildEventInsertPayload(input: {
     allow_album_download: input.allowAlbumDownload !== false,
     allow_guest_delete: input.allowGuestDelete === true,
     allow_guest_poster: input.allowGuestPoster === true,
+    guestbook_enabled: input.guestbookEnabled !== false,
   }
 
   return {
@@ -187,6 +191,7 @@ export function normalizeEventRecord(
     allowAlbumDownload: record.allow_album_download !== false,
     allowGuestDelete: record.allow_guest_delete === true,
     allowGuestPoster: record.allow_guest_poster === true,
+    guestbookEnabled: record.guestbook_enabled !== false,
     isDemoTemplate: record.is_demo_template === true,
     createdAt: record.created_at || null,
   }

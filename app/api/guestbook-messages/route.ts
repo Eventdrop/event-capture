@@ -139,6 +139,10 @@ export async function GET(request: Request) {
     if (error) return error
     if (!event) throw new Error('Authorized event missing')
 
+    if (!event.guestbookEnabled) {
+      return NextResponse.json({ ok: true, messages: [] })
+    }
+
     const supabase = createAdminSupabaseClient()
     const result = await withRetry(
       () =>
@@ -237,6 +241,16 @@ export async function POST(request: Request) {
           error: 'Event niet gevonden.',
         },
         { status: 404 }
+      )
+    }
+
+    if (!event.guestbookEnabled) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Gastenboek is uitgeschakeld.',
+        },
+        { status: 403 }
       )
     }
 

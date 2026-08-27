@@ -286,6 +286,7 @@ export default function Page() {
     [selectedFiles]
   )
   const hasSelectedPhotos = acceptedFiles.length > 0
+  const guestbookEnabled = currentEvent?.guestbookEnabled !== false
 
   const selectionSummary = useMemo(() => {
     if (acceptedFiles.length === 0) return null
@@ -524,8 +525,10 @@ export default function Page() {
       return
     }
 
-    const uploadGuestName = guestName.trim()
-    const uploadGuestMessage = limitGuestMessage(guestMessage).trim()
+    const uploadGuestName = guestbookEnabled ? guestName.trim() : ''
+    const uploadGuestMessage = guestbookEnabled
+      ? limitGuestMessage(guestMessage).trim()
+      : ''
     let firstSuccessfulUploadId = ''
 
     setUploading(true)
@@ -702,7 +705,7 @@ export default function Page() {
                   </p>
                 </div>
 
-                {!hasSelectedPhotos ? (
+                {!guestbookEnabled ? null : !hasSelectedPhotos ? (
                   <p className="mt-3 rounded-2xl border border-[#F9D8B8] bg-[#FFF8F0] px-4 py-3 text-sm font-semibold text-[#8A4A07]">
                     {t.upload.guestbookHint}
                   </p>

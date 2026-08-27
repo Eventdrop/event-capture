@@ -337,6 +337,7 @@ export async function POST(request: Request) {
       allowAlbumDownload?: boolean
       allowGuestDelete?: boolean
       allowGuestPoster?: boolean
+      guestbookEnabled?: boolean
       }
     | null
 
@@ -356,6 +357,7 @@ export async function POST(request: Request) {
   const allowAlbumDownload = body?.allowAlbumDownload !== false
   const allowGuestDelete = body?.allowGuestDelete === true
   const allowGuestPoster = body?.allowGuestPoster === true
+  const guestbookEnabled = body?.guestbookEnabled !== false
 
   if (!name || !albumName) {
     return NextResponse.json(
@@ -386,6 +388,7 @@ export async function POST(request: Request) {
       allowAlbumDownload,
       allowGuestDelete,
       allowGuestPoster,
+      guestbookEnabled,
     })
 
     const richInsert = await withRetry(
@@ -492,6 +495,7 @@ export async function PATCH(request: Request) {
         allowAlbumDownload?: boolean
         allowGuestDelete?: boolean
         allowGuestPoster?: boolean
+        guestbookEnabled?: boolean
       }
     | null
 
@@ -515,6 +519,7 @@ export async function PATCH(request: Request) {
       allow_album_download: body?.allowAlbumDownload !== false,
       allow_guest_delete: body?.allowGuestDelete === true,
       allow_guest_poster: body?.allowGuestPoster === true,
+      guestbook_enabled: body?.guestbookEnabled !== false,
     }
     const name = body?.name?.trim()
     const albumName = body?.albumName?.trim()
@@ -563,7 +568,8 @@ export async function PATCH(request: Request) {
       message.includes('allow_album_download') ||
       message.includes('allow_guest_share') ||
       message.includes('allow_guest_download') ||
-      message.includes('allow_guest_delete')
+      message.includes('allow_guest_delete') ||
+      message.includes('guestbook_enabled')
     ) {
       throw new Error(
         'Supabase mist nog een instellingen-kolom. Run eerst de nieuwste SQL in de juiste Supabase projectdatabase.'
