@@ -101,20 +101,24 @@ const MIXED_POSTER_LANDSCAPE_WIDTH =
   MIXED_POSTER_GRID.columnWidth * 2 + MIXED_POSTER_GRID.columnGap
 const STORY_LAYOUT = {
   portrait: [
-    { x: 72, y: 560, width: 452, height: 592 },
-    { x: 556, y: 560, width: 452, height: 592 },
-    { x: 72, y: 1184, width: 452, height: 592 },
-    { x: 556, y: 1184, width: 452, height: 592 },
+    { x: 42, y: 430, width: 492, height: 340 },
+    { x: 546, y: 430, width: 492, height: 340 },
+    { x: 42, y: 782, width: 492, height: 340 },
+    { x: 546, y: 782, width: 492, height: 340 },
+    { x: 42, y: 1134, width: 492, height: 340 },
+    { x: 546, y: 1134, width: 492, height: 340 },
+    { x: 42, y: 1486, width: 492, height: 340 },
+    { x: 546, y: 1486, width: 492, height: 340 },
   ],
   landscape: [
-    { x: 72, y: 650, width: 452, height: 260 },
-    { x: 556, y: 650, width: 452, height: 260 },
-    { x: 72, y: 938, width: 452, height: 260 },
-    { x: 556, y: 938, width: 452, height: 260 },
-    { x: 72, y: 1226, width: 452, height: 260 },
-    { x: 556, y: 1226, width: 452, height: 260 },
-    { x: 72, y: 1514, width: 452, height: 260 },
-    { x: 556, y: 1514, width: 452, height: 260 },
+    { x: 42, y: 560, width: 492, height: 288 },
+    { x: 546, y: 560, width: 492, height: 288 },
+    { x: 42, y: 860, width: 492, height: 288 },
+    { x: 546, y: 860, width: 492, height: 288 },
+    { x: 42, y: 1160, width: 492, height: 288 },
+    { x: 546, y: 1160, width: 492, height: 288 },
+    { x: 42, y: 1460, width: 492, height: 288 },
+    { x: 546, y: 1460, width: 492, height: 288 },
   ],
 }
 const POSTER_LAYOUTS = {
