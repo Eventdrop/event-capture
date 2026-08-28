@@ -207,7 +207,7 @@ export default function Page() {
           : null
 
       const event = idLookup.data || slugLookup?.data || null
-      const error = idLookup.error && !idLookup.data ? slugLookup?.error || idLookup.error : null
+      const error = event ? null : slugLookup?.error || idLookup.error
 
       if (error) {
         console.error('Failed to load event', error)
