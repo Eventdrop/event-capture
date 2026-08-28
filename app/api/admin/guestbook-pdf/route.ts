@@ -1274,7 +1274,6 @@ async function loadGuestbookData(eventId: string) {
         .from('uploads')
         .select('*')
         .eq('event_id', event.id)
-        .not('guest_message', 'is', null)
         .order('created_at', { ascending: true })
         .limit(1000),
     {
