@@ -191,6 +191,34 @@ type TranslationTree = {
     demoOpenUpload: string
     demoOpenGallery: string
     demoCopyLink: string
+    comingSoon: string
+    guestbookCoverPhoto: string
+    guestbookCoverPhotoActive: string
+    guestbookCoverPhotoEmpty: string
+    guestbookCoverPhotoFallback: string
+    guestbookCoverPhotoHelp: string
+    guestbookCoverPhotoRemove: string
+    guestbookCoverPhotoReplace: string
+    guestbookCoverPhotoUpload: string
+    guestbookLabel: string
+    guestbookMessagesEmpty: string
+    guestbookMessagesSummary: string
+    guestbookMessagesTitle: string
+    guestbookMessageCancel: string
+    guestbookMessageDelete: string
+    guestbookMessageDeleteConfirm: string
+    guestbookMessageDeleted: string
+    guestbookMessageDeleteError: string
+    guestbookMessageEdit: string
+    guestbookMessageNamePlaceholder: string
+    guestbookMessageSave: string
+    guestbookMessageSaved: string
+    guestbookMessageSaveError: string
+    guestbookPdfPreviewHelp: string
+    guestbookPdfStyle: string
+    guestbookPdfThemeComingSoon: string
+    guestbookPdfThemeComingSoonButton: string
+    guestbookPhotoSource: string
     downloadGuestbookPdf: string
     noGuestbookMessages: string
   }
@@ -623,6 +651,34 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       demoOpenUpload: 'Yukleme linkini ac',
       demoOpenGallery: 'Galeri linkini ac',
       demoCopyLink: 'Linki kopyala',
+      comingSoon: 'Yakinda',
+      guestbookCoverPhoto: 'Gastenboek kapak fotografi',
+      guestbookCoverPhotoActive: 'Ayrica secilmis gastenboek fotografi aktif.',
+      guestbookCoverPhotoEmpty: 'Ayri fotograf yok: PDF guvenli bos kapak kullanir.',
+      guestbookCoverPhotoFallback: 'Ayri fotograf yok: normal kapak fotografi kullanilir.',
+      guestbookCoverPhotoHelp: 'Dijital gastenboek kapaginda kullanmak icin ayri bir fotograf yukle.',
+      guestbookCoverPhotoRemove: 'Kaldir',
+      guestbookCoverPhotoReplace: 'Kapak fotografini degistir',
+      guestbookCoverPhotoUpload: 'Kapak fotografi yukle',
+      guestbookLabel: 'Gastenboek',
+      guestbookMessagesEmpty: 'Bu album icin henuz misafir notu yok.',
+      guestbookMessagesSummary: '{count} not',
+      guestbookMessagesTitle: 'Misafir notlari',
+      guestbookMessageCancel: 'Iptal',
+      guestbookMessageDelete: 'Sil',
+      guestbookMessageDeleteConfirm: 'Bu gastenboek mesajini silmek istiyor musun?',
+      guestbookMessageDeleted: 'Gastenboek mesaji silindi.',
+      guestbookMessageDeleteError: 'Gastenboek mesaji silinemedi.',
+      guestbookMessageEdit: 'Duzenle',
+      guestbookMessageNamePlaceholder: 'Isim (opsiyonel)',
+      guestbookMessageSave: 'Kaydet',
+      guestbookMessageSaved: 'Gastenboek mesaji guncellendi.',
+      guestbookMessageSaveError: 'Gastenboek mesaji kaydedilemedi.',
+      guestbookPdfPreviewHelp: 'Secilen Gastenboek PDF stilinin onizlemesi.',
+      guestbookPdfStyle: 'Gastenboek PDF stili',
+      guestbookPdfThemeComingSoon: 'Bu Gastenboek PDF stili yakinda kullanilabilir olacak.',
+      guestbookPdfThemeComingSoonButton: 'PDF stili yakinda',
+      guestbookPhotoSource: 'Fotograf',
       downloadGuestbookPdf: 'Gastenboek indir',
       noGuestbookMessages: 'Indirilecek gastenboek mesaji yok.',
     },
@@ -1133,6 +1189,34 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       demoOpenUpload: 'Uploadlink openen',
       demoOpenGallery: 'Galerijlink openen',
       demoCopyLink: 'Link kopiëren',
+      comingSoon: 'Binnenkort',
+      guestbookCoverPhoto: 'Gastenboek omslagfoto',
+      guestbookCoverPhotoActive: 'Aparte gastenboekfoto actief.',
+      guestbookCoverPhotoEmpty: 'Geen aparte foto: PDF gebruikt de veilige lege omslag.',
+      guestbookCoverPhotoFallback: 'Geen aparte foto: normale omslagfoto wordt gebruikt.',
+      guestbookCoverPhotoHelp: 'Gebruik een aparte foto voor de omslag van het digitale gastenboek.',
+      guestbookCoverPhotoRemove: 'Verwijderen',
+      guestbookCoverPhotoReplace: 'Vervang omslagfoto',
+      guestbookCoverPhotoUpload: 'Upload omslagfoto',
+      guestbookLabel: 'Gastenboek',
+      guestbookMessagesEmpty: 'Er zijn nog geen gastenboekberichten voor dit album.',
+      guestbookMessagesSummary: '{count} berichten',
+      guestbookMessagesTitle: 'Gastenboekberichten',
+      guestbookMessageCancel: 'Annuleren',
+      guestbookMessageDelete: 'Verwijderen',
+      guestbookMessageDeleteConfirm: 'Weet je zeker dat je dit gastenboekbericht wilt verwijderen?',
+      guestbookMessageDeleted: 'Gastenboekbericht verwijderd.',
+      guestbookMessageDeleteError: 'Gastenboekbericht kon niet worden verwijderd.',
+      guestbookMessageEdit: 'Bewerken',
+      guestbookMessageNamePlaceholder: 'Naam (optioneel)',
+      guestbookMessageSave: 'Opslaan',
+      guestbookMessageSaved: 'Gastenboekbericht bijgewerkt.',
+      guestbookMessageSaveError: 'Gastenboekbericht kon niet worden opgeslagen.',
+      guestbookPdfPreviewHelp: 'Voorbeeld van de gekozen Gastenboek PDF-stijl.',
+      guestbookPdfStyle: 'Gastenboek PDF-stijl',
+      guestbookPdfThemeComingSoon: 'Deze Gastenboek PDF-stijl komt binnenkort beschikbaar.',
+      guestbookPdfThemeComingSoonButton: 'PDF-stijl binnenkort',
+      guestbookPhotoSource: 'Foto',
       downloadGuestbookPdf: 'Gastenboek downloaden',
       noGuestbookMessages: 'Er zijn geen gastenboekberichten om te downloaden.',
     },
@@ -1643,6 +1727,34 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       demoOpenUpload: 'Open upload link',
       demoOpenGallery: 'Open gallery link',
       demoCopyLink: 'Copy link',
+      comingSoon: 'Coming soon',
+      guestbookCoverPhoto: 'Guestbook cover photo',
+      guestbookCoverPhotoActive: 'Dedicated guestbook photo is active.',
+      guestbookCoverPhotoEmpty: 'No dedicated photo: the PDF uses a safe empty cover.',
+      guestbookCoverPhotoFallback: 'No dedicated photo: the normal cover photo is used.',
+      guestbookCoverPhotoHelp: 'Use a separate photo for the digital guestbook cover.',
+      guestbookCoverPhotoRemove: 'Remove',
+      guestbookCoverPhotoReplace: 'Replace cover photo',
+      guestbookCoverPhotoUpload: 'Upload cover photo',
+      guestbookLabel: 'Guestbook',
+      guestbookMessagesEmpty: 'There are no guestbook messages for this album yet.',
+      guestbookMessagesSummary: '{count} messages',
+      guestbookMessagesTitle: 'Guestbook messages',
+      guestbookMessageCancel: 'Cancel',
+      guestbookMessageDelete: 'Delete',
+      guestbookMessageDeleteConfirm: 'Delete this guestbook message?',
+      guestbookMessageDeleted: 'Guestbook message deleted.',
+      guestbookMessageDeleteError: 'Guestbook message could not be deleted.',
+      guestbookMessageEdit: 'Edit',
+      guestbookMessageNamePlaceholder: 'Name (optional)',
+      guestbookMessageSave: 'Save',
+      guestbookMessageSaved: 'Guestbook message updated.',
+      guestbookMessageSaveError: 'Guestbook message could not be saved.',
+      guestbookPdfPreviewHelp: 'Preview of the selected Guestbook PDF style.',
+      guestbookPdfStyle: 'Guestbook PDF style',
+      guestbookPdfThemeComingSoon: 'This Guestbook PDF style will be available soon.',
+      guestbookPdfThemeComingSoonButton: 'PDF style coming soon',
+      guestbookPhotoSource: 'Photo',
       downloadGuestbookPdf: 'Download guestbook',
       noGuestbookMessages: 'There are no guestbook messages to download.',
     },

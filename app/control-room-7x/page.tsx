@@ -46,6 +46,7 @@ type GuestAccessEntry = {
 
 type GuestMessageEntry = {
   guest_name?: string | null
+  id?: string | null
   message: string
   file_name: string | null
   related_upload_id?: string | null
@@ -126,8 +127,13 @@ export default function AdminPage() {
     kind: EventVisualKind
   } | null>(null)
   const [eventDraftsById, setEventDraftsById] = useState<
-    Record<string, { name: string; albumName: string }>
+    Record<string, { albumName: string; eventDate: string; name: string }>
   >({})
+  const [guestMessageDraftsById, setGuestMessageDraftsById] = useState<
+    Record<string, { guestName: string; message: string }>
+  >({})
+  const [editingGuestMessageId, setEditingGuestMessageId] = useState('')
+  const [updatingGuestMessageId, setUpdatingGuestMessageId] = useState('')
   const [eventControlsById, setEventControlsById] = useState<
     Record<string, EventControls>
   >({})
@@ -139,7 +145,7 @@ export default function AdminPage() {
   const adminUrl = getPublicPath('/control-room-7x')
   const eventVisualLabels: Record<EventVisualKind, string> = {
     cover: t.admin.coverImage,
-    guestbookCover: 'Gastenboek omslagfoto',
+    guestbookCover: t.admin.guestbookCoverPhoto,
     background: t.admin.backgroundImage,
     posterTemplate: t.admin.posterTemplateImage,
     storyTemplate: t.admin.storyTemplateImage,
@@ -200,11 +206,12 @@ export default function AdminPage() {
     setGuestMessagesByEvent(payload.guestMessagesByEvent || {})
     setDownloadStatsByEvent(payload.downloadStatsByEvent || {})
     setEventDraftsById(
-      normalized.reduce<Record<string, { name: string; albumName: string }>>(
+      normalized.reduce<Record<string, { albumName: string; eventDate: string; name: string }>>(
         (accumulator, event) => {
           accumulator[event.id] = {
-            name: event.name,
             albumName: event.albumName,
+            eventDate: event.eventDate || '',
+            name: event.name,
           }
 
           return accumulator
@@ -323,6 +330,8 @@ export default function AdminPage() {
     setEvents([])
     setEventControlsById({})
     setGuestAccessByEvent({})
+    setGuestMessageDraftsById({})
+    setEditingGuestMessageId('')
     setStatusMessage(t.admin.signedOut)
   }
 
@@ -488,8 +497,9 @@ export default function AdminPage() {
         setEventDraftsById((prev) => ({
           ...prev,
           [nextEvent.id]: {
-            name: nextEvent.name,
             albumName: nextEvent.albumName,
+            eventDate: nextEvent.eventDate || '',
+            name: nextEvent.name,
           },
         }))
         setEventControlsById((prev) => ({
@@ -718,8 +728,9 @@ export default function AdminPage() {
       setEventDraftsById((prev) => ({
         ...prev,
         [normalized.id]: {
-          name: normalized.name,
           albumName: normalized.albumName,
+          eventDate: normalized.eventDate || '',
+          name: normalized.name,
         },
       }))
       setEventControlsById((prev) => ({
@@ -935,16 +946,186 @@ export default function AdminPage() {
     setEventDraftsById((prev) => ({
       ...prev,
       [eventId]: {
-        name: value,
         albumName: value,
+        eventDate: prev[eventId]?.eventDate || '',
+        name: value,
       },
     }))
   }
 
+  const handleEventDateDraftChange = (eventId: string, value: string) => {
+    setEventDraftsById((prev) => ({
+      ...prev,
+      [eventId]: {
+        albumName: prev[eventId]?.albumName || '',
+        eventDate: value,
+        name: prev[eventId]?.name || '',
+      },
+    }))
+  }
+
+  const startEditingGuestMessage = (entry: GuestMessageEntry) => {
+    if (!entry.id) return
+
+    setEditingGuestMessageId(entry.id)
+    setGuestMessageDraftsById((prev) => ({
+      ...prev,
+      [entry.id as string]: {
+        guestName: entry.guest_name || '',
+        message: entry.message,
+      },
+    }))
+  }
+
+  const cancelEditingGuestMessage = () => {
+    setEditingGuestMessageId('')
+  }
+
+  const saveGuestMessage = async (eventId: string, entry: GuestMessageEntry) => {
+    if (!entry.id) return
+
+    const draft = guestMessageDraftsById[entry.id] || {
+      guestName: entry.guest_name || '',
+      message: entry.message,
+    }
+
+    setUpdatingGuestMessageId(entry.id)
+
+    try {
+      const response = await fetch('/api/guestbook-messages', {
+        body: JSON.stringify({
+          id: entry.id,
+          guestName: draft.guestName,
+          message: draft.message,
+          source: entry.source,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'PATCH',
+      })
+
+      const payload = (await response.json()) as {
+        error?: string
+        message?: {
+          createdAt?: string | null
+          guestName?: string | null
+          id?: string | null
+          message?: string | null
+          relatedUploadId?: string | null
+        }
+        ok?: boolean
+      }
+
+      if (!response.ok || payload.ok !== true || !payload.message) {
+        throw new Error(payload.error || t.admin.guestbookMessageSaveError)
+      }
+
+      setGuestMessagesByEvent((prev) => ({
+        ...prev,
+        [eventId]: (prev[eventId] || []).map((item) =>
+          item.id === entry.id
+            ? {
+                ...item,
+                created_at: payload.message?.createdAt || item.created_at,
+                guest_name: payload.message?.guestName || null,
+                message: payload.message?.message || '',
+                related_upload_id:
+                  payload.message?.relatedUploadId || item.related_upload_id,
+              }
+            : item
+        ),
+      }))
+      setEditingGuestMessageId('')
+      setStatusMessage(t.admin.guestbookMessageSaved)
+    } catch (error) {
+      console.error('Failed to update guestbook message', error)
+      setStatusMessage(
+        error instanceof Error ? error.message : t.admin.guestbookMessageSaveError
+      )
+    } finally {
+      setUpdatingGuestMessageId('')
+    }
+  }
+
+  const deleteGuestMessage = async (eventId: string, entry: GuestMessageEntry) => {
+    if (!entry.id) return
+    if (!window.confirm(t.admin.guestbookMessageDeleteConfirm)) return
+
+    setUpdatingGuestMessageId(entry.id)
+
+    try {
+      const response = await fetch('/api/guestbook-messages', {
+        body: JSON.stringify({
+          id: entry.id,
+          source: entry.source,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'DELETE',
+      })
+
+      const payload = (await response.json().catch(() => null)) as
+        | { error?: string; ok?: boolean }
+        | null
+
+      if (!response.ok || payload?.ok !== true) {
+        throw new Error(payload?.error || t.admin.guestbookMessageDeleteError)
+      }
+
+      setGuestMessagesByEvent((prev) => ({
+        ...prev,
+        [eventId]: (prev[eventId] || []).filter((item) => item.id !== entry.id),
+      }))
+      setEditingGuestMessageId((current) => (current === entry.id ? '' : current))
+      setStatusMessage(t.admin.guestbookMessageDeleted)
+    } catch (error) {
+      console.error('Failed to delete guestbook message', error)
+      setStatusMessage(
+        error instanceof Error ? error.message : t.admin.guestbookMessageDeleteError
+      )
+    } finally {
+      setUpdatingGuestMessageId('')
+    }
+  }
+
+  const handleGuestMessageDraftChange = (
+    entryId: string,
+    field: 'guestName' | 'message',
+    value: string
+  ) => {
+    setGuestMessageDraftsById((prev) => ({
+      ...prev,
+      [entryId]: {
+        guestName: prev[entryId]?.guestName || '',
+        message: prev[entryId]?.message || '',
+        [field]: field === 'message' ? value.slice(0, 500) : value,
+      },
+    }))
+  }
+
+  const getGuestMessageDraft = (entry: GuestMessageEntry) => {
+    if (!entry.id) {
+      return {
+        guestName: entry.guest_name || '',
+        message: entry.message,
+      }
+    }
+
+    return (
+      guestMessageDraftsById[entry.id] || {
+        guestName: entry.guest_name || '',
+        message: entry.message,
+      }
+    )
+  }
+
   const saveEventDetails = async (event: NormalizedEvent) => {
     const draft = eventDraftsById[event.id] || {
-      name: event.name,
       albumName: event.albumName,
+      eventDate: event.eventDate || '',
+      name: event.name,
     }
 
     if (!draft.name.trim()) {
@@ -964,6 +1145,7 @@ export default function AdminPage() {
           id: event.id,
           name: draft.name,
           albumName: draft.name,
+          eventDate: draft.eventDate,
           allowGuestShare: eventControlsById[event.id]?.allowGuestShare ?? event.allowGuestShare,
           allowGuestDownload:
             eventControlsById[event.id]?.allowGuestDownload ?? event.allowGuestDownload,
@@ -999,8 +1181,9 @@ export default function AdminPage() {
         setEventDraftsById((prev) => ({
           ...prev,
           [event.id]: {
-            name: normalized.name,
             albumName: normalized.albumName,
+            eventDate: normalized.eventDate || '',
+            name: normalized.name,
           },
         }))
         setEventControlsById((prev) => ({
@@ -1894,6 +2077,17 @@ export default function AdminPage() {
                           className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66]"
                         />
                       </label>
+                      <label className="block text-sm font-semibold text-[#33516F]">
+                        {t.common.eventDate}
+                        <input
+                          type="date"
+                          value={eventDraftsById[event.id]?.eventDate ?? event.eventDate ?? ''}
+                          onChange={(inputEvent) =>
+                            handleEventDateDraftChange(event.id, inputEvent.target.value)
+                          }
+                          className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66]"
+                        />
+                      </label>
                     </div>
 
                     <div className="mt-4 rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
@@ -1979,7 +2173,7 @@ export default function AdminPage() {
                       <div className="mt-3 grid gap-2 text-xs font-semibold text-[#33516F] sm:grid-cols-2">
                         {([
                           [t.admin.coverImage, event.coverImageUrl],
-                          ['Gastenboek omslagfoto', event.guestbookCoverImageUrl],
+                          [t.admin.guestbookCoverPhoto, event.guestbookCoverImageUrl],
                           [t.admin.backgroundImage, event.backgroundImageUrl],
                           [t.admin.posterTemplateImage, event.posterTemplateUrl],
                           [t.admin.storyTemplateImage, event.storyTemplateUrl],
@@ -2024,7 +2218,7 @@ export default function AdminPage() {
                         ['allowAlbumDownload', t.admin.albumDownloadEnabled],
                         ['allowGuestDelete', t.admin.deleteEnabled],
                         ['allowGuestPoster', t.admin.posterEnabled],
-                        ['guestbookEnabled', 'Gastenboek'],
+                        ['guestbookEnabled', t.admin.guestbookLabel],
                       ] as const).map(([key, label]) => (
                         <div
                           key={key}
@@ -2062,7 +2256,7 @@ export default function AdminPage() {
                         <>
                           <label className="flex items-center justify-between gap-4 rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3">
                             <span className="text-sm text-[#33516F]">
-                              Gastenboek PDF-stijl
+                              {t.admin.guestbookPdfStyle}
                             </span>
                             <select
                               value={selectedTheme}
@@ -2084,7 +2278,7 @@ export default function AdminPage() {
                                   disabled={!themeConfig.implemented}
                                 >
                                   {guestbookPdfThemeLabels[theme]}
-                                  {themeConfig.implemented ? '' : ' - Binnenkort'}
+                                  {themeConfig.implemented ? '' : ` - ${t.admin.comingSoon}`}
                                 </option>
                                 )
                               })}
@@ -2109,8 +2303,8 @@ export default function AdminPage() {
                                 </p>
                                 <p className="mt-1 text-xs text-[#597594]">
                                   {selectedThemeConfig.implemented
-                                    ? 'Voorbeeld van de gekozen Gastenboek PDF-stijl.'
-                                    : 'Deze stijl is voorbereid en komt binnenkort beschikbaar.'}
+                                    ? t.admin.guestbookPdfPreviewHelp
+                                    : t.admin.guestbookPdfThemeComingSoon}
                                 </p>
                               </div>
                             </div>
@@ -2133,20 +2327,20 @@ export default function AdminPage() {
                                 />
                                 <div>
                                   <p className="text-sm font-semibold text-[#0B2742]">
-                                    Gastenboek omslagfoto
+                                    {t.admin.guestbookCoverPhoto}
                                   </p>
                                   <p className="mt-1 text-xs text-[#597594]">
-                                    Gebruik een aparte foto voor de omslag van het digitale gastenboek.
+                                    {t.admin.guestbookCoverPhotoHelp}
                                   </p>
                                   <p className="mt-1 text-xs text-[#597594]">
                                     {selectedThemeConfig.photoRecommendation}
                                   </p>
                                   <p className="mt-2 text-xs font-semibold text-[#33516F]">
                                     {event.guestbookCoverImageUrl
-                                      ? 'Aparte gastenboekfoto actief.'
+                                      ? t.admin.guestbookCoverPhotoActive
                                       : event.coverImageUrl
-                                        ? 'Geen aparte foto: normale omslagfoto wordt gebruikt.'
-                                        : 'Geen aparte foto: PDF gebruikt de veilige lege omslag.'}
+                                        ? t.admin.guestbookCoverPhotoFallback
+                                        : t.admin.guestbookCoverPhotoEmpty}
                                   </p>
                                   <div className="mt-3 flex flex-wrap gap-2">
                                     <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
@@ -2154,8 +2348,8 @@ export default function AdminPage() {
                                       updatingEventVisual.kind === 'guestbookCover'
                                         ? t.admin.mediaUploading
                                         : event.guestbookCoverImageUrl
-                                          ? 'Vervang omslagfoto'
-                                          : 'Upload omslagfoto'}
+                                          ? t.admin.guestbookCoverPhotoReplace
+                                          : t.admin.guestbookCoverPhotoUpload}
                                       <input
                                         type="file"
                                         accept="image/*"
@@ -2178,7 +2372,7 @@ export default function AdminPage() {
                                         }
                                         className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                                       >
-                                        Verwijderen
+                                        {t.admin.guestbookCoverPhotoRemove}
                                       </button>
                                     ) : null}
                                   </div>
@@ -2369,10 +2563,13 @@ export default function AdminPage() {
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex flex-col gap-1">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
-                        Misafir notlari
+                        {t.admin.guestbookMessagesTitle}
                       </p>
                       <p className="text-sm font-semibold text-[#0B2742]">
-                        {guestMessagesByEvent[event.id]?.length || 0} not
+                        {t.admin.guestbookMessagesSummary.replace(
+                          '{count}',
+                          String(guestMessagesByEvent[event.id]?.length || 0)
+                        )}
                       </p>
                       </div>
                       {getGuestbookPdfThemeConfig(event.guestbookPdfTheme).implemented ? (
@@ -2396,11 +2593,11 @@ export default function AdminPage() {
                         <button
                           type="button"
                           onClick={() =>
-                            setStatusMessage('Deze Gastenboek PDF-stijl komt binnenkort beschikbaar.')
+                            setStatusMessage(t.admin.guestbookPdfThemeComingSoon)
                           }
                           className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] opacity-60"
                         >
-                          PDF-stijl binnenkort
+                          {t.admin.guestbookPdfThemeComingSoonButton}
                         </button>
                       )}
                     </div>
@@ -2409,26 +2606,106 @@ export default function AdminPage() {
                       <div className="mt-3 space-y-2">
                         {guestMessagesByEvent[event.id].map((entry, messageIndex) => (
                           <div
-                            key={`${event.id}-message-${messageIndex}`}
+                            key={entry.id || `${event.id}-message-${messageIndex}`}
                             className="rounded-2xl bg-[#F7FAFD] px-3 py-2 text-sm text-[#33516F]"
                           >
-                            {entry.guest_name ? (
-                              <p className="mb-1 text-xs font-bold uppercase tracking-[0.12em] text-[#0F3D66]">
-                                {entry.guest_name}
-                              </p>
-                            ) : null}
-                            <p className="break-words font-medium text-[#0B2742]">
-                              {entry.message}
-                            </p>
+                            {entry.id && editingGuestMessageId === entry.id ? (
+                              <div className="space-y-2">
+                                <input
+                                  value={getGuestMessageDraft(entry).guestName}
+                                  onChange={(inputEvent) =>
+                                    handleGuestMessageDraftChange(
+                                      entry.id as string,
+                                      'guestName',
+                                      inputEvent.target.value
+                                    )
+                                  }
+                                  placeholder={t.admin.guestbookMessageNamePlaceholder}
+                                  className="w-full rounded-xl border border-[#D4DFEE] bg-white px-3 py-2 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66]"
+                                />
+                                <textarea
+                                  value={getGuestMessageDraft(entry).message}
+                                  onChange={(inputEvent) =>
+                                    handleGuestMessageDraftChange(
+                                      entry.id as string,
+                                      'message',
+                                      inputEvent.target.value
+                                    )
+                                  }
+                                  maxLength={500}
+                                  rows={3}
+                                  className="w-full rounded-xl border border-[#D4DFEE] bg-white px-3 py-2 text-sm font-medium text-[#0B2742] outline-none focus:border-[#0F3D66]"
+                                />
+                                <p className="text-right text-xs text-[#6A84A3]">
+                                  {getGuestMessageDraft(entry).message.length}/500
+                                </p>
+                              </div>
+                            ) : (
+                              <>
+                                {entry.guest_name ? (
+                                  <p className="mb-1 text-xs font-bold uppercase tracking-[0.12em] text-[#0F3D66]">
+                                    {entry.guest_name}
+                                  </p>
+                                ) : null}
+                                <p className="break-words font-medium text-[#0B2742]">
+                                  {entry.message}
+                                </p>
+                              </>
+                            )}
                             <p className="mt-1 text-xs text-[#6A84A3]">
-                              {entry.file_name || (entry.source === 'guestbook' ? 'Gastenboek' : 'Foto')} · {formatGuestbookDate(entry.created_at, locale) || t.admin.guestEmailTimeUnknown}
+                              {entry.file_name || (entry.source === 'guestbook' ? t.admin.guestbookLabel : t.admin.guestbookPhotoSource)} · {formatGuestbookDate(entry.created_at, locale) || t.admin.guestEmailTimeUnknown}
                             </p>
+                            {entry.id ? (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {editingGuestMessageId === entry.id ? (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => void saveGuestMessage(event.id, entry)}
+                                      disabled={updatingGuestMessageId === entry.id}
+                                      className="rounded-full bg-[#0F3D66] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#0B2F4F] disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                      {updatingGuestMessageId === entry.id
+                                        ? t.admin.saving
+                                        : t.admin.guestbookMessageSave}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={cancelEditingGuestMessage}
+                                      disabled={updatingGuestMessageId === entry.id}
+                                      className="rounded-full border border-[#C8D3E5] bg-white px-3 py-1.5 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                      {t.admin.guestbookMessageCancel}
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => startEditingGuestMessage(entry)}
+                                      disabled={Boolean(updatingGuestMessageId)}
+                                      className="rounded-full border border-[#C8D3E5] bg-white px-3 py-1.5 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                      {t.admin.guestbookMessageEdit}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => void deleteGuestMessage(event.id, entry)}
+                                      disabled={Boolean(updatingGuestMessageId)}
+                                      className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                      {t.admin.guestbookMessageDelete}
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            ) : null}
                           </div>
                         ))}
                       </div>
                     ) : (
                       <p className="mt-3 text-sm text-[#6A84A3]">
-                        Bu album icin henuz misafir notu yok.
+                        {t.admin.guestbookMessagesEmpty}
                       </p>
                     )}
                   </div>

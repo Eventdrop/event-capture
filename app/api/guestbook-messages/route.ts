@@ -21,6 +21,7 @@ const MAX_GUESTBOOK_MESSAGE_LENGTH = 500
 type GuestbookMessageRow = {
   created_at?: string | null
   guest_name?: string | null
+  id?: string | null
   message?: string | null
   related_upload_id?: string | null
 }
@@ -41,9 +42,26 @@ function serializeGuestbookMessage(row: GuestbookMessageRow) {
   return {
     createdAt: row.created_at || null,
     guestName: sanitizeGuestbookName(row.guest_name),
+    id: row.id || null,
     message: sanitizeGuestbookMessage(row.message),
     relatedUploadId: row.related_upload_id || null,
   }
+}
+
+async function ensureAdmin() {
+  const authenticated = await hasAdminSession()
+
+  if (!authenticated) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Geen toegang.',
+      },
+      { status: 401 }
+    )
+  }
+
+  return null
 }
 
 async function resolveEvent(identifier: string) {
@@ -148,7 +166,7 @@ export async function GET(request: Request) {
       () =>
         supabase
           .from('guestbook_messages')
-          .select('guest_name,message,related_upload_id,created_at')
+          .select('id,guest_name,message,related_upload_id,created_at')
           .eq('event_id', event.id)
           .order('created_at', { ascending: false })
           .limit(500),
@@ -297,7 +315,7 @@ export async function POST(request: Request) {
               related_upload_id: verifiedRelatedUploadId,
             },
           ])
-          .select('guest_name,message,related_upload_id,created_at')
+          .select('id,guest_name,message,related_upload_id,created_at')
           .single(),
       {
         attempts: 3,
@@ -323,6 +341,200 @@ export async function POST(request: Request) {
           error instanceof Error && isMissingGuestbookTableError({ message: error.message })
             ? 'Gastenboek is nog niet ingericht.'
             : 'Bericht kon niet worden geplaatst.',
+      },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PATCH(request: Request) {
+  const unauthorized = await ensureAdmin()
+  if (unauthorized) return unauthorized
+
+  const body = (await request.json().catch(() => null)) as
+    | {
+        guestName?: string | null
+        id?: string
+        message?: string | null
+        source?: 'guestbook' | 'upload'
+      }
+    | null
+  const id = (body?.id || '').trim()
+  const guestName = sanitizeGuestbookName(body?.guestName)
+  const message = sanitizeGuestbookMessage(body?.message)
+  const source = body?.source === 'upload' ? 'upload' : 'guestbook'
+
+  if (!id) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Bericht ID is verplicht.',
+      },
+      { status: 400 }
+    )
+  }
+
+  if (!message) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Schrijf eerst een bericht.',
+      },
+      { status: 400 }
+    )
+  }
+
+  if (message.length > MAX_GUESTBOOK_MESSAGE_LENGTH) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Bericht is te lang.',
+      },
+      { status: 400 }
+    )
+  }
+
+  try {
+    const supabase = createAdminSupabaseClient()
+    if (source === 'upload') {
+      const result = await withRetry(
+        () =>
+          supabase
+            .from('uploads')
+            .update({
+              guest_message: message,
+            })
+            .eq('id', id)
+            .select('id,guest_message,created_at')
+            .single(),
+        {
+          attempts: 3,
+          delayMs: 250,
+        }
+      )
+
+      if (result.error) throw result.error
+
+      const row = result.data as {
+        created_at?: string | null
+        guest_message?: string | null
+        id?: string | null
+      }
+
+      return NextResponse.json({
+        ok: true,
+        message: {
+          createdAt: row.created_at || null,
+          guestName: null,
+          id: row.id || null,
+          message: sanitizeGuestbookMessage(row.guest_message),
+          relatedUploadId: null,
+        },
+      })
+    }
+
+    const result = await withRetry(
+      () =>
+        supabase
+          .from('guestbook_messages')
+          .update({
+            guest_name: guestName,
+            message,
+          })
+          .eq('id', id)
+          .select('id,guest_name,message,related_upload_id,created_at')
+          .single(),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
+
+    if (result.error) throw result.error
+
+    return NextResponse.json({
+      ok: true,
+      message: serializeGuestbookMessage(result.data as GuestbookMessageRow),
+    })
+  } catch (error) {
+    logOperation('error', 'guestbook-messages', 'Failed to update guestbook message', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      messageId: id,
+    })
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Bericht kon niet worden bijgewerkt.',
+      },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: Request) {
+  const unauthorized = await ensureAdmin()
+  if (unauthorized) return unauthorized
+
+  const body = (await request.json().catch(() => null)) as
+    | { id?: string; source?: 'guestbook' | 'upload' }
+    | null
+  const id = (body?.id || '').trim()
+  const source = body?.source === 'upload' ? 'upload' : 'guestbook'
+
+  if (!id) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Bericht ID is verplicht.',
+      },
+      { status: 400 }
+    )
+  }
+
+  try {
+    const supabase = createAdminSupabaseClient()
+    if (source === 'upload') {
+      const result = await withRetry(
+        () =>
+          supabase
+            .from('uploads')
+            .update({
+              guest_message: null,
+            })
+            .eq('id', id),
+        {
+          attempts: 3,
+          delayMs: 250,
+        }
+      )
+
+      if (result.error) throw result.error
+
+      return NextResponse.json({ ok: true })
+    }
+
+    const result = await withRetry(
+      () => supabase.from('guestbook_messages').delete().eq('id', id),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
+
+    if (result.error) throw result.error
+
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    logOperation('error', 'guestbook-messages', 'Failed to delete guestbook message', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      messageId: id,
+    })
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Bericht kon niet worden verwijderd.',
       },
       { status: 500 }
     )

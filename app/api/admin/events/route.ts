@@ -11,6 +11,7 @@ import { withRetry } from '@/lib/with-retry'
 export const runtime = 'nodejs'
 
 type AdminGuestMessage = {
+  id?: string | null
   guest_name?: string | null
   message: string
   file_name: string | null
@@ -165,6 +166,7 @@ export async function GET() {
             event_id?: string | null
             file_name?: string | null
             guest_message?: string | null
+            id?: string | null
             created_at?: string | null
           }>).reduce<typeof guestMessagesByEvent>((accumulator, item) => {
             const eventId = item.event_id || ''
@@ -175,6 +177,7 @@ export async function GET() {
             }
 
             appendGuestMessage(accumulator, eventId, {
+              id: item.id || null,
               message,
               file_name: item.file_name || null,
               created_at: item.created_at || null,
@@ -195,7 +198,7 @@ export async function GET() {
           () =>
             supabase
               .from('guestbook_messages')
-              .select('event_id,guest_name,message,related_upload_id,created_at')
+              .select('id,event_id,guest_name,message,related_upload_id,created_at')
               .in('event_id', eventIds)
               .order('created_at', { ascending: false })
               .limit(1000),
@@ -209,6 +212,7 @@ export async function GET() {
           ((standaloneMessagesQuery.data || []) as Array<{
             event_id?: string | null
             guest_name?: string | null
+            id?: string | null
             message?: string | null
             related_upload_id?: string | null
             created_at?: string | null
@@ -220,6 +224,7 @@ export async function GET() {
 
             appendGuestMessage(guestMessagesByEvent, eventId, {
               guest_name: item.guest_name || null,
+              id: item.id || null,
               message,
               file_name: null,
               related_upload_id: item.related_upload_id || null,
@@ -497,6 +502,7 @@ export async function PATCH(request: Request) {
         id?: string
         name?: string
         albumName?: string
+        eventDate?: string | null
         allowGuestShare?: boolean
         allowGuestDownload?: boolean
         allowAlbumDownload?: boolean
@@ -554,6 +560,10 @@ export async function PATCH(request: Request) {
       updatePayload.album_name = cleanRepeatedEventLabel(albumName)
     }
 
+    if (body && 'eventDate' in body) {
+      updatePayload.event_date = body.eventDate?.trim() || null
+    }
+
     if (body && 'guestbookCoverImageUrl' in body) {
       updatePayload.guestbook_cover_image_url = body.guestbookCoverImageUrl?.trim() || null
     }
@@ -585,7 +595,8 @@ export async function PATCH(request: Request) {
       message.includes('allow_guest_delete') ||
       message.includes('guestbook_enabled') ||
       message.includes('guestbook_pdf_theme') ||
-      message.includes('guestbook_cover_image_url')
+      message.includes('guestbook_cover_image_url') ||
+      message.includes('event_date')
     ) {
       throw new Error(
         'Supabase mist nog een instellingen-kolom. Run eerst de nieuwste SQL in de juiste Supabase projectdatabase.'
