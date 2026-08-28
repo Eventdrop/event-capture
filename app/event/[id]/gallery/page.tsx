@@ -532,24 +532,11 @@ function drawPhotoSlot(
   const imageRatio = imageWidth && imageHeight ? imageWidth / imageHeight : slotRatio
   const ratioDelta = Math.abs(Math.log(imageRatio / slotRatio))
   const canUseSoftCrop = fit === 'cover' || ratioDelta <= ORIENTATION_CONFIG.softCropMaxDelta
-  const needsSoftBackground = !canUseSoftCrop
 
   context.save()
-  context.fillStyle = '#000'
-  context.fillRect(x, y, width, height)
   context.beginPath()
   context.rect(x, y, width, height)
   context.clip()
-
-  if (needsSoftBackground) {
-    context.save()
-    context.filter = `${options?.grayscale ? 'grayscale(100%) ' : ''}blur(24px)`
-    drawFocusedCoverImage(context, image, x - 18, y - 18, width + 36, height + 36, photo.focus)
-    context.restore()
-
-    context.fillStyle = 'rgba(0, 0, 0, 0.30)'
-    context.fillRect(x, y, width, height)
-  }
 
   context.filter = options?.grayscale ? 'grayscale(100%)' : 'none'
   if (canUseSoftCrop) {
@@ -597,16 +584,6 @@ function drawPosterGrid(
   mode: Extract<DesignMode, 'posterPortrait' | 'posterLandscape' | 'posterMixed'>,
   options?: { grayscale?: boolean }
 ) {
-  context.save()
-  context.fillStyle = '#050505'
-  context.fillRect(
-    POSTER_TEMPLATE_PHOTO_AREA.x,
-    POSTER_TEMPLATE_PHOTO_AREA.y,
-    POSTER_TEMPLATE_PHOTO_AREA.width,
-    POSTER_TEMPLATE_PHOTO_AREA.height
-  )
-  context.restore()
-
   if (mode === 'posterMixed') {
     const portraitPhotos = photos.filter((photo) => photo.orientation === 'portrait')
     const landscapePhotos = photos.filter((photo) => photo.orientation === 'landscape')
@@ -652,30 +629,6 @@ function drawStoryGrid(
 ) {
   const slots = mode === 'storyPortrait' ? STORY_LAYOUT.portrait : STORY_LAYOUT.landscape
   const visiblePhotos = photos.slice(0, slots.length)
-  const photoArea = slots.reduce(
-    (area, slot) => ({
-      bottom: Math.max(area.bottom, slot.y + slot.height),
-      left: Math.min(area.left, slot.x),
-      right: Math.max(area.right, slot.x + slot.width),
-      top: Math.min(area.top, slot.y),
-    }),
-    {
-      bottom: Number.NEGATIVE_INFINITY,
-      left: Number.POSITIVE_INFINITY,
-      right: Number.NEGATIVE_INFINITY,
-      top: Number.POSITIVE_INFINITY,
-    }
-  )
-
-  context.save()
-  context.fillStyle = 'rgba(0, 0, 0, 0.62)'
-  context.fillRect(
-    photoArea.left - 18,
-    photoArea.top - 18,
-    photoArea.right - photoArea.left + 36,
-    photoArea.bottom - photoArea.top + 36
-  )
-  context.restore()
 
   visiblePhotos.forEach((photo, index) => {
     const slot = slots[index]
@@ -1372,8 +1325,15 @@ export default function Page() {
         throw new Error(t.gallery.loadError)
       }
 
-      context.fillStyle = '#050505'
-      context.fillRect(0, 0, canvas.width, canvas.height)
+      const hasTemplateBackground =
+        format === 'story'
+          ? Boolean(storyTemplateResource || templateResource)
+          : Boolean(templateResource)
+
+      if (!hasTemplateBackground) {
+        context.fillStyle = '#050505'
+        context.fillRect(0, 0, canvas.width, canvas.height)
+      }
 
       if (format === 'story') {
         if (storyTemplateResource) {
