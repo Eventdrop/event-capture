@@ -251,6 +251,7 @@ type TranslationTree = {
     messageLabel: string
     messagePlaceholder: string
     messageHelp: string
+    messageLimitReached: string
     noFilesChosen: string
     readyPrefix: string
     photos: string
@@ -719,6 +720,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       messageLabel: 'Mesaj (opsiyonel)',
       messagePlaceholder: 'Orn. Ne guzel bir gun! Birlikte cok mutlu olun ❤️',
       messageHelp: 'Opsiyonel · Mesajin gastenboek icinde gorunur.',
+      messageLimitReached: 'Maksimum karakter sınırına ulaşıldı',
       noFilesChosen: 'Henuz dosya secilmedi',
       readyPrefix: 'Hazir',
       photos: 'fotograf',
@@ -1257,6 +1259,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       messageLabel: 'Bericht (optioneel)',
       messagePlaceholder: 'Bijv. Wat een prachtige dag! Veel geluk samen ❤️',
       messageHelp: 'Optioneel · Je bericht verschijnt in het gastenboek.',
+      messageLimitReached: 'Maximum aantal tekens bereikt',
       noFilesChosen: 'Nog geen bestanden gekozen',
       readyPrefix: 'Klaar',
       photos: 'foto',
@@ -1795,6 +1798,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       messageLabel: 'Message (optional)',
       messagePlaceholder: 'E.g. What a beautiful day! Wishing you lots of happiness ❤️',
       messageHelp: 'Optional · Your message appears in the guestbook.',
+      messageLimitReached: 'Maximum character limit reached',
       noFilesChosen: 'No files selected yet',
       readyPrefix: 'Ready',
       photos: 'photos',
@@ -2091,6 +2095,7 @@ const germanTranslation: TranslationTree = {
     guestNameLabel: 'Name (optional)', guestNamePlaceholder: 'Dein Name',
     messageLabel: 'Nachricht (optional)', messagePlaceholder: 'Zum Beispiel: Was für ein schöner Tag! Alles Glück für euch ❤️',
     messageHelp: 'Optional · Deine Nachricht erscheint im Gästebuch.',
+    messageLimitReached: 'Maximale Zeichenanzahl erreicht',
     noFilesChosen: 'Noch keine Dateien ausgewählt', readyPrefix: 'Bereit', photos: 'Fotos',
     filesSelected: 'Dateien ausgewählt', unsupportedIgnored: 'nicht unterstützte Dateien wurden ignoriert',
     photoTooLarge: 'Foto überschreitet das Limit von 20 MB',
@@ -2282,6 +2287,7 @@ const frenchTranslation: TranslationTree = {
     guestNameLabel: 'Nom (facultatif)', guestNamePlaceholder: 'Votre nom',
     messageLabel: 'Message (facultatif)', messagePlaceholder: 'Par exemple : Quelle belle journée ! Beaucoup de bonheur à vous ❤️',
     messageHelp: 'Facultatif · Votre message apparaîtra dans le livre d’or.',
+    messageLimitReached: 'Nombre maximal de caractères atteint',
     noFilesChosen: 'Aucun fichier sélectionné', readyPrefix: 'Prêt', photos: 'photos',
     filesSelected: 'fichiers sélectionnés', unsupportedIgnored: 'fichiers non pris en charge ignorés',
     photoTooLarge: 'la photo dépasse la limite de 20 Mo', photoBadRatio: "la photo très étroite ou très longue n’a pas été ajoutée",

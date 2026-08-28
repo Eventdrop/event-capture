@@ -741,6 +741,16 @@ export default function Page() {
                           rows={3}
                           className="mt-2 w-full resize-none rounded-2xl border border-[#D4DFEE] bg-white px-3 py-2 text-sm text-[#0B2742] outline-none focus:border-[#F58220] disabled:opacity-60"
                         />
+                        <span className="mt-1 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-[#6A84A3]">
+                          <span>
+                            {guestMessage.length === GUEST_MESSAGE_MAX_LENGTH
+                              ? t.upload.messageLimitReached
+                              : ''}
+                          </span>
+                          <span>
+                            {guestMessage.length} / {GUEST_MESSAGE_MAX_LENGTH}
+                          </span>
+                        </span>
                       </label>
                     </div>
 
