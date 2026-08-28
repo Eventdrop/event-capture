@@ -9,6 +9,7 @@ export const runtime = 'nodejs'
 const BUCKET_NAME = 'event-uploads'
 const eventVisualColumns = {
   cover: 'cover_image_url',
+  guestbookCover: 'guestbook_cover_image_url',
   background: 'background_image_url',
   posterTemplate: 'poster_template_url',
   storyTemplate: 'story_template_url',
@@ -46,7 +47,11 @@ export async function POST(request: Request) {
 
     if (!isEventVisualKind(kind)) {
       return NextResponse.json(
-        { ok: false, error: 'Het type moet omslag, achtergrond, A3-sjabloon of Story-sjabloon zijn.' },
+        {
+          ok: false,
+          error:
+            'Het type moet omslag, gastenboek-omslag, achtergrond, A3-sjabloon of Story-sjabloon zijn.',
+        },
         { status: 400 }
       )
     }
@@ -112,6 +117,64 @@ export async function POST(request: Request) {
       {
         ok: false,
         error: error instanceof Error ? error.message : 'De afbeelding kon niet worden geüpload.',
+      },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: Request) {
+  const authenticated = await hasAdminSession()
+
+  if (!authenticated) {
+    return NextResponse.json({ ok: false, error: 'Geen toegang.' }, { status: 401 })
+  }
+
+  try {
+    const body = (await request.json().catch(() => null)) as
+      | {
+          eventId?: string
+          kind?: string
+        }
+      | null
+    const eventId = `${body?.eventId || ''}`.trim()
+    const kind = `${body?.kind || ''}`.trim()
+
+    if (!eventId) {
+      return NextResponse.json(
+        { ok: false, error: 'Een evenement ID is verplicht.' },
+        { status: 400 }
+      )
+    }
+
+    if (!isEventVisualKind(kind)) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            'Het type moet omslag, gastenboek-omslag, achtergrond, A3-sjabloon of Story-sjabloon zijn.',
+        },
+        { status: 400 }
+      )
+    }
+
+    const supabase = createAdminSupabaseClient()
+    const { data: updatedEvent, error } = await supabase
+      .from('events')
+      .update({ [eventVisualColumns[kind]]: null })
+      .eq('id', eventId)
+      .select('*')
+      .single()
+
+    if (error) throw error
+
+    return NextResponse.json({ ok: true, event: updatedEvent })
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          error instanceof Error ? error.message : 'De afbeelding kon niet worden verwijderd.',
       },
       { status: 500 }
     )

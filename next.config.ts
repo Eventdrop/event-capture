@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
     '/api/admin/guestbook-pdf': [
       './public/pdf-fonts/NotoSans-Regular.ttf',
       './public/pdf-fonts/NotoSans-Bold.ttf',
+      './public/pdf-fonts/WeddingScript.ttf',
+      './public/pdf-assets/wedding/wedding-cover-background.png',
+      './public/pdf-assets/wedding/wedding-message-background.png',
+      './public/pdf-assets/wedding/wedding-photo-mask.png',
+      './node_modules/twemoji-emojis/vendor/72x72/*.png',
     ],
   },
 }

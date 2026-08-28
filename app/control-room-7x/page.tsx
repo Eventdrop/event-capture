@@ -18,13 +18,26 @@ import {
   normalizeEventRecord,
   type NormalizedEvent,
 } from '@/lib/events'
+import {
+  getGuestbookPdfThemeConfig,
+  guestbookPdfThemeConfigs,
+  guestbookPdfThemeKeys,
+  guestbookPdfThemeLabels,
+  normalizeGuestbookPdfTheme,
+  type GuestbookPdfThemeKey,
+} from '@/lib/guestbook-pdf-theme'
 import { formatGuestbookDate } from '@/lib/guestbook'
 
 function formatEventLabel(event: NormalizedEvent) {
   return formatEventDisplayName(event)
 }
 
-type EventVisualKind = 'cover' | 'background' | 'posterTemplate' | 'storyTemplate'
+type EventVisualKind =
+  | 'cover'
+  | 'guestbookCover'
+  | 'background'
+  | 'posterTemplate'
+  | 'storyTemplate'
 
 type GuestAccessEntry = {
   email: string
@@ -50,6 +63,16 @@ type DownloadStatsEntry = {
 }
 
 type AdminEventSection = 'events' | 'templates'
+
+type EventControls = {
+  allowGuestShare: boolean
+  allowGuestDownload: boolean
+  allowAlbumDownload: boolean
+  allowGuestDelete: boolean
+  allowGuestPoster: boolean
+  guestbookEnabled: boolean
+  guestbookPdfTheme: GuestbookPdfThemeKey
+}
 
 export default function AdminPage() {
   const { t, locale } = useLanguage()
@@ -106,17 +129,7 @@ export default function AdminPage() {
     Record<string, { name: string; albumName: string }>
   >({})
   const [eventControlsById, setEventControlsById] = useState<
-    Record<
-      string,
-      {
-        allowGuestShare: boolean
-        allowGuestDownload: boolean
-        allowAlbumDownload: boolean
-        allowGuestDelete: boolean
-        allowGuestPoster: boolean
-        guestbookEnabled: boolean
-      }
-    >
+    Record<string, EventControls>
   >({})
   const [demoCloneSource, setDemoCloneSource] = useState<NormalizedEvent | null>(null)
   const [demoCustomerName, setDemoCustomerName] = useState('')
@@ -126,6 +139,7 @@ export default function AdminPage() {
   const adminUrl = getPublicPath('/control-room-7x')
   const eventVisualLabels: Record<EventVisualKind, string> = {
     cover: t.admin.coverImage,
+    guestbookCover: 'Gastenboek omslagfoto',
     background: t.admin.backgroundImage,
     posterTemplate: t.admin.posterTemplateImage,
     storyTemplate: t.admin.storyTemplateImage,
@@ -152,6 +166,9 @@ export default function AdminPage() {
     getPublicPath(getEventRoute(getEventIdentifier(event)))
   const getPublicGalleryPath = (event: NormalizedEvent) =>
     getPublicPath(getEventGalleryRoute(getEventIdentifier(event)))
+
+  const getSelectedGuestbookPdfTheme = (event: NormalizedEvent) =>
+    eventControlsById[event.id]?.guestbookPdfTheme ?? event.guestbookPdfTheme
 
   useEffect(() => {
     setStatusMessage(t.admin.loginPrompt)
@@ -196,19 +213,7 @@ export default function AdminPage() {
       )
     )
     setEventControlsById(
-      normalized.reduce<
-        Record<
-          string,
-          {
-            allowGuestShare: boolean
-            allowGuestDownload: boolean
-            allowAlbumDownload: boolean
-            allowGuestDelete: boolean
-            allowGuestPoster: boolean
-            guestbookEnabled: boolean
-          }
-        >
-      >((accumulator, event) => {
+      normalized.reduce<Record<string, EventControls>>((accumulator, event) => {
         accumulator[event.id] = {
           allowGuestShare: event.allowGuestShare,
           allowGuestDownload: event.allowGuestDownload,
@@ -216,6 +221,7 @@ export default function AdminPage() {
           allowGuestDelete: event.allowGuestDelete,
           allowGuestPoster: event.allowGuestPoster,
           guestbookEnabled: event.guestbookEnabled,
+          guestbookPdfTheme: event.guestbookPdfTheme,
         }
 
         return accumulator
@@ -422,6 +428,7 @@ export default function AdminPage() {
         allowGuestDelete,
         allowGuestPoster,
         guestbookEnabled: true,
+        guestbookPdfTheme: 'wedding',
       })
 
       const response = await fetch('/api/admin/events', {
@@ -449,6 +456,7 @@ export default function AdminPage() {
           allowGuestDelete: payload.allow_guest_delete,
           allowGuestPoster: payload.allow_guest_poster,
           guestbookEnabled: payload.guestbook_enabled,
+          guestbookPdfTheme: payload.guestbook_pdf_theme,
         }),
       })
 
@@ -493,6 +501,7 @@ export default function AdminPage() {
             allowGuestDelete: nextEvent.allowGuestDelete,
             allowGuestPoster: nextEvent.allowGuestPoster,
             guestbookEnabled: nextEvent.guestbookEnabled,
+            guestbookPdfTheme: nextEvent.guestbookPdfTheme,
           },
         }))
       }
@@ -722,6 +731,7 @@ export default function AdminPage() {
           allowGuestDelete: normalized.allowGuestDelete,
           allowGuestPoster: normalized.allowGuestPoster,
           guestbookEnabled: normalized.guestbookEnabled,
+          guestbookPdfTheme: normalized.guestbookPdfTheme,
         },
       }))
       setGuestAccessByEvent((prev) => ({ ...prev, [normalized.id]: [] }))
@@ -965,6 +975,8 @@ export default function AdminPage() {
             eventControlsById[event.id]?.allowGuestPoster ?? event.allowGuestPoster,
           guestbookEnabled:
             eventControlsById[event.id]?.guestbookEnabled ?? event.guestbookEnabled,
+          guestbookPdfTheme:
+            eventControlsById[event.id]?.guestbookPdfTheme ?? event.guestbookPdfTheme,
         }),
       })
 
@@ -1000,6 +1012,7 @@ export default function AdminPage() {
             allowGuestDelete: normalized.allowGuestDelete,
             allowGuestPoster: normalized.allowGuestPoster,
             guestbookEnabled: normalized.guestbookEnabled,
+            guestbookPdfTheme: normalized.guestbookPdfTheme,
           },
         }))
       }
@@ -1033,6 +1046,10 @@ export default function AdminPage() {
             ? uploadedVisual.event || {
                 ...item,
                 coverImageUrl: kind === 'cover' ? uploadedVisual.url : item.coverImageUrl,
+                guestbookCoverImageUrl:
+                  kind === 'guestbookCover'
+                    ? uploadedVisual.url
+                    : item.guestbookCoverImageUrl,
                 backgroundImageUrl:
                   kind === 'background' ? uploadedVisual.url : item.backgroundImageUrl,
                 posterTemplateUrl:
@@ -1046,6 +1063,52 @@ export default function AdminPage() {
       setStatusMessage(`${eventVisualLabels[kind]} ${t.admin.visualSaved}`)
     } catch (error) {
       console.error('Failed to update event visual', error)
+      setStatusMessage(error instanceof Error ? error.message : t.admin.mediaUploadError)
+    } finally {
+      setUpdatingEventVisual(null)
+    }
+  }
+
+  const removeEventVisual = async (event: NormalizedEvent, kind: EventVisualKind) => {
+    setUpdatingEventVisual({ eventId: event.id, kind })
+
+    try {
+      const response = await fetch('/api/admin/event-media', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId: event.id,
+          kind,
+        }),
+      })
+
+      const payload = (await response.json()) as {
+        ok?: boolean
+        event?: Record<string, unknown>
+        error?: string
+      }
+
+      if (!response.ok || payload.ok !== true) {
+        throw new Error(payload.error || t.admin.mediaUploadError)
+      }
+
+      const normalized = normalizeEventRecord(payload.event)
+      setEvents((prev) =>
+        prev.map((item) =>
+          item.id === event.id
+            ? normalized || {
+                ...item,
+                guestbookCoverImageUrl:
+                  kind === 'guestbookCover' ? '' : item.guestbookCoverImageUrl,
+              }
+            : item
+        )
+      )
+      setStatusMessage(`${eventVisualLabels[kind]} ${t.admin.visualSaved}`)
+    } catch (error) {
+      console.error('Failed to remove event visual', error)
       setStatusMessage(error instanceof Error ? error.message : t.admin.mediaUploadError)
     } finally {
       setUpdatingEventVisual(null)
@@ -1072,7 +1135,26 @@ export default function AdminPage() {
         allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
         allowGuestPoster: prev[eventId]?.allowGuestPoster ?? false,
         guestbookEnabled: prev[eventId]?.guestbookEnabled ?? true,
+        guestbookPdfTheme: prev[eventId]?.guestbookPdfTheme ?? 'wedding',
         [key]: value,
+      },
+    }))
+  }
+
+  const handleEventThemeChange = (
+    eventId: string,
+    value: GuestbookPdfThemeKey
+  ) => {
+    setEventControlsById((prev) => ({
+      ...prev,
+      [eventId]: {
+        allowGuestShare: prev[eventId]?.allowGuestShare ?? true,
+        allowGuestDownload: prev[eventId]?.allowGuestDownload ?? true,
+        allowAlbumDownload: prev[eventId]?.allowAlbumDownload ?? true,
+        allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
+        allowGuestPoster: prev[eventId]?.allowGuestPoster ?? false,
+        guestbookEnabled: prev[eventId]?.guestbookEnabled ?? true,
+        guestbookPdfTheme: normalizeGuestbookPdfTheme(value),
       },
     }))
   }
@@ -1098,6 +1180,7 @@ export default function AdminPage() {
           allowGuestDelete: currentSettings.allowGuestDelete,
           allowGuestPoster: currentSettings.allowGuestPoster,
           guestbookEnabled: currentSettings.guestbookEnabled,
+          guestbookPdfTheme: currentSettings.guestbookPdfTheme,
         }),
       })
 
@@ -1124,6 +1207,7 @@ export default function AdminPage() {
             allowGuestDelete: normalized.allowGuestDelete,
             allowGuestPoster: normalized.allowGuestPoster,
             guestbookEnabled: normalized.guestbookEnabled,
+            guestbookPdfTheme: normalized.guestbookPdfTheme,
           },
         }))
       }
@@ -1895,6 +1979,7 @@ export default function AdminPage() {
                       <div className="mt-3 grid gap-2 text-xs font-semibold text-[#33516F] sm:grid-cols-2">
                         {([
                           [t.admin.coverImage, event.coverImageUrl],
+                          ['Gastenboek omslagfoto', event.guestbookCoverImageUrl],
                           [t.admin.backgroundImage, event.backgroundImageUrl],
                           [t.admin.posterTemplateImage, event.posterTemplateUrl],
                           [t.admin.storyTemplateImage, event.storyTemplateUrl],
@@ -1967,6 +2052,144 @@ export default function AdminPage() {
                           </button>
                         </div>
                       ))}
+
+                      {eventControlsById[event.id]?.guestbookEnabled ?? event.guestbookEnabled ? (
+                        (() => {
+                          const selectedTheme = getSelectedGuestbookPdfTheme(event)
+                          const selectedThemeConfig = getGuestbookPdfThemeConfig(selectedTheme)
+
+                          return (
+                        <>
+                          <label className="flex items-center justify-between gap-4 rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3">
+                            <span className="text-sm text-[#33516F]">
+                              Gastenboek PDF-stijl
+                            </span>
+                            <select
+                              value={selectedTheme}
+                              onChange={(item) =>
+                                handleEventThemeChange(
+                                  event.id,
+                                  normalizeGuestbookPdfTheme(item.target.value)
+                                )
+                              }
+                              className="min-w-36 rounded-xl border border-[#B9CBE0] bg-white px-3 py-2 text-sm font-semibold text-[#0F3D66] outline-none focus:border-[#F58220]"
+                            >
+                              {guestbookPdfThemeKeys.map((theme) => {
+                                const themeConfig = guestbookPdfThemeConfigs[theme]
+
+                                return (
+                                <option
+                                  key={theme}
+                                  value={theme}
+                                  disabled={!themeConfig.implemented}
+                                >
+                                  {guestbookPdfThemeLabels[theme]}
+                                  {themeConfig.implemented ? '' : ' - Binnenkort'}
+                                </option>
+                                )
+                              })}
+                            </select>
+                          </label>
+
+                          <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
+                            <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
+                              <div
+                                className="aspect-[3/4] rounded-2xl border border-[#D4DFEE] bg-white bg-cover bg-center"
+                                style={
+                                  selectedThemeConfig.previewImage
+                                    ? {
+                                        backgroundImage: `url(${selectedThemeConfig.previewImage})`,
+                                      }
+                                    : undefined
+                                }
+                              />
+                              <div>
+                                <p className="text-sm font-semibold text-[#0B2742]">
+                                  {guestbookPdfThemeLabels[selectedTheme]}
+                                </p>
+                                <p className="mt-1 text-xs text-[#597594]">
+                                  {selectedThemeConfig.implemented
+                                    ? 'Voorbeeld van de gekozen Gastenboek PDF-stijl.'
+                                    : 'Deze stijl is voorbereid en komt binnenkort beschikbaar.'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {selectedThemeConfig.implemented ? (
+                            <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
+                              <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
+                                <div
+                                  className="aspect-[3/4] rounded-2xl border border-[#D4DFEE] bg-white bg-cover bg-center"
+                                  style={
+                                    event.guestbookCoverImageUrl || event.coverImageUrl
+                                      ? {
+                                          backgroundImage: `url(${
+                                            event.guestbookCoverImageUrl || event.coverImageUrl
+                                          })`,
+                                        }
+                                      : undefined
+                                  }
+                                />
+                                <div>
+                                  <p className="text-sm font-semibold text-[#0B2742]">
+                                    Gastenboek omslagfoto
+                                  </p>
+                                  <p className="mt-1 text-xs text-[#597594]">
+                                    Gebruik een aparte foto voor de omslag van het digitale gastenboek.
+                                  </p>
+                                  <p className="mt-1 text-xs text-[#597594]">
+                                    {selectedThemeConfig.photoRecommendation}
+                                  </p>
+                                  <p className="mt-2 text-xs font-semibold text-[#33516F]">
+                                    {event.guestbookCoverImageUrl
+                                      ? 'Aparte gastenboekfoto actief.'
+                                      : event.coverImageUrl
+                                        ? 'Geen aparte foto: normale omslagfoto wordt gebruikt.'
+                                        : 'Geen aparte foto: PDF gebruikt de veilige lege omslag.'}
+                                  </p>
+                                  <div className="mt-3 flex flex-wrap gap-2">
+                                    <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
+                                      {updatingEventVisual?.eventId === event.id &&
+                                      updatingEventVisual.kind === 'guestbookCover'
+                                        ? t.admin.mediaUploading
+                                        : event.guestbookCoverImageUrl
+                                          ? 'Vervang omslagfoto'
+                                          : 'Upload omslagfoto'}
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(inputEvent) => {
+                                          const file = inputEvent.target.files?.[0] || null
+                                          void updateEventVisual(event, file, 'guestbookCover')
+                                          inputEvent.target.value = ''
+                                        }}
+                                        className="sr-only"
+                                      />
+                                    </label>
+
+                                    {event.guestbookCoverImageUrl ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => void removeEventVisual(event, 'guestbookCover')}
+                                        disabled={
+                                          updatingEventVisual?.eventId === event.id &&
+                                          updatingEventVisual.kind === 'guestbookCover'
+                                        }
+                                        className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                      >
+                                        Verwijderen
+                                      </button>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                        </>
+                          )
+                        })()
+                      ) : null}
                     </div>
 
                     <button
@@ -2152,20 +2375,32 @@ export default function AdminPage() {
                         {guestMessagesByEvent[event.id]?.length || 0} not
                       </p>
                       </div>
-                      {guestMessagesByEvent[event.id]?.length ? (
-                        <a
-                          href={`/api/admin/guestbook-pdf?eventId=${encodeURIComponent(event.id)}`}
-                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                        >
-                          {t.admin.downloadGuestbookPdf}
-                        </a>
+                      {getGuestbookPdfThemeConfig(event.guestbookPdfTheme).implemented ? (
+                        guestMessagesByEvent[event.id]?.length ? (
+                          <a
+                            href={`/api/admin/guestbook-pdf?eventId=${encodeURIComponent(event.id)}`}
+                            className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                          >
+                            {t.admin.downloadGuestbookPdf}
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setStatusMessage(t.admin.noGuestbookMessages)}
+                            className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] opacity-60"
+                          >
+                            {t.admin.downloadGuestbookPdf}
+                          </button>
+                        )
                       ) : (
                         <button
                           type="button"
-                          onClick={() => setStatusMessage(t.admin.noGuestbookMessages)}
+                          onClick={() =>
+                            setStatusMessage('Deze Gastenboek PDF-stijl komt binnenkort beschikbaar.')
+                          }
                           className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] opacity-60"
                         >
-                          {t.admin.downloadGuestbookPdf}
+                          PDF-stijl binnenkort
                         </button>
                       )}
                     </div>

@@ -1,4 +1,9 @@
 import type { Locale } from '@/lib/i18n'
+import {
+  DEFAULT_GUESTBOOK_PDF_THEME,
+  normalizeGuestbookPdfTheme,
+  type GuestbookPdfThemeKey,
+} from '@/lib/guestbook-pdf-theme'
 
 type EventRecordLike = {
   id?: string | null
@@ -7,6 +12,7 @@ type EventRecordLike = {
   slug?: string | null
   access_code?: string | null
   cover_image_url?: string | null
+  guestbook_cover_image_url?: string | null
   background_image_url?: string | null
   poster_template_url?: string | null
   story_template_url?: string | null
@@ -18,6 +24,7 @@ type EventRecordLike = {
   allow_guest_delete?: boolean | null
   allow_guest_poster?: boolean | null
   guestbook_enabled?: boolean | null
+  guestbook_pdf_theme?: string | null
   is_demo_template?: boolean | null
   created_at?: string | null
 }
@@ -29,6 +36,7 @@ export type NormalizedEvent = {
   slug: string
   accessCode: string
   coverImageUrl: string
+  guestbookCoverImageUrl: string
   backgroundImageUrl: string
   posterTemplateUrl: string
   storyTemplateUrl: string
@@ -40,6 +48,7 @@ export type NormalizedEvent = {
   allowGuestDelete: boolean
   allowGuestPoster: boolean
   guestbookEnabled: boolean
+  guestbookPdfTheme: GuestbookPdfThemeKey
   isDemoTemplate: boolean
   createdAt: string | null
 }
@@ -129,6 +138,7 @@ export function buildEventInsertPayload(input: {
   accessCode?: string
   accessCodeEnabled?: boolean
   coverImageUrl?: string
+  guestbookCoverImageUrl?: string | null
   backgroundImageUrl?: string
   posterTemplateUrl?: string
   storyTemplateUrl?: string
@@ -138,6 +148,7 @@ export function buildEventInsertPayload(input: {
   allowGuestDelete?: boolean
   allowGuestPoster?: boolean
   guestbookEnabled?: boolean
+  guestbookPdfTheme?: string | null
   isDemoTemplate?: boolean
 }) {
   const accessCode = input.accessCodeEnabled === false
@@ -150,6 +161,7 @@ export function buildEventInsertPayload(input: {
     slug: `${slugBase}-${Math.random().toString(36).slice(2, 6)}`,
     access_code: accessCode,
     cover_image_url: input.coverImageUrl || null,
+    guestbook_cover_image_url: input.guestbookCoverImageUrl || null,
     background_image_url: input.backgroundImageUrl || null,
     event_date: input.eventDate || null,
     default_locale: normalizeEventLocale(input.defaultLocale),
@@ -159,6 +171,9 @@ export function buildEventInsertPayload(input: {
     allow_guest_delete: input.allowGuestDelete === true,
     allow_guest_poster: input.allowGuestPoster === true,
     guestbook_enabled: input.guestbookEnabled !== false,
+    guestbook_pdf_theme: normalizeGuestbookPdfTheme(
+      input.guestbookPdfTheme || DEFAULT_GUESTBOOK_PDF_THEME
+    ),
   }
 
   return {
@@ -181,6 +196,7 @@ export function normalizeEventRecord(
     slug: record.slug || '',
     accessCode: deriveEventAccessCode(record),
     coverImageUrl: record.cover_image_url || '',
+    guestbookCoverImageUrl: record.guestbook_cover_image_url || '',
     backgroundImageUrl: record.background_image_url || '',
     posterTemplateUrl: record.poster_template_url || '',
     storyTemplateUrl: record.story_template_url || '',
@@ -192,6 +208,7 @@ export function normalizeEventRecord(
     allowGuestDelete: record.allow_guest_delete === true,
     allowGuestPoster: record.allow_guest_poster === true,
     guestbookEnabled: record.guestbook_enabled !== false,
+    guestbookPdfTheme: normalizeGuestbookPdfTheme(record.guestbook_pdf_theme),
     isDemoTemplate: record.is_demo_template === true,
     createdAt: record.created_at || null,
   }

@@ -4,6 +4,7 @@ import { getStoragePathFromUpload, type UploadRecord } from '@/lib/eventdrop'
 import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { buildEventInsertPayload, cleanRepeatedEventLabel } from '@/lib/events'
+import { normalizeGuestbookPdfTheme } from '@/lib/guestbook-pdf-theme'
 import type { Locale } from '@/lib/i18n'
 import { withRetry } from '@/lib/with-retry'
 
@@ -323,21 +324,23 @@ export async function POST(request: Request) {
     | {
         name?: string
         albumName?: string
-      eventDate?: string
-      defaultLocale?: Locale
-      accessCode?: string
-      accessCodeEnabled?: boolean
-      isDemoTemplate?: boolean
-      coverImageUrl?: string
-      backgroundImageUrl?: string
-      posterTemplateUrl?: string
-      storyTemplateUrl?: string
-      allowGuestShare?: boolean
-      allowGuestDownload?: boolean
-      allowAlbumDownload?: boolean
-      allowGuestDelete?: boolean
-      allowGuestPoster?: boolean
-      guestbookEnabled?: boolean
+        eventDate?: string
+        defaultLocale?: Locale
+        accessCode?: string
+        accessCodeEnabled?: boolean
+        isDemoTemplate?: boolean
+        coverImageUrl?: string
+        guestbookCoverImageUrl?: string | null
+        backgroundImageUrl?: string
+        posterTemplateUrl?: string
+        storyTemplateUrl?: string
+        allowGuestShare?: boolean
+        allowGuestDownload?: boolean
+        allowAlbumDownload?: boolean
+        allowGuestDelete?: boolean
+        allowGuestPoster?: boolean
+        guestbookEnabled?: boolean
+        guestbookPdfTheme?: string
       }
     | null
 
@@ -349,6 +352,7 @@ export async function POST(request: Request) {
   const accessCodeEnabled = body?.accessCodeEnabled !== false
   const isDemoTemplate = body?.isDemoTemplate === true
   const coverImageUrl = body?.coverImageUrl?.trim() || ''
+  const guestbookCoverImageUrl = body?.guestbookCoverImageUrl?.trim() || ''
   const backgroundImageUrl = body?.backgroundImageUrl?.trim() || ''
   const posterTemplateUrl = body?.posterTemplateUrl?.trim() || ''
   const storyTemplateUrl = body?.storyTemplateUrl?.trim() || ''
@@ -358,6 +362,7 @@ export async function POST(request: Request) {
   const allowGuestDelete = body?.allowGuestDelete === true
   const allowGuestPoster = body?.allowGuestPoster === true
   const guestbookEnabled = body?.guestbookEnabled !== false
+  const guestbookPdfTheme = normalizeGuestbookPdfTheme(body?.guestbookPdfTheme)
 
   if (!name || !albumName) {
     return NextResponse.json(
@@ -380,6 +385,7 @@ export async function POST(request: Request) {
       accessCodeEnabled,
       isDemoTemplate,
       coverImageUrl,
+      guestbookCoverImageUrl,
       backgroundImageUrl,
       posterTemplateUrl,
       storyTemplateUrl,
@@ -389,6 +395,7 @@ export async function POST(request: Request) {
       allowGuestDelete,
       allowGuestPoster,
       guestbookEnabled,
+      guestbookPdfTheme,
     })
 
     const richInsert = await withRetry(
@@ -496,6 +503,8 @@ export async function PATCH(request: Request) {
         allowGuestDelete?: boolean
         allowGuestPoster?: boolean
         guestbookEnabled?: boolean
+        guestbookPdfTheme?: string
+        guestbookCoverImageUrl?: string | null
       }
     | null
 
@@ -513,13 +522,14 @@ export async function PATCH(request: Request) {
 
   try {
     const supabase = createAdminSupabaseClient()
-    const updatePayload: Record<string, string | boolean> = {
+    const updatePayload: Record<string, string | boolean | null> = {
       allow_guest_share: body?.allowGuestShare !== false,
       allow_guest_download: body?.allowGuestDownload !== false,
       allow_album_download: body?.allowAlbumDownload !== false,
       allow_guest_delete: body?.allowGuestDelete === true,
       allow_guest_poster: body?.allowGuestPoster === true,
       guestbook_enabled: body?.guestbookEnabled !== false,
+      guestbook_pdf_theme: normalizeGuestbookPdfTheme(body?.guestbookPdfTheme),
     }
     const name = body?.name?.trim()
     const albumName = body?.albumName?.trim()
@@ -542,6 +552,10 @@ export async function PATCH(request: Request) {
         )
       }
       updatePayload.album_name = cleanRepeatedEventLabel(albumName)
+    }
+
+    if (body && 'guestbookCoverImageUrl' in body) {
+      updatePayload.guestbook_cover_image_url = body.guestbookCoverImageUrl?.trim() || null
     }
 
     const richUpdate = await withRetry(
@@ -569,7 +583,9 @@ export async function PATCH(request: Request) {
       message.includes('allow_guest_share') ||
       message.includes('allow_guest_download') ||
       message.includes('allow_guest_delete') ||
-      message.includes('guestbook_enabled')
+      message.includes('guestbook_enabled') ||
+      message.includes('guestbook_pdf_theme') ||
+      message.includes('guestbook_cover_image_url')
     ) {
       throw new Error(
         'Supabase mist nog een instellingen-kolom. Run eerst de nieuwste SQL in de juiste Supabase projectdatabase.'
