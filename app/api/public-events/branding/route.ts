@@ -6,6 +6,12 @@ export const runtime = 'nodejs'
 
 const BUCKET_NAME = 'event-uploads'
 
+type StorageBrandingFile = {
+  created_at?: string | null
+  name: string
+  updated_at?: string | null
+}
+
 function buildPublicUrl(storagePath: string) {
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '')
 
@@ -14,6 +20,50 @@ function buildPublicUrl(storagePath: string) {
   }
 
   return `${baseUrl}/storage/v1/object/public/${BUCKET_NAME}/${storagePath}`
+}
+
+function parseBrandingTimestamp(name: string, prefix: string) {
+  const match = name.match(
+    new RegExp(`^${prefix}(\\d{2})-(\\d{2})-(\\d{4})-(\\d{2})-(\\d{2})-(\\d{2})-`)
+  )
+
+  if (!match) return 0
+
+  const [, day, month, year, hour, minute, second] = match
+  return new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute),
+    Number(second)
+  ).getTime()
+}
+
+function getBrandingFileTimestamp(file: StorageBrandingFile, prefix: string) {
+  const updatedAt = file.updated_at ? new Date(file.updated_at).getTime() : 0
+  const createdAt = file.created_at ? new Date(file.created_at).getTime() : 0
+
+  return Math.max(
+    Number.isFinite(updatedAt) ? updatedAt : 0,
+    Number.isFinite(createdAt) ? createdAt : 0,
+    parseBrandingTimestamp(file.name, prefix)
+  )
+}
+
+function findNewestBrandingFile(
+  files: StorageBrandingFile[] | null | undefined,
+  prefix: string
+) {
+  return (files || [])
+    .filter((file) => file.name.startsWith(prefix))
+    .sort((left, right) => {
+      const timestampDelta =
+        getBrandingFileTimestamp(right, prefix) -
+        getBrandingFileTimestamp(left, prefix)
+
+      return timestampDelta || right.name.localeCompare(left.name)
+    })[0]
 }
 
 export async function GET(request: Request) {
@@ -80,16 +130,10 @@ export async function GET(request: Request) {
       throw error
     }
 
-    const latestCover = files?.find((file) => file.name.startsWith('cover-'))
-    const latestBackground = files?.find((file) =>
-      file.name.startsWith('background-')
-    )
-    const latestPosterTemplate = files?.find((file) =>
-      file.name.startsWith('posterTemplate-')
-    )
-    const latestStoryTemplate = files?.find((file) =>
-      file.name.startsWith('storyTemplate-')
-    )
+    const latestCover = findNewestBrandingFile(files, 'cover-')
+    const latestBackground = findNewestBrandingFile(files, 'background-')
+    const latestPosterTemplate = findNewestBrandingFile(files, 'posterTemplate-')
+    const latestStoryTemplate = findNewestBrandingFile(files, 'storyTemplate-')
 
     return NextResponse.json({
       ok: true,

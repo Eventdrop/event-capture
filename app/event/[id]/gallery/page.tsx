@@ -759,7 +759,12 @@ export default function Page() {
   useEffect(() => {
     const loadBranding = async () => {
       if (!currentEvent?.id) return
-      if (currentEvent.coverImageUrl && currentEvent.backgroundImageUrl) return
+      if (
+        currentEvent.coverImageUrl &&
+        currentEvent.backgroundImageUrl &&
+        currentEvent.posterTemplateUrl &&
+        currentEvent.storyTemplateUrl
+      ) return
 
       try {
         const response = await fetch(
@@ -798,7 +803,14 @@ export default function Page() {
     }
 
     void loadBranding()
-  }, [currentEvent?.backgroundImageUrl, currentEvent?.coverImageUrl, currentEvent?.id, eventIdentifier])
+  }, [
+    currentEvent?.backgroundImageUrl,
+    currentEvent?.coverImageUrl,
+    currentEvent?.id,
+    currentEvent?.posterTemplateUrl,
+    currentEvent?.storyTemplateUrl,
+    eventIdentifier,
+  ])
 
   useEffect(() => {
     const loadGuestbookMessages = async () => {
