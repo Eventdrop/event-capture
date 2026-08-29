@@ -163,7 +163,7 @@ export default function AdminPage() {
   const latestEvent = useMemo(() => customerEvents[0] || null, [customerEvents])
   const creatingDemoTemplate = adminSection === 'templates'
 
-  const getEventIdentifier = (event: NormalizedEvent) => event.slug || event.id
+  const getEventIdentifier = (event: NormalizedEvent) => event.id
   const getEventShareUrl = (event: NormalizedEvent) =>
     `${publicBaseUrl}${getEventRoute(getEventIdentifier(event))}`
   const getGalleryShareUrl = (event: NormalizedEvent) =>
