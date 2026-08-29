@@ -522,7 +522,7 @@ function drawPhotoSlot(
   y: number,
   width: number,
   height: number,
-  options?: { fit?: 'smart' | 'cover'; grayscale?: boolean }
+  options?: { fit?: 'smart' | 'cover' }
 ) {
   const { image } = photo
   const imageWidth = image.naturalWidth || image.width
@@ -538,14 +538,26 @@ function drawPhotoSlot(
   context.rect(x, y, width, height)
   context.clip()
 
-  context.filter = options?.grayscale ? 'grayscale(100%)' : 'none'
   if (canUseSoftCrop) {
     drawFocusedCoverImage(context, image, x, y, width, height, photo.focus)
   } else {
     drawContainImage(context, image, x, y, width, height)
   }
-  context.filter = 'none'
   context.restore()
+}
+
+function applyCanvasGrayscale(context: CanvasRenderingContext2D, width: number, height: number) {
+  const imageData = context.getImageData(0, 0, width, height)
+  const { data } = imageData
+
+  for (let index = 0; index < data.length; index += 4) {
+    const gray = Math.round(data[index] * 0.299 + data[index + 1] * 0.587 + data[index + 2] * 0.114)
+    data[index] = gray
+    data[index + 1] = gray
+    data[index + 2] = gray
+  }
+
+  context.putImageData(imageData, 0, 0)
 }
 
 function hasTransparentPixelsInArea(
@@ -582,7 +594,7 @@ function drawPosterGrid(
   context: CanvasRenderingContext2D,
   photos: PosterPhoto[],
   mode: Extract<DesignMode, 'posterPortrait' | 'posterLandscape' | 'posterMixed'>,
-  options?: { grayscale?: boolean }
+  _options?: { grayscale?: boolean }
 ) {
   if (mode === 'posterMixed') {
     const portraitPhotos = photos.filter((photo) => photo.orientation === 'portrait')
@@ -599,7 +611,6 @@ function drawPosterGrid(
       if (!photo) return
 
       drawPhotoSlot(context, photo, slot.x, slot.y, slot.width, slot.height, {
-        ...options,
         fit: 'cover',
       })
     })
@@ -615,7 +626,6 @@ function drawPosterGrid(
     if (!slot) return
 
     drawPhotoSlot(context, photo, slot.x, slot.y, slot.width, slot.height, {
-      ...options,
       fit: mode === 'posterLandscape' ? 'cover' : 'smart',
     })
   })
@@ -625,7 +635,7 @@ function drawStoryGrid(
   context: CanvasRenderingContext2D,
   photos: PosterPhoto[],
   mode: Extract<DesignMode, 'storyPortrait' | 'storyLandscape'>,
-  options?: { grayscale?: boolean }
+  _options?: { grayscale?: boolean }
 ) {
   const slots = mode === 'storyPortrait' ? STORY_LAYOUT.portrait : STORY_LAYOUT.landscape
   const visiblePhotos = photos.slice(0, slots.length)
@@ -636,7 +646,6 @@ function drawStoryGrid(
     if (!slot) return
 
     drawPhotoSlot(context, photo, slot.x, slot.y, slot.width, slot.height, {
-      ...options,
       fit: 'cover',
     })
   })
@@ -1466,6 +1475,10 @@ export default function Page() {
         }
 
         context.textAlign = 'left'
+      }
+
+      if (options?.grayscale) {
+        applyCanvasGrayscale(context, canvas.width, canvas.height)
       }
 
       const blob = await new Promise<Blob | null>((resolve) => {
