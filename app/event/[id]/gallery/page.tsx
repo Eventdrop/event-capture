@@ -101,14 +101,10 @@ const MIXED_POSTER_LANDSCAPE_WIDTH =
   MIXED_POSTER_GRID.columnWidth * 2 + MIXED_POSTER_GRID.columnGap
 const STORY_LAYOUT = {
   portrait: [
-    { x: 42, y: 430, width: 492, height: 340 },
-    { x: 546, y: 430, width: 492, height: 340 },
-    { x: 42, y: 782, width: 492, height: 340 },
-    { x: 546, y: 782, width: 492, height: 340 },
-    { x: 42, y: 1134, width: 492, height: 340 },
-    { x: 546, y: 1134, width: 492, height: 340 },
-    { x: 42, y: 1486, width: 492, height: 340 },
-    { x: 546, y: 1486, width: 492, height: 340 },
+    { x: 42, y: 405, width: 492, height: 656 },
+    { x: 546, y: 405, width: 492, height: 656 },
+    { x: 42, y: 1073, width: 492, height: 656 },
+    { x: 546, y: 1073, width: 492, height: 656 },
   ],
   landscape: [
     { x: 42, y: 560, width: 492, height: 288 },
@@ -641,7 +637,7 @@ function drawStoryGrid(
 
     drawPhotoSlot(context, photo, slot.x, slot.y, slot.width, slot.height, {
       ...options,
-      fit: mode === 'storyLandscape' ? 'cover' : 'smart',
+      fit: 'cover',
     })
   })
 }
