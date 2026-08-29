@@ -151,7 +151,15 @@ export async function POST(request: Request) {
       throw updateError
     }
 
-    const savedUrl = String(updatedEvent?.[eventVisualColumns[kind]] || '').trim()
+    const { data: persistedEvent, error: persistedEventError } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', eventId)
+      .single()
+
+    if (persistedEventError) throw persistedEventError
+
+    const savedUrl = String(persistedEvent?.[eventVisualColumns[kind]] || '').trim()
 
     if (savedUrl !== url) {
       throw new Error('Gorsel yuklendi ama album kaydina baglanamadi. Lutfen tekrar dene.')
@@ -179,7 +187,7 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ ok: true, url, storagePath, event: updatedEvent })
+    return NextResponse.json({ ok: true, url, storagePath, event: persistedEvent || updatedEvent })
   } catch (error) {
     return NextResponse.json(
       {
