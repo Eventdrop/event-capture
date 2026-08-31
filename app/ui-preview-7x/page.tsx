@@ -191,7 +191,7 @@ export default function UiPreview7xPage() {
         ) : (
           <>
             <section>
-              <div className="relative h-[210px] overflow-hidden rounded-[14px] sm:h-[300px]">
+              <div className="relative h-[195px] overflow-hidden rounded-[13px] sm:h-[290px]">
                 <img
                   src="/home-hero-fun.jpg"
                   alt=""
@@ -199,14 +199,14 @@ export default function UiPreview7xPage() {
                 />
                 <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/30 to-transparent" />
               </div>
-              <div className="px-1 pt-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#d71920]">
+              <div className="px-1 pt-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#d71920]">
                   EVENTDROP
                 </p>
-                <h1 className="mt-1 text-2xl font-black leading-tight tracking-[-0.03em] text-neutral-950 sm:text-3xl">
+                <h1 className="mt-0.5 text-[1.65rem] font-black leading-tight tracking-[-0.03em] text-neutral-950 sm:text-3xl">
                   Monique 70 jaar
                 </h1>
-                <p className="mt-1 text-sm font-semibold text-neutral-500 sm:text-base">
+                <p className="mt-0.5 text-sm font-semibold text-neutral-500 sm:text-base">
                   31 augustus 2026 · 39 foto’s
                 </p>
               </div>
@@ -255,7 +255,7 @@ export default function UiPreview7xPage() {
                       <button
                         type="button"
                         onClick={chooseFiles}
-                        className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-[#d71920] px-4 py-2 text-sm font-black text-white"
+                        className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-xl bg-[#d71920] px-3 py-1.5 text-xs font-black text-white sm:min-h-10 sm:px-4 sm:text-sm"
                       >
                         Bestanden kiezen
                       </button>
@@ -268,21 +268,21 @@ export default function UiPreview7xPage() {
                       />
                     </div>
 
-                    <div className="mt-3 rounded-xl bg-neutral-50 p-3">
+                    <div className="mt-2 rounded-xl bg-neutral-50 p-2.5">
                       <p className="text-sm font-black text-neutral-950">
                         Laat iets achter in het gastenboek
                       </p>
                       <p className="mt-0.5 text-xs leading-5 text-neutral-500">
                         Voeg eventueel je naam en een persoonlijk bericht toe aan je foto&apos;s.
                       </p>
-                      <div className="mt-3 grid gap-2 sm:grid-cols-[180px_minmax(0,1fr)]">
+                      <div className="mt-2 grid gap-2 sm:grid-cols-[180px_minmax(0,1fr)]">
                         <label className="block text-xs font-bold text-neutral-600">
                           Naam (optioneel)
                           <input
                             value={guestName}
                             onChange={(event) => setGuestName(event.target.value)}
                             placeholder="Je naam"
-                            className="mt-1 w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-950 outline-none focus:border-[#d71920]"
+                            className="mt-1 w-full rounded-xl border border-neutral-200 bg-white px-3 py-1.5 text-sm font-semibold text-neutral-950 outline-none focus:border-[#d71920]"
                           />
                         </label>
                         <label className="block text-xs font-bold text-neutral-600">
@@ -295,7 +295,7 @@ export default function UiPreview7xPage() {
                             maxLength={GUEST_MESSAGE_MAX_LENGTH}
                             placeholder="Bijv. Wat een prachtige dag! Veel geluk samen"
                             rows={2}
-                            className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-950 outline-none focus:border-[#d71920]"
+                            className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-1.5 text-sm font-medium text-neutral-950 outline-none focus:border-[#d71920]"
                           />
                           <span className="mt-1 flex justify-between gap-2 text-[11px] font-semibold text-neutral-400">
                             <span>
@@ -310,7 +310,7 @@ export default function UiPreview7xPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
+                  <div className="grid grid-cols-3 gap-1.5 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5 xl:grid-cols-6">
                     {photoCards.map((photo) => {
                       const isSelected = selectedPhotos.includes(photo.src)
 
@@ -345,18 +345,18 @@ export default function UiPreview7xPage() {
                               }
                               aria-label={isSelected ? 'Geselecteerd' : 'Selecteren'}
                               title={isSelected ? 'Geselecteerd' : 'Selecteren'}
-                              className={`absolute left-2 top-2 z-20 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/75 shadow-sm backdrop-blur ${
+                              className={`absolute left-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 shadow-sm backdrop-blur sm:h-7 sm:w-7 ${
                                 isSelected
                                   ? 'bg-[#d71920] text-white'
                                   : 'bg-white/90 text-neutral-700'
                               }`}
                             >
                               {isSelected ? (
-                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.8]">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.8]">
                                   <path d="M5 12.5 9.5 17 19 7.5" />
                                 </svg>
                               ) : (
-                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
                                   <circle cx="12" cy="12" r="8" />
                                 </svg>
                               )}
@@ -366,9 +366,9 @@ export default function UiPreview7xPage() {
                               type="button"
                               aria-label="Verwijderen"
                               title="Verwijderen"
-                              className="absolute right-2 top-2 z-20 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/75 bg-[#d71920]/92 text-white shadow-sm backdrop-blur"
+                              className="absolute right-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 bg-[#d71920]/92 text-white shadow-sm backdrop-blur sm:h-7 sm:w-7"
                             >
-                              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2">
+                              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
                                 <path d="M4 7h16" />
                                 <path d="M10 11v6" />
                                 <path d="M14 11v6" />
@@ -377,14 +377,14 @@ export default function UiPreview7xPage() {
                               </svg>
                             </button>
 
-                            <div className="absolute bottom-2 left-2 z-20 flex items-center gap-1.5">
+                            <div className="absolute bottom-1.5 left-1.5 z-20 flex items-center gap-1">
                               <button
                                 type="button"
                                 aria-label="Delen"
                                 title="Delen"
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/75 bg-white/90 text-neutral-800 shadow-sm backdrop-blur"
+                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 bg-white/90 text-neutral-800 shadow-sm backdrop-blur sm:h-7 sm:w-7"
                               >
-                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
                                   <path d="M12 5v10" />
                                   <path d="m8 9 4-4 4 4" />
                                   <path d="M5 19h14" />
@@ -395,9 +395,9 @@ export default function UiPreview7xPage() {
                                 type="button"
                                 aria-label="Downloaden"
                                 title="Downloaden"
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#d71920]/70 bg-[#d71920]/92 text-white shadow-sm backdrop-blur"
+                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#d71920]/70 bg-[#d71920]/92 text-white shadow-sm backdrop-blur sm:h-7 sm:w-7"
                               >
-                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
                                   <path d="M12 4v10" />
                                   <path d="m8 10 4 4 4-4" />
                                   <path d="M5 19h14" />
