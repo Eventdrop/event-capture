@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 type SectionKey = 'photos' | 'guestbook' | 'designs' | 'downloads'
+type PreviewMode = 'album' | 'access'
 type ModalKey = 'upload-info' | 'email-info' | null
 
 const navigation: { key: SectionKey; label: string }[] = [
@@ -13,93 +14,124 @@ const navigation: { key: SectionKey; label: string }[] = [
 ]
 
 const photoCards = [
-  { title: 'Dansvloer', tone: 'from-red-100 via-white to-stone-100' },
-  { title: 'Familie', tone: 'from-stone-200 via-white to-red-50' },
-  { title: 'Taartmoment', tone: 'from-white via-red-50 to-stone-200' },
-  { title: 'Vrienden', tone: 'from-red-200 via-white to-neutral-100' },
-  { title: 'Speech', tone: 'from-stone-100 via-white to-red-100' },
-  { title: 'Proost', tone: 'from-white via-stone-100 to-red-100' },
+  { title: 'Welkom', tone: 'from-neutral-200 via-white to-red-100', height: 'aspect-[4/5]' },
+  { title: 'Proost', tone: 'from-red-100 via-white to-neutral-100', height: 'aspect-[4/5]' },
+  { title: 'Familie', tone: 'from-stone-200 via-white to-red-50', height: 'aspect-[5/6]' },
+  { title: 'Taartmoment', tone: 'from-white via-red-50 to-neutral-200', height: 'aspect-[5/6]' },
+  { title: 'Dansvloer', tone: 'from-red-200 via-white to-stone-100', height: 'aspect-[4/5]' },
+  { title: 'Vrienden', tone: 'from-neutral-100 via-white to-red-100', height: 'aspect-[4/5]' },
 ]
 
 const messages = [
   {
     name: 'Sanne',
-    text: 'Wat een mooie avond. Alles voelde warm, persoonlijk en precies zoals Monique is.',
+    text: 'Wat een prachtige avond. De sfeer, de muziek en alle lieve mensen pasten helemaal bij Monique.',
     time: '20:14',
+    hasPhoto: true,
   },
   {
     name: 'Peter en Linda',
-    text: 'Gefeliciteerd met je 70e verjaardag. We hebben genoten van de foto’s, de muziek en alle lieve mensen om je heen.',
+    text: 'Gefeliciteerd met je 70e verjaardag. We hebben genoten van ieder moment.',
     time: '20:38',
+    hasPhoto: false,
   },
   {
     name: 'Eva',
-    text: 'Een prachtige herinnering aan een bijzondere dag. Dank je wel dat we erbij mochten zijn.',
+    text: 'Een heel warme herinnering aan een bijzondere dag. Dank je wel dat we erbij mochten zijn.',
     time: '21:02',
+    hasPhoto: true,
   },
 ]
 
 const designCards = [
   {
     title: 'Memory Poster A3',
-    description: 'Een stijlvolle collage om te printen of cadeau te geven.',
-    status: 'Beschikbaar',
+    description: 'Een printklare collage met de mooiste foto’s van de dag.',
+    shape: 'aspect-[3/4]',
   },
   {
     title: 'Instagram Story',
-    description: 'Een verticaal deelbaar ontwerp voor socials.',
-    status: 'Beschikbaar',
+    description: 'Een verticale herinnering om direct te delen.',
+    shape: 'aspect-[9/16]',
   },
 ]
 
 export default function UiPreview7xPage() {
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('album')
   const [activeSection, setActiveSection] = useState<SectionKey>('photos')
   const [modal, setModal] = useState<ModalKey>(null)
   const [uploadConsent, setUploadConsent] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
 
   return (
-    <main className="min-h-screen bg-white text-[#211f1d]">
-      <div className="mx-auto flex w-full max-w-[480px] flex-col">
-        <section className="border-b border-neutral-200 bg-white px-4 pb-4 pt-3">
-          <div className="flex items-center justify-between gap-3">
+    <main className="min-h-screen bg-white text-[#191817]">
+      <div className="mx-auto w-full max-w-[780px] px-3 py-3 sm:px-5 sm:py-6">
+        <header className="rounded-[1.35rem] border border-neutral-200 bg-white px-4 py-4 shadow-[0_12px_34px_rgba(20,20,20,0.06)] sm:px-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#d71920]">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#d71920]">
                 EventDrop
               </p>
-              <h1 className="mt-1 text-xl font-black leading-tight text-[#171717]">
+              <h1 className="mt-1 text-3xl font-black leading-none tracking-[-0.03em] text-neutral-950 sm:text-4xl">
                 Monique 70 jaar
               </h1>
-            </div>
-            <div className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-right">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">
-                Eventdatum
+              <p className="mt-2 text-sm font-semibold text-neutral-500">
+                31 augustus 2026
               </p>
-              <p className="text-sm font-bold text-neutral-900">31 augustus 2026</p>
             </div>
+            <p className="w-fit rounded-full bg-neutral-100 px-3 py-1.5 text-sm font-black text-neutral-700">
+              39 foto’s
+            </p>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
-            <p className="text-sm font-bold text-neutral-950">Toegang tot het album</p>
-            <p className="mt-1 text-sm leading-5 text-neutral-600">
-              Vul je e-mailadres in om foto’s toe te voegen en later terug te vinden.
+          <div className="mt-4 inline-grid grid-cols-2 rounded-full border border-neutral-200 bg-neutral-50 p-1">
+            {(['album', 'access'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setPreviewMode(mode)}
+                className={`rounded-full px-4 py-2 text-sm font-black transition ${
+                  previewMode === mode
+                    ? 'bg-[#d71920] text-white shadow-sm'
+                    : 'text-neutral-500 hover:text-neutral-950'
+                }`}
+              >
+                {mode === 'album' ? 'Album' : 'Toegang'}
+              </button>
+            ))}
+          </div>
+        </header>
+
+        {previewMode === 'access' ? (
+          <section className="mt-4 rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-[0_14px_40px_rgba(20,20,20,0.07)] sm:p-6">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#d71920]">
+              Toegang
             </p>
-            <label className="mt-3 block text-xs font-bold uppercase tracking-[0.08em] text-neutral-500">
+            <h2 className="mt-2 text-2xl font-black tracking-[-0.03em] text-neutral-950">
+              Bekijk en deel foto’s van het event
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-neutral-600">
+              Vul je e-mailadres in om toegang te krijgen tot het album van Monique 70 jaar.
+            </p>
+
+            <label className="mt-5 block text-xs font-black uppercase tracking-[0.08em] text-neutral-500">
               E-mailadres
               <input
                 type="email"
                 placeholder="naam@example.com"
-                className="mt-1.5 w-full rounded-xl border border-neutral-200 bg-white px-3 py-3 text-sm font-medium text-neutral-900 outline-none focus:border-[#d71920]"
+                className="mt-2 w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3.5 text-base font-semibold text-neutral-950 outline-none transition focus:border-[#d71920] focus:bg-white"
               />
             </label>
+
             <button
               type="button"
               onClick={() => setModal('email-info')}
-              className="mt-2 text-left text-xs font-bold text-[#b51218] underline decoration-[#f0b4b8] underline-offset-4"
+              className="mt-2 text-left text-sm font-bold text-[#b51218] underline decoration-[#f0b4b8] underline-offset-4"
             >
               Waarom vragen we dit?
             </button>
-            <label className="mt-3 flex items-start gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-xs leading-5 text-neutral-600">
+
+            <label className="mt-4 flex items-start gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm leading-6 text-neutral-600">
               <input
                 type="checkbox"
                 checked={marketingConsent}
@@ -110,186 +142,228 @@ export default function UiPreview7xPage() {
                 Ik wil af en toe nieuws, updates en aanbiedingen van Photobooth Holland / EventDrop ontvangen.
               </span>
             </label>
+
             <button
               type="button"
-              className="mt-3 w-full rounded-xl bg-[#d71920] px-4 py-3 text-sm font-black text-white shadow-[0_10px_22px_rgba(215,25,32,0.18)]"
+              className="mt-5 w-full rounded-2xl bg-[#d71920] px-5 py-4 text-base font-black text-white shadow-[0_12px_26px_rgba(215,25,32,0.2)]"
             >
               Verder
             </button>
-          </div>
-        </section>
+          </section>
+        ) : (
+          <>
+            <nav className="mt-4 border-b border-neutral-200">
+              <div className="grid grid-cols-4 gap-1">
+                {navigation.map((item) => {
+                  const isActive = activeSection === item.key
 
-        <nav className="sticky top-0 z-10 border-b border-neutral-200 bg-white/95 px-2 py-2 backdrop-blur">
-          <div className="grid grid-cols-4 gap-1 rounded-2xl bg-neutral-100 p-1">
-            {navigation.map((item) => {
-              const isActive = activeSection === item.key
-
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setActiveSection(item.key)}
-                  className={`rounded-xl px-2 py-2 text-[11px] font-black transition ${
-                    isActive
-                      ? 'bg-white text-[#d71920] shadow-sm'
-                      : 'text-neutral-600 hover:text-neutral-950'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              )
-            })}
-          </div>
-        </nav>
-
-        <div className="px-3 py-4">
-          {activeSection === 'photos' ? (
-            <section className="space-y-4">
-              <div className="rounded-2xl border border-dashed border-[#e25a60] bg-[#fff6f6] p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-base font-black text-neutral-950">Foto’s toevoegen</h2>
-                    <p className="mt-1 text-sm leading-5 text-neutral-600">
-                      Voeg je favoriete momenten toe aan het gedeelde album.
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-[#d71920]">
-                    JPG / PNG
-                  </span>
-                </div>
-
-                <label className="mt-4 flex cursor-pointer items-center justify-center rounded-xl bg-[#d71920] px-4 py-3 text-sm font-black text-white">
-                  Bestanden kiezen
-                  <input type="file" multiple accept="image/*" className="sr-only" />
-                </label>
-
-                <label className="mt-3 flex items-start gap-2 rounded-xl bg-white px-3 py-2.5 text-sm leading-5 text-neutral-700">
-                  <input
-                    type="checkbox"
-                    checked={uploadConsent}
-                    onChange={(event) => setUploadConsent(event.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-neutral-300 accent-[#d71920]"
-                  />
-                  <span>Ik bevestig dat ik deze foto’s mag uploaden.</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setModal('upload-info')}
-                  className="mt-2 text-sm font-bold text-[#b51218] underline decoration-[#f0b4b8] underline-offset-4"
-                >
-                  Meer informatie
-                </button>
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => setActiveSection(item.key)}
+                      className={`relative px-1 pb-3 pt-2 text-sm font-black transition sm:text-base ${
+                        isActive
+                          ? 'text-[#d71920]'
+                          : 'text-neutral-500 hover:text-neutral-950'
+                      }`}
+                    >
+                      {item.label}
+                      {isActive ? (
+                        <span className="absolute inset-x-2 bottom-0 h-1 rounded-full bg-[#d71920]" />
+                      ) : null}
+                    </button>
+                  )
+                })}
               </div>
+            </nav>
 
-              <div className="grid grid-cols-2 gap-2">
-                {photoCards.map((photo, index) => (
-                  <article
-                    key={photo.title}
-                    className="overflow-hidden rounded-2xl border border-neutral-200 bg-white"
-                  >
-                    <div className={`aspect-[4/5] bg-gradient-to-br ${photo.tone}`} />
-                    <div className="flex items-center justify-between gap-2 px-3 py-2">
-                      <p className="truncate text-sm font-bold text-neutral-900">{photo.title}</p>
-                      <p className="text-xs font-semibold text-neutral-400">#{index + 1}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {activeSection === 'guestbook' ? (
-            <section className="space-y-3">
-              <div>
-                <h2 className="text-lg font-black text-neutral-950">Gastenboek</h2>
-                <p className="mt-1 text-sm leading-5 text-neutral-600">
-                  Berichten van gasten verschijnen naast de herinneringen van de avond.
-                </p>
-              </div>
-              {messages.map((message) => (
-                <article
-                  key={`${message.name}-${message.time}`}
-                  className="rounded-2xl border border-neutral-200 bg-white p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-black text-neutral-950">{message.name}</p>
-                    <p className="text-xs font-bold text-neutral-400">{message.time}</p>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-neutral-650">{message.text}</p>
-                </article>
-              ))}
-            </section>
-          ) : null}
-
-          {activeSection === 'designs' ? (
-            <section className="space-y-3">
-              <div>
-                <h2 className="text-lg font-black text-neutral-950">Ontwerpen</h2>
-                <p className="mt-1 text-sm leading-5 text-neutral-600">
-                  Kies een formaat om van de beste foto’s een kant-en-klaar ontwerp te maken.
-                </p>
-              </div>
-              {designCards.map((design) => (
-                <article
-                  key={design.title}
-                  className="rounded-2xl border border-neutral-200 bg-white p-4"
-                >
-                  <div className="flex gap-3">
-                    <div className="h-20 w-16 rounded-xl bg-[linear-gradient(145deg,#d71920_0%,#ffffff_52%,#e5e5e5_100%)]" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-base font-black text-neutral-950">{design.title}</h3>
-                        <span className="rounded-full bg-[#fff1f1] px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-[#d71920]">
-                          {design.status}
-                        </span>
+            <div className="py-4 sm:py-5">
+              {activeSection === 'photos' ? (
+                <section className="space-y-4">
+                  <div className="rounded-[1.35rem] border border-neutral-200 bg-white p-4 shadow-[0_10px_28px_rgba(20,20,20,0.06)]">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <h2 className="text-lg font-black tracking-[-0.02em] text-neutral-950">
+                          Foto’s toevoegen
+                        </h2>
+                        <p className="mt-1 text-sm leading-5 text-neutral-600">
+                          Upload je favoriete momenten naar het gedeelde album.
+                        </p>
                       </div>
-                      <p className="mt-1 text-sm leading-5 text-neutral-600">{design.description}</p>
+                      <label className="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-[#d71920] px-5 py-3 text-sm font-black text-white shadow-[0_10px_22px_rgba(215,25,32,0.16)]">
+                        Bestanden kiezen
+                        <input type="file" multiple accept="image/*" className="sr-only" />
+                      </label>
+                    </div>
+
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <label className="flex items-start gap-2 text-sm leading-5 text-neutral-700">
+                        <input
+                          type="checkbox"
+                          checked={uploadConsent}
+                          onChange={(event) => setUploadConsent(event.target.checked)}
+                          className="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[#d71920]"
+                        />
+                        <span>Ik bevestig dat ik deze foto’s mag uploaden.</span>
+                      </label>
                       <button
                         type="button"
-                        className="mt-3 rounded-xl border border-neutral-200 px-3 py-2 text-xs font-black text-neutral-900"
+                        onClick={() => setModal('upload-info')}
+                        className="w-fit text-sm font-bold text-[#b51218] underline decoration-[#f0b4b8] underline-offset-4"
                       >
-                        Voorbeeld bekijken
+                        Meer informatie
                       </button>
                     </div>
                   </div>
-                </article>
-              ))}
-            </section>
-          ) : null}
 
-          {activeSection === 'downloads' ? (
-            <section className="space-y-3">
-              <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-                <h2 className="text-lg font-black text-neutral-950">Downloaden</h2>
-                <p className="mt-1 text-sm leading-6 text-neutral-600">
-                  Download losse favorieten of het complete album wanneer delen is vrijgegeven.
-                </p>
-                <div className="mt-4 grid gap-2">
-                  <button
-                    type="button"
-                    className="rounded-xl bg-[#d71920] px-4 py-3 text-sm font-black text-white"
-                  >
-                    Compleet album downloaden
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-black text-neutral-950"
-                  >
-                    Geselecteerde foto’s downloaden
-                  </button>
-                </div>
-              </div>
-              <div className="rounded-2xl bg-neutral-100 p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-neutral-500">
-                  Status
-                </p>
-                <p className="mt-1 text-sm font-semibold text-neutral-700">
-                  86 foto’s beschikbaar voor Monique 70 jaar.
-                </p>
-              </div>
-            </section>
-          ) : null}
-        </div>
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    {photoCards.map((photo, index) => (
+                      <article
+                        key={photo.title}
+                        className="overflow-hidden rounded-[1.25rem] border border-neutral-200 bg-white shadow-[0_8px_22px_rgba(20,20,20,0.06)]"
+                      >
+                        <div
+                          className={`${photo.height} bg-gradient-to-br ${photo.tone} relative`}
+                        >
+                          <div className="absolute inset-3 rounded-[1rem] bg-white/35" />
+                          <div className="absolute bottom-3 left-3 right-3 rounded-xl bg-white/82 px-3 py-2 backdrop-blur">
+                            <p className="truncate text-sm font-black text-neutral-950">
+                              {photo.title}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between px-3 py-2">
+                          <p className="text-xs font-bold text-neutral-500">Vandaag</p>
+                          <p className="text-xs font-black text-[#d71920]">#{index + 1}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              {activeSection === 'guestbook' ? (
+                <section className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-black tracking-[-0.03em] text-neutral-950">
+                      Gastenboek
+                    </h2>
+                    <p className="mt-1 text-sm leading-6 text-neutral-600">
+                      Persoonlijke berichten van gasten, samen met hun mooiste foto’s.
+                    </p>
+                  </div>
+                  {messages.map((message) => (
+                    <article
+                      key={`${message.name}-${message.time}`}
+                      className="rounded-[1.35rem] border border-neutral-200 bg-white p-4 shadow-[0_10px_28px_rgba(20,20,20,0.06)]"
+                    >
+                      <div className="flex gap-3">
+                        {message.hasPhoto ? (
+                          <div className="h-20 w-16 shrink-0 rounded-2xl bg-gradient-to-br from-red-100 via-white to-neutral-200" />
+                        ) : null}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="font-black text-neutral-950">{message.name}</p>
+                            <p className="text-xs font-bold text-neutral-400">{message.time}</p>
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-neutral-700">
+                            {message.text}
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </section>
+              ) : null}
+
+              {activeSection === 'designs' ? (
+                <section className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-black tracking-[-0.03em] text-neutral-950">
+                      Ontwerpen
+                    </h2>
+                    <p className="mt-1 text-sm leading-6 text-neutral-600">
+                      Maak van het album een printbaar of deelbaar ontwerp.
+                    </p>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {designCards.map((design) => (
+                      <article
+                        key={design.title}
+                        className="rounded-[1.35rem] border border-neutral-200 bg-white p-4 shadow-[0_10px_28px_rgba(20,20,20,0.06)]"
+                      >
+                        <div
+                          className={`${design.shape} mx-auto w-full max-w-[260px] rounded-[1.2rem] bg-[linear-gradient(145deg,#d71920_0%,#ffffff_48%,#efefef_100%)] p-3`}
+                        >
+                          <div className="grid h-full grid-cols-2 gap-2">
+                            <div className="rounded-xl bg-white/70" />
+                            <div className="rounded-xl bg-neutral-200/70" />
+                            <div className="rounded-xl bg-neutral-100/80" />
+                            <div className="rounded-xl bg-white/80" />
+                          </div>
+                        </div>
+                        <h3 className="mt-4 text-lg font-black text-neutral-950">
+                          {design.title}
+                        </h3>
+                        <p className="mt-1 text-sm leading-6 text-neutral-600">
+                          {design.description}
+                        </p>
+                        <button
+                          type="button"
+                          className="mt-4 w-full rounded-2xl border border-neutral-200 px-4 py-3 text-sm font-black text-neutral-950"
+                        >
+                          Voorbeeld bekijken
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              {activeSection === 'downloads' ? (
+                <section className="space-y-4">
+                  <div className="rounded-[1.35rem] border border-neutral-200 bg-white p-5 shadow-[0_10px_28px_rgba(20,20,20,0.06)]">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-[#d71920]">
+                      Downloaden
+                    </p>
+                    <h2 className="mt-2 text-2xl font-black tracking-[-0.03em] text-neutral-950">
+                      Bewaar het complete album
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-neutral-600">
+                      Download losse favorieten of alle foto’s in één pakket.
+                    </p>
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                      <button
+                        type="button"
+                        className="rounded-2xl bg-[#d71920] px-4 py-4 text-sm font-black text-white shadow-[0_10px_22px_rgba(215,25,32,0.16)]"
+                      >
+                        Compleet album
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-2xl border border-neutral-200 bg-white px-4 py-4 text-sm font-black text-neutral-950"
+                      >
+                        Selectie downloaden
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    {['39 foto’s', '3 ontwerpen', '12 berichten'].map((item) => (
+                      <div
+                        key={item}
+                        className="rounded-2xl bg-neutral-100 px-3 py-4 text-center text-sm font-black text-neutral-700"
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+            </div>
+          </>
+        )}
       </div>
 
       {modal ? (
