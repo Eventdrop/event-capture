@@ -357,26 +357,25 @@ export default function UiPreview7xPage() {
         ) : (
           <>
             <section>
+              <img
+                src="/eventdrop-logo.svg"
+                alt="EventDrop Sharing"
+                className="mb-2 h-auto w-[106px]"
+              />
               <div className="relative h-[195px] overflow-hidden rounded-[13px] sm:h-[290px]">
                 <img
                   src="/home-hero-custom.png"
                   alt=""
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/30 to-transparent" />
-              </div>
-              <div className="px-1 pt-2">
-                <img
-                  src="/eventdrop-logo.svg"
-                  alt="EventDrop Sharing"
-                  className="h-5 w-auto"
-                />
-                <h1 className="mt-0.5 text-[1.65rem] font-black leading-tight tracking-[-0.03em] text-neutral-950 sm:text-3xl">
-                  Monique 70 jaar
-                </h1>
-                <p className="mt-0.5 text-sm font-semibold text-neutral-500 sm:text-base">
-                  31 augustus 2026 · 39 foto’s
-                </p>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/56 via-black/24 to-transparent px-4 pb-4 pt-16">
+                  <h1 className="text-[1.65rem] font-black leading-tight tracking-[-0.03em] text-white sm:text-3xl">
+                    Monique 70 jaar
+                  </h1>
+                  <p className="mt-0.5 text-sm font-semibold text-white/86 sm:text-base">
+                    31 augustus 2026 · 39 foto’s
+                  </p>
+                </div>
               </div>
             </section>
 
