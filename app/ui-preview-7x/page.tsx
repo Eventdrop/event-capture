@@ -14,14 +14,13 @@ const navigation: { key: SectionKey; label: string }[] = [
 ]
 
 const photoCards = [
-  { src: 'https://picsum.photos/seed/eventdrop-monique-01/720/960', ratio: 'aspect-[3/4]' },
-  { src: 'https://picsum.photos/seed/eventdrop-monique-02/900/700', ratio: 'aspect-[9/7]' },
-  { src: 'https://picsum.photos/seed/eventdrop-monique-03/760/980', ratio: 'aspect-[4/5]' },
-  { src: 'https://picsum.photos/seed/eventdrop-monique-04/900/1100', ratio: 'aspect-[9/11]' },
-  { src: 'https://picsum.photos/seed/eventdrop-monique-05/980/760', ratio: 'aspect-[5/4]' },
-  { src: 'https://picsum.photos/seed/eventdrop-monique-06/760/1040', ratio: 'aspect-[3/4]' },
-  { src: 'https://picsum.photos/seed/eventdrop-monique-07/920/780', ratio: 'aspect-[6/5]' },
-  { src: 'https://picsum.photos/seed/eventdrop-monique-08/720/980', ratio: 'aspect-[4/5]' },
+  { src: '/home-tile-1.png', ratio: 'aspect-[4/5]' },
+  { src: '/home-strip-fun.jpg', ratio: 'aspect-[5/4]' },
+  { src: '/home-tile-2.png', ratio: 'aspect-[3/4]' },
+  { src: '/home-poster-reference.jpg', ratio: 'aspect-[4/5]' },
+  { src: '/home-hero-custom.png', ratio: 'aspect-[6/5]' },
+  { src: '/home-tile-3.png', ratio: 'aspect-[3/4]' },
+  { src: '/home-hero-fun.jpg', ratio: 'aspect-[5/4]' },
 ]
 
 const messages = [
@@ -58,6 +57,41 @@ const designCards = [
   },
 ]
 
+function NavIcon({ icon }: { icon: SectionKey }) {
+  if (icon === 'photos') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+        <path d="M4 8.5h3.3l1.4-2h6.6l1.4 2H20v9H4v-9Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M12 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" strokeWidth="1.8" />
+      </svg>
+    )
+  }
+
+  if (icon === 'guestbook') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+        <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H19v13.5H7.5A2.5 2.5 0 0 0 5 20V6.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M9 9.5c1.2-1.7 4.8-1.7 6 0 1 1.5-.4 3.1-3 4.7-2.6-1.6-4-3.2-3-4.7Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
+  if (icon === 'designs') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+        <path d="M5 5h6v6H5V5Zm8 2h6m-6 4h6M5 15h14v4H5v-4Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="m17.5 3 .5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5.5-1.2Z" fill="currentColor" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+      <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 18.5h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 export default function UiPreview7xPage() {
   const [previewMode, setPreviewMode] = useState<PreviewMode>('album')
   const [activeSection, setActiveSection] = useState<SectionKey>('photos')
@@ -67,7 +101,7 @@ export default function UiPreview7xPage() {
 
   return (
     <main className="min-h-screen bg-white text-[#191817]">
-      <div className="mx-auto w-full max-w-[850px] px-2.5 py-3 sm:px-5 sm:py-6">
+      <div className="mx-auto w-full max-w-[900px] px-2.5 py-2 sm:px-5 sm:py-5">
         <button
           type="button"
           onClick={() => setPreviewMode(previewMode === 'album' ? 'access' : 'album')}
@@ -75,22 +109,6 @@ export default function UiPreview7xPage() {
         >
           {previewMode === 'album' ? 'Bekijk toegangsscherm' : 'Bekijk album'}
         </button>
-
-        <header className="bg-white px-1 pb-2 pt-1 sm:px-0">
-          <div>
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#d71920]">
-                EVENTDROP
-              </p>
-              <h1 className="mt-1 text-[2rem] font-black leading-none tracking-[-0.03em] text-neutral-950 sm:text-5xl">
-                Monique 70 jaar
-              </h1>
-              <p className="mt-2 text-sm font-semibold text-neutral-500 sm:text-base">
-                31 augustus 2026 · 39 foto’s
-              </p>
-            </div>
-          </div>
-        </header>
 
         {previewMode === 'access' ? (
           <section className="mt-4 rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-[0_14px_40px_rgba(20,20,20,0.07)] sm:p-6">
@@ -142,7 +160,26 @@ export default function UiPreview7xPage() {
           </section>
         ) : (
           <>
-            <nav className="mt-2 border-b border-neutral-200">
+            <section className="relative h-[210px] overflow-hidden rounded-2xl sm:h-[300px]">
+              <img
+                src="/home-hero-fun.jpg"
+                alt=""
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/58 via-black/22 to-transparent px-4 pb-4 pt-16 sm:px-6 sm:pb-6">
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/82">
+                  EVENTDROP
+                </p>
+                <h1 className="mt-1 text-[2rem] font-black leading-none tracking-[-0.03em] text-white sm:text-5xl">
+                  Monique 70 jaar
+                </h1>
+                <p className="mt-2 text-sm font-semibold text-white/82 sm:text-base">
+                  31 augustus 2026 · 39 foto’s
+                </p>
+              </div>
+            </section>
+
+            <nav className="mt-3 border-b border-neutral-200">
               <div className="grid grid-cols-4 gap-1">
                 {navigation.map((item) => {
                   const isActive = activeSection === item.key
@@ -152,13 +189,14 @@ export default function UiPreview7xPage() {
                       key={item.key}
                       type="button"
                       onClick={() => setActiveSection(item.key)}
-                      className={`relative px-1 pb-2.5 pt-2 text-sm font-black transition sm:text-base ${
+                      className={`relative flex flex-col items-center gap-1 px-1 pb-2.5 pt-2 text-[11px] font-black transition sm:text-sm ${
                         isActive
                           ? 'text-[#d71920]'
                           : 'text-neutral-500 hover:text-neutral-950'
                       }`}
                     >
-                      {item.label}
+                      <NavIcon icon={item.key} />
+                      <span>{item.label}</span>
                       {isActive ? (
                         <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[#d71920]" />
                       ) : null}
@@ -207,13 +245,13 @@ export default function UiPreview7xPage() {
                     </div>
                   </div>
 
-                  <div className="columns-2 gap-2 sm:columns-3">
+                  <div className="columns-2 gap-1.5 sm:columns-3">
                     {photoCards.map((photo) => (
                       <img
                         key={photo.src}
                         src={photo.src}
                         alt=""
-                        className={`${photo.ratio} mb-2 w-full break-inside-avoid rounded-xl object-cover`}
+                        className={`${photo.ratio} mb-1.5 w-full break-inside-avoid rounded-[10px] object-cover`}
                       />
                     ))}
                   </div>
