@@ -131,10 +131,6 @@ export async function POST(request: Request) {
         }
       )
 
-      if (idLookup.error) {
-        throw idLookup.error
-      }
-
       eventByIdentifier = normalizeEventRecord(idLookup.data)
 
       if (!eventByIdentifier) {
