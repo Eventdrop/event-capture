@@ -111,10 +111,12 @@ export default function UiPreview7xPage() {
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([photoCards[0].src])
   const [visiblePhotos, setVisiblePhotos] = useState(photoCards)
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
+  const [photoToDelete, setPhotoToDelete] = useState<PreviewPhoto | null>(null)
   const [photoFeedback, setPhotoFeedback] = useState('')
   const [pendingPhotos, setPendingPhotos] = useState<PreviewPhoto[]>([])
   const [guestName, setGuestName] = useState('')
   const [guestMessage, setGuestMessage] = useState('')
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
   useEffect(() => {
     setHasUploadConsent(sessionStorage.getItem(UPLOAD_CONSENT_STORAGE_KEY) === 'true')
@@ -146,6 +148,53 @@ export default function UiPreview7xPage() {
     setPhotoFeedback(message)
     window.setTimeout(() => setPhotoFeedback(''), 1600)
   }
+
+  const previewIndex = previewPhoto
+    ? visiblePhotos.findIndex((photo) => photo.src === previewPhoto)
+    : -1
+  const previousPreviewPhoto =
+    previewIndex > 0 ? visiblePhotos[previewIndex - 1] : null
+  const nextPreviewPhoto =
+    previewIndex >= 0 && previewIndex < visiblePhotos.length - 1
+      ? visiblePhotos[previewIndex + 1]
+      : null
+
+  const confirmPhotoDelete = () => {
+    if (!photoToDelete) return
+
+    if (photoToDelete.src.startsWith('blob:')) {
+      URL.revokeObjectURL(photoToDelete.src)
+      objectUrlsRef.current = objectUrlsRef.current.filter(
+        (url) => url !== photoToDelete.src
+      )
+    }
+    setVisiblePhotos((current) =>
+      current.filter((item) => item.src !== photoToDelete.src)
+    )
+    setSelectedPhotos((current) =>
+      current.filter((item) => item !== photoToDelete.src)
+    )
+    if (previewPhoto === photoToDelete.src) setPreviewPhoto(null)
+    setPhotoToDelete(null)
+    showPhotoFeedback('Foto verwijderd')
+  }
+
+  useEffect(() => {
+    if (!previewPhoto) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setPreviewPhoto(null)
+      } else if (event.key === 'ArrowLeft' && previousPreviewPhoto) {
+        setPreviewPhoto(previousPreviewPhoto.src)
+      } else if (event.key === 'ArrowRight' && nextPreviewPhoto) {
+        setPreviewPhoto(nextPreviewPhoto.src)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [nextPreviewPhoto, previewPhoto, previousPreviewPhoto])
 
   const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []).filter((file) =>
@@ -503,19 +552,7 @@ export default function UiPreview7xPage() {
                               type="button"
                               onClick={(event) => {
                                 event.stopPropagation()
-                                if (photo.src.startsWith('blob:')) {
-                                  URL.revokeObjectURL(photo.src)
-                                  objectUrlsRef.current = objectUrlsRef.current.filter(
-                                    (url) => url !== photo.src
-                                  )
-                                }
-                                setVisiblePhotos((current) =>
-                                  current.filter((item) => item.src !== photo.src)
-                                )
-                                setSelectedPhotos((current) =>
-                                  current.filter((item) => item !== photo.src)
-                                )
-                                showPhotoFeedback('Foto verwijderd')
+                                setPhotoToDelete(photo)
                               }}
                               aria-label="Verwijderen"
                               title="Verwijderen"
@@ -732,7 +769,21 @@ export default function UiPreview7xPage() {
       ) : null}
 
       {previewPhoto ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/82 p-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/82 p-4"
+          onTouchStart={(event) => setTouchStartX(event.touches[0]?.clientX ?? null)}
+          onTouchEnd={(event) => {
+            if (touchStartX === null) return
+
+            const deltaX = event.changedTouches[0]?.clientX - touchStartX
+            if (deltaX < -45 && nextPreviewPhoto) {
+              setPreviewPhoto(nextPreviewPhoto.src)
+            } else if (deltaX > 45 && previousPreviewPhoto) {
+              setPreviewPhoto(previousPreviewPhoto.src)
+            }
+            setTouchStartX(null)
+          }}
+        >
           <button
             type="button"
             aria-label="Sluiten"
@@ -741,11 +792,70 @@ export default function UiPreview7xPage() {
           >
             ×
           </button>
+          {previousPreviewPhoto ? (
+            <button
+              type="button"
+              aria-label="Vorige foto"
+              onClick={() => setPreviewPhoto(previousPreviewPhoto.src)}
+              className="absolute left-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-950 shadow-lg backdrop-blur"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 fill-none stroke-current stroke-2">
+                <path d="m15 6-6 6 6 6" />
+              </svg>
+            </button>
+          ) : null}
+          {nextPreviewPhoto ? (
+            <button
+              type="button"
+              aria-label="Volgende foto"
+              onClick={() => setPreviewPhoto(nextPreviewPhoto.src)}
+              className="absolute right-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-950 shadow-lg backdrop-blur"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 fill-none stroke-current stroke-2">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </button>
+          ) : null}
           <img
             src={previewPhoto}
             alt=""
             className="max-h-[82vh] max-w-full rounded-2xl object-contain"
           />
+          <p className="absolute bottom-4 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-neutral-900">
+            {previewIndex + 1} / {visiblePhotos.length}
+          </p>
+        </div>
+      ) : null}
+
+      {photoToDelete ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/35 p-3 sm:items-center sm:justify-center">
+          <div className="w-full max-w-[360px] rounded-3xl bg-white p-5 shadow-2xl">
+            <h2 className="text-lg font-black text-neutral-950">Foto verwijderen?</h2>
+            <p className="mt-2 text-sm leading-6 text-neutral-700">
+              Weet je zeker dat je deze foto wilt verwijderen?
+            </p>
+            <img
+              src={photoToDelete.src}
+              alt=""
+              className="mt-4 h-24 w-20 rounded-xl object-cover"
+            />
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPhotoToDelete(null)}
+                className="rounded-xl border border-neutral-200 px-4 py-3 text-sm font-black text-neutral-800"
+              >
+                Annuleren
+              </button>
+              <button
+                type="button"
+                onClick={confirmPhotoDelete}
+                className="rounded-xl bg-[#d71920] px-4 py-3 text-sm font-black text-white"
+              >
+                Verwijderen
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </main>
