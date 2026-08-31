@@ -98,6 +98,7 @@ export default function UiPreview7xPage() {
   const [modal, setModal] = useState<ModalKey>(null)
   const [uploadConsent, setUploadConsent] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
+  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([photoCards[0].src])
 
   return (
     <main className="min-h-screen bg-white text-[#191817]">
@@ -245,15 +246,104 @@ export default function UiPreview7xPage() {
                     </div>
                   </div>
 
-                  <div className="columns-2 gap-1.5 sm:columns-3">
-                    {photoCards.map((photo) => (
-                      <img
-                        key={photo.src}
-                        src={photo.src}
-                        alt=""
-                        className={`${photo.ratio} mb-1.5 w-full break-inside-avoid rounded-[10px] object-cover`}
-                      />
-                    ))}
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                    {photoCards.map((photo) => {
+                      const isSelected = selectedPhotos.includes(photo.src)
+
+                      return (
+                        <article
+                          key={photo.src}
+                          className={`overflow-hidden rounded-xl bg-neutral-100 ${
+                            isSelected ? 'ring-2 ring-[#d71920]/75 ring-offset-2' : ''
+                          }`}
+                        >
+                          <div className="relative">
+                            <img
+                              src={photo.src}
+                              alt=""
+                              className="aspect-[4/5] w-full object-contain"
+                            />
+                            <button
+                              type="button"
+                              aria-label="Voorbeeld openen"
+                              title="Voorbeeld openen"
+                              className="absolute inset-0 z-10"
+                            />
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSelectedPhotos((current) =>
+                                  current.includes(photo.src)
+                                    ? current.filter((item) => item !== photo.src)
+                                    : [...current, photo.src]
+                                )
+                              }
+                              aria-label={isSelected ? 'Geselecteerd' : 'Selecteren'}
+                              title={isSelected ? 'Geselecteerd' : 'Selecteren'}
+                              className={`absolute left-2 top-2 z-20 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/75 shadow-sm backdrop-blur ${
+                                isSelected
+                                  ? 'bg-[#d71920] text-white'
+                                  : 'bg-white/90 text-neutral-700'
+                              }`}
+                            >
+                              {isSelected ? (
+                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.8]">
+                                  <path d="M5 12.5 9.5 17 19 7.5" />
+                                </svg>
+                              ) : (
+                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2">
+                                  <circle cx="12" cy="12" r="8" />
+                                </svg>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              aria-label="Verwijderen"
+                              title="Verwijderen"
+                              className="absolute right-2 top-2 z-20 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/75 bg-[#d71920]/92 text-white shadow-sm backdrop-blur"
+                            >
+                              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2">
+                                <path d="M4 7h16" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                                <path d="M6 7l1 12h10l1-12" />
+                                <path d="M9 7V4h6v3" />
+                              </svg>
+                            </button>
+
+                            <div className="absolute bottom-2 left-2 z-20 flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                aria-label="Delen"
+                                title="Delen"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/75 bg-white/90 text-neutral-800 shadow-sm backdrop-blur"
+                              >
+                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2">
+                                  <path d="M12 5v10" />
+                                  <path d="m8 9 4-4 4 4" />
+                                  <path d="M5 19h14" />
+                                </svg>
+                              </button>
+
+                              <button
+                                type="button"
+                                aria-label="Downloaden"
+                                title="Downloaden"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#d71920]/70 bg-[#d71920]/92 text-white shadow-sm backdrop-blur"
+                              >
+                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2">
+                                  <path d="M12 4v10" />
+                                  <path d="m8 10 4 4 4-4" />
+                                  <path d="M5 19h14" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </article>
+                      )
+                    })}
                   </div>
                 </section>
               ) : null}
