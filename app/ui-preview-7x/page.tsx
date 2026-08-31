@@ -5,6 +5,12 @@ import { useEffect, useRef, useState } from 'react'
 type SectionKey = 'photos' | 'guestbook' | 'designs' | 'downloads'
 type PreviewMode = 'album' | 'access'
 type ModalKey = 'upload-info' | 'email-info' | null
+type PreviewPhoto = {
+  src: string
+  ratio: string
+  name?: string
+}
+
 const GUEST_MESSAGE_MAX_LENGTH = 500
 const UPLOAD_CONSENT_STORAGE_KEY = 'eventdrop-ui-preview-upload-consent'
 
@@ -15,7 +21,7 @@ const navigation: { key: SectionKey; label: string }[] = [
   { key: 'downloads', label: 'Downloaden' },
 ]
 
-const photoCards = [
+const photoCards: PreviewPhoto[] = [
   { src: '/home-tile-1.png', ratio: 'aspect-[4/5]' },
   { src: '/home-tile-2.png', ratio: 'aspect-[3/4]' },
   { src: '/home-poster-reference.jpg', ratio: 'aspect-[4/5]' },
@@ -95,6 +101,7 @@ function NavIcon({ icon }: { icon: SectionKey }) {
 
 export default function UiPreview7xPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const objectUrlsRef = useRef<string[]>([])
   const [previewMode, setPreviewMode] = useState<PreviewMode>('album')
   const [activeSection, setActiveSection] = useState<SectionKey>('photos')
   const [modal, setModal] = useState<ModalKey>(null)
@@ -105,11 +112,15 @@ export default function UiPreview7xPage() {
   const [visiblePhotos, setVisiblePhotos] = useState(photoCards)
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
   const [photoFeedback, setPhotoFeedback] = useState('')
+  const [pendingPhotos, setPendingPhotos] = useState<PreviewPhoto[]>([])
   const [guestName, setGuestName] = useState('')
   const [guestMessage, setGuestMessage] = useState('')
 
   useEffect(() => {
     setHasUploadConsent(sessionStorage.getItem(UPLOAD_CONSENT_STORAGE_KEY) === 'true')
+    return () => {
+      objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
+    }
   }, [])
 
   const chooseFiles = () => {
@@ -134,6 +145,89 @@ export default function UiPreview7xPage() {
   const showPhotoFeedback = (message: string) => {
     setPhotoFeedback(message)
     window.setTimeout(() => setPhotoFeedback(''), 1600)
+  }
+
+  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []).filter((file) =>
+      file.type.startsWith('image/')
+    )
+
+    pendingPhotos.forEach((photo) => URL.revokeObjectURL(photo.src))
+    const nextPhotos = files.map((file) => {
+      const src = URL.createObjectURL(file)
+      objectUrlsRef.current.push(src)
+
+      return {
+        src,
+        ratio: 'aspect-[4/5]',
+        name: file.name,
+      }
+    })
+
+    setPendingPhotos(nextPhotos)
+  }
+
+  const uploadPendingPhotos = () => {
+    if (pendingPhotos.length === 0) return
+
+    setVisiblePhotos((current) => [...pendingPhotos, ...current])
+    setPendingPhotos([])
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    showPhotoFeedback('Foto’s toegevoegd')
+  }
+
+  const sharePhoto = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation()
+
+    try {
+      const shareData = {
+        title: 'Monique 70 jaar',
+        text: 'Bekijk het EventDrop album van Monique 70 jaar.',
+        url: window.location.href,
+      }
+
+      if (navigator.share) {
+        await navigator.share(shareData)
+        showPhotoFeedback('Gedeeld')
+        return
+      }
+
+      await navigator.clipboard.writeText(window.location.href)
+      showPhotoFeedback('Link gekopieerd')
+    } catch {
+      showPhotoFeedback('Delen mislukt')
+    }
+  }
+
+  const downloadPhoto = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    photo: PreviewPhoto
+  ) => {
+    event.stopPropagation()
+
+    try {
+      const response = await fetch(photo.src)
+      if (!response.ok) throw new Error('Download failed')
+
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      const fallbackExtension = blob.type.includes('png') ? 'png' : 'jpg'
+      const fileName =
+        photo.name ||
+        photo.src.split('/').pop()?.split('?')[0] ||
+        `eventdrop-foto.${fallbackExtension}`
+
+      anchor.href = objectUrl
+      anchor.download = fileName.includes('.') ? fileName : `${fileName}.${fallbackExtension}`
+      document.body.appendChild(anchor)
+      anchor.click()
+      anchor.remove()
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
+      showPhotoFeedback('Download gestart')
+    } catch {
+      showPhotoFeedback('Download mislukt')
+    }
   }
 
   return (
@@ -200,7 +294,7 @@ export default function UiPreview7xPage() {
             <section>
               <div className="relative h-[195px] overflow-hidden rounded-[13px] sm:h-[290px]">
                 <img
-                src="/home-hero-custom.png"
+                  src="/home-hero-custom.png"
                   alt=""
                   className="h-full w-full object-cover"
                 />
@@ -271,6 +365,7 @@ export default function UiPreview7xPage() {
                         type="file"
                         multiple
                         accept="image/*"
+                        onChange={handleFileSelection}
                         className="sr-only"
                       />
                     </div>
@@ -315,6 +410,33 @@ export default function UiPreview7xPage() {
                         </label>
                       </div>
                     </div>
+
+                    {pendingPhotos.length > 0 ? (
+                      <div className="mt-2 rounded-xl border border-neutral-200 bg-white p-2.5">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-black text-neutral-950">
+                            {pendingPhotos.length} bestanden geselecteerd
+                          </p>
+                          <button
+                            type="button"
+                            onClick={uploadPendingPhotos}
+                            className="inline-flex min-h-8 items-center justify-center rounded-lg bg-[#d71920] px-3 py-1.5 text-xs font-black text-white"
+                          >
+                            Uploaden
+                          </button>
+                        </div>
+                        <div className="mt-2 flex gap-1.5 overflow-x-auto">
+                          {pendingPhotos.map((photo) => (
+                            <img
+                              key={photo.src}
+                              src={photo.src}
+                              alt=""
+                              className="h-14 w-11 shrink-0 rounded-lg object-cover"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
 
                   {photoFeedback ? (
@@ -381,6 +503,12 @@ export default function UiPreview7xPage() {
                               type="button"
                               onClick={(event) => {
                                 event.stopPropagation()
+                                if (photo.src.startsWith('blob:')) {
+                                  URL.revokeObjectURL(photo.src)
+                                  objectUrlsRef.current = objectUrlsRef.current.filter(
+                                    (url) => url !== photo.src
+                                  )
+                                }
                                 setVisiblePhotos((current) =>
                                   current.filter((item) => item.src !== photo.src)
                                 )
@@ -402,41 +530,33 @@ export default function UiPreview7xPage() {
                               </svg>
                             </button>
 
-                            <div className="absolute bottom-1.5 left-1.5 z-20 flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={(event) => {
-                                  event.stopPropagation()
-                                  showPhotoFeedback('Deellink gekopieerd')
-                                }}
-                                aria-label="Delen"
-                                title="Delen"
-                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 bg-white/90 text-neutral-800 shadow-sm backdrop-blur sm:h-7 sm:w-7"
-                              >
-                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
-                                  <path d="M12 5v10" />
-                                  <path d="m8 9 4-4 4 4" />
-                                  <path d="M5 19h14" />
-                                </svg>
-                              </button>
+                            <button
+                              type="button"
+                              onClick={sharePhoto}
+                              aria-label="Delen"
+                              title="Delen"
+                              className="absolute bottom-1.5 left-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/75 bg-white/92 text-neutral-800 shadow-[0_4px_14px_rgba(0,0,0,0.16)] backdrop-blur"
+                            >
+                              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.2]">
+                                <path d="M12 5v10" />
+                                <path d="m8 9 4-4 4 4" />
+                                <path d="M5 19h14" />
+                              </svg>
+                            </button>
 
-                              <button
-                                type="button"
-                                onClick={(event) => {
-                                  event.stopPropagation()
-                                  showPhotoFeedback('Download gestart')
-                                }}
-                                aria-label="Downloaden"
-                                title="Downloaden"
-                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#d71920]/70 bg-[#d71920]/92 text-white shadow-sm backdrop-blur sm:h-7 sm:w-7"
-                              >
-                                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
-                                  <path d="M12 4v10" />
-                                  <path d="m8 10 4 4 4-4" />
-                                  <path d="M5 19h14" />
-                                </svg>
-                              </button>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={(event) => downloadPhoto(event, photo)}
+                              aria-label="Downloaden"
+                              title="Downloaden"
+                              className="absolute bottom-1.5 right-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#d71920]/75 bg-[#d71920]/94 text-white shadow-[0_4px_14px_rgba(215,25,32,0.24)] backdrop-blur"
+                            >
+                              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.2]">
+                                <path d="M12 4v10" />
+                                <path d="m8 10 4 4 4-4" />
+                                <path d="M5 19h14" />
+                              </svg>
+                            </button>
                           </div>
                         </article>
                       )
