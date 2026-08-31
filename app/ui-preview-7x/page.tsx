@@ -17,7 +17,6 @@ const navigation: { key: SectionKey; label: string }[] = [
 
 const photoCards = [
   { src: '/home-tile-1.png', ratio: 'aspect-[4/5]' },
-  { src: '/home-strip-fun.jpg', ratio: 'aspect-[5/4]' },
   { src: '/home-tile-2.png', ratio: 'aspect-[3/4]' },
   { src: '/home-poster-reference.jpg', ratio: 'aspect-[4/5]' },
   { src: '/home-hero-custom.png', ratio: 'aspect-[6/5]' },
@@ -103,6 +102,9 @@ export default function UiPreview7xPage() {
   const [hasUploadConsent, setHasUploadConsent] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([photoCards[0].src])
+  const [visiblePhotos, setVisiblePhotos] = useState(photoCards)
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
+  const [photoFeedback, setPhotoFeedback] = useState('')
   const [guestName, setGuestName] = useState('')
   const [guestMessage, setGuestMessage] = useState('')
 
@@ -127,6 +129,11 @@ export default function UiPreview7xPage() {
     setHasUploadConsent(true)
     setModal(null)
     fileInputRef.current?.click()
+  }
+
+  const showPhotoFeedback = (message: string) => {
+    setPhotoFeedback(message)
+    window.setTimeout(() => setPhotoFeedback(''), 1600)
   }
 
   return (
@@ -193,7 +200,7 @@ export default function UiPreview7xPage() {
             <section>
               <div className="relative h-[195px] overflow-hidden rounded-[13px] sm:h-[290px]">
                 <img
-                  src="/home-hero-fun.jpg"
+                src="/home-hero-custom.png"
                   alt=""
                   className="h-full w-full object-cover"
                 />
@@ -255,7 +262,7 @@ export default function UiPreview7xPage() {
                       <button
                         type="button"
                         onClick={chooseFiles}
-                        className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-xl bg-[#d71920] px-3 py-1.5 text-xs font-black text-white sm:min-h-10 sm:px-4 sm:text-sm"
+                        className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-lg bg-[#d71920] px-2.5 py-1.5 text-[11px] font-black text-white sm:min-h-9 sm:px-3 sm:text-xs"
                       >
                         Bestanden kiezen
                       </button>
@@ -310,8 +317,14 @@ export default function UiPreview7xPage() {
                     </div>
                   </div>
 
+                  {photoFeedback ? (
+                    <p className="rounded-full bg-neutral-950 px-3 py-1.5 text-center text-xs font-bold text-white">
+                      {photoFeedback}
+                    </p>
+                  ) : null}
+
                   <div className="grid grid-cols-3 gap-1.5 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5 xl:grid-cols-6">
-                    {photoCards.map((photo) => {
+                    {visiblePhotos.map((photo) => {
                       const isSelected = selectedPhotos.includes(photo.src)
 
                       return (
@@ -329,6 +342,7 @@ export default function UiPreview7xPage() {
                             />
                             <button
                               type="button"
+                              onClick={() => setPreviewPhoto(photo.src)}
                               aria-label="Voorbeeld openen"
                               title="Voorbeeld openen"
                               className="absolute inset-0 z-10"
@@ -336,13 +350,14 @@ export default function UiPreview7xPage() {
 
                             <button
                               type="button"
-                              onClick={() =>
+                              onClick={(event) => {
+                                event.stopPropagation()
                                 setSelectedPhotos((current) =>
                                   current.includes(photo.src)
                                     ? current.filter((item) => item !== photo.src)
                                     : [...current, photo.src]
                                 )
-                              }
+                              }}
                               aria-label={isSelected ? 'Geselecteerd' : 'Selecteren'}
                               title={isSelected ? 'Geselecteerd' : 'Selecteren'}
                               className={`absolute left-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 shadow-sm backdrop-blur sm:h-7 sm:w-7 ${
@@ -364,6 +379,16 @@ export default function UiPreview7xPage() {
 
                             <button
                               type="button"
+                              onClick={(event) => {
+                                event.stopPropagation()
+                                setVisiblePhotos((current) =>
+                                  current.filter((item) => item.src !== photo.src)
+                                )
+                                setSelectedPhotos((current) =>
+                                  current.filter((item) => item !== photo.src)
+                                )
+                                showPhotoFeedback('Foto verwijderd')
+                              }}
                               aria-label="Verwijderen"
                               title="Verwijderen"
                               className="absolute right-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 bg-[#d71920]/92 text-white shadow-sm backdrop-blur sm:h-7 sm:w-7"
@@ -380,6 +405,10 @@ export default function UiPreview7xPage() {
                             <div className="absolute bottom-1.5 left-1.5 z-20 flex items-center gap-1">
                               <button
                                 type="button"
+                                onClick={(event) => {
+                                  event.stopPropagation()
+                                  showPhotoFeedback('Deellink gekopieerd')
+                                }}
                                 aria-label="Delen"
                                 title="Delen"
                                 className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 bg-white/90 text-neutral-800 shadow-sm backdrop-blur sm:h-7 sm:w-7"
@@ -393,6 +422,10 @@ export default function UiPreview7xPage() {
 
                               <button
                                 type="button"
+                                onClick={(event) => {
+                                  event.stopPropagation()
+                                  showPhotoFeedback('Download gestart')
+                                }}
                                 aria-label="Downloaden"
                                 title="Downloaden"
                                 className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#d71920]/70 bg-[#d71920]/92 text-white shadow-sm backdrop-blur sm:h-7 sm:w-7"
@@ -575,6 +608,24 @@ export default function UiPreview7xPage() {
               {modal === 'upload-info' ? 'Akkoord en bestanden kiezen' : 'Sluiten'}
             </button>
           </div>
+        </div>
+      ) : null}
+
+      {previewPhoto ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/82 p-4">
+          <button
+            type="button"
+            aria-label="Sluiten"
+            onClick={() => setPreviewPhoto(null)}
+            className="absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-neutral-950"
+          >
+            ×
+          </button>
+          <img
+            src={previewPhoto}
+            alt=""
+            className="max-h-[82vh] max-w-full rounded-2xl object-contain"
+          />
         </div>
       ) : null}
     </main>
