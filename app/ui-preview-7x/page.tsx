@@ -114,6 +114,8 @@ export default function UiPreview7xPage() {
   const [photoToDelete, setPhotoToDelete] = useState<PreviewPhoto | null>(null)
   const [photoFeedback, setPhotoFeedback] = useState('')
   const [pendingPhotos, setPendingPhotos] = useState<PreviewPhoto[]>([])
+  const [uploadSheetOpen, setUploadSheetOpen] = useState(false)
+  const [guestbookPhotoSrc, setGuestbookPhotoSrc] = useState('')
   const [guestName, setGuestName] = useState('')
   const [guestMessage, setGuestMessage] = useState('')
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
@@ -214,6 +216,8 @@ export default function UiPreview7xPage() {
     })
 
     setPendingPhotos(nextPhotos)
+    setGuestbookPhotoSrc('')
+    setUploadSheetOpen(nextPhotos.length > 0)
   }
 
   const uploadPendingPhotos = () => {
@@ -221,8 +225,20 @@ export default function UiPreview7xPage() {
 
     setVisiblePhotos((current) => [...pendingPhotos, ...current])
     setPendingPhotos([])
+    setGuestbookPhotoSrc('')
+    setUploadSheetOpen(false)
     if (fileInputRef.current) fileInputRef.current.value = ''
     showPhotoFeedback('Foto’s toegevoegd')
+  }
+
+  const removePendingPhoto = (photo: PreviewPhoto) => {
+    if (photo.src.startsWith('blob:')) {
+      URL.revokeObjectURL(photo.src)
+      objectUrlsRef.current = objectUrlsRef.current.filter((url) => url !== photo.src)
+    }
+
+    setPendingPhotos((current) => current.filter((item) => item.src !== photo.src))
+    if (guestbookPhotoSrc === photo.src) setGuestbookPhotoSrc('')
   }
 
   const sharePhoto = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -419,73 +435,6 @@ export default function UiPreview7xPage() {
                       />
                     </div>
 
-                    <div className="mt-2 rounded-xl bg-neutral-50 p-2.5">
-                      <p className="text-sm font-black text-neutral-950">
-                        Laat iets achter in het gastenboek
-                      </p>
-                      <p className="mt-0.5 text-xs leading-5 text-neutral-500">
-                        Voeg eventueel je naam en een persoonlijk bericht toe aan je foto&apos;s.
-                      </p>
-                      <div className="mt-2 grid gap-2 sm:grid-cols-[180px_minmax(0,1fr)]">
-                        <label className="block text-xs font-bold text-neutral-600">
-                          Naam (optioneel)
-                          <input
-                            value={guestName}
-                            onChange={(event) => setGuestName(event.target.value)}
-                            placeholder="Je naam"
-                            className="mt-1 w-full rounded-xl border border-neutral-200 bg-white px-3 py-1.5 text-sm font-semibold text-neutral-950 outline-none focus:border-[#d71920]"
-                          />
-                        </label>
-                        <label className="block text-xs font-bold text-neutral-600">
-                          Bericht (optioneel)
-                          <textarea
-                            value={guestMessage}
-                            onChange={(event) =>
-                              setGuestMessage(event.target.value.slice(0, GUEST_MESSAGE_MAX_LENGTH))
-                            }
-                            maxLength={GUEST_MESSAGE_MAX_LENGTH}
-                            placeholder="Bijv. Wat een prachtige dag! Veel geluk samen"
-                            rows={2}
-                            className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-1.5 text-sm font-medium text-neutral-950 outline-none focus:border-[#d71920]"
-                          />
-                          <span className="mt-1 flex justify-between gap-2 text-[11px] font-semibold text-neutral-400">
-                            <span>
-                              {guestMessage.length === GUEST_MESSAGE_MAX_LENGTH
-                                ? 'Maximum aantal tekens bereikt'
-                                : 'Optioneel · Je bericht verschijnt in het gastenboek.'}
-                            </span>
-                            <span>{guestMessage.length} / {GUEST_MESSAGE_MAX_LENGTH}</span>
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {pendingPhotos.length > 0 ? (
-                      <div className="mt-2 rounded-xl border border-neutral-200 bg-white p-2.5">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm font-black text-neutral-950">
-                            {pendingPhotos.length} bestanden geselecteerd
-                          </p>
-                          <button
-                            type="button"
-                            onClick={uploadPendingPhotos}
-                            className="inline-flex min-h-8 items-center justify-center rounded-lg bg-[#d71920] px-3 py-1.5 text-xs font-black text-white"
-                          >
-                            Uploaden
-                          </button>
-                        </div>
-                        <div className="mt-2 flex gap-1.5 overflow-x-auto">
-                          {pendingPhotos.map((photo) => (
-                            <img
-                              key={photo.src}
-                              src={photo.src}
-                              alt=""
-                              className="h-14 w-11 shrink-0 rounded-lg object-cover"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
                   </div>
 
                   {photoFeedback ? (
@@ -763,6 +712,146 @@ export default function UiPreview7xPage() {
               }`}
             >
               {modal === 'upload-info' ? 'Akkoord en bestanden kiezen' : 'Sluiten'}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {uploadSheetOpen && pendingPhotos.length > 0 ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/35 p-3 sm:items-center sm:justify-center">
+          <div className="max-h-[88vh] w-full max-w-[520px] overflow-y-auto rounded-3xl bg-white p-4 shadow-2xl sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-black text-neutral-950">
+                  {pendingPhotos.length} foto&apos;s geselecteerd
+                </h2>
+                <p className="mt-1 text-sm text-neutral-500">
+                  Controleer je selectie voordat je uploadt.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUploadSheetOpen(false)}
+                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-lg font-black text-neutral-700"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-4 grid grid-cols-5 gap-2">
+              {pendingPhotos.map((photo) => (
+                <div key={photo.src} className="relative">
+                  <img
+                    src={photo.src}
+                    alt=""
+                    className="aspect-[4/5] w-full rounded-xl object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePendingPhoto(photo)}
+                    aria-label="Foto verwijderen"
+                    className="absolute -right-1 -top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-neutral-950 text-xs font-black text-white"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 rounded-2xl bg-neutral-50 p-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-sm font-black text-neutral-950">
+                  Laat iets achter in het gastenboek
+                </p>
+                <p className="text-xs font-bold text-neutral-400">Optioneel</p>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-[180px_minmax(0,1fr)]">
+                <label className="block text-xs font-bold text-neutral-600">
+                  Naam (optioneel)
+                  <input
+                    value={guestName}
+                    onChange={(event) => setGuestName(event.target.value)}
+                    placeholder="Je naam"
+                    className="mt-1 w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-950 outline-none focus:border-[#d71920]"
+                  />
+                </label>
+                <label className="block text-xs font-bold text-neutral-600">
+                  Bericht (optioneel)
+                  <textarea
+                    value={guestMessage}
+                    onChange={(event) =>
+                      setGuestMessage(event.target.value.slice(0, GUEST_MESSAGE_MAX_LENGTH))
+                    }
+                    maxLength={GUEST_MESSAGE_MAX_LENGTH}
+                    placeholder="Bijv. Wat een prachtige dag! Veel geluk samen"
+                    rows={3}
+                    className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-950 outline-none focus:border-[#d71920]"
+                  />
+                  <span className="mt-1 flex justify-between gap-2 text-[11px] font-semibold text-neutral-400">
+                    <span>
+                      {guestMessage.length === GUEST_MESSAGE_MAX_LENGTH
+                        ? 'Maximum aantal tekens bereikt'
+                        : 'Optioneel · Je bericht verschijnt in het gastenboek.'}
+                    </span>
+                    <span>{guestMessage.length} / {GUEST_MESSAGE_MAX_LENGTH}</span>
+                  </span>
+                </label>
+              </div>
+
+              {guestMessage.trim() ? (
+                <div className="mt-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="text-sm font-black text-neutral-950">
+                      Kies een foto voor het gastenboek
+                    </p>
+                    <p className="text-xs font-bold text-neutral-400">Optioneel</p>
+                  </div>
+                  <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+                    <button
+                      type="button"
+                      onClick={() => setGuestbookPhotoSrc('')}
+                      className={`h-16 w-16 shrink-0 rounded-xl border text-xs font-black ${
+                        guestbookPhotoSrc
+                          ? 'border-neutral-200 bg-white text-neutral-500'
+                          : 'border-[#d71920] bg-[#fff1f1] text-[#d71920]'
+                      }`}
+                    >
+                      Geen foto
+                    </button>
+                    {pendingPhotos.map((photo) => {
+                      const isGuestbookPhoto = guestbookPhotoSrc === photo.src
+
+                      return (
+                        <button
+                          key={photo.src}
+                          type="button"
+                          onClick={() => setGuestbookPhotoSrc(photo.src)}
+                          className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 ${
+                            isGuestbookPhoto ? 'border-[#d71920]' : 'border-transparent'
+                          }`}
+                        >
+                          <img src={photo.src} alt="" className="h-full w-full object-cover" />
+                          {isGuestbookPhoto ? (
+                            <span className="absolute right-1 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#d71920] text-white">
+                              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-[3]">
+                                <path d="M5 12.5 9.5 17 19 7.5" />
+                              </svg>
+                            </span>
+                          ) : null}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <button
+              type="button"
+              onClick={uploadPendingPhotos}
+              className="mt-4 w-full rounded-xl bg-[#d71920] px-4 py-3 text-sm font-black text-white"
+            >
+              Uploaden
             </button>
           </div>
         </div>
