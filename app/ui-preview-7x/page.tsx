@@ -358,9 +358,9 @@ export default function UiPreview7xPage() {
           <>
             <section>
               <img
-                src="/eventdrop-logo.svg"
+                src="/eventdrop-brand.png"
                 alt="EventDrop Sharing"
-                className="mb-2 h-auto w-[106px]"
+                className="mb-2 h-auto w-[96px]"
               />
               <div className="relative h-[195px] overflow-hidden rounded-[13px] sm:h-[290px]">
                 <img
