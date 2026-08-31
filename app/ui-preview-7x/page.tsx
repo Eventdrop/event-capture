@@ -247,7 +247,7 @@ export default function UiPreview7xPage() {
     try {
       const shareData = {
         title: 'Monique 70 jaar',
-        text: 'Bekijk het EventDrop album van Monique 70 jaar.',
+        text: 'Bekijk het EventDrop Sharing album van Monique 70 jaar.',
         url: window.location.href,
       }
 
@@ -343,7 +343,7 @@ export default function UiPreview7xPage() {
                 className="mt-1 h-4 w-4 rounded border-neutral-300 accent-[#d71920]"
               />
               <span>
-                Ik wil af en toe nieuws, updates en aanbiedingen van Photobooth Holland / EventDrop ontvangen.
+                Ik wil af en toe nieuws, updates en aanbiedingen van Photobooth Holland / EventDrop Sharing ontvangen.
               </span>
             </label>
 
@@ -366,9 +366,11 @@ export default function UiPreview7xPage() {
                 <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/30 to-transparent" />
               </div>
               <div className="px-1 pt-2">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#d71920]">
-                  EVENTDROP
-                </p>
+                <img
+                  src="/eventdrop-logo.svg"
+                  alt="EventDrop Sharing"
+                  className="h-5 w-auto"
+                />
                 <h1 className="mt-0.5 text-[1.65rem] font-black leading-tight tracking-[-0.03em] text-neutral-950 sm:text-3xl">
                   Monique 70 jaar
                 </h1>
