@@ -14,12 +14,14 @@ const navigation: { key: SectionKey; label: string }[] = [
 ]
 
 const photoCards = [
-  { title: 'Welkom', tone: 'from-neutral-200 via-white to-red-100', height: 'aspect-[4/5]' },
-  { title: 'Proost', tone: 'from-red-100 via-white to-neutral-100', height: 'aspect-[4/5]' },
-  { title: 'Familie', tone: 'from-stone-200 via-white to-red-50', height: 'aspect-[5/6]' },
-  { title: 'Taartmoment', tone: 'from-white via-red-50 to-neutral-200', height: 'aspect-[5/6]' },
-  { title: 'Dansvloer', tone: 'from-red-200 via-white to-stone-100', height: 'aspect-[4/5]' },
-  { title: 'Vrienden', tone: 'from-neutral-100 via-white to-red-100', height: 'aspect-[4/5]' },
+  { src: 'https://picsum.photos/seed/eventdrop-monique-01/720/960', ratio: 'aspect-[3/4]' },
+  { src: 'https://picsum.photos/seed/eventdrop-monique-02/900/700', ratio: 'aspect-[9/7]' },
+  { src: 'https://picsum.photos/seed/eventdrop-monique-03/760/980', ratio: 'aspect-[4/5]' },
+  { src: 'https://picsum.photos/seed/eventdrop-monique-04/900/1100', ratio: 'aspect-[9/11]' },
+  { src: 'https://picsum.photos/seed/eventdrop-monique-05/980/760', ratio: 'aspect-[5/4]' },
+  { src: 'https://picsum.photos/seed/eventdrop-monique-06/760/1040', ratio: 'aspect-[3/4]' },
+  { src: 'https://picsum.photos/seed/eventdrop-monique-07/920/780', ratio: 'aspect-[6/5]' },
+  { src: 'https://picsum.photos/seed/eventdrop-monique-08/720/980', ratio: 'aspect-[4/5]' },
 ]
 
 const messages = [
@@ -65,40 +67,28 @@ export default function UiPreview7xPage() {
 
   return (
     <main className="min-h-screen bg-white text-[#191817]">
-      <div className="mx-auto w-full max-w-[780px] px-3 py-3 sm:px-5 sm:py-6">
-        <header className="rounded-[1.35rem] border border-neutral-200 bg-white px-4 py-4 shadow-[0_12px_34px_rgba(20,20,20,0.06)] sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mx-auto w-full max-w-[850px] px-2.5 py-3 sm:px-5 sm:py-6">
+        <button
+          type="button"
+          onClick={() => setPreviewMode(previewMode === 'album' ? 'access' : 'album')}
+          className="ml-auto mb-2 block text-xs font-semibold text-neutral-400 underline underline-offset-4 hover:text-[#d71920]"
+        >
+          {previewMode === 'album' ? 'Bekijk toegangsscherm' : 'Bekijk album'}
+        </button>
+
+        <header className="bg-white px-1 pb-2 pt-1 sm:px-0">
+          <div>
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#d71920]">
-                EventDrop
+                EVENTDROP
               </p>
-              <h1 className="mt-1 text-3xl font-black leading-none tracking-[-0.03em] text-neutral-950 sm:text-4xl">
+              <h1 className="mt-1 text-[2rem] font-black leading-none tracking-[-0.03em] text-neutral-950 sm:text-5xl">
                 Monique 70 jaar
               </h1>
-              <p className="mt-2 text-sm font-semibold text-neutral-500">
-                31 augustus 2026
+              <p className="mt-2 text-sm font-semibold text-neutral-500 sm:text-base">
+                31 augustus 2026 · 39 foto’s
               </p>
             </div>
-            <p className="w-fit rounded-full bg-neutral-100 px-3 py-1.5 text-sm font-black text-neutral-700">
-              39 foto’s
-            </p>
-          </div>
-
-          <div className="mt-4 inline-grid grid-cols-2 rounded-full border border-neutral-200 bg-neutral-50 p-1">
-            {(['album', 'access'] as const).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => setPreviewMode(mode)}
-                className={`rounded-full px-4 py-2 text-sm font-black transition ${
-                  previewMode === mode
-                    ? 'bg-[#d71920] text-white shadow-sm'
-                    : 'text-neutral-500 hover:text-neutral-950'
-                }`}
-              >
-                {mode === 'album' ? 'Album' : 'Toegang'}
-              </button>
-            ))}
           </div>
         </header>
 
@@ -152,7 +142,7 @@ export default function UiPreview7xPage() {
           </section>
         ) : (
           <>
-            <nav className="mt-4 border-b border-neutral-200">
+            <nav className="mt-2 border-b border-neutral-200">
               <div className="grid grid-cols-4 gap-1">
                 {navigation.map((item) => {
                   const isActive = activeSection === item.key
@@ -162,7 +152,7 @@ export default function UiPreview7xPage() {
                       key={item.key}
                       type="button"
                       onClick={() => setActiveSection(item.key)}
-                      className={`relative px-1 pb-3 pt-2 text-sm font-black transition sm:text-base ${
+                      className={`relative px-1 pb-2.5 pt-2 text-sm font-black transition sm:text-base ${
                         isActive
                           ? 'text-[#d71920]'
                           : 'text-neutral-500 hover:text-neutral-950'
@@ -170,7 +160,7 @@ export default function UiPreview7xPage() {
                     >
                       {item.label}
                       {isActive ? (
-                        <span className="absolute inset-x-2 bottom-0 h-1 rounded-full bg-[#d71920]" />
+                        <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[#d71920]" />
                       ) : null}
                     </button>
                   )
@@ -178,66 +168,53 @@ export default function UiPreview7xPage() {
               </div>
             </nav>
 
-            <div className="py-4 sm:py-5">
+            <div className="py-3 sm:py-5">
               {activeSection === 'photos' ? (
-                <section className="space-y-4">
-                  <div className="rounded-[1.35rem] border border-neutral-200 bg-white p-4 shadow-[0_10px_28px_rgba(20,20,20,0.06)]">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <section className="space-y-3">
+                  <div className="border-b border-neutral-200 bg-white px-1 pb-3">
+                    <div className="flex items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-lg font-black tracking-[-0.02em] text-neutral-950">
+                        <h2 className="text-base font-black tracking-[-0.02em] text-neutral-950 sm:text-lg">
                           Foto’s toevoegen
                         </h2>
-                        <p className="mt-1 text-sm leading-5 text-neutral-600">
-                          Upload je favoriete momenten naar het gedeelde album.
+                        <p className="mt-0.5 text-sm leading-5 text-neutral-500">
+                          Deel jouw foto's met het album
                         </p>
                       </div>
-                      <label className="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-[#d71920] px-5 py-3 text-sm font-black text-white shadow-[0_10px_22px_rgba(215,25,32,0.16)]">
+                      <label className="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#d71920] px-4 py-2.5 text-sm font-black text-white">
                         Bestanden kiezen
                         <input type="file" multiple accept="image/*" className="sr-only" />
                       </label>
                     </div>
 
-                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <label className="flex items-start gap-2 text-sm leading-5 text-neutral-700">
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                      <label className="flex items-start gap-2 text-xs leading-5 text-neutral-600 sm:text-sm">
                         <input
                           type="checkbox"
                           checked={uploadConsent}
                           onChange={(event) => setUploadConsent(event.target.checked)}
-                          className="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[#d71920]"
+                          className="mt-0.5 h-3.5 w-3.5 rounded border-neutral-300 accent-[#d71920] sm:h-4 sm:w-4"
                         />
                         <span>Ik bevestig dat ik deze foto’s mag uploaden.</span>
                       </label>
                       <button
                         type="button"
                         onClick={() => setModal('upload-info')}
-                        className="w-fit text-sm font-bold text-[#b51218] underline decoration-[#f0b4b8] underline-offset-4"
+                        className="text-xs font-bold text-[#b51218] underline decoration-[#f0b4b8] underline-offset-4 sm:text-sm"
                       >
                         Meer informatie
                       </button>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    {photoCards.map((photo, index) => (
-                      <article
-                        key={photo.title}
-                        className="overflow-hidden rounded-[1.25rem] border border-neutral-200 bg-white shadow-[0_8px_22px_rgba(20,20,20,0.06)]"
-                      >
-                        <div
-                          className={`${photo.height} bg-gradient-to-br ${photo.tone} relative`}
-                        >
-                          <div className="absolute inset-3 rounded-[1rem] bg-white/35" />
-                          <div className="absolute bottom-3 left-3 right-3 rounded-xl bg-white/82 px-3 py-2 backdrop-blur">
-                            <p className="truncate text-sm font-black text-neutral-950">
-                              {photo.title}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between px-3 py-2">
-                          <p className="text-xs font-bold text-neutral-500">Vandaag</p>
-                          <p className="text-xs font-black text-[#d71920]">#{index + 1}</p>
-                        </div>
-                      </article>
+                  <div className="columns-2 gap-2 sm:columns-3">
+                    {photoCards.map((photo) => (
+                      <img
+                        key={photo.src}
+                        src={photo.src}
+                        alt=""
+                        className={`${photo.ratio} mb-2 w-full break-inside-avoid rounded-xl object-cover`}
+                      />
                     ))}
                   </div>
                 </section>
