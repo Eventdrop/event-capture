@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type SectionKey = 'photos' | 'guestbook' | 'designs' | 'downloads'
 type PreviewMode = 'album' | 'access'
 type ModalKey = 'upload-info' | 'email-info' | null
+const GUEST_MESSAGE_MAX_LENGTH = 500
+const UPLOAD_CONSENT_STORAGE_KEY = 'eventdrop-ui-preview-upload-consent'
 
 const navigation: { key: SectionKey; label: string }[] = [
   { key: 'photos', label: 'Foto’s' },
@@ -93,12 +95,39 @@ function NavIcon({ icon }: { icon: SectionKey }) {
 }
 
 export default function UiPreview7xPage() {
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [previewMode, setPreviewMode] = useState<PreviewMode>('album')
   const [activeSection, setActiveSection] = useState<SectionKey>('photos')
   const [modal, setModal] = useState<ModalKey>(null)
   const [uploadConsent, setUploadConsent] = useState(false)
+  const [hasUploadConsent, setHasUploadConsent] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([photoCards[0].src])
+  const [guestName, setGuestName] = useState('')
+  const [guestMessage, setGuestMessage] = useState('')
+
+  useEffect(() => {
+    setHasUploadConsent(sessionStorage.getItem(UPLOAD_CONSENT_STORAGE_KEY) === 'true')
+  }, [])
+
+  const chooseFiles = () => {
+    if (!hasUploadConsent) {
+      setUploadConsent(false)
+      setModal('upload-info')
+      return
+    }
+
+    fileInputRef.current?.click()
+  }
+
+  const acceptUploadConsent = () => {
+    if (!uploadConsent) return
+
+    sessionStorage.setItem(UPLOAD_CONSENT_STORAGE_KEY, 'true')
+    setHasUploadConsent(true)
+    setModal(null)
+    fileInputRef.current?.click()
+  }
 
   return (
     <main className="min-h-screen bg-white text-[#191817]">
@@ -161,20 +190,23 @@ export default function UiPreview7xPage() {
           </section>
         ) : (
           <>
-            <section className="relative h-[210px] overflow-hidden rounded-2xl sm:h-[300px]">
-              <img
-                src="/home-hero-fun.jpg"
-                alt=""
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/58 via-black/22 to-transparent px-4 pb-4 pt-16 sm:px-6 sm:pb-6">
-                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/82">
+            <section>
+              <div className="relative h-[210px] overflow-hidden rounded-[14px] sm:h-[300px]">
+                <img
+                  src="/home-hero-fun.jpg"
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/30 to-transparent" />
+              </div>
+              <div className="px-1 pt-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#d71920]">
                   EVENTDROP
                 </p>
-                <h1 className="mt-1 text-[2rem] font-black leading-none tracking-[-0.03em] text-white sm:text-5xl">
+                <h1 className="mt-1 text-2xl font-black leading-tight tracking-[-0.03em] text-neutral-950 sm:text-3xl">
                   Monique 70 jaar
                 </h1>
-                <p className="mt-2 text-sm font-semibold text-white/82 sm:text-base">
+                <p className="mt-1 text-sm font-semibold text-neutral-500 sm:text-base">
                   31 augustus 2026 · 39 foto’s
                 </p>
               </div>
@@ -220,33 +252,65 @@ export default function UiPreview7xPage() {
                           Deel jouw foto's met het album
                         </p>
                       </div>
-                      <label className="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#d71920] px-4 py-2.5 text-sm font-black text-white">
-                        Bestanden kiezen
-                        <input type="file" multiple accept="image/*" className="sr-only" />
-                      </label>
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <label className="flex items-start gap-2 text-xs leading-5 text-neutral-600 sm:text-sm">
-                        <input
-                          type="checkbox"
-                          checked={uploadConsent}
-                          onChange={(event) => setUploadConsent(event.target.checked)}
-                          className="mt-0.5 h-3.5 w-3.5 rounded border-neutral-300 accent-[#d71920] sm:h-4 sm:w-4"
-                        />
-                        <span>Ik bevestig dat ik deze foto’s mag uploaden.</span>
-                      </label>
                       <button
                         type="button"
-                        onClick={() => setModal('upload-info')}
-                        className="text-xs font-bold text-[#b51218] underline decoration-[#f0b4b8] underline-offset-4 sm:text-sm"
+                        onClick={chooseFiles}
+                        className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-[#d71920] px-4 py-2 text-sm font-black text-white"
                       >
-                        Meer informatie
+                        Bestanden kiezen
                       </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        className="sr-only"
+                      />
+                    </div>
+
+                    <div className="mt-3 rounded-xl bg-neutral-50 p-3">
+                      <p className="text-sm font-black text-neutral-950">
+                        Laat iets achter in het gastenboek
+                      </p>
+                      <p className="mt-0.5 text-xs leading-5 text-neutral-500">
+                        Voeg eventueel je naam en een persoonlijk bericht toe aan je foto&apos;s.
+                      </p>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-[180px_minmax(0,1fr)]">
+                        <label className="block text-xs font-bold text-neutral-600">
+                          Naam (optioneel)
+                          <input
+                            value={guestName}
+                            onChange={(event) => setGuestName(event.target.value)}
+                            placeholder="Je naam"
+                            className="mt-1 w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-950 outline-none focus:border-[#d71920]"
+                          />
+                        </label>
+                        <label className="block text-xs font-bold text-neutral-600">
+                          Bericht (optioneel)
+                          <textarea
+                            value={guestMessage}
+                            onChange={(event) =>
+                              setGuestMessage(event.target.value.slice(0, GUEST_MESSAGE_MAX_LENGTH))
+                            }
+                            maxLength={GUEST_MESSAGE_MAX_LENGTH}
+                            placeholder="Bijv. Wat een prachtige dag! Veel geluk samen"
+                            rows={2}
+                            className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-950 outline-none focus:border-[#d71920]"
+                          />
+                          <span className="mt-1 flex justify-between gap-2 text-[11px] font-semibold text-neutral-400">
+                            <span>
+                              {guestMessage.length === GUEST_MESSAGE_MAX_LENGTH
+                                ? 'Maximum aantal tekens bereikt'
+                                : 'Optioneel · Je bericht verschijnt in het gastenboek.'}
+                            </span>
+                            <span>{guestMessage.length} / {GUEST_MESSAGE_MAX_LENGTH}</span>
+                          </span>
+                        </label>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
                     {photoCards.map((photo) => {
                       const isSelected = selectedPhotos.includes(photo.src)
 
@@ -261,7 +325,7 @@ export default function UiPreview7xPage() {
                             <img
                               src={photo.src}
                               alt=""
-                              className="aspect-[4/5] w-full object-contain"
+                              className="aspect-[4/5] w-full bg-neutral-100 object-contain"
                             />
                             <button
                               type="button"
@@ -480,6 +544,15 @@ export default function UiPreview7xPage() {
                 <p className="mt-3 text-sm leading-6 text-neutral-700">
                   Ik bevestig dat ik bevoegd ben om deze foto’s te uploaden en te delen, en dat foto’s die aan dit album worden toegevoegd door derden kunnen worden bekeken, gedownload en gedeeld.
                 </p>
+                <label className="mt-4 flex items-start gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm leading-6 text-neutral-700">
+                  <input
+                    type="checkbox"
+                    checked={uploadConsent}
+                    onChange={(event) => setUploadConsent(event.target.checked)}
+                    className="mt-1 h-4 w-4 rounded border-neutral-300 accent-[#d71920]"
+                  />
+                  <span>Ik heb bovenstaande informatie gelezen en ga akkoord.</span>
+                </label>
               </>
             ) : (
               <>
@@ -491,10 +564,15 @@ export default function UiPreview7xPage() {
             )}
             <button
               type="button"
-              onClick={() => setModal(null)}
-              className="mt-5 w-full rounded-xl bg-[#d71920] px-4 py-3 text-sm font-black text-white"
+              onClick={modal === 'upload-info' ? acceptUploadConsent : () => setModal(null)}
+              disabled={modal === 'upload-info' && !uploadConsent}
+              className={`mt-5 w-full rounded-xl px-4 py-3 text-sm font-black text-white ${
+                modal === 'upload-info' && !uploadConsent
+                  ? 'cursor-not-allowed bg-neutral-300'
+                  : 'bg-[#d71920]'
+              }`}
             >
-              {modal === 'upload-info' ? 'Begrepen' : 'Sluiten'}
+              {modal === 'upload-info' ? 'Akkoord en bestanden kiezen' : 'Sluiten'}
             </button>
           </div>
         </div>
