@@ -97,6 +97,7 @@ const copy = {
     examplesLabel: 'Zo kan het eruitzien',
     previewBadge: 'Voorbeeld',
     chooseVersion: 'Kies je formaat',
+    styleLabel: 'Stijl',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Kleur', 'Zwart-wit'],
     storyModes: ['Portrait', 'Landscape'],
@@ -181,6 +182,7 @@ const copy = {
     examplesLabel: 'What it can look like',
     previewBadge: 'Example',
     chooseVersion: 'Choose your format',
+    styleLabel: 'Style',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Color', 'Black and white'],
     storyModes: ['Portrait', 'Landscape'],
@@ -265,6 +267,7 @@ const copy = {
     examplesLabel: 'Aperçu du résultat',
     previewBadge: 'Exemple',
     chooseVersion: 'Choisissez votre format',
+    styleLabel: 'Style',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Couleur', 'Noir et blanc'],
     storyModes: ['Portrait', 'Landscape'],
@@ -349,6 +352,7 @@ const copy = {
     examplesLabel: 'So kann es aussehen',
     previewBadge: 'Beispiel',
     chooseVersion: 'Format wählen',
+    styleLabel: 'Stil',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Farbe', 'Schwarz-Weiß'],
     storyModes: ['Portrait', 'Landscape'],
@@ -433,6 +437,7 @@ const copy = {
     examplesLabel: 'Böyle görünebilir',
     previewBadge: 'Örnek',
     chooseVersion: 'Formatını seç',
+    styleLabel: 'Stil',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Renkli', 'Siyah-beyaz'],
     storyModes: ['Portrait', 'Landscape'],
@@ -503,33 +508,30 @@ const guestbookMessages: Record<
   ],
 }
 
-const designCards = [
+const posterExamples = [
   {
-    key: 'poster',
-    title: 'Memory Poster A3',
-    previews: [
-      { src: '/design-examples/memory-a3-portrait.webp', label: 'Portrait' },
-      { src: '/design-examples/memory-a3-landscape.webp', label: 'Landscape' },
-      { src: '/design-examples/memory-a3-mix.webp', label: 'Mixed · Kleur' },
-      { src: '/design-examples/memory-a3-mix-bw.webp', label: 'Mixed · Zwart-wit' },
-    ],
-    shape: 'aspect-[3/4]',
+    label: 'Portrait',
+    colorSrc: '/design-examples/memory-a3-portrait.webp',
+    bwSrc: '/design-examples/memory-a3-portrait-bw.webp',
+    frame: 'w-[112px]',
   },
   {
-    key: 'story',
-    title: 'Instagram Story',
-    previews: [
-      { src: '/design-examples/story-portrait.webp', label: 'Portrait' },
-      { src: '/design-examples/story-landscape.webp', label: 'Landscape' },
-    ],
-    shape: 'aspect-[9/16]',
+    label: 'Landscape',
+    colorSrc: '/design-examples/memory-a3-landscape.webp',
+    bwSrc: '/design-examples/memory-a3-landscape-bw.webp',
+    frame: 'w-[138px]',
   },
   {
-    key: 'photostrip',
-    title: 'Photostrip Story 5x15',
-    previews: [{ src: '/home-strip-fun.jpg', label: 'Photostrip' }],
-    shape: 'aspect-[9/16]',
+    label: 'Mixed',
+    colorSrc: '/design-examples/memory-a3-mix.webp',
+    bwSrc: '/design-examples/memory-a3-mix-bw.webp',
+    frame: 'w-[112px]',
   },
+]
+
+const storyExamples = [
+  { label: 'Portrait Story', src: '/design-examples/story-portrait.webp' },
+  { label: 'Landscape Story', src: '/design-examples/story-landscape.webp' },
 ]
 
 function NavIcon({ icon }: { icon: SectionKey }) {
@@ -1113,190 +1115,199 @@ export default function UiPreview7xPage() {
                     </p>
                   </div>
                   <div className="space-y-3">
-                    {designCards.map((design) => (
-                      <article
-                        key={design.title}
-                        className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h3 className="text-base font-black text-neutral-950">
-                              {design.key === 'photostrip' ? t.photostripTitle : design.title}
-                            </h3>
-                            <p className="mt-1 text-sm leading-5 text-neutral-600">
-                              {design.key === 'poster'
-                                ? t.posterDesc
-                                : design.key === 'story'
-                                  ? t.storyDesc
-                                  : t.photostripDesc}
-                            </p>
-                          </div>
-                        </div>
-                        <p className="mt-3 text-[11px] font-black uppercase tracking-[0.14em] text-neutral-400">
-                          {t.examplesLabel}
-                        </p>
-                        <div className="-mx-3 mt-2 flex snap-x gap-2 overflow-x-auto px-3 pb-1">
-                          {design.key === 'photostrip'
-                            ? [0, 1].map((item) => (
-                                <button
-                                  key={item}
-                                  type="button"
-                                  onClick={() => setDesignPreview('photostrip-story')}
-                                  className="relative h-[178px] w-[100px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-neutral-200 bg-[linear-gradient(180deg,#fff7f1,#f2eee7)] shadow-sm"
-                                  aria-label={`${t.viewPreview}: ${t.photostripTitle}`}
-                                >
-                                  <img
-                                    src="/home-strip-fun.jpg"
-                                    alt=""
-                                    className="absolute left-2 top-12 h-[98px] w-[28px] rotate-[-7deg] rounded-[4px] object-cover shadow-md"
-                                  />
-                                  <img
-                                    src="/home-strip-fun.jpg"
-                                    alt=""
-                                    className="absolute left-1/2 top-7 h-[128px] w-[38px] -translate-x-1/2 rounded-[5px] object-cover shadow-lg"
-                                  />
-                                  <img
-                                    src="/home-strip-fun.jpg"
-                                    alt=""
-                                    className="absolute right-2 top-12 h-[98px] w-[28px] rotate-[7deg] rounded-[4px] object-cover shadow-md"
-                                  />
-                                  <span className="absolute left-1.5 top-1.5 rounded-full bg-white/92 px-1.5 py-0.5 text-[9px] font-black text-neutral-700 shadow-sm">
-                                    {t.previewBadge}
-                                  </span>
-                                  <span className="absolute inset-x-1.5 bottom-1.5 rounded-md bg-black/62 px-1.5 py-1 text-[9px] font-black text-white">
-                                    Photostrip
-                                  </span>
-                                </button>
-                              ))
-                            : design.previews.map((preview, index) => (
-                                <button
-                                  key={preview.src}
-                                  type="button"
-                                  onClick={() => setDesignPreview(preview.src)}
-                                  className={`${design.shape} relative w-[112px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-neutral-200 bg-neutral-50 shadow-sm`}
-                                  aria-label={`${t.viewPreview}: ${design.title} ${index + 1}`}
-                                >
-                                  <img
-                                    src={preview.src}
-                                    alt=""
-                                    className="h-full w-full object-contain"
-                                  />
-                                  <span className="absolute left-1.5 top-1.5 rounded-full bg-white/92 px-1.5 py-0.5 text-[9px] font-black text-neutral-700 shadow-sm">
-                                    {t.previewBadge}
-                                  </span>
-                                  <span className="absolute inset-x-1.5 bottom-1.5 rounded-md bg-black/62 px-1.5 py-1 text-[9px] font-black text-white">
-                                    {preview.label}
-                                  </span>
-                                </button>
-                              ))}
-                        </div>
-                        <div className="mt-3 rounded-xl bg-neutral-50 p-3">
-                          <p className="text-xs font-black text-neutral-500">
-                            {design.key === 'photostrip' ? t.choosePhotostrips : t.chooseVersion}
-                          </p>
-                          {design.key === 'poster' ? (
-                            <>
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {t.posterModes.map((mode, index) => (
-                                  <button
-                                    key={mode}
-                                    type="button"
-                                    onClick={() => setPosterFormat(index)}
-                                    className={`rounded-full border px-3 py-1.5 text-xs font-black ${
-                                      posterFormat === index
-                                        ? 'border-[#d71920] bg-[#d71920] text-white'
-                                        : 'border-neutral-200 bg-white text-neutral-800'
-                                    }`}
-                                  >
-                                    {mode}
-                                  </button>
-                                ))}
-                              </div>
-                              {posterFormat === 2 ? (
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                  {t.posterStyles.map((style, index) => (
-                                    <button
-                                      key={style}
-                                      type="button"
-                                      onClick={() => setPosterStyle(index)}
-                                      className={`rounded-full border px-3 py-1.5 text-xs font-black ${
-                                        posterStyle === index
-                                          ? 'border-[#d71920] bg-white text-[#d71920]'
-                                          : 'border-neutral-200 bg-white text-neutral-800'
-                                      }`}
-                                    >
-                                      {style}
-                                    </button>
-                                  ))}
-                                </div>
+                    <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
+                      <h3 className="text-base font-black text-neutral-950">Memory Poster A3</h3>
+                      <p className="mt-1 text-sm leading-5 text-neutral-600">{t.posterDesc}</p>
+                      <p className="mt-3 text-[11px] font-black uppercase tracking-[0.14em] text-neutral-400">
+                        {t.examplesLabel}
+                      </p>
+                      <div className="-mx-3 mt-2 flex snap-x gap-2 overflow-x-auto px-3 pb-1">
+                        {posterExamples.map((example, index) => {
+                          const isSelected = posterFormat === index
+                          const src = posterStyle === 0 ? example.colorSrc : example.bwSrc
+
+                          return (
+                            <button
+                              key={example.label}
+                              type="button"
+                              onClick={() => setPosterFormat(index)}
+                              className={`${example.frame} relative aspect-[3/4] shrink-0 snap-start overflow-hidden rounded-[10px] border bg-neutral-50 shadow-sm transition ${
+                                isSelected
+                                  ? 'border-[#d71920] shadow-[0_8px_20px_rgba(215,25,32,0.18)]'
+                                  : 'border-neutral-200'
+                              }`}
+                            >
+                              <img src={src} alt="" className="h-full w-full object-contain" />
+                              <span className="absolute left-1.5 top-1.5 rounded-full bg-white/92 px-1.5 py-0.5 text-[9px] font-black text-neutral-700 shadow-sm">
+                                {t.previewBadge}
+                              </span>
+                              {isSelected ? (
+                                <span className="absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#d71920] text-[11px] font-black text-white shadow-sm">
+                                  ✓
+                                </span>
                               ) : null}
-                            </>
-                          ) : null}
-                          {design.key === 'story' ? (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {t.storyModes.map((mode, index) => (
-                                <button
-                                  key={mode}
-                                  type="button"
-                                  onClick={() => setStoryFormat(index)}
-                                  className={`rounded-full border px-3 py-1.5 text-xs font-black ${
-                                    storyFormat === index
-                                      ? 'border-[#d71920] bg-[#d71920] text-white'
-                                      : 'border-neutral-200 bg-white text-neutral-800'
-                                  }`}
-                                >
-                                  {mode}
-                                </button>
-                              ))}
-                            </div>
-                          ) : null}
-                          {design.key === 'photostrip' ? (
-                            <>
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {[1, 3].map((count, index) => (
-                                  <button
-                                    key={count}
-                                    type="button"
-                                    onClick={() => setPhotostripCount(count)}
-                                    className={`rounded-full border px-3 py-1.5 text-xs font-black ${
-                                      photostripCount === count
-                                        ? 'border-[#d71920] bg-[#d71920] text-white'
-                                        : 'border-neutral-200 bg-white text-neutral-800'
-                                    }`}
-                                  >
-                                    {t.stripChoices[index]}
-                                  </button>
-                                ))}
-                              </div>
-                              <p className="mt-2 text-xs font-semibold text-neutral-500">
-                                {photostripCount} {t.stripsSelected}
-                              </p>
-                              <button
-                                type="button"
-                                className="mt-2 inline-flex h-8 items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-xs font-black text-neutral-800"
-                              >
-                                {t.choosePhotostrips}
-                              </button>
-                            </>
-                          ) : null}
+                              <span className={`absolute inset-x-1.5 bottom-1.5 rounded-md bg-black/62 px-1.5 py-1 text-[9px] text-white ${isSelected ? 'font-black' : 'font-bold'}`}>
+                                {example.label}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <div className="mt-3 rounded-xl bg-neutral-50 p-3">
+                        <p className="text-xs font-black text-neutral-500">{t.styleLabel}</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {t.posterStyles.map((style, index) => (
+                            <button
+                              key={style}
+                              type="button"
+                              onClick={() => setPosterStyle(index)}
+                              className={`rounded-full border px-3 py-1.5 text-xs font-black ${
+                                posterStyle === index
+                                  ? 'border-[#d71920] bg-[#d71920] text-white'
+                                  : 'border-neutral-200 bg-white text-neutral-800'
+                              }`}
+                            >
+                              {style}
+                            </button>
+                          ))}
                         </div>
-                        <div className="mt-3">
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDesignPreview(
+                            posterStyle === 0
+                              ? posterExamples[posterFormat].colorSrc
+                              : posterExamples[posterFormat].bwSrc
+                          )
+                        }
+                        className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-[#d71920] px-3 text-xs font-black text-white"
+                      >
+                        {t.viewPreview}
+                      </button>
+                    </article>
+
+                    <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
+                      <h3 className="text-base font-black text-neutral-950">Instagram Story</h3>
+                      <p className="mt-1 text-sm leading-5 text-neutral-600">{t.storyDesc}</p>
+                      <p className="mt-3 text-[11px] font-black uppercase tracking-[0.14em] text-neutral-400">
+                        {t.examplesLabel}
+                      </p>
+                      <div className="-mx-3 mt-2 flex snap-x gap-2 overflow-x-auto px-3 pb-1">
+                        {storyExamples.map((example, index) => {
+                          const isSelected = storyFormat === index
+
+                          return (
+                            <button
+                              key={example.src}
+                              type="button"
+                              onClick={() => setStoryFormat(index)}
+                              className={`relative aspect-[9/16] w-[104px] shrink-0 snap-start overflow-hidden rounded-[10px] border bg-neutral-50 shadow-sm transition ${
+                                isSelected
+                                  ? 'border-[#d71920] shadow-[0_8px_20px_rgba(215,25,32,0.18)]'
+                                  : 'border-neutral-200'
+                              }`}
+                            >
+                              <img src={example.src} alt="" className="h-full w-full object-contain" />
+                              <span className="absolute left-1.5 top-1.5 rounded-full bg-white/92 px-1.5 py-0.5 text-[9px] font-black text-neutral-700 shadow-sm">
+                                {t.previewBadge}
+                              </span>
+                              {isSelected ? (
+                                <span className="absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#d71920] text-[11px] font-black text-white shadow-sm">
+                                  ✓
+                                </span>
+                              ) : null}
+                              <span className={`absolute inset-x-1.5 bottom-1.5 rounded-md bg-black/62 px-1.5 py-1 text-[9px] text-white ${isSelected ? 'font-black' : 'font-bold'}`}>
+                                {example.label}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setDesignPreview(storyExamples[storyFormat].src)}
+                        className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-[#d71920] px-3 text-xs font-black text-white"
+                      >
+                        {t.viewPreview}
+                      </button>
+                    </article>
+
+                    <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
+                      <h3 className="text-base font-black text-neutral-950">{t.photostripTitle}</h3>
+                      <p className="mt-1 text-sm leading-5 text-neutral-600">{t.photostripDesc}</p>
+                      <p className="mt-3 text-[11px] font-black uppercase tracking-[0.14em] text-neutral-400">
+                        {t.examplesLabel}
+                      </p>
+                      <div className="-mx-3 mt-2 flex snap-x gap-2 overflow-x-auto px-3 pb-1">
+                        {[0, 1].map((item) => (
                           <button
+                            key={item}
                             type="button"
-                            onClick={() =>
-                              setDesignPreview(
-                                design.key === 'photostrip'
-                                  ? 'photostrip-story'
-                                  : design.previews[0].src
-                              )
-                            }
-                            className="inline-flex h-9 items-center justify-center rounded-lg bg-[#d71920] px-3 text-xs font-black text-white"
+                            onClick={() => setDesignPreview('photostrip-story')}
+                            className="relative h-[178px] w-[100px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-neutral-200 bg-[linear-gradient(180deg,#fff7f1,#f2eee7)] shadow-sm"
+                            aria-label={`${t.viewPreview}: ${t.photostripTitle}`}
                           >
-                            {design.key === 'photostrip' ? t.viewStory : t.viewPreview}
+                            <img
+                              src="/home-strip-fun.jpg"
+                              alt=""
+                              className="absolute left-2 top-12 h-[98px] w-[28px] rotate-[-7deg] rounded-[4px] object-cover shadow-md"
+                            />
+                            <img
+                              src="/home-strip-fun.jpg"
+                              alt=""
+                              className="absolute left-1/2 top-7 h-[128px] w-[38px] -translate-x-1/2 rounded-[5px] object-cover shadow-lg"
+                            />
+                            <img
+                              src="/home-strip-fun.jpg"
+                              alt=""
+                              className="absolute right-2 top-12 h-[98px] w-[28px] rotate-[7deg] rounded-[4px] object-cover shadow-md"
+                            />
+                            <span className="absolute left-1.5 top-1.5 rounded-full bg-white/92 px-1.5 py-0.5 text-[9px] font-black text-neutral-700 shadow-sm">
+                              {t.previewBadge}
+                            </span>
+                            <span className="absolute inset-x-1.5 bottom-1.5 rounded-md bg-black/62 px-1.5 py-1 text-[9px] font-black text-white">
+                              Photostrip
+                            </span>
                           </button>
+                        ))}
+                      </div>
+                      <div className="mt-3 rounded-xl bg-neutral-50 p-3">
+                        <p className="text-xs font-black text-neutral-500">{t.choosePhotostrips}</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {[1, 3].map((count, index) => (
+                            <button
+                              key={count}
+                              type="button"
+                              onClick={() => setPhotostripCount(count)}
+                              className={`rounded-full border px-3 py-1.5 text-xs font-black ${
+                                photostripCount === count
+                                  ? 'border-[#d71920] bg-[#d71920] text-white'
+                                  : 'border-neutral-200 bg-white text-neutral-800'
+                              }`}
+                            >
+                              {t.stripChoices[index]}
+                            </button>
+                          ))}
                         </div>
-                      </article>
-                    ))}
+                        <p className="mt-2 text-xs font-semibold text-neutral-500">
+                          {photostripCount} {t.stripsSelected}
+                        </p>
+                        <button
+                          type="button"
+                          className="mt-2 inline-flex h-8 items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-xs font-black text-neutral-800"
+                        >
+                          {t.choosePhotostrips}
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setDesignPreview('photostrip-story')}
+                        className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-[#d71920] px-3 text-xs font-black text-white"
+                      >
+                        {t.viewStory}
+                      </button>
+                    </article>
                   </div>
                 </section>
               ) : null}
