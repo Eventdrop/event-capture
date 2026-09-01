@@ -99,6 +99,9 @@ const copy = {
     fullAlbum: 'Compleet album',
     selectionDownload: 'Selectie downloaden',
     stats: ['39 foto’s', '3 ontwerpen', '12 berichten'],
+    contact: 'Contact',
+    terms: 'Algemene voorwaarden',
+    privacy: 'Privacy',
   },
   en: {
     accessPreview: 'View access screen',
@@ -168,6 +171,9 @@ const copy = {
     fullAlbum: 'Full album',
     selectionDownload: 'Download selection',
     stats: ['39 photos', '3 designs', '12 messages'],
+    contact: 'Contact',
+    terms: 'Terms',
+    privacy: 'Privacy',
   },
   fr: {
     accessPreview: 'Voir l’écran d’accès',
@@ -237,6 +243,9 @@ const copy = {
     fullAlbum: 'Album complet',
     selectionDownload: 'Télécharger la sélection',
     stats: ['39 photos', '3 créations', '12 messages'],
+    contact: 'Contact',
+    terms: 'Conditions d’utilisation',
+    privacy: 'Confidentialité',
   },
   de: {
     accessPreview: 'Zugang anzeigen',
@@ -306,6 +315,9 @@ const copy = {
     fullAlbum: 'Komplettes Album',
     selectionDownload: 'Auswahl herunterladen',
     stats: ['39 Fotos', '3 Designs', '12 Nachrichten'],
+    contact: 'Kontakt',
+    terms: 'Nutzungsbedingungen',
+    privacy: 'Datenschutz',
   },
   tr: {
     accessPreview: 'Erişim ekranını göster',
@@ -375,6 +387,9 @@ const copy = {
     fullAlbum: 'Tüm albüm',
     selectionDownload: 'Seçimi indir',
     stats: ['39 fotoğraf', '3 tasarım', '12 mesaj'],
+    contact: 'İletişim',
+    terms: 'Kullanım şartları',
+    privacy: 'Gizlilik',
   },
 } satisfies Record<PreviewLocale, {
   accessPreview: string
@@ -769,7 +784,7 @@ export default function UiPreview7xPage() {
               </div>
             </section>
 
-            <nav className="mt-3 border-b border-neutral-200">
+            <nav className="sticky top-0 z-30 mt-3 border-b border-neutral-200 bg-white">
               <div className="grid grid-cols-4 gap-1">
                 {navigation.map((item) => {
                   const isActive = activeSection === item.key
@@ -1091,6 +1106,43 @@ export default function UiPreview7xPage() {
                 </section>
               ) : null}
             </div>
+
+            <footer className="mt-3 border-t border-neutral-200 bg-white px-1 py-5 text-sm text-neutral-600">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <p className="font-semibold text-neutral-800">
+                  EventDrop Sharing · Foto’s eenvoudig delen
+                </p>
+                <div className="flex flex-col gap-1 sm:items-end">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-neutral-400">
+                    {t.contact}
+                  </p>
+                  <p>photobooth@3worksmedia.com</p>
+                  <a
+                    href="https://www.photoboothholland.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline decoration-neutral-300 underline-offset-4 hover:text-[#d71920]"
+                  >
+                    www.photoboothholland.com
+                  </a>
+                  <p>+31 6 24 57 59 19 · Breda, Nederland</p>
+                  <div className="mt-1 flex flex-wrap gap-3 text-xs">
+                    <a
+                      href="/terms"
+                      className="underline decoration-neutral-300 underline-offset-4 hover:text-[#d71920]"
+                    >
+                      {t.terms}
+                    </a>
+                    <a
+                      href="/privacy"
+                      className="underline decoration-neutral-300 underline-offset-4 hover:text-[#d71920]"
+                    >
+                      {t.privacy}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </footer>
           </>
         )}
       </div>
