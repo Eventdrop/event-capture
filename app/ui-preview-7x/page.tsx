@@ -723,11 +723,11 @@ export default function UiPreview7xPage() {
                   alt=""
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/58 via-black/24 to-transparent px-4 pb-16 pt-4 sm:px-5 sm:pt-5">
-                  <h1 className="text-[1.65rem] font-black leading-tight tracking-[-0.03em] text-white sm:text-3xl">
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/68 via-black/30 to-transparent px-4 pb-4 pt-16 sm:px-5 sm:pb-5">
+                  <h1 className="text-[1.65rem] font-black leading-none tracking-[-0.03em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:text-3xl">
                     Monique 70 jaar
                   </h1>
-                  <p className="mt-0.5 text-sm font-semibold text-white/86 sm:text-base">
+                  <p className="mt-1 text-[11px] font-semibold leading-tight text-white/82 [text-shadow:0_1px_7px_rgba(0,0,0,0.55)] sm:text-xs">
                     31 augustus 2026 · {t.stats[0]}
                   </p>
                 </div>
