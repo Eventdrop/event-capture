@@ -394,37 +394,37 @@ const photoCards: PreviewPhoto[] = [
 
 const guestbookMessages: Record<
   PreviewLocale,
-  { name: string; text: string; time: string; photoSrc?: string }[]
+  { name: string; text: string; dateTime: string; photoSrc?: string }[]
 > = {
   nl: [
-    { name: 'Sanne', text: 'Wat een prachtige avond. De sfeer, de muziek en alle lieve mensen pasten helemaal bij Monique.', time: '20:14', photoSrc: '/home-tile-1.png' },
-    { name: 'Peter en Linda', text: 'Gefeliciteerd met je 70e verjaardag. We hebben genoten van ieder moment.', time: '20:38' },
-    { name: 'Eva', text: 'Een heel warme herinnering aan een bijzondere dag. Dank je wel dat we erbij mochten zijn.', time: '21:02', photoSrc: '/home-tile-2.png' },
-    { name: 'Marcel', text: 'Lieve Monique, op naar nog veel mooie jaren vol muziek, familie en gezelligheid.', time: '21:26' },
+    { name: 'Sanne', text: 'Wat een prachtige avond ❤️ De sfeer, de muziek en alle lieve mensen pasten helemaal bij Monique.', dateTime: '31 augustus · 20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter en Linda', text: 'Gefeliciteerd met je 70e verjaardag 🎉 We hebben genoten van ieder moment.', dateTime: '31 augustus · 20:38' },
+    { name: 'Eva', text: 'Een heel warme herinnering aan een bijzondere dag. Dank je wel dat we erbij mochten zijn 🥂', dateTime: '31 augustus · 21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Lieve Monique, op naar nog veel mooie jaren vol muziek, familie en gezelligheid 🌷', dateTime: '31 augustus · 21:26' },
   ],
   en: [
-    { name: 'Sanne', text: 'What a beautiful evening. The atmosphere, the music and all the lovely people suited Monique perfectly.', time: '20:14', photoSrc: '/home-tile-1.png' },
-    { name: 'Peter and Linda', text: 'Happy 70th birthday. We enjoyed every single moment.', time: '20:38' },
-    { name: 'Eva', text: 'A warm memory of a very special day. Thank you for having us.', time: '21:02', photoSrc: '/home-tile-2.png' },
-    { name: 'Marcel', text: 'Dear Monique, here’s to many more wonderful years full of music, family and joy.', time: '21:26' },
+    { name: 'Sanne', text: 'What a beautiful evening ❤️ The atmosphere, the music and all the lovely people suited Monique perfectly.', dateTime: '31 August · 20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter and Linda', text: 'Happy 70th birthday 🎉 We enjoyed every single moment.', dateTime: '31 August · 20:38' },
+    { name: 'Eva', text: 'A warm memory of a very special day. Thank you for having us 🥂', dateTime: '31 August · 21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Dear Monique, here’s to many more wonderful years full of music, family and joy 🌷', dateTime: '31 August · 21:26' },
   ],
   fr: [
-    { name: 'Sanne', text: 'Quelle belle soirée. L’ambiance, la musique et toutes les personnes présentes correspondaient parfaitement à Monique.', time: '20:14', photoSrc: '/home-tile-1.png' },
-    { name: 'Peter et Linda', text: 'Joyeux 70e anniversaire. Nous avons profité de chaque instant.', time: '20:38' },
-    { name: 'Eva', text: 'Un souvenir chaleureux d’une journée très spéciale. Merci de nous avoir invités.', time: '21:02', photoSrc: '/home-tile-2.png' },
-    { name: 'Marcel', text: 'Chère Monique, encore beaucoup de belles années remplies de musique, de famille et de joie.', time: '21:26' },
+    { name: 'Sanne', text: 'Quelle belle soirée ❤️ L’ambiance, la musique et toutes les personnes présentes correspondaient parfaitement à Monique.', dateTime: '31 août · 20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter et Linda', text: 'Joyeux 70e anniversaire 🎉 Nous avons profité de chaque instant.', dateTime: '31 août · 20:38' },
+    { name: 'Eva', text: 'Un souvenir chaleureux d’une journée très spéciale. Merci de nous avoir invités 🥂', dateTime: '31 août · 21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Chère Monique, encore beaucoup de belles années remplies de musique, de famille et de joie 🌷', dateTime: '31 août · 21:26' },
   ],
   de: [
-    { name: 'Sanne', text: 'Was für ein schöner Abend. Die Stimmung, die Musik und all die lieben Menschen haben perfekt zu Monique gepasst.', time: '20:14', photoSrc: '/home-tile-1.png' },
-    { name: 'Peter und Linda', text: 'Alles Gute zum 70. Geburtstag. Wir haben jeden Moment genossen.', time: '20:38' },
-    { name: 'Eva', text: 'Eine warme Erinnerung an einen ganz besonderen Tag. Danke, dass wir dabei sein durften.', time: '21:02', photoSrc: '/home-tile-2.png' },
-    { name: 'Marcel', text: 'Liebe Monique, auf viele weitere schöne Jahre voller Musik, Familie und Freude.', time: '21:26' },
+    { name: 'Sanne', text: 'Was für ein schöner Abend ❤️ Die Stimmung, die Musik und all die lieben Menschen haben perfekt zu Monique gepasst.', dateTime: '31. August · 20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter und Linda', text: 'Alles Gute zum 70. Geburtstag 🎉 Wir haben jeden Moment genossen.', dateTime: '31. August · 20:38' },
+    { name: 'Eva', text: 'Eine warme Erinnerung an einen ganz besonderen Tag. Danke, dass wir dabei sein durften 🥂', dateTime: '31. August · 21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Liebe Monique, auf viele weitere schöne Jahre voller Musik, Familie und Freude 🌷', dateTime: '31. August · 21:26' },
   ],
   tr: [
-    { name: 'Sanne', text: 'Çok güzel bir akşamdı. Atmosfer, müzik ve tüm güzel insanlar Monique’e çok yakıştı.', time: '20:14', photoSrc: '/home-tile-1.png' },
-    { name: 'Peter ve Linda', text: '70. yaş günün kutlu olsun. Her anından çok keyif aldık.', time: '20:38' },
-    { name: 'Eva', text: 'Çok özel bir günden sıcak bir anı. Bizi davet ettiğin için teşekkürler.', time: '21:02', photoSrc: '/home-tile-2.png' },
-    { name: 'Marcel', text: 'Sevgili Monique, müzik, aile ve neşeyle dolu daha nice güzel yıllara.', time: '21:26' },
+    { name: 'Sanne', text: 'Çok güzel bir akşamdı ❤️ Atmosfer, müzik ve tüm güzel insanlar Monique’e çok yakıştı.', dateTime: '31 Ağustos · 20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter ve Linda', text: '70. yaş günün kutlu olsun 🎉 Her anından çok keyif aldık.', dateTime: '31 Ağustos · 20:38' },
+    { name: 'Eva', text: 'Çok özel bir günden sıcak bir anı. Bizi davet ettiğin için teşekkürler 🥂', dateTime: '31 Ağustos · 21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Sevgili Monique, müzik, aile ve neşeyle dolu daha nice güzel yıllara 🌷', dateTime: '31 Ağustos · 21:26' },
   ],
 }
 
@@ -779,7 +779,7 @@ export default function UiPreview7xPage() {
                       key={item.key}
                       type="button"
                       onClick={() => setActiveSection(item.key)}
-                      className={`relative flex flex-col items-center gap-1 px-1 pb-2.5 pt-2 text-[11px] font-black transition sm:text-sm ${
+                      className={`relative flex flex-col items-center gap-1 px-1 pb-2.5 pt-2 text-[11px] font-black transition outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-[#d71920]/25 sm:text-sm ${
                         isActive
                           ? 'text-[#d71920]'
                           : 'text-neutral-500 hover:text-neutral-950'
@@ -966,7 +966,7 @@ export default function UiPreview7xPage() {
                     <div className="space-y-2">
                       {guestbookMessages[locale].map((message) => (
                         <article
-                          key={`${message.name}-${message.time}`}
+                          key={`${message.name}-${message.dateTime}`}
                           className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_6px_18px_rgba(20,20,20,0.04)]"
                         >
                           <div className="flex gap-3">
@@ -991,10 +991,10 @@ export default function UiPreview7xPage() {
                                   {message.name}
                                 </p>
                                 <p className="shrink-0 text-[11px] font-bold text-neutral-400">
-                                  {message.time}
+                                  {message.dateTime}
                                 </p>
                               </div>
-                              <p className="mt-1 break-words text-sm font-medium leading-5 text-neutral-700">
+                              <p className="mt-1 break-words text-sm font-medium leading-5 text-neutral-700 [font-family:Arial,Helvetica,sans-serif,'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji']">
                                 {message.text}
                               </p>
                             </div>
