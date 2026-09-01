@@ -91,9 +91,9 @@ const copy = {
     guestbookIntro: 'Persoonlijke berichten van gasten, samen met hun mooiste foto’s.',
     designsTitle: 'Ontwerpen',
     designsIntro: 'Maak van het album een printbaar of deelbaar ontwerp.',
-    posterDesc: 'Een printklare collage met de mooiste foto’s van de dag.',
-    storyDesc: 'Een verticale herinnering om direct te delen.',
-    viewPreview: 'Voorbeeld bekijken',
+    posterDesc: "Maak een blijvende herinnering met je favoriete foto's.",
+    storyDesc: 'Maak een Story die direct klaar is om te delen.',
+    viewPreview: 'Bekijken',
     downloadsTitle: 'Bewaar het complete album',
     downloadsIntro: 'Download losse favorieten of alle foto’s in één pakket.',
     fullAlbum: 'Compleet album',
@@ -163,9 +163,9 @@ const copy = {
     guestbookIntro: 'Personal messages from guests, together with their best photos.',
     designsTitle: 'Designs',
     designsIntro: 'Turn the album into a printable or shareable design.',
-    posterDesc: 'A print-ready collage with the best photos of the day.',
-    storyDesc: 'A vertical memory ready to share.',
-    viewPreview: 'View preview',
+    posterDesc: 'Create a lasting memory with your favorite photos.',
+    storyDesc: 'Create a Story that is ready to share right away.',
+    viewPreview: 'View',
     downloadsTitle: 'Save the complete album',
     downloadsIntro: 'Download favorites or all photos in one package.',
     fullAlbum: 'Full album',
@@ -235,9 +235,9 @@ const copy = {
     guestbookIntro: 'Messages personnels des invités, avec leurs plus belles photos.',
     designsTitle: 'Créations',
     designsIntro: 'Transformez l’album en création imprimable ou partageable.',
-    posterDesc: 'Un collage prêt à imprimer avec les plus belles photos de la journée.',
-    storyDesc: 'Un souvenir vertical prêt à partager.',
-    viewPreview: 'Voir l’aperçu',
+    posterDesc: 'Créez un souvenir durable avec vos photos préférées.',
+    storyDesc: 'Créez une Story prête à être partagée immédiatement.',
+    viewPreview: 'Voir',
     downloadsTitle: 'Conserver tout l’album',
     downloadsIntro: 'Téléchargez vos favoris ou toutes les photos en un seul lot.',
     fullAlbum: 'Album complet',
@@ -307,9 +307,9 @@ const copy = {
     guestbookIntro: 'Persönliche Nachrichten von Gästen zusammen mit ihren schönsten Fotos.',
     designsTitle: 'Designs',
     designsIntro: 'Mache aus dem Album ein druckbares oder teilbares Design.',
-    posterDesc: 'Eine druckfertige Collage mit den schönsten Fotos des Tages.',
-    storyDesc: 'Eine vertikale Erinnerung zum Teilen.',
-    viewPreview: 'Vorschau ansehen',
+    posterDesc: 'Erstelle eine bleibende Erinnerung mit deinen Lieblingsfotos.',
+    storyDesc: 'Erstelle eine Story, die sofort geteilt werden kann.',
+    viewPreview: 'Ansehen',
     downloadsTitle: 'Das komplette Album speichern',
     downloadsIntro: 'Lade Favoriten oder alle Fotos in einem Paket herunter.',
     fullAlbum: 'Komplettes Album',
@@ -379,9 +379,9 @@ const copy = {
     guestbookIntro: 'Misafirlerin kişisel mesajları ve en güzel fotoğrafları.',
     designsTitle: 'Tasarımlar',
     designsIntro: 'Albümü yazdırılabilir veya paylaşılabilir bir tasarıma dönüştür.',
-    posterDesc: 'Günün en güzel fotoğraflarıyla baskıya hazır kolaj.',
-    storyDesc: 'Paylaşmaya hazır dikey bir anı.',
-    viewPreview: 'Önizleme',
+    posterDesc: 'Favori fotoğraflarınla kalıcı bir anı oluştur.',
+    storyDesc: 'Hemen paylaşmaya hazır bir Story oluştur.',
+    viewPreview: 'Görüntüle',
     downloadsTitle: 'Tüm albümü sakla',
     downloadsIntro: 'Favorileri veya tüm fotoğrafları tek pakette indir.',
     fullAlbum: 'Tüm albüm',
@@ -445,13 +445,15 @@ const guestbookMessages: Record<
 
 const designCards = [
   {
+    key: 'poster',
     title: 'Memory Poster A3',
-    description: 'Een printklare collage met de mooiste foto’s van de dag.',
+    previewSrc: '/home-poster-reference.jpg',
     shape: 'aspect-[3/4]',
   },
   {
+    key: 'story',
     title: 'Instagram Story',
-    description: 'Een verticale herinnering om direct te delen.',
+    previewSrc: '/home-hero-custom.png',
     shape: 'aspect-[9/16]',
   },
 ]
@@ -504,6 +506,7 @@ export default function UiPreview7xPage() {
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([photoCards[0].src])
   const [visiblePhotos, setVisiblePhotos] = useState(photoCards)
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
+  const [designPreview, setDesignPreview] = useState<string | null>(null)
   const [photoToDelete, setPhotoToDelete] = useState<PreviewPhoto | null>(null)
   const [photoFeedback, setPhotoFeedback] = useState('')
   const [pendingPhotos, setPendingPhotos] = useState<PreviewPhoto[]>([])
@@ -1022,43 +1025,52 @@ export default function UiPreview7xPage() {
               ) : null}
 
               {activeSection === 'designs' ? (
-                <section className="space-y-4">
+                <section className="space-y-3">
                   <div>
-                    <h2 className="text-2xl font-black tracking-[-0.03em] text-neutral-950">
+                    <h2 className="text-xl font-black tracking-[-0.03em] text-neutral-950 sm:text-2xl">
                       {t.designsTitle}
                     </h2>
-                    <p className="mt-1 text-sm leading-6 text-neutral-600">
+                    <p className="mt-1 text-sm leading-5 text-neutral-600">
                       {t.designsIntro}
                     </p>
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {designCards.map((design) => (
                       <article
                         key={design.title}
-                        className="rounded-[1.35rem] border border-neutral-200 bg-white p-4 shadow-[0_10px_28px_rgba(20,20,20,0.06)]"
+                        className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-[0_8px_22px_rgba(20,20,20,0.04)]"
                       >
-                        <div
-                          className={`${design.shape} mx-auto w-full max-w-[260px] rounded-[1.2rem] bg-[linear-gradient(145deg,#d71920_0%,#ffffff_48%,#efefef_100%)] p-3`}
-                        >
-                          <div className="grid h-full grid-cols-2 gap-2">
-                            <div className="rounded-xl bg-white/70" />
-                            <div className="rounded-xl bg-neutral-200/70" />
-                            <div className="rounded-xl bg-neutral-100/80" />
-                            <div className="rounded-xl bg-white/80" />
-                          </div>
-                        </div>
-                        <h3 className="mt-4 text-lg font-black text-neutral-950">
-                          {design.title}
-                        </h3>
-                        <p className="mt-1 text-sm leading-6 text-neutral-600">
-                          {design.title === 'Memory Poster A3' ? t.posterDesc : t.storyDesc}
-                        </p>
                         <button
                           type="button"
-                          className="mt-4 w-full rounded-2xl border border-neutral-200 px-4 py-3 text-sm font-black text-neutral-950"
+                          onClick={() => setDesignPreview(design.previewSrc)}
+                          className="block w-full bg-neutral-50 p-3"
+                          aria-label={`${t.viewPreview}: ${design.title}`}
                         >
-                          {t.viewPreview}
+                          <div
+                            className={`${design.shape} mx-auto max-h-[260px] w-full max-w-[210px] overflow-hidden rounded-[10px] border border-neutral-200 bg-white sm:max-h-[300px]`}
+                          >
+                            <img
+                              src={design.previewSrc}
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
                         </button>
+                        <div className="p-3">
+                          <h3 className="text-base font-black text-neutral-950">
+                            {design.title}
+                          </h3>
+                          <p className="mt-1 text-sm leading-5 text-neutral-600">
+                            {design.key === 'poster' ? t.posterDesc : t.storyDesc}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setDesignPreview(design.previewSrc)}
+                            className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-[#d71920] px-3 text-xs font-black text-white"
+                          >
+                            {t.viewPreview}
+                          </button>
+                        </div>
                       </article>
                     ))}
                   </div>
@@ -1386,6 +1398,24 @@ export default function UiPreview7xPage() {
           <p className="absolute bottom-4 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-neutral-900">
             {previewIndex + 1} / {visiblePhotos.length}
           </p>
+        </div>
+      ) : null}
+
+      {designPreview ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/82 p-4">
+          <button
+            type="button"
+            aria-label={t.close}
+            onClick={() => setDesignPreview(null)}
+            className="absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-neutral-950"
+          >
+            ×
+          </button>
+          <img
+            src={designPreview}
+            alt=""
+            className="max-h-[84vh] max-w-full rounded-2xl object-contain"
+          />
         </div>
       ) : null}
 
