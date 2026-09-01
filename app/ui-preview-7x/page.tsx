@@ -84,6 +84,10 @@ const copy = {
     limitReached: 'Maximum aantal tekens bereikt',
     chooseGuestbookPhoto: 'Kies een foto voor het gastenboek',
     noPhoto: 'Geen foto',
+    guestbookPageTitle: 'Gastenboek',
+    guestbookPageIntro: 'Alle mooie berichten en herinneringen op één plek.',
+    guestbookEmptyTitle: 'Nog geen berichten',
+    guestbookEmptyText: 'Zodra gasten een bericht achterlaten, verschijnen de herinneringen hier.',
     guestbookIntro: 'Persoonlijke berichten van gasten, samen met hun mooiste foto’s.',
     designsTitle: 'Ontwerpen',
     designsIntro: 'Maak van het album een printbaar of deelbaar ontwerp.',
@@ -149,6 +153,10 @@ const copy = {
     limitReached: 'Maximum character limit reached',
     chooseGuestbookPhoto: 'Choose a photo for the guestbook',
     noPhoto: 'No photo',
+    guestbookPageTitle: 'Guestbook',
+    guestbookPageIntro: 'All beautiful messages and memories in one place.',
+    guestbookEmptyTitle: 'No messages yet',
+    guestbookEmptyText: 'Once guests leave a message, the memories will appear here.',
     guestbookIntro: 'Personal messages from guests, together with their best photos.',
     designsTitle: 'Designs',
     designsIntro: 'Turn the album into a printable or shareable design.',
@@ -214,6 +222,10 @@ const copy = {
     limitReached: 'Nombre maximal de caractères atteint',
     chooseGuestbookPhoto: 'Choisir une photo pour le livre d’or',
     noPhoto: 'Aucune photo',
+    guestbookPageTitle: "Livre d’or",
+    guestbookPageIntro: 'Tous les beaux messages et souvenirs au même endroit.',
+    guestbookEmptyTitle: 'Aucun message pour le moment',
+    guestbookEmptyText: 'Dès que les invités laisseront un message, les souvenirs apparaîtront ici.',
     guestbookIntro: 'Messages personnels des invités, avec leurs plus belles photos.',
     designsTitle: 'Créations',
     designsIntro: 'Transformez l’album en création imprimable ou partageable.',
@@ -279,6 +291,10 @@ const copy = {
     limitReached: 'Maximale Zeichenanzahl erreicht',
     chooseGuestbookPhoto: 'Foto für das Gästebuch auswählen',
     noPhoto: 'Kein Foto',
+    guestbookPageTitle: 'Gästebuch',
+    guestbookPageIntro: 'Alle schönen Nachrichten und Erinnerungen an einem Ort.',
+    guestbookEmptyTitle: 'Noch keine Nachrichten',
+    guestbookEmptyText: 'Sobald Gäste eine Nachricht hinterlassen, erscheinen die Erinnerungen hier.',
     guestbookIntro: 'Persönliche Nachrichten von Gästen zusammen mit ihren schönsten Fotos.',
     designsTitle: 'Designs',
     designsIntro: 'Mache aus dem Album ein druckbares oder teilbares Design.',
@@ -344,6 +360,10 @@ const copy = {
     limitReached: 'Maksimum karakter sınırına ulaşıldı',
     chooseGuestbookPhoto: 'Anı defteri için bir fotoğraf seç',
     noPhoto: 'Fotoğraf yok',
+    guestbookPageTitle: 'Anı defteri',
+    guestbookPageIntro: 'Tüm güzel mesajlar ve anılar tek bir yerde.',
+    guestbookEmptyTitle: 'Henüz mesaj yok',
+    guestbookEmptyText: 'Misafirler mesaj bıraktığında anılar burada görünecek.',
     guestbookIntro: 'Misafirlerin kişisel mesajları ve en güzel fotoğrafları.',
     designsTitle: 'Tasarımlar',
     designsIntro: 'Albümü yazdırılabilir veya paylaşılabilir bir tasarıma dönüştür.',
@@ -372,26 +392,41 @@ const photoCards: PreviewPhoto[] = [
   { src: '/home-hero-fun.jpg', ratio: 'aspect-[5/4]' },
 ]
 
-const messages = [
-  {
-    name: 'Sanne',
-    text: 'Wat een prachtige avond. De sfeer, de muziek en alle lieve mensen pasten helemaal bij Monique.',
-    time: '20:14',
-    hasPhoto: true,
-  },
-  {
-    name: 'Peter en Linda',
-    text: 'Gefeliciteerd met je 70e verjaardag. We hebben genoten van ieder moment.',
-    time: '20:38',
-    hasPhoto: false,
-  },
-  {
-    name: 'Eva',
-    text: 'Een heel warme herinnering aan een bijzondere dag. Dank je wel dat we erbij mochten zijn.',
-    time: '21:02',
-    hasPhoto: true,
-  },
-]
+const guestbookMessages: Record<
+  PreviewLocale,
+  { name: string; text: string; time: string; photoSrc?: string }[]
+> = {
+  nl: [
+    { name: 'Sanne', text: 'Wat een prachtige avond. De sfeer, de muziek en alle lieve mensen pasten helemaal bij Monique.', time: '20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter en Linda', text: 'Gefeliciteerd met je 70e verjaardag. We hebben genoten van ieder moment.', time: '20:38' },
+    { name: 'Eva', text: 'Een heel warme herinnering aan een bijzondere dag. Dank je wel dat we erbij mochten zijn.', time: '21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Lieve Monique, op naar nog veel mooie jaren vol muziek, familie en gezelligheid.', time: '21:26' },
+  ],
+  en: [
+    { name: 'Sanne', text: 'What a beautiful evening. The atmosphere, the music and all the lovely people suited Monique perfectly.', time: '20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter and Linda', text: 'Happy 70th birthday. We enjoyed every single moment.', time: '20:38' },
+    { name: 'Eva', text: 'A warm memory of a very special day. Thank you for having us.', time: '21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Dear Monique, here’s to many more wonderful years full of music, family and joy.', time: '21:26' },
+  ],
+  fr: [
+    { name: 'Sanne', text: 'Quelle belle soirée. L’ambiance, la musique et toutes les personnes présentes correspondaient parfaitement à Monique.', time: '20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter et Linda', text: 'Joyeux 70e anniversaire. Nous avons profité de chaque instant.', time: '20:38' },
+    { name: 'Eva', text: 'Un souvenir chaleureux d’une journée très spéciale. Merci de nous avoir invités.', time: '21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Chère Monique, encore beaucoup de belles années remplies de musique, de famille et de joie.', time: '21:26' },
+  ],
+  de: [
+    { name: 'Sanne', text: 'Was für ein schöner Abend. Die Stimmung, die Musik und all die lieben Menschen haben perfekt zu Monique gepasst.', time: '20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter und Linda', text: 'Alles Gute zum 70. Geburtstag. Wir haben jeden Moment genossen.', time: '20:38' },
+    { name: 'Eva', text: 'Eine warme Erinnerung an einen ganz besonderen Tag. Danke, dass wir dabei sein durften.', time: '21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Liebe Monique, auf viele weitere schöne Jahre voller Musik, Familie und Freude.', time: '21:26' },
+  ],
+  tr: [
+    { name: 'Sanne', text: 'Çok güzel bir akşamdı. Atmosfer, müzik ve tüm güzel insanlar Monique’e çok yakıştı.', time: '20:14', photoSrc: '/home-tile-1.png' },
+    { name: 'Peter ve Linda', text: '70. yaş günün kutlu olsun. Her anından çok keyif aldık.', time: '20:38' },
+    { name: 'Eva', text: 'Çok özel bir günden sıcak bir anı. Bizi davet ettiğin için teşekkürler.', time: '21:02', photoSrc: '/home-tile-2.png' },
+    { name: 'Marcel', text: 'Sevgili Monique, müzik, aile ve neşeyle dolu daha nice güzel yıllara.', time: '21:26' },
+  ],
+}
 
 const designCards = [
   {
@@ -908,36 +943,66 @@ export default function UiPreview7xPage() {
               ) : null}
 
               {activeSection === 'guestbook' ? (
-                <section className="space-y-4">
+                <section className="space-y-3">
                   <div>
-                    <h2 className="text-2xl font-black tracking-[-0.03em] text-neutral-950">
-                      {t.nav.guestbook}
+                    <h2 className="text-xl font-black tracking-[-0.03em] text-neutral-950">
+                      {t.guestbookPageTitle}
                     </h2>
-                    <p className="mt-1 text-sm leading-6 text-neutral-600">
-                      {t.guestbookIntro}
+                    <p className="mt-0.5 text-sm leading-5 text-neutral-500">
+                      {t.guestbookPageIntro}
                     </p>
                   </div>
-                  {messages.map((message) => (
-                    <article
-                      key={`${message.name}-${message.time}`}
-                      className="rounded-[1.35rem] border border-neutral-200 bg-white p-4 shadow-[0_10px_28px_rgba(20,20,20,0.06)]"
-                    >
-                      <div className="flex gap-3">
-                        {message.hasPhoto ? (
-                          <div className="h-20 w-16 shrink-0 rounded-2xl bg-gradient-to-br from-red-100 via-white to-neutral-200" />
-                        ) : null}
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-start justify-between gap-3">
-                            <p className="font-black text-neutral-950">{message.name}</p>
-                            <p className="text-xs font-bold text-neutral-400">{message.time}</p>
+
+                  {false ? (
+                    <div className="rounded-xl border border-neutral-200 bg-white p-4">
+                      <p className="text-sm font-black text-neutral-950">
+                        {t.guestbookEmptyTitle}
+                      </p>
+                      <p className="mt-1 text-sm leading-5 text-neutral-500">
+                        {t.guestbookEmptyText}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {guestbookMessages[locale].map((message) => (
+                        <article
+                          key={`${message.name}-${message.time}`}
+                          className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_6px_18px_rgba(20,20,20,0.04)]"
+                        >
+                          <div className="flex gap-3">
+                            {message.photoSrc ? (
+                              <button
+                                type="button"
+                                onClick={() => setPreviewPhoto(message.photoSrc || null)}
+                                className="h-16 w-16 shrink-0 overflow-hidden rounded-[10px] bg-neutral-100 sm:h-20 sm:w-20"
+                                aria-label={t.openPreview}
+                                title={t.openPreview}
+                              >
+                                <img
+                                  src={message.photoSrc}
+                                  alt=""
+                                  className="h-full w-full object-cover"
+                                />
+                              </button>
+                            ) : null}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start justify-between gap-3">
+                                <p className="text-sm font-black text-neutral-950">
+                                  {message.name}
+                                </p>
+                                <p className="shrink-0 text-[11px] font-bold text-neutral-400">
+                                  {message.time}
+                                </p>
+                              </div>
+                              <p className="mt-1 break-words text-sm font-medium leading-5 text-neutral-700">
+                                {message.text}
+                              </p>
+                            </div>
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-neutral-700">
-                            {message.text}
-                          </p>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
+                        </article>
+                      ))}
+                    </div>
+                  )}
                 </section>
               ) : null}
 
