@@ -10,6 +10,7 @@ type PreviewPhoto = {
   src: string
   ratio: string
   name?: string
+  orientation?: 'portrait' | 'landscape' | 'neutral'
 }
 
 const GUEST_MESSAGE_MAX_LENGTH = 500
@@ -98,6 +99,16 @@ const copy = {
     previewBadge: 'Voorbeeld',
     chooseVersion: 'Kies je formaat',
     styleLabel: 'Stijl',
+    selectedCount: 'geselecteerd',
+    clearSelection: 'Selectie wissen',
+    makeDesign: 'Maken',
+    choosePhotos: "Kies foto's",
+    maxSelection: "Je kunt maximaal {count} foto's selecteren.",
+    remainingPhotos: "Nog {count} foto's kiezen",
+    reduceSelection: 'Verminder je selectie om dit formaat te maken.',
+    fitsBetterLandscape: 'Deze foto past beter in Landscape.',
+    fitsBetterPortrait: 'Deze foto past beter in Portrait.',
+    mixedHint: 'Mixed gebruikt 8 portrait en 4 landscape foto’s.',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Kleur', 'Zwart-wit'],
     storyModes: ['Portrait', 'Landscape'],
@@ -183,6 +194,16 @@ const copy = {
     previewBadge: 'Example',
     chooseVersion: 'Choose your format',
     styleLabel: 'Style',
+    selectedCount: 'selected',
+    clearSelection: 'Clear selection',
+    makeDesign: 'Create',
+    choosePhotos: 'Choose photos',
+    maxSelection: 'You can select up to {count} photos.',
+    remainingPhotos: 'Choose {count} more photos',
+    reduceSelection: 'Reduce your selection to create this format.',
+    fitsBetterLandscape: 'This photo fits better in Landscape.',
+    fitsBetterPortrait: 'This photo fits better in Portrait.',
+    mixedHint: 'Mixed uses 8 portrait and 4 landscape photos.',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Color', 'Black and white'],
     storyModes: ['Portrait', 'Landscape'],
@@ -268,6 +289,16 @@ const copy = {
     previewBadge: 'Exemple',
     chooseVersion: 'Choisissez votre format',
     styleLabel: 'Style',
+    selectedCount: 'sélectionnées',
+    clearSelection: 'Effacer la sélection',
+    makeDesign: 'Créer',
+    choosePhotos: 'Choisir des photos',
+    maxSelection: 'Vous pouvez sélectionner au maximum {count} photos.',
+    remainingPhotos: 'Encore {count} photos à choisir',
+    reduceSelection: 'Réduisez votre sélection pour créer ce format.',
+    fitsBetterLandscape: 'Cette photo convient mieux en Landscape.',
+    fitsBetterPortrait: 'Cette photo convient mieux en Portrait.',
+    mixedHint: 'Mixed utilise 8 photos portrait et 4 photos landscape.',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Couleur', 'Noir et blanc'],
     storyModes: ['Portrait', 'Landscape'],
@@ -353,6 +384,16 @@ const copy = {
     previewBadge: 'Beispiel',
     chooseVersion: 'Format wählen',
     styleLabel: 'Stil',
+    selectedCount: 'ausgewählt',
+    clearSelection: 'Auswahl löschen',
+    makeDesign: 'Erstellen',
+    choosePhotos: 'Fotos auswählen',
+    maxSelection: 'Du kannst maximal {count} Fotos auswählen.',
+    remainingPhotos: 'Noch {count} Fotos auswählen',
+    reduceSelection: 'Reduziere deine Auswahl, um dieses Format zu erstellen.',
+    fitsBetterLandscape: 'Dieses Foto passt besser in Landscape.',
+    fitsBetterPortrait: 'Dieses Foto passt besser in Portrait.',
+    mixedHint: 'Mixed verwendet 8 Portrait- und 4 Landscape-Fotos.',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Farbe', 'Schwarz-Weiß'],
     storyModes: ['Portrait', 'Landscape'],
@@ -438,6 +479,16 @@ const copy = {
     previewBadge: 'Örnek',
     chooseVersion: 'Formatını seç',
     styleLabel: 'Stil',
+    selectedCount: 'seçildi',
+    clearSelection: 'Seçimi temizle',
+    makeDesign: 'Oluştur',
+    choosePhotos: 'Fotoğraf seç',
+    maxSelection: 'En fazla {count} fotoğraf seçebilirsin.',
+    remainingPhotos: '{count} fotoğraf daha seç',
+    reduceSelection: 'Bu formatı oluşturmak için seçimi azalt.',
+    fitsBetterLandscape: 'Bu fotoğraf Landscape için daha uygun.',
+    fitsBetterPortrait: 'Bu fotoğraf Portrait için daha uygun.',
+    mixedHint: 'Mixed 8 portrait ve 4 landscape fotoğraf kullanır.',
     posterModes: ['Portrait', 'Landscape', 'Mixed'],
     posterStyles: ['Renkli', 'Siyah-beyaz'],
     storyModes: ['Portrait', 'Landscape'],
@@ -464,13 +515,21 @@ const copy = {
 }>
 
 const photoCards: PreviewPhoto[] = [
-  { src: '/home-tile-1.png', ratio: 'aspect-[4/5]' },
-  { src: '/home-tile-2.png', ratio: 'aspect-[3/4]' },
-  { src: '/home-poster-reference.jpg', ratio: 'aspect-[4/5]' },
-  { src: '/home-hero-custom.png', ratio: 'aspect-[6/5]' },
-  { src: '/home-tile-3.png', ratio: 'aspect-[3/4]' },
-  { src: '/home-hero-fun.jpg', ratio: 'aspect-[5/4]' },
+  { src: '/home-tile-1.png', ratio: 'aspect-[4/5]', orientation: 'portrait' },
+  { src: '/home-tile-2.png', ratio: 'aspect-[3/4]', orientation: 'portrait' },
+  { src: '/home-poster-reference.jpg', ratio: 'aspect-[4/5]', orientation: 'portrait' },
+  { src: '/home-hero-custom.png', ratio: 'aspect-[6/5]', orientation: 'landscape' },
+  { src: '/home-tile-3.png', ratio: 'aspect-[3/4]', orientation: 'portrait' },
+  { src: '/home-hero-fun.jpg', ratio: 'aspect-[5/4]', orientation: 'landscape' },
 ]
+
+const designPhotoChoices = [
+  ...photoCards,
+  ...photoCards,
+].map((photo, index) => ({
+  ...photo,
+  id: `design-photo-${index}`,
+}))
 
 const guestbookMessages: Record<
   PreviewLocale,
@@ -534,6 +593,13 @@ const storyExamples = [
   { label: 'Landscape Story', src: '/design-examples/story-landscape.webp' },
 ]
 
+const posterRequiredCounts = [12, 12, 12]
+const storyRequiredCounts = [4, 8]
+
+function templateText(text: string, count: number) {
+  return text.replace('{count}', String(count))
+}
+
 function NavIcon({ icon }: { icon: SectionKey }) {
   if (icon === 'photos') {
     return (
@@ -586,6 +652,9 @@ export default function UiPreview7xPage() {
   const [posterFormat, setPosterFormat] = useState(2)
   const [posterStyle, setPosterStyle] = useState(0)
   const [storyFormat, setStoryFormat] = useState(0)
+  const [posterDesignPhotos, setPosterDesignPhotos] = useState<string[]>([])
+  const [storyDesignPhotos, setStoryDesignPhotos] = useState<string[]>([])
+  const [designWarning, setDesignWarning] = useState('')
   const [photostripCount, setPhotostripCount] = useState(3)
   const [photoToDelete, setPhotoToDelete] = useState<PreviewPhoto | null>(null)
   const [photoFeedback, setPhotoFeedback] = useState('')
@@ -596,6 +665,8 @@ export default function UiPreview7xPage() {
   const [guestMessage, setGuestMessage] = useState('')
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
   const t = copy[locale]
+  const posterRequired = posterRequiredCounts[posterFormat]
+  const storyRequired = storyRequiredCounts[storyFormat]
 
   useEffect(() => {
     setHasUploadConsent(sessionStorage.getItem(UPLOAD_CONSENT_STORAGE_KEY) === 'true')
@@ -626,6 +697,39 @@ export default function UiPreview7xPage() {
   const showPhotoFeedback = (message: string) => {
     setPhotoFeedback(message)
     window.setTimeout(() => setPhotoFeedback(''), 1600)
+  }
+
+  const showDesignWarning = (message: string) => {
+    setDesignWarning(message)
+    window.setTimeout(() => setDesignWarning(''), 1800)
+  }
+
+  const getDesignOrientationHint = (
+    orientation: PreviewPhoto['orientation'],
+    selectedFormat: number
+  ) => {
+    if (selectedFormat === 0 && orientation === 'landscape') return t.fitsBetterLandscape
+    if (selectedFormat === 1 && orientation === 'portrait') return t.fitsBetterPortrait
+    return ''
+  }
+
+  const toggleDesignPhoto = (
+    id: string,
+    selectedIds: string[],
+    setSelectedIds: (value: string[]) => void,
+    required: number
+  ) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((item) => item !== id))
+      return
+    }
+
+    if (selectedIds.length >= required) {
+      showDesignWarning(templateText(t.maxSelection, required))
+      return
+    }
+
+    setSelectedIds([...selectedIds, id])
   }
 
   const previewIndex = previewPhoto
@@ -1114,6 +1218,11 @@ export default function UiPreview7xPage() {
                       {t.designsIntro}
                     </p>
                   </div>
+                  {designWarning ? (
+                    <p className="rounded-full bg-neutral-950 px-3 py-1.5 text-center text-xs font-bold text-white">
+                      {designWarning}
+                    </p>
+                  ) : null}
                   <div className="space-y-3">
                     <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
                       <h3 className="text-base font-black text-neutral-950">Memory Poster A3</h3>
@@ -1130,7 +1239,12 @@ export default function UiPreview7xPage() {
                             <button
                               key={example.label}
                               type="button"
-                              onClick={() => setPosterFormat(index)}
+                              onClick={() => {
+                                setPosterFormat(index)
+                                if (posterDesignPhotos.length > posterRequiredCounts[index]) {
+                                  showDesignWarning(t.reduceSelection)
+                                }
+                              }}
                               className={`${example.frame} relative aspect-[3/4] shrink-0 snap-start overflow-hidden rounded-[10px] border bg-neutral-50 shadow-sm transition ${
                                 isSelected
                                   ? 'border-[#d71920] shadow-[0_8px_20px_rgba(215,25,32,0.18)]'
@@ -1172,19 +1286,91 @@ export default function UiPreview7xPage() {
                           ))}
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setDesignPreview(
-                            posterStyle === 0
-                              ? posterExamples[posterFormat].colorSrc
-                              : posterExamples[posterFormat].bwSrc
-                          )
-                        }
-                        className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-[#d71920] px-3 text-xs font-black text-white"
-                      >
-                        {t.viewPreview}
-                      </button>
+                      <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
+                              {posterExamples[posterFormat].label}
+                            </p>
+                            <p className="text-sm font-black text-neutral-950">
+                              {posterDesignPhotos.length} / {posterRequired} {t.selectedCount}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setPosterDesignPhotos([])}
+                              disabled={posterDesignPhotos.length === 0}
+                              className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-black text-neutral-700 disabled:text-neutral-300"
+                            >
+                              {t.clearSelection}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={posterDesignPhotos.length !== posterRequired}
+                              onClick={() =>
+                                setDesignPreview(
+                                  posterStyle === 0
+                                    ? posterExamples[posterFormat].colorSrc
+                                    : posterExamples[posterFormat].bwSrc
+                                )
+                              }
+                              className="rounded-lg bg-[#d71920] px-2.5 py-1.5 text-[11px] font-black text-white disabled:bg-neutral-300"
+                            >
+                              {t.viewPreview}
+                            </button>
+                          </div>
+                        </div>
+                        {posterDesignPhotos.length === posterRequired ? null : (
+                          <p className="mt-2 text-xs font-semibold text-[#d71920]">
+                            {posterDesignPhotos.length > posterRequired
+                              ? t.reduceSelection
+                              : templateText(t.remainingPhotos, posterRequired - posterDesignPhotos.length)}
+                          </p>
+                        )}
+                        {posterFormat === 2 ? (
+                          <p className="mt-1 text-xs font-semibold text-neutral-500">{t.mixedHint}</p>
+                        ) : null}
+                        <div className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-6">
+                          {designPhotoChoices.map((photo) => {
+                            const isSelected = posterDesignPhotos.includes(photo.id)
+                            const hint = getDesignOrientationHint(photo.orientation, posterFormat)
+
+                            return (
+                              <button
+                                key={photo.id}
+                                type="button"
+                                onClick={() =>
+                                  toggleDesignPhoto(
+                                    photo.id,
+                                    posterDesignPhotos,
+                                    setPosterDesignPhotos,
+                                    posterRequired
+                                  )
+                                }
+                                className="relative overflow-hidden rounded-lg bg-neutral-100"
+                                title={hint}
+                              >
+                                <img src={photo.src} alt="" className={`${photo.ratio} w-full object-cover`} />
+                                <span
+                                  className={`absolute right-1 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black ${
+                                    isSelected
+                                      ? 'border-[#d71920] bg-[#d71920] text-white'
+                                      : 'border-white/80 bg-black/35 text-white'
+                                  }`}
+                                >
+                                  {isSelected ? '✓' : ''}
+                                </span>
+                                {hint ? (
+                                  <span className="absolute inset-x-1 bottom-1 rounded bg-white/92 px-1 py-0.5 text-[8px] font-black text-neutral-700">
+                                    {hint}
+                                  </span>
+                                ) : null}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
                     </article>
 
                     <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
@@ -1201,7 +1387,12 @@ export default function UiPreview7xPage() {
                             <button
                               key={example.src}
                               type="button"
-                              onClick={() => setStoryFormat(index)}
+                              onClick={() => {
+                                setStoryFormat(index)
+                                if (storyDesignPhotos.length > storyRequiredCounts[index]) {
+                                  showDesignWarning(t.reduceSelection)
+                                }
+                              }}
                               className={`relative aspect-[9/16] w-[104px] shrink-0 snap-start overflow-hidden rounded-[10px] border bg-neutral-50 shadow-sm transition ${
                                 isSelected
                                   ? 'border-[#d71920] shadow-[0_8px_20px_rgba(215,25,32,0.18)]'
@@ -1224,13 +1415,82 @@ export default function UiPreview7xPage() {
                           )
                         })}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setDesignPreview(storyExamples[storyFormat].src)}
-                        className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-[#d71920] px-3 text-xs font-black text-white"
-                      >
-                        {t.viewPreview}
-                      </button>
+                      <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
+                              {storyExamples[storyFormat].label}
+                            </p>
+                            <p className="text-sm font-black text-neutral-950">
+                              {storyDesignPhotos.length} / {storyRequired} {t.selectedCount}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setStoryDesignPhotos([])}
+                              disabled={storyDesignPhotos.length === 0}
+                              className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-black text-neutral-700 disabled:text-neutral-300"
+                            >
+                              {t.clearSelection}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={storyDesignPhotos.length !== storyRequired}
+                              onClick={() => setDesignPreview(storyExamples[storyFormat].src)}
+                              className="rounded-lg bg-[#d71920] px-2.5 py-1.5 text-[11px] font-black text-white disabled:bg-neutral-300"
+                            >
+                              {t.viewPreview}
+                            </button>
+                          </div>
+                        </div>
+                        {storyDesignPhotos.length === storyRequired ? null : (
+                          <p className="mt-2 text-xs font-semibold text-[#d71920]">
+                            {storyDesignPhotos.length > storyRequired
+                              ? t.reduceSelection
+                              : templateText(t.remainingPhotos, storyRequired - storyDesignPhotos.length)}
+                          </p>
+                        )}
+                        <div className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-6">
+                          {designPhotoChoices.map((photo) => {
+                            const isSelected = storyDesignPhotos.includes(photo.id)
+                            const hint = getDesignOrientationHint(photo.orientation, storyFormat)
+
+                            return (
+                              <button
+                                key={photo.id}
+                                type="button"
+                                onClick={() =>
+                                  toggleDesignPhoto(
+                                    photo.id,
+                                    storyDesignPhotos,
+                                    setStoryDesignPhotos,
+                                    storyRequired
+                                  )
+                                }
+                                className="relative overflow-hidden rounded-lg bg-neutral-100"
+                                title={hint}
+                              >
+                                <img src={photo.src} alt="" className={`${photo.ratio} w-full object-cover`} />
+                                <span
+                                  className={`absolute right-1 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black ${
+                                    isSelected
+                                      ? 'border-[#d71920] bg-[#d71920] text-white'
+                                      : 'border-white/80 bg-black/35 text-white'
+                                  }`}
+                                >
+                                  {isSelected ? '✓' : ''}
+                                </span>
+                                {hint ? (
+                                  <span className="absolute inset-x-1 bottom-1 rounded bg-white/92 px-1 py-0.5 text-[8px] font-black text-neutral-700">
+                                    {hint}
+                                  </span>
+                                ) : null}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
                     </article>
 
                     <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
