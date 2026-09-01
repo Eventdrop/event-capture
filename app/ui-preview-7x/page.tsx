@@ -103,6 +103,8 @@ const copy = {
     storyDesc: 'Maak een Story die direct klaar is om te delen.',
     viewPreview: 'Bekijken',
     exampleAction: 'Voorbeeld bekijken',
+    previewModeTitle: 'Previewmodus',
+    previewModeText: 'De echte generatie wordt gekoppeld wanneer deze interface naar productie wordt overgezet.',
     examplesLabel: 'Zo kan het eruitzien',
     previewBadge: 'Voorbeeld',
     chooseVersion: 'Kies je formaat',
@@ -199,6 +201,8 @@ const copy = {
     storyDesc: 'Create a Story that is ready to share right away.',
     viewPreview: 'View',
     exampleAction: 'View example',
+    previewModeTitle: 'Preview mode',
+    previewModeText: 'The real generation will be connected when this interface is moved into production.',
     examplesLabel: 'What it can look like',
     previewBadge: 'Example',
     chooseVersion: 'Choose your format',
@@ -295,6 +299,8 @@ const copy = {
     storyDesc: 'Créez une Story prête à être partagée immédiatement.',
     viewPreview: 'Voir',
     exampleAction: 'Voir un exemple',
+    previewModeTitle: 'Mode aperçu',
+    previewModeText: 'La vraie génération sera connectée lorsque cette interface sera mise en production.',
     examplesLabel: 'Aperçu du résultat',
     previewBadge: 'Exemple',
     chooseVersion: 'Choisissez votre format',
@@ -391,6 +397,8 @@ const copy = {
     storyDesc: 'Erstelle eine Story, die sofort geteilt werden kann.',
     viewPreview: 'Ansehen',
     exampleAction: 'Beispiel ansehen',
+    previewModeTitle: 'Vorschaumodus',
+    previewModeText: 'Die echte Generierung wird verbunden, wenn diese Oberfläche in Produktion übernommen wird.',
     examplesLabel: 'So kann es aussehen',
     previewBadge: 'Beispiel',
     chooseVersion: 'Format wählen',
@@ -487,6 +495,8 @@ const copy = {
     storyDesc: 'Hemen paylaşmaya hazır bir Story oluştur.',
     viewPreview: 'Görüntüle',
     exampleAction: 'Örneği görüntüle',
+    previewModeTitle: 'Önizleme modu',
+    previewModeText: 'Gerçek oluşturma, bu arayüz production’a taşındığında bağlanacak.',
     examplesLabel: 'Böyle görünebilir',
     previewBadge: 'Örnek',
     chooseVersion: 'Formatını seç',
@@ -530,9 +540,9 @@ const photoCards: PreviewPhoto[] = [
   { src: '/home-tile-1.png', ratio: 'aspect-[4/5]', orientation: 'portrait' },
   { src: '/home-tile-2.png', ratio: 'aspect-[3/4]', orientation: 'portrait' },
   { src: '/home-poster-reference.jpg', ratio: 'aspect-[4/5]', orientation: 'portrait' },
-  { src: '/home-hero-custom.png', ratio: 'aspect-[6/5]', orientation: 'landscape' },
+  { src: '/home-hero-custom.png', ratio: 'aspect-[6/5]', orientation: 'portrait' },
   { src: '/home-tile-3.png', ratio: 'aspect-[3/4]', orientation: 'portrait' },
-  { src: '/home-hero-fun.jpg', ratio: 'aspect-[5/4]', orientation: 'landscape' },
+  { src: '/home-hero-fun.jpg', ratio: 'aspect-[5/4]', orientation: 'portrait' },
 ]
 
 const guestbookMessages: Record<
@@ -602,6 +612,15 @@ const storyRequiredCounts = [4, 8]
 
 function templateText(text: string, count: number) {
   return text.replace('{count}', String(count))
+}
+
+function getPreviewOrientation(width: number, height: number): PreviewPhoto['orientation'] {
+  if (!width || !height) return 'neutral'
+
+  const ratio = width / height
+  if (ratio < 0.9) return 'portrait'
+  if (ratio > 1.1) return 'landscape'
+  return 'neutral'
 }
 
 function NavIcon({ icon }: { icon: SectionKey }) {
@@ -682,6 +701,18 @@ export default function UiPreview7xPage() {
     0,
     activeDesignRequired - activeDesignSelectedPhotos.length
   )
+  const selectedPosterPortraitCount = galleryPhotos.filter(
+    (photo) =>
+      posterDesignPhotos.includes(photo.src) && photo.orientation === 'portrait'
+  ).length
+  const selectedPosterLandscapeCount = galleryPhotos.filter(
+    (photo) =>
+      posterDesignPhotos.includes(photo.src) && photo.orientation === 'landscape'
+  ).length
+  const activeDesignReady =
+    activeDesignProduct === 'poster' && posterFormat === 2
+      ? selectedPosterPortraitCount === 8 && selectedPosterLandscapeCount === 4
+      : activeDesignSelectedPhotos.length === activeDesignRequired
 
   useEffect(() => {
     setHasUploadConsent(sessionStorage.getItem(UPLOAD_CONSENT_STORAGE_KEY) === 'true')
@@ -749,6 +780,24 @@ export default function UiPreview7xPage() {
 
   const toggleActiveDesignPhoto = (id: string) => {
     if (activeDesignProduct === 'poster') {
+      const photo = galleryPhotos.find((item) => item.src === id)
+
+      if (
+        posterFormat === 2 &&
+        photo &&
+        !posterDesignPhotos.includes(id)
+      ) {
+        if (photo.orientation === 'portrait' && selectedPosterPortraitCount >= 8) {
+          showDesignWarning(templateText(t.maxSelection, 8))
+          return
+        }
+
+        if (photo.orientation === 'landscape' && selectedPosterLandscapeCount >= 4) {
+          showDesignWarning(templateText(t.maxSelection, 4))
+          return
+        }
+      }
+
       toggleDesignPhoto(id, posterDesignPhotos, setPosterDesignPhotos, posterRequired)
       return
     }
@@ -767,6 +816,21 @@ export default function UiPreview7xPage() {
     if (activeDesignProduct === 'story') {
       setStoryDesignPhotos([])
     }
+  }
+
+  const updateGalleryPhotoOrientation = (
+    src: string,
+    image: HTMLImageElement
+  ) => {
+    const orientation = getPreviewOrientation(image.naturalWidth, image.naturalHeight)
+
+    setGalleryPhotos((current) =>
+      current.map((photo) =>
+        photo.src === src && photo.orientation !== orientation
+          ? { ...photo, orientation }
+          : photo
+      )
+    )
   }
 
   const previewIndex = previewPhoto
@@ -1386,52 +1450,51 @@ export default function UiPreview7xPage() {
 
                     {activeDesignProduct !== 'photostrip' ? (
                       <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div>
-                            <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
-                              {activeDesignModeLabel}
-                            </p>
-                            <p className="text-sm font-black text-neutral-950">
-                              {activeDesignSelectedPhotos.length} / {activeDesignRequired} {t.selectedCount}
-                            </p>
+                        <div className="sticky top-[58px] z-20 -mx-3 -mt-3 rounded-t-xl border-b border-neutral-200 bg-white/96 p-3 backdrop-blur">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
+                                {activeDesignModeLabel}
+                              </p>
+                              <p className="text-sm font-black text-neutral-950">
+                                {activeDesignSelectedPhotos.length} / {activeDesignRequired} {t.selectedCount}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={clearActiveDesignSelection}
+                                disabled={activeDesignSelectedPhotos.length === 0}
+                                className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-black text-neutral-700 disabled:text-neutral-300"
+                              >
+                                {t.clearSelection}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={!activeDesignReady}
+                                onClick={() => setDesignPreview('preview-mode')}
+                                className="rounded-lg bg-[#d71920] px-2.5 py-1.5 text-[11px] font-black text-white disabled:bg-neutral-300"
+                              >
+                                {t.makeDesign}
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={clearActiveDesignSelection}
-                              disabled={activeDesignSelectedPhotos.length === 0}
-                              className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-black text-neutral-700 disabled:text-neutral-300"
-                            >
-                              {t.clearSelection}
-                            </button>
-                            <button
-                              type="button"
-                              disabled={activeDesignSelectedPhotos.length !== activeDesignRequired}
-                              onClick={() =>
-                                setDesignPreview(
-                                  activeDesignProduct === 'poster'
-                                    ? posterStyle === 0
-                                      ? posterExamples[posterFormat].colorSrc
-                                      : posterExamples[posterFormat].bwSrc
-                                    : storyExamples[storyFormat].src
-                                )
-                              }
-                              className="rounded-lg bg-[#d71920] px-2.5 py-1.5 text-[11px] font-black text-white disabled:bg-neutral-300"
-                            >
-                              {t.makeDesign}
-                            </button>
-                          </div>
+                          {activeDesignSelectedPhotos.length === activeDesignRequired ? null : (
+                            <p className="mt-2 text-xs font-semibold text-[#d71920]">
+                              {activeDesignSelectedPhotos.length > activeDesignRequired
+                                ? t.reduceSelection
+                                : templateText(t.remainingPhotos, activeDesignRemaining)}
+                            </p>
+                          )}
+                          {activeDesignProduct === 'poster' && posterFormat === 2 ? (
+                            <p className="mt-1 text-xs font-semibold text-neutral-500">
+                              {selectedPosterPortraitCount} / 8 portrait · {selectedPosterLandscapeCount} / 4 landscape
+                            </p>
+                          ) : null}
+                          {activeDesignProduct === 'poster' && posterFormat === 2 ? (
+                            <p className="mt-0.5 text-xs font-semibold text-neutral-500">{t.mixedHint}</p>
+                          ) : null}
                         </div>
-                        {activeDesignSelectedPhotos.length === activeDesignRequired ? null : (
-                          <p className="mt-2 text-xs font-semibold text-[#d71920]">
-                            {activeDesignSelectedPhotos.length > activeDesignRequired
-                              ? t.reduceSelection
-                              : templateText(t.remainingPhotos, activeDesignRemaining)}
-                          </p>
-                        )}
-                        {activeDesignProduct === 'poster' && posterFormat === 2 ? (
-                          <p className="mt-1 text-xs font-semibold text-neutral-500">{t.mixedHint}</p>
-                        ) : null}
                         <div className="mt-3 grid grid-cols-3 gap-2 min-[520px]:grid-cols-4 lg:grid-cols-5">
                           {galleryPhotos.map((photo) => {
                             const isSelected = activeDesignSelectedPhotos.includes(photo.src)
@@ -1445,12 +1508,18 @@ export default function UiPreview7xPage() {
                                 key={photo.src}
                                 type="button"
                                 onClick={() => toggleActiveDesignPhoto(photo.src)}
-                                className="relative overflow-hidden rounded-[10px] bg-neutral-900 p-1 shadow-sm"
+                                className="relative overflow-hidden rounded-[10px] bg-[#171717] p-1.5 shadow-[0_8px_18px_rgba(0,0,0,0.18)]"
                                 title={hint}
                               >
                                 <img
                                   src={photo.src}
                                   alt=""
+                                  onLoad={(event) =>
+                                    updateGalleryPhotoOrientation(
+                                      photo.src,
+                                      event.currentTarget
+                                    )
+                                  }
                                   className={`${photo.ratio} w-full rounded-md object-cover`}
                                 />
                                 <span
@@ -1889,7 +1958,21 @@ export default function UiPreview7xPage() {
           >
             ×
           </button>
-          {designPreview === 'poster-examples' ? (
+          {designPreview === 'preview-mode' ? (
+            <div className="w-full max-w-[360px] rounded-2xl bg-white p-5 text-center shadow-2xl">
+              <h2 className="text-lg font-black text-neutral-950">{t.previewModeTitle}</h2>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">
+                {t.previewModeText}
+              </p>
+              <button
+                type="button"
+                onClick={() => setDesignPreview(null)}
+                className="mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-[#d71920] px-4 text-sm font-black text-white"
+              >
+                {t.close}
+              </button>
+            </div>
+          ) : designPreview === 'poster-examples' ? (
             <div className="max-h-[86vh] w-full max-w-[560px] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl">
               <h2 className="text-base font-black text-neutral-950">Memory Poster A3</h2>
               <p className="mt-1 text-sm text-neutral-500">{t.examplesLabel}</p>
