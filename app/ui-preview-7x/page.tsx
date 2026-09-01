@@ -102,6 +102,7 @@ const copy = {
     posterDesc: "Maak een blijvende herinnering met je favoriete foto's.",
     storyDesc: 'Maak een Story die direct klaar is om te delen.',
     viewPreview: 'Bekijken',
+    exampleAction: 'Voorbeeld bekijken',
     examplesLabel: 'Zo kan het eruitzien',
     previewBadge: 'Voorbeeld',
     chooseVersion: 'Kies je formaat',
@@ -116,9 +117,9 @@ const copy = {
     fitsBetterLandscape: 'Deze foto past beter in Landscape.',
     fitsBetterPortrait: 'Deze foto past beter in Portrait.',
     mixedHint: 'Mixed gebruikt 8 portrait en 4 landscape foto’s.',
-    posterModes: ['Portrait', 'Landscape', 'Mixed'],
+    posterModes: ['Portrait Poster', 'Landscape Poster', 'Mixed Poster'],
     posterStyles: ['Kleur', 'Zwart-wit'],
-    storyModes: ['Portrait', 'Landscape'],
+    storyModes: ['Portrait Story', 'Landscape Story'],
     photostripTitle: 'Photostrip Story 5x15',
     photostripDesc: 'Maak van je photobooth strips een kant-en-klare Instagram Story.',
     choosePhotostrips: 'Photostrips kiezen',
@@ -197,6 +198,7 @@ const copy = {
     posterDesc: 'Create a lasting memory with your favorite photos.',
     storyDesc: 'Create a Story that is ready to share right away.',
     viewPreview: 'View',
+    exampleAction: 'View example',
     examplesLabel: 'What it can look like',
     previewBadge: 'Example',
     chooseVersion: 'Choose your format',
@@ -211,9 +213,9 @@ const copy = {
     fitsBetterLandscape: 'This photo fits better in Landscape.',
     fitsBetterPortrait: 'This photo fits better in Portrait.',
     mixedHint: 'Mixed uses 8 portrait and 4 landscape photos.',
-    posterModes: ['Portrait', 'Landscape', 'Mixed'],
+    posterModes: ['Portrait Poster', 'Landscape Poster', 'Mixed Poster'],
     posterStyles: ['Color', 'Black and white'],
-    storyModes: ['Portrait', 'Landscape'],
+    storyModes: ['Portrait Story', 'Landscape Story'],
     photostripTitle: 'Photostrip Story 5x15',
     photostripDesc: 'Turn your photobooth strips into a ready-to-share Instagram Story.',
     choosePhotostrips: 'Choose photostrips',
@@ -292,6 +294,7 @@ const copy = {
     posterDesc: 'Créez un souvenir durable avec vos photos préférées.',
     storyDesc: 'Créez une Story prête à être partagée immédiatement.',
     viewPreview: 'Voir',
+    exampleAction: 'Voir un exemple',
     examplesLabel: 'Aperçu du résultat',
     previewBadge: 'Exemple',
     chooseVersion: 'Choisissez votre format',
@@ -306,9 +309,9 @@ const copy = {
     fitsBetterLandscape: 'Cette photo convient mieux en Landscape.',
     fitsBetterPortrait: 'Cette photo convient mieux en Portrait.',
     mixedHint: 'Mixed utilise 8 photos portrait et 4 photos landscape.',
-    posterModes: ['Portrait', 'Landscape', 'Mixed'],
+    posterModes: ['Portrait Poster', 'Landscape Poster', 'Mixed Poster'],
     posterStyles: ['Couleur', 'Noir et blanc'],
-    storyModes: ['Portrait', 'Landscape'],
+    storyModes: ['Portrait Story', 'Landscape Story'],
     photostripTitle: 'Photostrip Story 5x15',
     photostripDesc: 'Transformez vos strips photobooth en Story Instagram prête à partager.',
     choosePhotostrips: 'Choisir des photostrips',
@@ -387,6 +390,7 @@ const copy = {
     posterDesc: 'Erstelle eine bleibende Erinnerung mit deinen Lieblingsfotos.',
     storyDesc: 'Erstelle eine Story, die sofort geteilt werden kann.',
     viewPreview: 'Ansehen',
+    exampleAction: 'Beispiel ansehen',
     examplesLabel: 'So kann es aussehen',
     previewBadge: 'Beispiel',
     chooseVersion: 'Format wählen',
@@ -401,9 +405,9 @@ const copy = {
     fitsBetterLandscape: 'Dieses Foto passt besser in Landscape.',
     fitsBetterPortrait: 'Dieses Foto passt besser in Portrait.',
     mixedHint: 'Mixed verwendet 8 Portrait- und 4 Landscape-Fotos.',
-    posterModes: ['Portrait', 'Landscape', 'Mixed'],
+    posterModes: ['Portrait Poster', 'Landscape Poster', 'Mixed Poster'],
     posterStyles: ['Farbe', 'Schwarz-Weiß'],
-    storyModes: ['Portrait', 'Landscape'],
+    storyModes: ['Portrait Story', 'Landscape Story'],
     photostripTitle: 'Photostrip Story 5x15',
     photostripDesc: 'Mach aus deinen Photobooth-Strips eine fertige Instagram Story.',
     choosePhotostrips: 'Photostrips auswählen',
@@ -482,6 +486,7 @@ const copy = {
     posterDesc: 'Favori fotoğraflarınla kalıcı bir anı oluştur.',
     storyDesc: 'Hemen paylaşmaya hazır bir Story oluştur.',
     viewPreview: 'Görüntüle',
+    exampleAction: 'Örneği görüntüle',
     examplesLabel: 'Böyle görünebilir',
     previewBadge: 'Örnek',
     chooseVersion: 'Formatını seç',
@@ -496,9 +501,9 @@ const copy = {
     fitsBetterLandscape: 'Bu fotoğraf Landscape için daha uygun.',
     fitsBetterPortrait: 'Bu fotoğraf Portrait için daha uygun.',
     mixedHint: 'Mixed 8 portrait ve 4 landscape fotoğraf kullanır.',
-    posterModes: ['Portrait', 'Landscape', 'Mixed'],
+    posterModes: ['Portrait Poster', 'Landscape Poster', 'Mixed Poster'],
     posterStyles: ['Renkli', 'Siyah-beyaz'],
-    storyModes: ['Portrait', 'Landscape'],
+    storyModes: ['Portrait Story', 'Landscape Story'],
     photostripTitle: 'Photostrip Story 5x15',
     photostripDesc: 'Photobooth striplerini paylaşmaya hazır bir Instagram Story’ye dönüştür.',
     choosePhotostrips: 'Photostrip seç',
@@ -529,14 +534,6 @@ const photoCards: PreviewPhoto[] = [
   { src: '/home-tile-3.png', ratio: 'aspect-[3/4]', orientation: 'portrait' },
   { src: '/home-hero-fun.jpg', ratio: 'aspect-[5/4]', orientation: 'landscape' },
 ]
-
-const designPhotoChoices = [
-  ...photoCards,
-  ...photoCards,
-].map((photo, index) => ({
-  ...photo,
-  id: `design-photo-${index}`,
-}))
 
 const guestbookMessages: Record<
   PreviewLocale,
@@ -653,7 +650,7 @@ export default function UiPreview7xPage() {
   const [hasUploadConsent, setHasUploadConsent] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([photoCards[0].src])
-  const [visiblePhotos, setVisiblePhotos] = useState(photoCards)
+  const [galleryPhotos, setGalleryPhotos] = useState(photoCards)
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
   const [designPreview, setDesignPreview] = useState<string | null>(null)
   const [activeDesignProduct, setActiveDesignProduct] = useState<DesignProductKey>('poster')
@@ -675,6 +672,16 @@ export default function UiPreview7xPage() {
   const t = copy[locale]
   const posterRequired = posterRequiredCounts[posterFormat]
   const storyRequired = storyRequiredCounts[storyFormat]
+  const activeDesignRequired =
+    activeDesignProduct === 'poster' ? posterRequired : storyRequired
+  const activeDesignSelectedPhotos =
+    activeDesignProduct === 'poster' ? posterDesignPhotos : storyDesignPhotos
+  const activeDesignModeLabel =
+    activeDesignProduct === 'poster' ? t.posterModes[posterFormat] : t.storyModes[storyFormat]
+  const activeDesignRemaining = Math.max(
+    0,
+    activeDesignRequired - activeDesignSelectedPhotos.length
+  )
 
   useEffect(() => {
     setHasUploadConsent(sessionStorage.getItem(UPLOAD_CONSENT_STORAGE_KEY) === 'true')
@@ -740,14 +747,36 @@ export default function UiPreview7xPage() {
     setSelectedIds([...selectedIds, id])
   }
 
+  const toggleActiveDesignPhoto = (id: string) => {
+    if (activeDesignProduct === 'poster') {
+      toggleDesignPhoto(id, posterDesignPhotos, setPosterDesignPhotos, posterRequired)
+      return
+    }
+
+    if (activeDesignProduct === 'story') {
+      toggleDesignPhoto(id, storyDesignPhotos, setStoryDesignPhotos, storyRequired)
+    }
+  }
+
+  const clearActiveDesignSelection = () => {
+    if (activeDesignProduct === 'poster') {
+      setPosterDesignPhotos([])
+      return
+    }
+
+    if (activeDesignProduct === 'story') {
+      setStoryDesignPhotos([])
+    }
+  }
+
   const previewIndex = previewPhoto
-    ? visiblePhotos.findIndex((photo) => photo.src === previewPhoto)
+    ? galleryPhotos.findIndex((photo) => photo.src === previewPhoto)
     : -1
   const previousPreviewPhoto =
-    previewIndex > 0 ? visiblePhotos[previewIndex - 1] : null
+    previewIndex > 0 ? galleryPhotos[previewIndex - 1] : null
   const nextPreviewPhoto =
-    previewIndex >= 0 && previewIndex < visiblePhotos.length - 1
-      ? visiblePhotos[previewIndex + 1]
+    previewIndex >= 0 && previewIndex < galleryPhotos.length - 1
+      ? galleryPhotos[previewIndex + 1]
       : null
 
   const confirmPhotoDelete = () => {
@@ -759,10 +788,16 @@ export default function UiPreview7xPage() {
         (url) => url !== photoToDelete.src
       )
     }
-    setVisiblePhotos((current) =>
+    setGalleryPhotos((current) =>
       current.filter((item) => item.src !== photoToDelete.src)
     )
     setSelectedPhotos((current) =>
+      current.filter((item) => item !== photoToDelete.src)
+    )
+    setPosterDesignPhotos((current) =>
+      current.filter((item) => item !== photoToDelete.src)
+    )
+    setStoryDesignPhotos((current) =>
       current.filter((item) => item !== photoToDelete.src)
     )
     if (previewPhoto === photoToDelete.src) setPreviewPhoto(null)
@@ -812,7 +847,7 @@ export default function UiPreview7xPage() {
   const uploadPendingPhotos = () => {
     if (pendingPhotos.length === 0) return
 
-    setVisiblePhotos((current) => [...pendingPhotos, ...current])
+    setGalleryPhotos((current) => [...pendingPhotos, ...current])
     setPendingPhotos([])
     setGuestbookPhotoSrc('')
     setUploadSheetOpen(false)
@@ -1045,7 +1080,7 @@ export default function UiPreview7xPage() {
                   ) : null}
 
                   <div className="grid grid-cols-3 gap-1.5 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5 xl:grid-cols-6">
-                    {visiblePhotos.map((photo) => {
+                    {galleryPhotos.map((photo) => {
                       const isSelected = selectedPhotos.includes(photo.src)
 
                       return (
@@ -1253,20 +1288,24 @@ export default function UiPreview7xPage() {
                   ) : null}
                   <div className="space-y-3">
                     {activeDesignProduct === 'poster' ? (
-                    <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
-                      <h3 className="text-base font-black text-neutral-950">Memory Poster A3</h3>
-                      <p className="mt-1 text-sm leading-5 text-neutral-600">{t.posterDesc}</p>
-                      <p className="mt-3 text-[11px] font-black uppercase tracking-[0.14em] text-neutral-400">
-                        {t.examplesLabel}
-                      </p>
-                      <div className="-mx-3 mt-2 flex snap-x gap-2 overflow-x-auto px-3 pb-1">
-                        {posterExamples.map((example, index) => {
-                          const isSelected = posterFormat === index
-                          const src = posterStyle === 0 ? example.colorSrc : example.bwSrc
-
-                          return (
+                      <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h3 className="text-base font-black text-neutral-950">Memory Poster A3</h3>
+                            <p className="mt-1 text-sm leading-5 text-neutral-600">{t.posterDesc}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setDesignPreview('poster-examples')}
+                            className="shrink-0 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-black text-neutral-700"
+                          >
+                            {t.exampleAction}
+                          </button>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {t.posterModes.map((mode, index) => (
                             <button
-                              key={example.label}
+                              key={mode}
                               type="button"
                               onClick={() => {
                                 setPosterFormat(index)
@@ -1274,149 +1313,57 @@ export default function UiPreview7xPage() {
                                   showDesignWarning(t.reduceSelection)
                                 }
                               }}
-                              className={`${example.frame} relative aspect-[3/4] shrink-0 snap-start overflow-hidden rounded-[10px] border bg-neutral-50 shadow-sm transition ${
-                                isSelected
-                                  ? 'border-[#d71920] shadow-[0_8px_20px_rgba(215,25,32,0.18)]'
-                                  : 'border-neutral-200'
-                              }`}
-                            >
-                              <img src={src} alt="" className="h-full w-full object-contain" />
-                              <span className="absolute left-1.5 top-1.5 rounded-full bg-white/92 px-1.5 py-0.5 text-[9px] font-black text-neutral-700 shadow-sm">
-                                {t.previewBadge}
-                              </span>
-                              {isSelected ? (
-                                <span className="absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#d71920] text-[11px] font-black text-white shadow-sm">
-                                  ✓
-                                </span>
-                              ) : null}
-                              <span className={`absolute inset-x-1.5 bottom-1.5 rounded-md bg-black/62 px-1.5 py-1 text-[9px] text-white ${isSelected ? 'font-black' : 'font-bold'}`}>
-                                {example.label}
-                              </span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                      <div className="mt-3 rounded-xl bg-neutral-50 p-3">
-                        <p className="text-xs font-black text-neutral-500">{t.styleLabel}</p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {t.posterStyles.map((style, index) => (
-                            <button
-                              key={style}
-                              type="button"
-                              onClick={() => setPosterStyle(index)}
                               className={`rounded-full border px-3 py-1.5 text-xs font-black ${
-                                posterStyle === index
+                                posterFormat === index
                                   ? 'border-[#d71920] bg-[#d71920] text-white'
                                   : 'border-neutral-200 bg-white text-neutral-800'
                               }`}
                             >
-                              {style}
+                              {mode}
                             </button>
                           ))}
                         </div>
-                      </div>
-                      <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div>
-                            <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
-                              {posterExamples[posterFormat].label}
-                            </p>
-                            <p className="text-sm font-black text-neutral-950">
-                              {posterDesignPhotos.length} / {posterRequired} {t.selectedCount}
-                            </p>
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setPosterDesignPhotos([])}
-                              disabled={posterDesignPhotos.length === 0}
-                              className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-black text-neutral-700 disabled:text-neutral-300"
-                            >
-                              {t.clearSelection}
-                            </button>
-                            <button
-                              type="button"
-                              disabled={posterDesignPhotos.length !== posterRequired}
-                              onClick={() =>
-                                setDesignPreview(
-                                  posterStyle === 0
-                                    ? posterExamples[posterFormat].colorSrc
-                                    : posterExamples[posterFormat].bwSrc
-                                )
-                              }
-                              className="rounded-lg bg-[#d71920] px-2.5 py-1.5 text-[11px] font-black text-white disabled:bg-neutral-300"
-                            >
-                              {t.viewPreview}
-                            </button>
-                          </div>
-                        </div>
-                        {posterDesignPhotos.length === posterRequired ? null : (
-                          <p className="mt-2 text-xs font-semibold text-[#d71920]">
-                            {posterDesignPhotos.length > posterRequired
-                              ? t.reduceSelection
-                              : templateText(t.remainingPhotos, posterRequired - posterDesignPhotos.length)}
-                          </p>
-                        )}
-                        {posterFormat === 2 ? (
-                          <p className="mt-1 text-xs font-semibold text-neutral-500">{t.mixedHint}</p>
-                        ) : null}
-                        <div className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-6">
-                          {designPhotoChoices.map((photo) => {
-                            const isSelected = posterDesignPhotos.includes(photo.id)
-                            const hint = getDesignOrientationHint(photo.orientation, posterFormat)
-
-                            return (
+                        <div className="mt-3 rounded-xl bg-neutral-50 p-3">
+                          <p className="text-xs font-black text-neutral-500">{t.styleLabel}</p>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {t.posterStyles.map((style, index) => (
                               <button
-                                key={photo.id}
+                                key={style}
                                 type="button"
-                                onClick={() =>
-                                  toggleDesignPhoto(
-                                    photo.id,
-                                    posterDesignPhotos,
-                                    setPosterDesignPhotos,
-                                    posterRequired
-                                  )
-                                }
-                                className="relative overflow-hidden rounded-lg bg-neutral-100"
-                                title={hint}
+                                onClick={() => setPosterStyle(index)}
+                                className={`rounded-full border px-3 py-1.5 text-xs font-black ${
+                                  posterStyle === index
+                                    ? 'border-[#d71920] bg-[#d71920] text-white'
+                                    : 'border-neutral-200 bg-white text-neutral-800'
+                                }`}
                               >
-                                <img src={photo.src} alt="" className={`${photo.ratio} w-full object-cover`} />
-                                <span
-                                  className={`absolute right-1 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black ${
-                                    isSelected
-                                      ? 'border-[#d71920] bg-[#d71920] text-white'
-                                      : 'border-white/80 bg-black/35 text-white'
-                                  }`}
-                                >
-                                  {isSelected ? '✓' : ''}
-                                </span>
-                                {hint ? (
-                                  <span className="absolute inset-x-1 bottom-1 rounded bg-white/92 px-1 py-0.5 text-[8px] font-black text-neutral-700">
-                                    {hint}
-                                  </span>
-                                ) : null}
+                                {style}
                               </button>
-                            )
-                          })}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </article>
+                      </article>
                     ) : null}
 
                     {activeDesignProduct === 'story' ? (
-                    <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
-                      <h3 className="text-base font-black text-neutral-950">Instagram Story</h3>
-                      <p className="mt-1 text-sm leading-5 text-neutral-600">{t.storyDesc}</p>
-                      <p className="mt-3 text-[11px] font-black uppercase tracking-[0.14em] text-neutral-400">
-                        {t.examplesLabel}
-                      </p>
-                      <div className="-mx-3 mt-2 flex snap-x gap-2 overflow-x-auto px-3 pb-1">
-                        {storyExamples.map((example, index) => {
-                          const isSelected = storyFormat === index
-
-                          return (
+                      <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h3 className="text-base font-black text-neutral-950">Instagram Story</h3>
+                            <p className="mt-1 text-sm leading-5 text-neutral-600">{t.storyDesc}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setDesignPreview('story-examples')}
+                            className="shrink-0 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-black text-neutral-700"
+                          >
+                            {t.exampleAction}
+                          </button>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {t.storyModes.map((mode, index) => (
                             <button
-                              key={example.src}
+                              key={mode}
                               type="button"
                               onClick={() => {
                                 setStoryFormat(index)
@@ -1424,96 +1371,99 @@ export default function UiPreview7xPage() {
                                   showDesignWarning(t.reduceSelection)
                                 }
                               }}
-                              className={`relative aspect-[9/16] w-[104px] shrink-0 snap-start overflow-hidden rounded-[10px] border bg-neutral-50 shadow-sm transition ${
-                                isSelected
-                                  ? 'border-[#d71920] shadow-[0_8px_20px_rgba(215,25,32,0.18)]'
-                                  : 'border-neutral-200'
+                              className={`rounded-full border px-3 py-1.5 text-xs font-black ${
+                                storyFormat === index
+                                  ? 'border-[#d71920] bg-[#d71920] text-white'
+                                  : 'border-neutral-200 bg-white text-neutral-800'
                               }`}
                             >
-                              <img src={example.src} alt="" className="h-full w-full object-contain" />
-                              <span className="absolute left-1.5 top-1.5 rounded-full bg-white/92 px-1.5 py-0.5 text-[9px] font-black text-neutral-700 shadow-sm">
-                                {t.previewBadge}
-                              </span>
-                              {isSelected ? (
-                                <span className="absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#d71920] text-[11px] font-black text-white shadow-sm">
-                                  ✓
-                                </span>
-                              ) : null}
-                              <span className={`absolute inset-x-1.5 bottom-1.5 rounded-md bg-black/62 px-1.5 py-1 text-[9px] text-white ${isSelected ? 'font-black' : 'font-bold'}`}>
-                                {example.label}
-                              </span>
+                              {mode}
                             </button>
-                          )
-                        })}
-                      </div>
-                      <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-3">
+                          ))}
+                        </div>
+                      </article>
+                    ) : null}
+
+                    {activeDesignProduct !== 'photostrip' ? (
+                      <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div>
                             <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
-                              {storyExamples[storyFormat].label}
+                              {activeDesignModeLabel}
                             </p>
                             <p className="text-sm font-black text-neutral-950">
-                              {storyDesignPhotos.length} / {storyRequired} {t.selectedCount}
+                              {activeDesignSelectedPhotos.length} / {activeDesignRequired} {t.selectedCount}
                             </p>
                           </div>
                           <div className="flex gap-2">
                             <button
                               type="button"
-                              onClick={() => setStoryDesignPhotos([])}
-                              disabled={storyDesignPhotos.length === 0}
+                              onClick={clearActiveDesignSelection}
+                              disabled={activeDesignSelectedPhotos.length === 0}
                               className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-black text-neutral-700 disabled:text-neutral-300"
                             >
                               {t.clearSelection}
                             </button>
                             <button
                               type="button"
-                              disabled={storyDesignPhotos.length !== storyRequired}
-                              onClick={() => setDesignPreview(storyExamples[storyFormat].src)}
+                              disabled={activeDesignSelectedPhotos.length !== activeDesignRequired}
+                              onClick={() =>
+                                setDesignPreview(
+                                  activeDesignProduct === 'poster'
+                                    ? posterStyle === 0
+                                      ? posterExamples[posterFormat].colorSrc
+                                      : posterExamples[posterFormat].bwSrc
+                                    : storyExamples[storyFormat].src
+                                )
+                              }
                               className="rounded-lg bg-[#d71920] px-2.5 py-1.5 text-[11px] font-black text-white disabled:bg-neutral-300"
                             >
-                              {t.viewPreview}
+                              {t.makeDesign}
                             </button>
                           </div>
                         </div>
-                        {storyDesignPhotos.length === storyRequired ? null : (
+                        {activeDesignSelectedPhotos.length === activeDesignRequired ? null : (
                           <p className="mt-2 text-xs font-semibold text-[#d71920]">
-                            {storyDesignPhotos.length > storyRequired
+                            {activeDesignSelectedPhotos.length > activeDesignRequired
                               ? t.reduceSelection
-                              : templateText(t.remainingPhotos, storyRequired - storyDesignPhotos.length)}
+                              : templateText(t.remainingPhotos, activeDesignRemaining)}
                           </p>
                         )}
-                        <div className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-6">
-                          {designPhotoChoices.map((photo) => {
-                            const isSelected = storyDesignPhotos.includes(photo.id)
-                            const hint = getDesignOrientationHint(photo.orientation, storyFormat)
+                        {activeDesignProduct === 'poster' && posterFormat === 2 ? (
+                          <p className="mt-1 text-xs font-semibold text-neutral-500">{t.mixedHint}</p>
+                        ) : null}
+                        <div className="mt-3 grid grid-cols-3 gap-2 min-[520px]:grid-cols-4 lg:grid-cols-5">
+                          {galleryPhotos.map((photo) => {
+                            const isSelected = activeDesignSelectedPhotos.includes(photo.src)
+                            const hint = getDesignOrientationHint(
+                              photo.orientation,
+                              activeDesignProduct === 'poster' ? posterFormat : storyFormat
+                            )
 
                             return (
                               <button
-                                key={photo.id}
+                                key={photo.src}
                                 type="button"
-                                onClick={() =>
-                                  toggleDesignPhoto(
-                                    photo.id,
-                                    storyDesignPhotos,
-                                    setStoryDesignPhotos,
-                                    storyRequired
-                                  )
-                                }
-                                className="relative overflow-hidden rounded-lg bg-neutral-100"
+                                onClick={() => toggleActiveDesignPhoto(photo.src)}
+                                className="relative overflow-hidden rounded-[10px] bg-neutral-900 p-1 shadow-sm"
                                 title={hint}
                               >
-                                <img src={photo.src} alt="" className={`${photo.ratio} w-full object-cover`} />
+                                <img
+                                  src={photo.src}
+                                  alt=""
+                                  className={`${photo.ratio} w-full rounded-md object-cover`}
+                                />
                                 <span
-                                  className={`absolute right-1 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black ${
+                                  className={`absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black ${
                                     isSelected
                                       ? 'border-[#d71920] bg-[#d71920] text-white'
-                                      : 'border-white/80 bg-black/35 text-white'
+                                      : 'border-white bg-white/90 text-transparent'
                                   }`}
                                 >
                                   {isSelected ? '✓' : ''}
                                 </span>
                                 {hint ? (
-                                  <span className="absolute inset-x-1 bottom-1 rounded bg-white/92 px-1 py-0.5 text-[8px] font-black text-neutral-700">
+                                  <span className="absolute inset-x-1.5 bottom-1.5 rounded bg-neutral-950/78 px-1.5 py-1 text-[8px] font-black leading-tight text-white">
                                     {hint}
                                   </span>
                                 ) : null}
@@ -1521,8 +1471,7 @@ export default function UiPreview7xPage() {
                             )
                           })}
                         </div>
-                      </div>
-                    </article>
+                      </article>
                     ) : null}
 
                     {activeDesignProduct === 'photostrip' ? (
@@ -1925,7 +1874,7 @@ export default function UiPreview7xPage() {
             className="max-h-[82vh] max-w-full rounded-2xl object-contain"
           />
           <p className="absolute bottom-4 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-neutral-900">
-            {previewIndex + 1} / {visiblePhotos.length}
+            {previewIndex + 1} / {galleryPhotos.length}
           </p>
         </div>
       ) : null}
@@ -1940,7 +1889,63 @@ export default function UiPreview7xPage() {
           >
             ×
           </button>
-          {designPreview === 'photostrip-story' ? (
+          {designPreview === 'poster-examples' ? (
+            <div className="max-h-[86vh] w-full max-w-[560px] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl">
+              <h2 className="text-base font-black text-neutral-950">Memory Poster A3</h2>
+              <p className="mt-1 text-sm text-neutral-500">{t.examplesLabel}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {t.posterStyles.map((style, index) => (
+                  <button
+                    key={style}
+                    type="button"
+                    onClick={() => setPosterStyle(index)}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-black ${
+                      posterStyle === index
+                        ? 'border-[#d71920] bg-[#d71920] text-white'
+                        : 'border-neutral-200 bg-white text-neutral-800'
+                    }`}
+                  >
+                    {style}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                {posterExamples.map((example) => (
+                  <div
+                    key={example.label}
+                    className={`${example.frame} relative aspect-[3/4] shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50`}
+                  >
+                    <img
+                      src={posterStyle === 0 ? example.colorSrc : example.bwSrc}
+                      alt=""
+                      className="h-full w-full object-contain"
+                    />
+                    <p className="absolute inset-x-1 bottom-1 rounded bg-white/92 px-2 py-1 text-[10px] font-black text-neutral-700">
+                      {example.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : designPreview === 'story-examples' ? (
+            <div className="max-h-[86vh] w-full max-w-[420px] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl">
+              <h2 className="text-base font-black text-neutral-950">Instagram Story</h2>
+              <p className="mt-1 text-sm text-neutral-500">{t.examplesLabel}</p>
+              <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                {storyExamples.map((example) => (
+                  <div
+                    key={example.src}
+                    className="relative aspect-[9/16] w-[118px] shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50"
+                  >
+                    <img src={example.src} alt="" className="h-full w-full object-contain" />
+                    <p className="absolute inset-x-1 bottom-1 rounded bg-white/92 px-2 py-1 text-[10px] font-black text-neutral-700">
+                      {example.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : designPreview === 'photostrip-story' ? (
             <div className="relative aspect-[9/16] h-[82vh] max-h-[720px] overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#fff8f1,#eee8dd)] shadow-2xl">
               <img
                 src="/home-strip-fun.jpg"
