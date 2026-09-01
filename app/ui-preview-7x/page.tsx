@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 type SectionKey = 'photos' | 'guestbook' | 'designs' | 'downloads'
+type DesignProductKey = 'poster' | 'story' | 'photostrip'
 type PreviewMode = 'album' | 'access'
 type ModalKey = 'upload-info' | 'email-info' | null
 type PreviewLocale = 'nl' | 'en' | 'fr' | 'de' | 'tr'
@@ -29,6 +30,12 @@ const navigation: { key: SectionKey }[] = [
   { key: 'guestbook' },
   { key: 'designs' },
   { key: 'downloads' },
+]
+
+const designProductTabs: { key: DesignProductKey; label: string }[] = [
+  { key: 'poster', label: 'Memory Poster A3' },
+  { key: 'story', label: 'Instagram Story' },
+  { key: 'photostrip', label: 'Photostrip 5x15' },
 ]
 
 const copy = {
@@ -649,6 +656,7 @@ export default function UiPreview7xPage() {
   const [visiblePhotos, setVisiblePhotos] = useState(photoCards)
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
   const [designPreview, setDesignPreview] = useState<string | null>(null)
+  const [activeDesignProduct, setActiveDesignProduct] = useState<DesignProductKey>('poster')
   const [posterFormat, setPosterFormat] = useState(2)
   const [posterStyle, setPosterStyle] = useState(0)
   const [storyFormat, setStoryFormat] = useState(0)
@@ -1218,12 +1226,33 @@ export default function UiPreview7xPage() {
                       {t.designsIntro}
                     </p>
                   </div>
+                  <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
+                    {designProductTabs.map((product) => {
+                      const isActive = activeDesignProduct === product.key
+
+                      return (
+                        <button
+                          key={product.key}
+                          type="button"
+                          onClick={() => setActiveDesignProduct(product.key)}
+                          className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-black transition ${
+                            isActive
+                              ? 'border-[#d71920] bg-[#d71920] text-white'
+                              : 'border-neutral-200 bg-white text-neutral-600'
+                          }`}
+                        >
+                          {product.label}
+                        </button>
+                      )
+                    })}
+                  </div>
                   {designWarning ? (
                     <p className="rounded-full bg-neutral-950 px-3 py-1.5 text-center text-xs font-bold text-white">
                       {designWarning}
                     </p>
                   ) : null}
                   <div className="space-y-3">
+                    {activeDesignProduct === 'poster' ? (
                     <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
                       <h3 className="text-base font-black text-neutral-950">Memory Poster A3</h3>
                       <p className="mt-1 text-sm leading-5 text-neutral-600">{t.posterDesc}</p>
@@ -1372,7 +1401,9 @@ export default function UiPreview7xPage() {
                         </div>
                       </div>
                     </article>
+                    ) : null}
 
+                    {activeDesignProduct === 'story' ? (
                     <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
                       <h3 className="text-base font-black text-neutral-950">Instagram Story</h3>
                       <p className="mt-1 text-sm leading-5 text-neutral-600">{t.storyDesc}</p>
@@ -1492,7 +1523,9 @@ export default function UiPreview7xPage() {
                         </div>
                       </div>
                     </article>
+                    ) : null}
 
+                    {activeDesignProduct === 'photostrip' ? (
                     <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
                       <h3 className="text-base font-black text-neutral-950">{t.photostripTitle}</h3>
                       <p className="mt-1 text-sm leading-5 text-neutral-600">{t.photostripDesc}</p>
@@ -1568,6 +1601,7 @@ export default function UiPreview7xPage() {
                         {t.viewStory}
                       </button>
                     </article>
+                    ) : null}
                   </div>
                 </section>
               ) : null}
