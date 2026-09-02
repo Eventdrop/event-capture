@@ -2173,17 +2173,17 @@ export default function UiPreview7xPage() {
               <img
                 src={photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'}
                 alt=""
-                className="absolute left-[10%] top-[30%] h-[42%] w-[20%] rotate-[-7deg] rounded-lg object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,0.34)]"
+                className="absolute left-[6%] top-[24%] z-10 h-[54%] w-[27%] rotate-[-8deg] rounded-lg object-contain drop-shadow-[0_20px_26px_rgba(0,0,0,0.36)]"
               />
               <img
                 src={photostripSelectedPhotoSources[2] || photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'}
                 alt=""
-                className="absolute right-[10%] top-[30%] h-[42%] w-[20%] rotate-[7deg] rounded-lg object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,0.34)]"
+                className="absolute right-[6%] top-[24%] z-10 h-[54%] w-[27%] rotate-[8deg] rounded-lg object-contain drop-shadow-[0_20px_26px_rgba(0,0,0,0.36)]"
               />
               <img
                 src={photostripSelectedPhotoSources[1] || photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'}
                 alt=""
-                className="absolute left-1/2 top-[17%] h-[66%] w-[32%] -translate-x-1/2 rounded-xl object-contain drop-shadow-[0_24px_30px_rgba(0,0,0,0.42)]"
+                className="absolute left-1/2 top-[8%] z-20 h-[82%] w-[43%] -translate-x-1/2 rounded-xl object-contain drop-shadow-[0_30px_38px_rgba(0,0,0,0.48)]"
               />
             </div>
           ) : (
