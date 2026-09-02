@@ -16,6 +16,8 @@ type PreviewPhoto = {
 
 const GUEST_MESSAGE_MAX_LENGTH = 500
 const UPLOAD_CONSENT_STORAGE_KEY = 'eventdrop-ui-preview-upload-consent'
+const DOWNLOAD_SELECTION_LIMIT = 100
+const ALBUM_PACKAGE_SIZE = 40
 
 const languages: { code: PreviewLocale; label: string }[] = [
   { code: 'nl', label: 'NL' },
@@ -130,6 +132,8 @@ const copy = {
     stripsSelected: 'strips geselecteerd',
     downloadsTitle: 'Bewaar het complete album',
     downloadsIntro: 'Download losse favorieten of alle foto’s in één pakket.',
+    albumDownload: 'Album downloaden',
+    downloadPreviewText: 'Previewmodus: de echte download wordt gekoppeld wanneer deze interface naar productie wordt overgezet.',
     fullAlbum: 'Compleet album',
     selectionDownload: 'Selectie downloaden',
     stats: ['39 foto’s', '3 ontwerpen', '12 berichten'],
@@ -228,6 +232,8 @@ const copy = {
     stripsSelected: 'strips selected',
     downloadsTitle: 'Save the complete album',
     downloadsIntro: 'Download favorites or all photos in one package.',
+    albumDownload: 'Download album',
+    downloadPreviewText: 'Preview mode: the real download will be connected when this interface is moved into production.',
     fullAlbum: 'Full album',
     selectionDownload: 'Download selection',
     stats: ['39 photos', '3 designs', '12 messages'],
@@ -326,6 +332,8 @@ const copy = {
     stripsSelected: 'strips sélectionnés',
     downloadsTitle: 'Conserver tout l’album',
     downloadsIntro: 'Téléchargez vos favoris ou toutes les photos en un seul lot.',
+    albumDownload: 'Télécharger l’album',
+    downloadPreviewText: 'Mode aperçu : le vrai téléchargement sera connecté lorsque cette interface sera mise en production.',
     fullAlbum: 'Album complet',
     selectionDownload: 'Télécharger la sélection',
     stats: ['39 photos', '3 créations', '12 messages'],
@@ -424,6 +432,8 @@ const copy = {
     stripsSelected: 'Strips ausgewählt',
     downloadsTitle: 'Das komplette Album speichern',
     downloadsIntro: 'Lade Favoriten oder alle Fotos in einem Paket herunter.',
+    albumDownload: 'Album herunterladen',
+    downloadPreviewText: 'Vorschaumodus: Der echte Download wird verbunden, wenn diese Oberfläche in Produktion übernommen wird.',
     fullAlbum: 'Komplettes Album',
     selectionDownload: 'Auswahl herunterladen',
     stats: ['39 Fotos', '3 Designs', '12 Nachrichten'],
@@ -522,6 +532,8 @@ const copy = {
     stripsSelected: 'strip seçildi',
     downloadsTitle: 'Tüm albümü sakla',
     downloadsIntro: 'Favorileri veya tüm fotoğrafları tek pakette indir.',
+    albumDownload: 'Albümü indir',
+    downloadPreviewText: 'Önizleme modu: Gerçek indirme, bu arayüz production’a taşındığında bağlanacak.',
     fullAlbum: 'Tüm albüm',
     selectionDownload: 'Seçimi indir',
     stats: ['39 fotoğraf', '3 tasarım', '12 mesaj'],
@@ -678,7 +690,9 @@ export default function UiPreview7xPage() {
   const [storyFormat, setStoryFormat] = useState(0)
   const [posterDesignPhotos, setPosterDesignPhotos] = useState<string[]>([])
   const [storyDesignPhotos, setStoryDesignPhotos] = useState<string[]>([])
+  const [downloadSelection, setDownloadSelection] = useState<string[]>([])
   const [designWarning, setDesignWarning] = useState('')
+  const [downloadFeedback, setDownloadFeedback] = useState('')
   const [photostripCount, setPhotostripCount] = useState(3)
   const [photoToDelete, setPhotoToDelete] = useState<PreviewPhoto | null>(null)
   const [photoFeedback, setPhotoFeedback] = useState('')
@@ -713,6 +727,7 @@ export default function UiPreview7xPage() {
     activeDesignProduct === 'poster' && posterFormat === 2
       ? selectedPosterPortraitCount === 8 && selectedPosterLandscapeCount === 4
       : activeDesignSelectedPhotos.length === activeDesignRequired
+  const totalAlbumPackages = Math.max(1, Math.ceil(galleryPhotos.length / ALBUM_PACKAGE_SIZE))
 
   useEffect(() => {
     setHasUploadConsent(sessionStorage.getItem(UPLOAD_CONSENT_STORAGE_KEY) === 'true')
@@ -748,6 +763,25 @@ export default function UiPreview7xPage() {
   const showDesignWarning = (message: string) => {
     setDesignWarning(message)
     window.setTimeout(() => setDesignWarning(''), 1800)
+  }
+
+  const showDownloadFeedback = (message: string) => {
+    setDownloadFeedback(message)
+    window.setTimeout(() => setDownloadFeedback(''), 1800)
+  }
+
+  const toggleDownloadSelection = (src: string) => {
+    if (downloadSelection.includes(src)) {
+      setDownloadSelection(downloadSelection.filter((item) => item !== src))
+      return
+    }
+
+    if (downloadSelection.length >= DOWNLOAD_SELECTION_LIMIT) {
+      showDownloadFeedback(templateText(t.maxSelection, DOWNLOAD_SELECTION_LIMIT))
+      return
+    }
+
+    setDownloadSelection([...downloadSelection, src])
   }
 
   const getDesignOrientationHint = (
@@ -862,6 +896,9 @@ export default function UiPreview7xPage() {
       current.filter((item) => item !== photoToDelete.src)
     )
     setStoryDesignPhotos((current) =>
+      current.filter((item) => item !== photoToDelete.src)
+    )
+    setDownloadSelection((current) =>
       current.filter((item) => item !== photoToDelete.src)
     )
     if (previewPhoto === photoToDelete.src) setPreviewPhoto(null)
@@ -1508,7 +1545,7 @@ export default function UiPreview7xPage() {
                                 key={photo.src}
                                 type="button"
                                 onClick={() => toggleActiveDesignPhoto(photo.src)}
-                                className="relative overflow-hidden rounded-[10px] bg-[#171717] p-1.5 shadow-[0_8px_18px_rgba(0,0,0,0.18)]"
+                                className="relative overflow-hidden rounded-[10px] bg-[#171717] p-[2px] shadow-[0_8px_18px_rgba(0,0,0,0.18)]"
                                 title={hint}
                               >
                                 <img
@@ -1625,42 +1662,72 @@ export default function UiPreview7xPage() {
               ) : null}
 
               {activeSection === 'downloads' ? (
-                <section className="space-y-4">
-                  <div className="rounded-[1.35rem] border border-neutral-200 bg-white p-5 shadow-[0_10px_28px_rgba(20,20,20,0.06)]">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-[#d71920]">
-                      {t.nav.downloads}
-                    </p>
-                    <h2 className="mt-2 text-2xl font-black tracking-[-0.03em] text-neutral-950">
-                      {t.downloadsTitle}
-                    </h2>
-                    <p className="mt-2 text-sm leading-6 text-neutral-600">
-                      {t.downloadsIntro}
-                    </p>
-                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <section className="space-y-3">
+                  <div className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
-                        className="rounded-2xl bg-[#d71920] px-4 py-4 text-sm font-black text-white shadow-[0_10px_22px_rgba(215,25,32,0.16)]"
+                        onClick={() => showDownloadFeedback(t.downloadPreviewText)}
+                        disabled={downloadSelection.length === 0}
+                        className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-black shadow-sm sm:flex-none ${
+                          downloadSelection.length === 0
+                            ? 'cursor-not-allowed bg-neutral-300 text-neutral-500'
+                            : 'bg-[#d71920] text-white'
+                        }`}
                       >
-                        {t.fullAlbum}
+                        {t.selectionDownload} ({downloadSelection.length}/{DOWNLOAD_SELECTION_LIMIT})
                       </button>
                       <button
                         type="button"
-                        className="rounded-2xl border border-neutral-200 bg-white px-4 py-4 text-sm font-black text-neutral-950"
+                        onClick={() => showDownloadFeedback(t.downloadPreviewText)}
+                        disabled={galleryPhotos.length === 0}
+                        className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-black shadow-sm sm:flex-none ${
+                          galleryPhotos.length === 0
+                            ? 'cursor-not-allowed bg-neutral-300 text-neutral-500'
+                            : 'bg-neutral-950 text-white'
+                        }`}
                       >
-                        {t.selectionDownload}
+                        {t.albumDownload} ({totalAlbumPackages} ZIP)
                       </button>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
-                    {t.stats.map((item) => (
-                      <div
-                        key={item}
-                        className="rounded-2xl bg-neutral-100 px-3 py-4 text-center text-sm font-black text-neutral-700"
-                      >
-                        {item}
-                      </div>
-                    ))}
+                  {downloadFeedback ? (
+                    <p className="rounded-full bg-neutral-950 px-3 py-1.5 text-center text-xs font-bold text-white">
+                      {downloadFeedback}
+                    </p>
+                  ) : null}
+
+                  <div className="grid grid-cols-3 gap-2 min-[520px]:grid-cols-4 lg:grid-cols-5">
+                    {galleryPhotos.map((photo) => {
+                      const isSelected = downloadSelection.includes(photo.src)
+
+                      return (
+                        <button
+                          key={photo.src}
+                          type="button"
+                          onClick={() => toggleDownloadSelection(photo.src)}
+                          className={`relative overflow-hidden rounded-[10px] bg-[#171717] p-1.5 shadow-[0_8px_18px_rgba(0,0,0,0.18)] ${
+                            isSelected ? 'ring-2 ring-[#d71920]' : ''
+                          }`}
+                        >
+                          <img
+                            src={photo.src}
+                            alt=""
+                            className={`${photo.ratio} w-full rounded-md object-cover`}
+                          />
+                          <span
+                            className={`absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black ${
+                              isSelected
+                                ? 'border-[#d71920] bg-[#d71920] text-white'
+                                : 'border-white bg-white/90 text-transparent'
+                            }`}
+                          >
+                            {isSelected ? '✓' : ''}
+                          </span>
+                        </button>
+                      )
+                    })}
                   </div>
                 </section>
               ) : null}
