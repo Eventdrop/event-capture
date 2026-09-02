@@ -1788,7 +1788,7 @@ export default function UiPreview7xPage() {
                           key={photo.src}
                           type="button"
                           onClick={() => toggleDownloadSelection(photo.src)}
-                          className={`relative overflow-hidden rounded-[10px] bg-[#171717] p-1.5 shadow-[0_8px_18px_rgba(0,0,0,0.18)] ${
+                          className={`relative overflow-hidden rounded-[10px] bg-[#171717] p-[2px] shadow-[0_8px_18px_rgba(0,0,0,0.18)] ${
                             isSelected ? 'ring-2 ring-[#d71920]' : ''
                           }`}
                         >
