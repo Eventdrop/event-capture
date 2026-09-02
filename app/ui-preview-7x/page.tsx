@@ -1373,8 +1373,8 @@ export default function UiPreview7xPage() {
                           onClick={() => setActiveDesignProduct(product.key)}
                           className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-black transition ${
                             isActive
-                              ? 'border-[#d71920] bg-[#d71920] text-white'
-                              : 'border-neutral-200 bg-white text-neutral-600'
+                              ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
+                              : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
                           }`}
                         >
                           {product.label}
@@ -1416,8 +1416,8 @@ export default function UiPreview7xPage() {
                               }}
                               className={`rounded-full border px-3 py-1.5 text-xs font-black ${
                                 posterFormat === index
-                                  ? 'border-[#d71920] bg-[#d71920] text-white'
-                                  : 'border-neutral-200 bg-white text-neutral-800'
+                                  ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
+                                  : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
                               }`}
                             >
                               {mode}
@@ -1434,8 +1434,8 @@ export default function UiPreview7xPage() {
                                 onClick={() => setPosterStyle(index)}
                                 className={`rounded-full border px-3 py-1.5 text-xs font-black ${
                                   posterStyle === index
-                                    ? 'border-[#d71920] bg-[#d71920] text-white'
-                                    : 'border-neutral-200 bg-white text-neutral-800'
+                                    ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
+                                    : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
                                 }`}
                               >
                                 {style}
@@ -1474,8 +1474,8 @@ export default function UiPreview7xPage() {
                               }}
                               className={`rounded-full border px-3 py-1.5 text-xs font-black ${
                                 storyFormat === index
-                                  ? 'border-[#d71920] bg-[#d71920] text-white'
-                                  : 'border-neutral-200 bg-white text-neutral-800'
+                                  ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
+                                  : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
                               }`}
                             >
                               {mode}
@@ -1630,8 +1630,8 @@ export default function UiPreview7xPage() {
                               onClick={() => setPhotostripCount(count)}
                               className={`rounded-full border px-3 py-1.5 text-xs font-black ${
                                 photostripCount === count
-                                  ? 'border-[#d71920] bg-[#d71920] text-white'
-                                  : 'border-neutral-200 bg-white text-neutral-800'
+                                  ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
+                                  : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
                               }`}
                             >
                               {t.stripChoices[index]}
@@ -2051,8 +2051,8 @@ export default function UiPreview7xPage() {
                     onClick={() => setPosterStyle(index)}
                     className={`rounded-full border px-3 py-1.5 text-xs font-black ${
                       posterStyle === index
-                        ? 'border-[#d71920] bg-[#d71920] text-white'
-                        : 'border-neutral-200 bg-white text-neutral-800'
+                        ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
+                        : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
                     }`}
                   >
                     {style}
