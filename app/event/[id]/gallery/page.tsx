@@ -2339,18 +2339,23 @@ export default function Page() {
             })}
           </div>
         ) : galleryView === 'guestbook' ? (
-          <section className="space-y-3">
+          <section className="space-y-3 py-3 sm:py-5">
+            <div>
+              <h2 className="text-xl font-black tracking-[-0.03em] text-neutral-950">
+                {t.gallery.guestbookTitle}
+              </h2>
+            </div>
             {guestbookFeedItems.length === 0 ? (
-              <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-10 text-center shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
-                <p className="text-lg font-bold text-[#0B2742]">
+              <div className="rounded-xl border border-neutral-200 bg-white p-4 text-center">
+                <p className="text-sm font-black text-neutral-950">
                   {t.gallery.guestbookEmptyTitle}
                 </p>
-                <p className="mt-2 text-sm text-[#597594]">
+                <p className="mt-1 text-sm leading-5 text-neutral-500">
                   {t.gallery.guestbookEmptyText}
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {guestbookFeedItems.map((item) => {
                   if (item.source === 'standalone') {
                     const relatedUpload = item.relatedUpload || null
@@ -2364,39 +2369,43 @@ export default function Page() {
                     return (
                       <article
                         key={item.key}
-                        className="flex gap-3 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-3 shadow-[0_12px_32px_rgba(61,44,22,0.08)] sm:items-start"
+                        className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_6px_18px_rgba(20,20,20,0.04)]"
                       >
-                        {relatedUpload ? (
-                          <button
-                            type="button"
-                            onClick={() => setPreviewItem(relatedUpload)}
-                            className="relative h-24 w-20 shrink-0 overflow-hidden rounded-2xl bg-stone-950 sm:h-28 sm:w-24"
-                            aria-label={t.gallery.openPreview}
-                            title={t.gallery.openPreview}
-                          >
-                            <Image
-                              src={relatedUpload.file_url}
-                              alt={relatedDownloadName}
-                              fill
-                              unoptimized
-                              sizes="96px"
-                              className="object-cover"
-                            />
-                          </button>
-                        ) : null}
-
-                        <div className="min-w-0 flex-1">
-                          {item.guestName ? (
-                            <p className="mb-1 text-sm font-bold text-[#0F3D66]">
-                              {item.guestName}
-                            </p>
+                        <div className="flex gap-3">
+                          {relatedUpload ? (
+                            <button
+                              type="button"
+                              onClick={() => setPreviewItem(relatedUpload)}
+                              className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[10px] bg-neutral-100 sm:h-20 sm:w-20"
+                              aria-label={t.gallery.openPreview}
+                              title={t.gallery.openPreview}
+                            >
+                              <Image
+                                src={relatedUpload.file_url}
+                                alt={relatedDownloadName}
+                                fill
+                                unoptimized
+                                sizes="80px"
+                                className="object-cover"
+                              />
+                            </button>
                           ) : null}
-                          <p className="break-words text-sm font-semibold leading-relaxed text-[#0B2742] sm:text-base">
-                            {item.message}
-                          </p>
-                          <p className="mt-2 text-xs font-medium text-[#6A84A3]">
-                            {formatGuestbookDate(item.createdAt, locale) || t.gallery.uploadTimeUnavailable}
-                          </p>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-3">
+                              {item.guestName ? (
+                                <p className="text-sm font-black text-neutral-950">
+                                  {item.guestName}
+                                </p>
+                              ) : null}
+                              <p className="shrink-0 text-[11px] font-bold text-neutral-400">
+                                {formatGuestbookDate(item.createdAt, locale) || t.gallery.uploadTimeUnavailable}
+                              </p>
+                            </div>
+                            <p className="mt-1 break-words text-sm font-medium leading-5 text-neutral-700 [font-family:Arial,Helvetica,sans-serif,'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji']">
+                              {item.message}
+                            </p>
+                          </div>
                         </div>
                       </article>
                     )
@@ -2410,32 +2419,36 @@ export default function Page() {
                   return (
                     <article
                       key={item.key}
-                      className="flex gap-3 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-3 shadow-[0_12px_32px_rgba(61,44,22,0.08)] sm:items-start"
+                      className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_6px_18px_rgba(20,20,20,0.04)]"
                     >
-                      <button
-                        type="button"
-                        onClick={() => setPreviewItem(item.upload)}
-                        className="relative h-24 w-20 shrink-0 overflow-hidden rounded-2xl bg-stone-950 sm:h-28 sm:w-24"
-                        aria-label={t.gallery.openPreview}
-                        title={t.gallery.openPreview}
-                      >
-                        <Image
-                          src={item.upload.file_url}
-                          alt={downloadName}
-                          fill
-                          unoptimized
-                          sizes="96px"
-                          className="object-cover"
-                        />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewItem(item.upload)}
+                          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[10px] bg-neutral-100 sm:h-20 sm:w-20"
+                          aria-label={t.gallery.openPreview}
+                          title={t.gallery.openPreview}
+                        >
+                          <Image
+                            src={item.upload.file_url}
+                            alt={downloadName}
+                            fill
+                            unoptimized
+                            sizes="80px"
+                            className="object-cover"
+                          />
+                        </button>
 
-                      <div className="min-w-0 flex-1">
-                        <p className="break-words text-sm font-semibold leading-relaxed text-[#0B2742] sm:text-base">
-                          {item.message}
-                        </p>
-                        <p className="mt-2 text-xs font-medium text-[#6A84A3]">
-                          {formatGuestbookDate(item.createdAt, locale) || t.gallery.uploadTimeUnavailable}
-                        </p>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex justify-end">
+                            <p className="shrink-0 text-[11px] font-bold text-neutral-400">
+                              {formatGuestbookDate(item.createdAt, locale) || t.gallery.uploadTimeUnavailable}
+                            </p>
+                          </div>
+                          <p className="mt-1 break-words text-sm font-medium leading-5 text-neutral-700 [font-family:Arial,Helvetica,sans-serif,'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji']">
+                            {item.message}
+                          </p>
+                        </div>
                       </div>
                     </article>
                   )
