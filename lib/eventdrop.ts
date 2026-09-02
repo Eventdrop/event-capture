@@ -41,6 +41,10 @@ export function getRandomToken() {
 }
 
 export function getFileExtension(file: File) {
+  if (file.type.includes('jpeg')) return 'jpg'
+  if (file.type.includes('png')) return 'png'
+  if (file.type.includes('webp')) return 'webp'
+
   const originalName = file.name || ''
   const extFromName = originalName.includes('.')
     ? originalName.split('.').pop()?.toLowerCase()
@@ -48,9 +52,6 @@ export function getFileExtension(file: File) {
 
   if (extFromName) return extFromName
 
-  if (file.type.includes('jpeg')) return 'jpg'
-  if (file.type.includes('png')) return 'png'
-  if (file.type.includes('webp')) return 'webp'
   if (file.type.includes('heic')) return 'heic'
   if (file.type.includes('heif')) return 'heif'
   return 'bin'
