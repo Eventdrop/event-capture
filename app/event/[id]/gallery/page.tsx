@@ -712,6 +712,7 @@ export default function Page() {
   const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
   const [eventName, setEventName] = useState('Gedeelde evenementgalerij')
   const [selected, setSelected] = useState<string[]>([])
+  const [photoTabSelected, setPhotoTabSelected] = useState<string[]>([])
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
   const [deletingSelected, setDeletingSelected] = useState(false)
   const [downloadingSelected, setDownloadingSelected] = useState(false)
@@ -1597,6 +1598,7 @@ export default function Page() {
 
       setItems((prev) => prev.filter((upload) => upload.id !== item.id))
       setSelected((prev) => prev.filter((id) => id !== item.id))
+      setPhotoTabSelected((prev) => prev.filter((id) => id !== item.id))
       setStatusMessage(t.gallery.deleteSuccess)
     } catch (error) {
       console.error('Upload delete failed', error)
@@ -2025,17 +2027,162 @@ export default function Page() {
         ) : null}
 
         {galleryView === 'photos' ? (
-          <div className="mb-3 flex justify-end sm:mb-4">
-            <Link
-              href={uploadPageUrl}
-              className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-center text-sm font-semibold text-[#0F3D66] shadow-sm hover:bg-[#EDF4FB]"
-            >
-              {t.gallery.backToUpload}
-            </Link>
-          </div>
-        ) : null}
+          <section className="space-y-3 py-3 sm:py-5">
+            <div className="border-b border-neutral-200 bg-white px-1 pb-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-base font-black tracking-[-0.02em] text-neutral-950 sm:text-lg">
+                    {t.upload.selectLabel}
+                  </h2>
+                  <p className="mt-0.5 text-sm leading-5 text-neutral-500">
+                    {t.upload.intro}
+                  </p>
+                </div>
+                <Link
+                  href={uploadPageUrl}
+                  className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-lg bg-[#d71920] px-2.5 py-1.5 text-[11px] font-black text-white hover:bg-[#b9151b] sm:min-h-9 sm:px-3 sm:text-xs"
+                >
+                  {t.upload.selectButton}
+                </Link>
+              </div>
+            </div>
 
-        {galleryView !== 'guestbook' && items.length === 0 ? (
+            {items.length === 0 ? (
+              <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center text-sm font-semibold text-neutral-500">
+                {t.gallery.noUploads}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5">
+                {items.map((item) => {
+                  const isSelected = photoTabSelected.includes(item.id)
+                  const downloadName = getUploadShortFileName(item, {
+                    eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
+                    sequence: shareSequenceById[item.id],
+                  })
+
+                  return (
+                    <article
+                      key={item.id}
+                      className={`overflow-hidden rounded-xl bg-[#343434] p-[2px] ${
+                        isSelected ? 'ring-2 ring-[#d71920]/75 ring-offset-2' : ''
+                      }`}
+                    >
+                      <div className="relative">
+                        <Image
+                          src={item.file_url}
+                          alt={downloadName}
+                          width={1200}
+                          height={1200}
+                          unoptimized
+                          onLoad={(event) => registerPhotoMetrics(item, event.currentTarget)}
+                          className="aspect-[4/5] w-full rounded-[10px] bg-[#343434] object-contain"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setPreviewItem(item)}
+                          aria-label={t.gallery.openPreview}
+                          title={t.gallery.openPreview}
+                          className="absolute inset-0 z-10"
+                        />
+
+                        {downloadEnabled || deleteEnabled || posterEnabled ? (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              setPhotoTabSelected((prev) =>
+                                prev.includes(item.id)
+                                  ? prev.filter((itemId) => itemId !== item.id)
+                                  : [...prev, item.id]
+                              )
+                            }}
+                            aria-label={isSelected ? t.gallery.selected : t.gallery.select}
+                            title={isSelected ? t.gallery.selected : t.gallery.select}
+                            className={`absolute left-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 shadow-sm backdrop-blur sm:h-7 sm:w-7 ${
+                              isSelected
+                                ? 'bg-[#d71920] text-white'
+                                : 'bg-white/90 text-neutral-700'
+                            }`}
+                          >
+                            {isSelected ? (
+                              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.8]">
+                                <path d="M5 12.5 9.5 17 19 7.5" />
+                              </svg>
+                            ) : (
+                              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
+                                <circle cx="12" cy="12" r="8" />
+                              </svg>
+                            )}
+                          </button>
+                        ) : null}
+
+                        {deleteEnabled ? (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              void deleteSingle(item)
+                            }}
+                            disabled={deletingSelected}
+                            aria-label={t.gallery.delete}
+                            title={t.gallery.delete}
+                            className="absolute right-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 bg-[#d71920]/92 text-white shadow-sm backdrop-blur hover:bg-[#b9151b] disabled:cursor-not-allowed disabled:bg-stone-300 sm:h-7 sm:w-7"
+                          >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
+                              <path d="M4 7h16" />
+                              <path d="M10 11v6" />
+                              <path d="M14 11v6" />
+                              <path d="M6 7l1 12h10l1-12" />
+                              <path d="M9 7V4h6v3" />
+                            </svg>
+                          </button>
+                        ) : null}
+
+                        {shareEnabled ? (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              void handleShare(item)
+                            }}
+                            aria-label={t.gallery.share}
+                            title={t.gallery.share}
+                            className="absolute bottom-1.5 left-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/75 bg-white/92 text-neutral-800 shadow-[0_4px_14px_rgba(0,0,0,0.16)] backdrop-blur"
+                          >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.2]">
+                              <path d="M12 5v10" />
+                              <path d="m8 9 4-4 4 4" />
+                              <path d="M5 19h14" />
+                            </svg>
+                          </button>
+                        ) : null}
+
+                        {downloadEnabled ? (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              void handleDownload(item.file_url, downloadName)
+                            }}
+                            aria-label={t.gallery.download}
+                            title={t.gallery.download}
+                            className="absolute bottom-1.5 right-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#d71920]/75 bg-[#d71920]/94 text-white shadow-[0_4px_14px_rgba(215,25,32,0.24)] backdrop-blur hover:bg-[#b9151b]"
+                          >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.2]">
+                              <path d="M12 4v10" />
+                              <path d="m8 10 4 4 4-4" />
+                              <path d="M5 19h14" />
+                            </svg>
+                          </button>
+                        ) : null}
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+        ) : galleryView !== 'guestbook' && items.length === 0 ? (
           <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-10 text-center text-[#597594] shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
             {t.gallery.noUploads}
           </div>
