@@ -128,6 +128,7 @@ const copy = {
     photostripDesc: 'Maak van je photobooth strips een kant-en-klare Instagram Story.',
     choosePhotostrips: 'Photostrips kiezen',
     viewStory: 'Story bekijken',
+    makeStory: 'Story maken',
     stripChoices: ['1 strip', '3 strips'],
     stripsSelected: 'strips geselecteerd',
     downloadsTitle: 'Bewaar het complete album',
@@ -228,6 +229,7 @@ const copy = {
     photostripDesc: 'Turn your photobooth strips into a ready-to-share Instagram Story.',
     choosePhotostrips: 'Choose photostrips',
     viewStory: 'View Story',
+    makeStory: 'Create Story',
     stripChoices: ['1 strip', '3 strips'],
     stripsSelected: 'strips selected',
     downloadsTitle: 'Save the complete album',
@@ -328,6 +330,7 @@ const copy = {
     photostripDesc: 'Transformez vos strips photobooth en Story Instagram prête à partager.',
     choosePhotostrips: 'Choisir des photostrips',
     viewStory: 'Voir la Story',
+    makeStory: 'Créer la Story',
     stripChoices: ['1 strip', '3 strips'],
     stripsSelected: 'strips sélectionnés',
     downloadsTitle: 'Conserver tout l’album',
@@ -428,6 +431,7 @@ const copy = {
     photostripDesc: 'Mach aus deinen Photobooth-Strips eine fertige Instagram Story.',
     choosePhotostrips: 'Photostrips auswählen',
     viewStory: 'Story ansehen',
+    makeStory: 'Story erstellen',
     stripChoices: ['1 Strip', '3 Strips'],
     stripsSelected: 'Strips ausgewählt',
     downloadsTitle: 'Das komplette Album speichern',
@@ -528,6 +532,7 @@ const copy = {
     photostripDesc: 'Photobooth striplerini paylaşmaya hazır bir Instagram Story’ye dönüştür.',
     choosePhotostrips: 'Photostrip seç',
     viewStory: 'Story görüntüle',
+    makeStory: 'Story oluştur',
     stripChoices: ['1 strip', '3 strip'],
     stripsSelected: 'strip seçildi',
     downloadsTitle: 'Tüm albümü sakla',
@@ -1584,44 +1589,7 @@ export default function UiPreview7xPage() {
                     <article className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
                       <h3 className="text-base font-black text-neutral-950">{t.photostripTitle}</h3>
                       <p className="mt-1 text-sm leading-5 text-neutral-600">{t.photostripDesc}</p>
-                      <p className="mt-3 text-[11px] font-black uppercase tracking-[0.14em] text-neutral-400">
-                        {t.examplesLabel}
-                      </p>
-                      <div className="-mx-3 mt-2 flex snap-x gap-2 overflow-x-auto px-3 pb-1">
-                        {[0, 1].map((item) => (
-                          <button
-                            key={item}
-                            type="button"
-                            onClick={() => setDesignPreview('photostrip-story')}
-                            className="relative h-[178px] w-[100px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-neutral-200 bg-[linear-gradient(180deg,#fff7f1,#f2eee7)] shadow-sm"
-                            aria-label={`${t.viewPreview}: ${t.photostripTitle}`}
-                          >
-                            <img
-                              src="/home-strip-fun.jpg"
-                              alt=""
-                              className="absolute left-2 top-12 h-[98px] w-[28px] rotate-[-7deg] rounded-[4px] object-cover shadow-md"
-                            />
-                            <img
-                              src="/home-strip-fun.jpg"
-                              alt=""
-                              className="absolute left-1/2 top-7 h-[128px] w-[38px] -translate-x-1/2 rounded-[5px] object-cover shadow-lg"
-                            />
-                            <img
-                              src="/home-strip-fun.jpg"
-                              alt=""
-                              className="absolute right-2 top-12 h-[98px] w-[28px] rotate-[7deg] rounded-[4px] object-cover shadow-md"
-                            />
-                            <span className="absolute left-1.5 top-1.5 rounded-full bg-white/92 px-1.5 py-0.5 text-[9px] font-black text-neutral-700 shadow-sm">
-                              {t.previewBadge}
-                            </span>
-                            <span className="absolute inset-x-1.5 bottom-1.5 rounded-md bg-black/62 px-1.5 py-1 text-[9px] font-black text-white">
-                              Photostrip
-                            </span>
-                          </button>
-                        ))}
-                      </div>
                       <div className="mt-3 rounded-xl bg-neutral-50 p-3">
-                        <p className="text-xs font-black text-neutral-500">{t.choosePhotostrips}</p>
                         <div className="mt-2 flex flex-wrap gap-2">
                           {[1, 3].map((count, index) => (
                             <button
@@ -1643,18 +1611,27 @@ export default function UiPreview7xPage() {
                         </p>
                         <button
                           type="button"
-                          className="mt-2 inline-flex h-8 items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-xs font-black text-neutral-800"
+                          className="mt-3 inline-flex h-8 items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-xs font-black text-neutral-800"
                         >
                           {t.choosePhotostrips}
                         </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setDesignPreview('photostrip-story')}
-                        className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-[#d71920] px-3 text-xs font-black text-white"
-                      >
-                        {t.viewStory}
-                      </button>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setDesignPreview('photostrip-story')}
+                          className="inline-flex h-9 items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-xs font-black text-neutral-800"
+                        >
+                          {t.exampleAction}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => showDesignWarning(t.previewModeText)}
+                          className="inline-flex h-9 items-center justify-center rounded-lg bg-[#d71920] px-3 text-xs font-black text-white"
+                        >
+                          {t.makeStory}
+                        </button>
+                      </div>
                     </article>
                     ) : null}
                   </div>
@@ -2096,21 +2073,38 @@ export default function UiPreview7xPage() {
               </div>
             </div>
           ) : designPreview === 'photostrip-story' ? (
-            <div className="relative aspect-[9/16] h-[82vh] max-h-[720px] overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#fff8f1,#eee8dd)] shadow-2xl">
+            <div className="relative aspect-[9/16] h-[82vh] max-h-[720px] overflow-hidden rounded-2xl bg-[radial-gradient(circle_at_50%_18%,#fff_0,#fff8f1_34%,#efe8dc_100%)] shadow-2xl">
+              {photostripCount === 3 ? (
+                <>
+                  <img
+                    src="/home-strip-fun.jpg"
+                    alt=""
+                    className="absolute left-[12%] top-[29%] h-[44%] w-[20%] rotate-[-8deg] rounded-lg object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.18)]"
+                  />
+                  <img
+                    src="/home-strip-fun.jpg"
+                    alt=""
+                    className="absolute right-[12%] top-[29%] h-[44%] w-[20%] rotate-[8deg] rounded-lg object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.18)]"
+                  />
+                </>
+              ) : (
+                <>
+                  <img
+                    src="/home-strip-fun.jpg"
+                    alt=""
+                    className="absolute left-[9%] top-[33%] h-[34%] w-[17%] rotate-[-10deg] rounded-lg object-contain opacity-28 blur-[1px]"
+                  />
+                  <img
+                    src="/home-strip-fun.jpg"
+                    alt=""
+                    className="absolute right-[9%] top-[33%] h-[34%] w-[17%] rotate-[10deg] rounded-lg object-contain opacity-28 blur-[1px]"
+                  />
+                </>
+              )}
               <img
                 src="/home-strip-fun.jpg"
                 alt=""
-                className="absolute left-[12%] top-[29%] h-[44%] w-[20%] rotate-[-8deg] rounded-lg object-cover shadow-xl"
-              />
-              <img
-                src="/home-strip-fun.jpg"
-                alt=""
-                className="absolute left-1/2 top-[19%] h-[62%] w-[27%] -translate-x-1/2 rounded-xl object-cover shadow-2xl"
-              />
-              <img
-                src="/home-strip-fun.jpg"
-                alt=""
-                className="absolute right-[12%] top-[29%] h-[44%] w-[20%] rotate-[8deg] rounded-lg object-cover shadow-xl"
+                className="absolute left-1/2 top-[17%] h-[66%] w-[31%] -translate-x-1/2 rounded-xl object-contain drop-shadow-[0_22px_26px_rgba(0,0,0,0.24)]"
               />
             </div>
           ) : (
