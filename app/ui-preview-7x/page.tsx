@@ -736,10 +736,26 @@ export default function UiPreview7xPage() {
   const t = copy[locale]
   const posterRequired = posterRequiredCounts[posterFormat]
   const storyRequired = storyRequiredCounts[storyFormat]
+  const likelyPhotostripPhotos = galleryPhotos.filter(
+    (photo) =>
+      Boolean(photo.width && photo.height) &&
+      Number(photo.height) / Number(photo.width) >= PHOTOSTRIP_MIN_HEIGHT_RATIO
+  )
+  const likelyPhotostripPhotoSources = likelyPhotostripPhotos.map((photo) => photo.src)
+  const normalDesignPhotos = galleryPhotos.filter(
+    (photo) => !likelyPhotostripPhotoSources.includes(photo.src)
+  )
+  const normalDesignPhotoSources = normalDesignPhotos.map((photo) => photo.src)
+  const effectivePosterDesignPhotos = posterDesignPhotos.filter((src) =>
+    normalDesignPhotoSources.includes(src)
+  )
+  const effectiveStoryDesignPhotos = storyDesignPhotos.filter((src) =>
+    normalDesignPhotoSources.includes(src)
+  )
   const activeDesignRequired =
     activeDesignProduct === 'poster' ? posterRequired : storyRequired
   const activeDesignSelectedPhotos =
-    activeDesignProduct === 'poster' ? posterDesignPhotos : storyDesignPhotos
+    activeDesignProduct === 'poster' ? effectivePosterDesignPhotos : effectiveStoryDesignPhotos
   const activeDesignModeLabel =
     activeDesignProduct === 'poster' ? t.posterModes[posterFormat] : t.storyModes[storyFormat]
   const activeDesignRemaining = Math.max(
@@ -748,23 +764,17 @@ export default function UiPreview7xPage() {
   )
   const selectedPosterPortraitCount = galleryPhotos.filter(
     (photo) =>
-      posterDesignPhotos.includes(photo.src) && photo.orientation === 'portrait'
+      effectivePosterDesignPhotos.includes(photo.src) && photo.orientation === 'portrait'
   ).length
   const selectedPosterLandscapeCount = galleryPhotos.filter(
     (photo) =>
-      posterDesignPhotos.includes(photo.src) && photo.orientation === 'landscape'
+      effectivePosterDesignPhotos.includes(photo.src) && photo.orientation === 'landscape'
   ).length
   const activeDesignReady =
     activeDesignProduct === 'poster' && posterFormat === 2
       ? selectedPosterPortraitCount === 8 && selectedPosterLandscapeCount === 4
       : activeDesignSelectedPhotos.length === activeDesignRequired
   const totalAlbumPackages = Math.max(1, Math.ceil(galleryPhotos.length / ALBUM_PACKAGE_SIZE))
-  const likelyPhotostripPhotos = galleryPhotos.filter(
-    (photo) =>
-      Boolean(photo.width && photo.height) &&
-      Number(photo.height) / Number(photo.width) >= PHOTOSTRIP_MIN_HEIGHT_RATIO
-  )
-  const likelyPhotostripPhotoSources = likelyPhotostripPhotos.map((photo) => photo.src)
   const photostripSelectedPhotoSources = photostripSelectedPhotos.filter((src) =>
     likelyPhotostripPhotoSources.includes(src)
   )
@@ -918,7 +928,7 @@ export default function UiPreview7xPage() {
       if (
         posterFormat === 2 &&
         photo &&
-        !posterDesignPhotos.includes(id)
+        !effectivePosterDesignPhotos.includes(id)
       ) {
         if (photo.orientation === 'portrait' && selectedPosterPortraitCount >= 8) {
           showDesignWarning(templateText(t.maxSelection, 8))
@@ -931,12 +941,12 @@ export default function UiPreview7xPage() {
         }
       }
 
-      toggleDesignPhoto(id, posterDesignPhotos, setPosterDesignPhotos, posterRequired)
+      toggleDesignPhoto(id, effectivePosterDesignPhotos, setPosterDesignPhotos, posterRequired)
       return
     }
 
     if (activeDesignProduct === 'story') {
-      toggleDesignPhoto(id, storyDesignPhotos, setStoryDesignPhotos, storyRequired)
+      toggleDesignPhoto(id, effectiveStoryDesignPhotos, setStoryDesignPhotos, storyRequired)
     }
   }
 
@@ -1297,7 +1307,7 @@ export default function UiPreview7xPage() {
                       return (
                         <article
                           key={photo.src}
-                          className={`overflow-hidden rounded-xl bg-neutral-100 ${
+                          className={`overflow-hidden rounded-xl bg-[#343434] p-[2px] ${
                             isSelected ? 'ring-2 ring-[#d71920]/75 ring-offset-2' : ''
                           }`}
                         >
@@ -1305,7 +1315,7 @@ export default function UiPreview7xPage() {
                             <img
                               src={photo.src}
                               alt=""
-                              className="aspect-[4/5] w-full bg-neutral-100 object-contain"
+                              className="aspect-[4/5] w-full rounded-[10px] bg-[#343434] object-contain"
                             />
                             <button
                               type="button"
@@ -1520,7 +1530,7 @@ export default function UiPreview7xPage() {
                               type="button"
                               onClick={() => {
                                 setPosterFormat(index)
-                                if (posterDesignPhotos.length > posterRequiredCounts[index]) {
+                                if (effectivePosterDesignPhotos.length > posterRequiredCounts[index]) {
                                   showDesignWarning(t.reduceSelection)
                                 }
                               }}
@@ -1578,7 +1588,7 @@ export default function UiPreview7xPage() {
                               type="button"
                               onClick={() => {
                                 setStoryFormat(index)
-                                if (storyDesignPhotos.length > storyRequiredCounts[index]) {
+                                if (effectiveStoryDesignPhotos.length > storyRequiredCounts[index]) {
                                   showDesignWarning(t.reduceSelection)
                                 }
                               }}
@@ -1643,7 +1653,7 @@ export default function UiPreview7xPage() {
                           ) : null}
                         </div>
                         <div className="mt-3 grid grid-cols-3 gap-2 min-[520px]:grid-cols-4 lg:grid-cols-5">
-                          {galleryPhotos.map((photo) => {
+                          {normalDesignPhotos.map((photo) => {
                             const isSelected = activeDesignSelectedPhotos.includes(photo.src)
                             const hint = getDesignOrientationHint(
                               photo.orientation,
