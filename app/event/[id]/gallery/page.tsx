@@ -2119,8 +2119,8 @@ export default function Page() {
                   return (
                     <article
                       key={item.id}
-                      className={`overflow-hidden rounded-xl bg-[#343434] p-[2px] ${
-                        isSelected ? 'ring-2 ring-[#d71920]/75 ring-offset-2' : ''
+                      className={`overflow-hidden rounded-xl border bg-[#343434] p-px ${
+                        isSelected ? 'border-[#e32636]' : 'border-[#343434]'
                       } ${isSelectionBlocked ? 'opacity-70' : ''}`}
                     >
                       <div className="relative">
@@ -2131,7 +2131,7 @@ export default function Page() {
                           height={1200}
                           unoptimized
                           onLoad={(event) => registerPhotoMetrics(item, event.currentTarget)}
-                          className="aspect-[4/5] w-full rounded-[10px] bg-[#343434] object-contain"
+                          className="aspect-[4/5] w-full rounded-[10px] bg-[#343434] object-cover"
                         />
                         <button
                           type="button"
@@ -2145,12 +2145,12 @@ export default function Page() {
                                 ? t.gallery.selected
                                 : t.gallery.select
                           }
-                          className={`absolute left-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 shadow-sm backdrop-blur sm:h-7 sm:w-7 ${
+                          className={`absolute left-1.5 top-1.5 z-20 inline-flex h-[30px] w-[30px] items-center justify-center rounded-full ${
                             isSelected
-                              ? 'bg-[#d71920] text-white'
+                              ? primaryRoundButtonClass
                               : isSelectionBlocked
-                                ? 'cursor-not-allowed bg-stone-200/95 text-stone-500'
-                                : 'bg-white/90 text-neutral-700'
+                                ? 'cursor-not-allowed border border-white/75 bg-stone-200/95 text-stone-500 shadow-sm'
+                                : neutralRoundButtonClass
                           }`}
                         >
                           {isSelected ? (
