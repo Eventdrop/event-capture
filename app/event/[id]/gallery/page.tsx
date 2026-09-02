@@ -759,6 +759,7 @@ export default function Page() {
   const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
   const [eventName, setEventName] = useState('Gedeelde evenementgalerij')
   const [selected, setSelected] = useState<string[]>([])
+  const [downloadSelectedIds, setDownloadSelectedIds] = useState<string[]>([])
   const [photoTabSelected, setPhotoTabSelected] = useState<string[]>([])
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
   const [deletingSelected, setDeletingSelected] = useState(false)
@@ -952,6 +953,10 @@ export default function Page() {
   const selectedItems = useMemo(
     () => items.filter((item) => selected.includes(item.id)),
     [items, selected]
+  )
+  const downloadSelectedItems = useMemo(
+    () => items.filter((item) => downloadSelectedIds.includes(item.id)),
+    [downloadSelectedIds, items]
   )
   const designModeConfig = designMode ? DESIGN_MODE_CONFIG[designMode] : null
   const activeDesignFormat = designFormat || 'poster'
@@ -1263,6 +1268,21 @@ export default function Page() {
     })
   }
 
+  const toggleDownloadSelect = (id: string) => {
+    setDownloadSelectedIds((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((itemId) => itemId !== id)
+      }
+
+      if (prev.length >= selectedLimit) {
+        setStatusMessage(t.gallery.selectionLimitReached)
+        return prev
+      }
+
+      return [...prev, id]
+    })
+  }
+
   const handleDownload = async (url: string, filename: string) => {
     try {
       const response = await fetch(url)
@@ -1306,7 +1326,7 @@ export default function Page() {
     packageNumber?: number
     zipItems?: UploadRecord[]
   }) => {
-    const zipItems = options.zipItems || (options.all ? items : selectedItems)
+    const zipItems = options.zipItems || (options.all ? items : downloadSelectedItems)
 
     if (zipItems.length === 0) {
       setStatusMessage(t.gallery.chooseBeforeDownload)
@@ -1348,7 +1368,7 @@ export default function Page() {
   }
 
   const downloadSelected = async () => {
-    if (selectedItems.length === 0 || downloadingSelected) {
+    if (downloadSelectedItems.length === 0 || downloadingSelected) {
       setStatusMessage(t.gallery.chooseBeforeDownload)
       return
     }
@@ -1680,6 +1700,7 @@ export default function Page() {
 
       setItems((prev) => prev.filter((upload) => upload.id !== item.id))
       setSelected((prev) => prev.filter((id) => id !== item.id))
+      setDownloadSelectedIds((prev) => prev.filter((id) => id !== item.id))
       setPhotoTabSelected((prev) => prev.filter((id) => id !== item.id))
       setStatusMessage(t.gallery.deleteSuccess)
     } catch (error) {
@@ -1880,16 +1901,16 @@ export default function Page() {
               {downloadEnabled ? (
                 <button
                   onClick={downloadSelected}
-                  disabled={selected.length === 0 || downloadingSelected}
+                  disabled={downloadSelectedIds.length === 0 || downloadingSelected}
                   className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                    selected.length === 0 || downloadingSelected
+                    downloadSelectedIds.length === 0 || downloadingSelected
                       ? disabledButtonClass
                       : primaryGradientClass
                   }`}
                 >
                   {downloadingSelected
                     ? t.gallery.downloadingSelected
-                    : `${t.gallery.downloadSelected} (${selected.length}/${selectedLimit})`}
+                    : `${t.gallery.downloadSelected} (${downloadSelectedIds.length}/${selectedLimit})`}
                 </button>
               ) : null}
 
@@ -2337,7 +2358,7 @@ export default function Page() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => {
               const designSelectionActive = false
-              const isSelected = selected.includes(item.id)
+              const isSelected = downloadSelectedIds.includes(item.id)
               const selectionBlockMessage = designSelectionActive && !isSelected ? getSelectionBlockMessage(item) : ''
               const isSelectionBlocked = Boolean(selectionBlockMessage)
               const downloadName = getUploadShortFileName(item, {
@@ -2379,7 +2400,7 @@ export default function Page() {
                     {downloadEnabled || deleteEnabled || posterEnabled ? (
                       <button
                         type="button"
-                        onClick={() => toggleSelect(item.id)}
+                        onClick={() => toggleDownloadSelect(item.id)}
                         disabled={isSelectionBlocked}
                         aria-label={isSelected ? t.gallery.selected : t.gallery.select}
                         title={
