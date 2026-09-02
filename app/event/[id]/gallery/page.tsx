@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { LANGUAGE_STORAGE_KEY, useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
-import { getPublicMediaUrl, getPublicPath } from '@/lib/app-url'
+import { getPublicMediaUrl } from '@/lib/app-url'
 import {
   getUploadShareKey,
   getUploadShortFileName,
@@ -934,7 +934,7 @@ export default function Page() {
   }, [items])
 
   const uploadPageUrl = useMemo(
-    () => getPublicPath(`/event/${eventIdentifier}?lang=${locale}`),
+    () => `/event/${eventIdentifier}?lang=${locale}`,
     [eventIdentifier, locale]
   )
 
@@ -1149,7 +1149,7 @@ export default function Page() {
 
       if (!item) return prev
 
-      const blockMessage = getSelectionBlockMessage(item)
+      const blockMessage = galleryView === 'designs' ? getSelectionBlockMessage(item) : ''
 
       if (blockMessage) {
         setStatusMessage(blockMessage)
@@ -2042,8 +2042,9 @@ export default function Page() {
         ) : galleryView !== 'guestbook' ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => {
+              const designSelectionActive = galleryView === 'designs' && Boolean(designMode)
               const isSelected = selected.includes(item.id)
-              const selectionBlockMessage = !isSelected ? getSelectionBlockMessage(item) : ''
+              const selectionBlockMessage = designSelectionActive && !isSelected ? getSelectionBlockMessage(item) : ''
               const isSelectionBlocked = Boolean(selectionBlockMessage)
               const downloadName = getUploadShortFileName(item, {
                 eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,

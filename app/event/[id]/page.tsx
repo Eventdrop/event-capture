@@ -7,7 +7,6 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
-import { getPublicAppUrl, getPublicPath } from '@/lib/app-url'
 import {
   buildUploadShareCode,
   buildStoragePath,
@@ -271,12 +270,15 @@ export default function Page() {
     void loadBranding()
   }, [currentEvent?.backgroundImageUrl, currentEvent?.coverImageUrl, currentEvent?.id, eventIdentifier])
 
+  const uploadPath = useMemo(() => getEventRoute(eventIdentifier), [eventIdentifier])
   const uploadUrl = useMemo(() => {
-    return `${getPublicAppUrl()}${getEventRoute(eventIdentifier)}`
-  }, [eventIdentifier])
+    if (typeof window === 'undefined') return uploadPath
+
+    return new URL(uploadPath, window.location.origin).toString()
+  }, [uploadPath])
 
   const galleryUrl = useMemo(
-    () => getPublicPath(`/event/${eventIdentifier}/gallery?lang=${locale}`),
+    () => `/event/${eventIdentifier}/gallery?lang=${locale}`,
     [eventIdentifier, locale]
   )
 
@@ -630,7 +632,7 @@ export default function Page() {
     <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f9f5ee_0%,_#efe8dc_52%,_#edf4fb_100%)] text-stone-900">
       <SiteHeader
         currentLabel={t.upload.badge}
-        brandHref={getPublicPath(getEventRoute(eventIdentifier))}
+        brandHref={uploadPath}
       />
 
       <main
