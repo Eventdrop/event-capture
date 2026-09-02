@@ -465,6 +465,26 @@ function formatEventDateForShell(value: string | null, locale: Locale) {
   }).format(date)
 }
 
+function formatSuitablePhotoShortage(count: number, required: number, locale: Locale) {
+  if (locale === 'en') {
+    return `${count} suitable photos are available. This design needs ${required} photos.`
+  }
+
+  if (locale === 'fr') {
+    return `${count} photos adaptées sont disponibles. Cette création nécessite ${required} photos.`
+  }
+
+  if (locale === 'de') {
+    return `${count} passende Fotos sind verfügbar. Für dieses Design werden ${required} Fotos benötigt.`
+  }
+
+  if (locale === 'tr') {
+    return `${count} uygun fotograf var. Bu tasarim icin ${required} fotograf gerekiyor.`
+  }
+
+  return `Er zijn ${count} geschikte foto's beschikbaar. Voor dit ontwerp zijn ${required} foto's nodig.`
+}
+
 function GalleryNavIcon({ icon }: { icon: GalleryView }) {
   if (icon === 'photos') {
     return (
@@ -923,6 +943,8 @@ export default function Page() {
     () => items.filter((item) => selected.includes(item.id)),
     [items, selected]
   )
+  const designModeConfig = designMode ? DESIGN_MODE_CONFIG[designMode] : null
+  const activeDesignFormat = designFormat || 'poster'
   const isLikelyPhotoStrip = (item: UploadRecord) => {
     const metrics = photoMetricsById[item.id]
 
@@ -932,9 +954,26 @@ export default function Page() {
     () => items.filter((item) => !isLikelyPhotoStrip(item)),
     [items, photoMetricsById]
   )
+  const isDesignItemCompatibleWithActiveMode = (item: UploadRecord) => {
+    if (!designMode || !designModeConfig) return false
+    if (designMode === 'posterMixed') return true
+
+    const metrics = photoMetricsById[item.id]
+    if (!metrics) return true
+
+    return designModeConfig.allowedOrientations.includes(metrics.orientation)
+  }
+  const activeDesignItems = useMemo(
+    () => designItems.filter((item) => isDesignItemCompatibleWithActiveMode(item)),
+    [designItems, designMode, designModeConfig, photoMetricsById]
+  )
   const designSelectedItems = useMemo(
     () => selectedItems.filter((item) => !isLikelyPhotoStrip(item)),
     [photoMetricsById, selectedItems]
+  )
+  const activeDesignSelectedItems = useMemo(
+    () => designSelectedItems.filter((item) => isDesignItemCompatibleWithActiveMode(item)),
+    [designMode, designModeConfig, designSelectedItems, photoMetricsById]
   )
 
   const guestbookFeedItems = useMemo(
@@ -1000,7 +1039,7 @@ export default function Page() {
     }),
     [albumPackageSize, items, t.gallery.albumPackageLabel, totalAlbumPackages]
   )
-  const selectedDesignMetrics = designSelectedItems.map(
+  const selectedDesignMetrics = activeDesignSelectedItems.map(
     (item) => photoMetricsById[item.id] || getFallbackPhotoMetrics()
   )
   const selectedPortraitCount = selectedDesignMetrics.filter(
@@ -1009,8 +1048,6 @@ export default function Page() {
   const selectedLandscapeCount = selectedDesignMetrics.filter(
     (metrics) => metrics.orientation === 'landscape'
   ).length
-  const designModeConfig = designMode ? DESIGN_MODE_CONFIG[designMode] : null
-  const activeDesignFormat = designFormat || 'poster'
   const designModeLimit = designModeConfig?.max || selectedLimit
   const designModeLabel =
     designMode === 'posterPortrait'
@@ -1024,18 +1061,23 @@ export default function Page() {
             : designMode === 'storyLandscape'
               ? t.gallery.storyLandscapeMode
               : ''
-  const designSelectedCount = Math.min(designSelectedItems.length, designModeLimit)
-  const designLimitReached = Boolean(designMode && designSelectedItems.length >= designModeLimit)
+  const designSelectedCount = Math.min(activeDesignSelectedItems.length, designModeLimit)
+  const designLimitReached = Boolean(designMode && activeDesignSelectedItems.length >= designModeLimit)
   const mixedPosterReady =
     designMode === 'posterMixed' &&
     selectedPortraitCount === MIXED_POSTER_PORTRAIT_TILES &&
     selectedLandscapeCount === MIXED_POSTER_LANDSCAPE_TILES
   const designReady = Boolean(
     designMode &&
-      designSelectedItems.length > 0 &&
-      (designMode !== 'posterMixed' || mixedPosterReady)
+      (designMode === 'posterMixed'
+        ? mixedPosterReady
+        : activeDesignSelectedItems.length === designModeLimit)
   )
   const designRemainingCount = Math.max(0, designModeLimit - designSelectedCount)
+  const suitablePhotoShortageText =
+    designMode && activeDesignItems.length < designModeLimit
+      ? formatSuitablePhotoShortage(activeDesignItems.length, designModeLimit, locale)
+      : ''
   const designIncompleteText =
     designMode === 'posterMixed'
       ? t.gallery.designMixedIncomplete
@@ -1097,7 +1139,7 @@ export default function Page() {
       }
     }
 
-    if (designSelectedItems.length >= designModeLimit) {
+    if (activeDesignSelectedItems.length >= designModeLimit) {
       return t.gallery.designLimitReached
     }
 
@@ -1351,7 +1393,7 @@ export default function Page() {
   const createPoster = async (options?: { grayscale?: boolean; mode?: DesignMode }) => {
     const activeMode = options?.mode || designMode
 
-    if (!activeMode || designSelectedItems.length === 0 || creatingPoster) {
+    if (!activeMode || activeDesignSelectedItems.length === 0 || creatingPoster) {
       setStatusMessage(t.gallery.posterChoose)
       return
     }
@@ -1374,7 +1416,7 @@ export default function Page() {
     let storyTemplateResource: CanvasImageResource | null = null
 
     try {
-      if (format === 'poster' && designSelectedItems.length > POSTER_MAX_TILES) {
+      if (format === 'poster' && activeDesignSelectedItems.length > POSTER_MAX_TILES) {
         window.alert(t.gallery.posterLimitPopup)
       }
 
@@ -1382,14 +1424,14 @@ export default function Page() {
       const orderedItems =
         activeMode === 'posterMixed'
           ? [
-              ...designSelectedItems.filter(
+              ...activeDesignSelectedItems.filter(
                 (item) => getPhotoMetrics(item).orientation === 'portrait'
               ),
-              ...designSelectedItems.filter(
+              ...activeDesignSelectedItems.filter(
                 (item) => getPhotoMetrics(item).orientation === 'landscape'
               ),
             ]
-          : designSelectedItems
+          : activeDesignSelectedItems
 
       for (const [originalIndex, item] of orderedItems.entries()) {
         if (posterPhotos.length >= maxTiles) break
@@ -1579,7 +1621,7 @@ export default function Page() {
         body: JSON.stringify({
           activity: format,
           eventIdentifier,
-          itemCount: Math.min(designSelectedItems.length, maxTiles),
+          itemCount: Math.min(activeDesignSelectedItems.length, maxTiles),
         }),
       })
       setStatusMessage(format === 'story' ? t.gallery.storyReady : t.gallery.posterReady)
@@ -1945,7 +1987,7 @@ export default function Page() {
                 ))}
               </div>
 
-              {activeDesignFormat === 'poster' ? (
+              {activeDesignFormat === 'poster' && designMode ? (
                 <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-3">
                   <p className="mr-1 text-[11px] font-black uppercase tracking-[0.12em] text-neutral-400">
                     {t.gallery.posterStyleTitle}
@@ -1998,7 +2040,7 @@ export default function Page() {
                         {designSelectedCount} / {designModeLimit} {t.gallery.designSelected}
                       </p>
                     )}
-                    {!designReady && designSelectedItems.length > 0 && designIncompleteText ? (
+                    {!designReady && activeDesignSelectedItems.length > 0 && designIncompleteText ? (
                       <p className="mt-0.5 text-xs font-bold text-[#d71920]">
                         {designIncompleteText}
                       </p>
@@ -2013,7 +2055,7 @@ export default function Page() {
                     <button
                       type="button"
                       onClick={clearDesignSelection}
-                      disabled={designSelectedItems.length === 0 || creatingPoster}
+                      disabled={activeDesignSelectedItems.length === 0 || creatingPoster}
                       className="inline-flex min-h-9 flex-1 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-100 px-3 py-2 text-xs font-black text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none"
                     >
                       {t.gallery.clearSelection}
@@ -2039,13 +2081,23 @@ export default function Page() {
               </div>
             ) : null}
 
-            {designItems.length === 0 ? (
+            {!designMode ? (
+              <div className="rounded-xl border border-neutral-200 bg-white p-4 text-sm font-bold text-neutral-500">
+                {t.gallery.designChooseMode}
+              </div>
+            ) : suitablePhotoShortageText ? (
+              <div className="rounded-xl border border-[#d71920]/20 bg-[#fff5f5] p-3 text-sm font-bold text-[#d71920]">
+                {suitablePhotoShortageText}
+              </div>
+            ) : null}
+
+            {designMode && activeDesignItems.length === 0 ? (
               <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center text-sm font-semibold text-neutral-500">
                 {t.gallery.noUploads}
               </div>
-            ) : (
+            ) : designMode ? (
               <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5">
-                {designItems.map((item) => {
+                {activeDesignItems.map((item) => {
                   const isSelected = selected.includes(item.id)
                   const selectionBlockMessage = !isSelected ? getSelectionBlockMessage(item) : ''
                   const isSelectionBlocked = Boolean(selectionBlockMessage)
@@ -2102,17 +2154,12 @@ export default function Page() {
                           )}
                         </button>
 
-                        {isSelectionBlocked ? (
-                          <div className="absolute inset-x-1.5 bottom-1.5 z-20 rounded-lg bg-white/92 px-2 py-1.5 text-[10px] font-bold leading-tight text-[#d71920] shadow-sm backdrop-blur">
-                            {selectionBlockMessage}
-                          </div>
-                        ) : null}
                       </div>
                     </article>
                   )
                 })}
               </div>
-            )}
+            ) : null}
           </section>
         ) : null}
 
