@@ -133,6 +133,16 @@ const STORY_DESIGN_EXAMPLES = [
   { label: 'Portrait Story', src: '/design-examples/story-portrait.webp' },
   { label: 'Landscape Story', src: '/design-examples/story-landscape.webp' },
 ]
+const primaryGradientClass =
+  'border border-white/20 bg-[linear-gradient(135deg,#7f1424_0%,#b91f32_55%,#e32636_100%)] text-white shadow-[0_8px_18px_rgba(127,20,36,0.22)] transition duration-150 hover:-translate-y-px hover:shadow-[0_10px_22px_rgba(127,20,36,0.28)] active:translate-y-0 active:shadow-[0_5px_12px_rgba(127,20,36,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e32636]/30'
+const neutralButtonClass =
+  'border border-neutral-200 bg-neutral-100 text-neutral-700 shadow-sm transition duration-150 hover:-translate-y-px hover:border-neutral-300 hover:bg-white hover:text-neutral-950 hover:shadow-[0_8px_18px_rgba(20,20,20,0.08)] active:translate-y-0 active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e32636]/25'
+const disabledButtonClass =
+  'cursor-not-allowed border border-neutral-200 bg-stone-200 text-stone-500 shadow-none'
+const primaryRoundButtonClass =
+  'border border-white/20 bg-[linear-gradient(135deg,#7f1424_0%,#b91f32_55%,#e32636_100%)] text-white shadow-[0_6px_18px_rgba(127,20,36,0.26)] transition duration-150 hover:-translate-y-px hover:shadow-[0_10px_24px_rgba(127,20,36,0.32)] active:translate-y-0 active:shadow-[0_4px_12px_rgba(127,20,36,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e32636]/35'
+const neutralRoundButtonClass =
+  'border border-white/75 bg-white/92 text-neutral-800 shadow-[0_4px_14px_rgba(0,0,0,0.16)] backdrop-blur transition duration-150 hover:-translate-y-px hover:bg-white hover:shadow-[0_8px_20px_rgba(0,0,0,0.18)] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e32636]/30'
 const POSTER_LAYOUTS = {
   portrait: [
     { x: 120, y: 760, width: 536, height: 820 },
@@ -1772,9 +1782,9 @@ export default function Page() {
           <div
             role="status"
             aria-live="polite"
-            className="mb-4 flex items-center gap-3 rounded-2xl border border-[#F9C58E] bg-[#FFF4E8] px-4 py-3 text-sm font-semibold text-[#8A4A07] shadow-[0_12px_30px_rgba(61,44,22,0.12)]"
+            className="mb-4 flex items-center gap-3 rounded-2xl border border-[#e32636]/20 bg-[#fff5f5] px-4 py-3 text-sm font-semibold text-[#7f1424] shadow-[0_12px_30px_rgba(61,44,22,0.12)]"
           >
-            <span className="h-3 w-3 animate-pulse rounded-full bg-[#F58220]" />
+            <span className="h-3 w-3 animate-pulse rounded-full bg-[#e32636]" />
             {creatingPoster
               ? t.gallery.posterPreparing
               : downloadingAll
@@ -1873,8 +1883,8 @@ export default function Page() {
                   disabled={selected.length === 0 || downloadingSelected}
                   className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
                     selected.length === 0 || downloadingSelected
-                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                      : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
+                      ? disabledButtonClass
+                      : primaryGradientClass
                   }`}
                 >
                   {downloadingSelected
@@ -1889,8 +1899,8 @@ export default function Page() {
                   disabled={items.length === 0 || downloadingAll}
                   className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
                     items.length === 0 || downloadingAll
-                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                      : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
+                      ? disabledButtonClass
+                      : primaryGradientClass
                   }`}
                 >
                   {downloadingAll ? t.gallery.downloadingAll : albumPackageButtonLabel}
@@ -1912,8 +1922,8 @@ export default function Page() {
                       disabled={downloadingAll}
                       className={`inline-flex min-h-9 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm ${
                         downloadingAll
-                          ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                          : 'bg-[#EDF4FB] text-[#0F3D66] hover:bg-[#DCEAF7]'
+                          ? disabledButtonClass
+                          : neutralButtonClass
                       }`}
                     >
                       {albumPackage.label}
@@ -1948,8 +1958,8 @@ export default function Page() {
                     disabled={creatingPoster}
                     className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-black transition ${
                       isActive
-                        ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
-                        : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
+                        ? primaryGradientClass
+                        : neutralButtonClass
                     } disabled:cursor-not-allowed disabled:opacity-60`}
                   >
                     {label}
@@ -1978,8 +1988,8 @@ export default function Page() {
                     disabled={creatingPoster}
                     className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg border px-3 py-2 text-center text-xs font-black transition sm:flex-none ${
                       designMode === mode
-                        ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
-                        : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
+                        ? primaryGradientClass
+                        : neutralButtonClass
                     } disabled:cursor-not-allowed disabled:opacity-60`}
                   >
                     {label}
@@ -2003,8 +2013,8 @@ export default function Page() {
                       disabled={creatingPoster}
                       className={`rounded-lg border px-3 py-1.5 text-xs font-black transition ${
                         posterGrayscale === grayscale
-                          ? 'border-[#d71920] bg-[#d71920] text-white'
-                          : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
+                          ? primaryGradientClass
+                          : neutralButtonClass
                       } disabled:cursor-not-allowed disabled:opacity-60`}
                     >
                       {label}
@@ -2017,7 +2027,7 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={() => setDesignExamplesOpen(true)}
-                  className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-black text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50"
+                  className={`rounded-lg px-3 py-2 text-xs font-black ${neutralButtonClass}`}
                 >
                   Voorbeeld bekijken
                 </button>
@@ -2056,7 +2066,7 @@ export default function Page() {
                       type="button"
                       onClick={clearDesignSelection}
                       disabled={activeDesignSelectedItems.length === 0 || creatingPoster}
-                      className="inline-flex min-h-9 flex-1 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-100 px-3 py-2 text-xs font-black text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none"
+                      className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-3 py-2 text-xs font-black disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none ${neutralButtonClass}`}
                     >
                       {t.gallery.clearSelection}
                     </button>
@@ -2066,8 +2076,8 @@ export default function Page() {
                       disabled={!designReady || creatingPoster}
                       className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-4 py-2 text-xs font-black text-white shadow-sm sm:flex-none ${
                         !designReady || creatingPoster
-                          ? 'cursor-not-allowed bg-stone-300'
-                          : 'bg-[#d71920] hover:bg-[#b9151b]'
+                          ? disabledButtonClass
+                          : primaryGradientClass
                       }`}
                     >
                       {creatingPoster
@@ -2177,7 +2187,7 @@ export default function Page() {
                 </div>
                 <Link
                   href={uploadPageUrl}
-                  className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-lg bg-[#d71920] px-2.5 py-1.5 text-[11px] font-black text-white hover:bg-[#b9151b] sm:min-h-9 sm:px-3 sm:text-xs"
+                  className={`inline-flex min-h-8 shrink-0 items-center justify-center rounded-lg px-2.5 py-1.5 text-[11px] font-black sm:min-h-9 sm:px-3 sm:text-xs ${primaryGradientClass}`}
                 >
                   {t.upload.selectButton}
                 </Link>
@@ -2237,8 +2247,8 @@ export default function Page() {
                             title={isSelected ? t.gallery.selected : t.gallery.select}
                             className={`absolute left-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 shadow-sm backdrop-blur sm:h-7 sm:w-7 ${
                               isSelected
-                                ? 'bg-[#d71920] text-white'
-                                : 'bg-white/90 text-neutral-700'
+                                ? primaryRoundButtonClass
+                                : neutralRoundButtonClass
                             }`}
                           >
                             {isSelected ? (
@@ -2263,7 +2273,7 @@ export default function Page() {
                             disabled={deletingSelected}
                             aria-label={t.gallery.delete}
                             title={t.gallery.delete}
-                            className="absolute right-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 bg-[#d71920]/92 text-white shadow-sm backdrop-blur hover:bg-[#b9151b] disabled:cursor-not-allowed disabled:bg-stone-300 sm:h-7 sm:w-7"
+                            className={`absolute right-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:bg-stone-300 sm:h-7 sm:w-7 ${primaryRoundButtonClass}`}
                           >
                             <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
                               <path d="M4 7h16" />
@@ -2284,7 +2294,7 @@ export default function Page() {
                             }}
                             aria-label={t.gallery.share}
                             title={t.gallery.share}
-                            className="absolute bottom-1.5 left-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/75 bg-white/92 text-neutral-800 shadow-[0_4px_14px_rgba(0,0,0,0.16)] backdrop-blur"
+                            className={`absolute bottom-1.5 left-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full ${neutralRoundButtonClass}`}
                           >
                             <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.2]">
                               <path d="M12 5v10" />
@@ -2303,7 +2313,7 @@ export default function Page() {
                             }}
                             aria-label={t.gallery.download}
                             title={t.gallery.download}
-                            className="absolute bottom-1.5 right-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#d71920]/75 bg-[#d71920]/94 text-white shadow-[0_4px_14px_rgba(215,25,32,0.24)] backdrop-blur hover:bg-[#b9151b]"
+                            className={`absolute bottom-1.5 right-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full ${primaryRoundButtonClass}`}
                           >
                             <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.2]">
                               <path d="M12 4v10" />
@@ -2335,7 +2345,7 @@ export default function Page() {
                 sequence: shareSequenceById[item.id],
               })
               const actionButtonClass =
-                'inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/70 bg-white/92 text-[#0F3D66] shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur hover:bg-white'
+                `inline-flex h-8 w-8 items-center justify-center rounded-full ${neutralRoundButtonClass}`
 
               return (
                 <article
@@ -2381,10 +2391,10 @@ export default function Page() {
                         }
                         className={`absolute left-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-[0_8px_20px_rgba(15,61,102,0.18)] backdrop-blur ${
                           isSelected
-                            ? 'border-white bg-[#0F3D66] text-white ring-2 ring-[#0F3D66]/30'
+                            ? primaryRoundButtonClass
                             : isSelectionBlocked
-                              ? 'cursor-not-allowed border-white bg-stone-200/95 text-stone-500'
-                            : 'border-white bg-white/95 text-[#0F3D66] hover:bg-white'
+                              ? 'cursor-not-allowed border border-white/75 bg-stone-200/95 text-stone-500 shadow-sm'
+                            : neutralRoundButtonClass
                         }`}
                       >
                         {isSelected ? (
@@ -2400,7 +2410,7 @@ export default function Page() {
                     ) : null}
 
                     {isSelectionBlocked ? (
-                      <div className="absolute left-3 right-3 top-16 z-20 rounded-2xl bg-white/92 px-3 py-2 text-[10px] font-semibold text-[#B52E2E] shadow-sm backdrop-blur">
+                      <div className="absolute left-3 right-3 top-16 z-20 rounded-2xl bg-white/92 px-3 py-2 text-[10px] font-semibold text-[#b91f32] shadow-sm backdrop-blur">
                         {selectionBlockMessage}
                       </div>
                     ) : null}
@@ -2412,7 +2422,7 @@ export default function Page() {
                         disabled={deletingSelected}
                         aria-label={t.gallery.delete}
                         title={t.gallery.delete}
-                        className="absolute right-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-[#B52E2E] text-white shadow-[0_8px_20px_rgba(181,46,46,0.25)] backdrop-blur hover:bg-[#982525] disabled:cursor-not-allowed disabled:bg-stone-300"
+                        className={`absolute right-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:border-white/70 disabled:bg-stone-300 disabled:text-stone-500 disabled:shadow-sm ${primaryRoundButtonClass}`}
                       >
                         <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
                           <path d="M4 7h16" />
@@ -2448,7 +2458,7 @@ export default function Page() {
                             onClick={() => handleDownload(item.file_url, downloadName)}
                             aria-label={t.gallery.download}
                             title={t.gallery.download}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#F58220]/70 bg-[#F58220]/92 text-white shadow-[0_8px_20px_rgba(245,130,32,0.22)] backdrop-blur hover:bg-[#F58220]"
+                            className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${primaryRoundButtonClass}`}
                           >
                             <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
                               <path d="M12 4v10" />
@@ -2611,7 +2621,7 @@ export default function Page() {
               onClick={() => setPreviewItem(null)}
               aria-label={t.gallery.closePreview}
               title={t.gallery.closePreview}
-              className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-stone-950 shadow-lg hover:bg-stone-100"
+              className={`absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full ${neutralRoundButtonClass}`}
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
                 <path d="M6 6l12 12" />
@@ -2625,7 +2635,7 @@ export default function Page() {
                 onClick={() => setPreviewItem(previousPreviewItem)}
                 aria-label={t.gallery.previousPhoto}
                 title={t.gallery.previousPhoto}
-                className="absolute left-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/92 text-stone-950 shadow-lg backdrop-blur hover:bg-white"
+                className={`absolute left-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full ${neutralRoundButtonClass}`}
               >
                 <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current stroke-2">
                   <path d="m15 6-6 6 6 6" />
@@ -2639,7 +2649,7 @@ export default function Page() {
                 onClick={() => setPreviewItem(nextPreviewItem)}
                 aria-label={t.gallery.nextPhoto}
                 title={t.gallery.nextPhoto}
-                className="absolute right-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/92 text-stone-950 shadow-lg backdrop-blur hover:bg-white"
+                className={`absolute right-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full ${neutralRoundButtonClass}`}
               >
                 <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current stroke-2">
                   <path d="m9 6 6 6-6 6" />
@@ -2680,7 +2690,7 @@ export default function Page() {
                   <button
                     type="button"
                     onClick={() => handleShare(previewItem)}
-                    className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                    className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-semibold ${neutralButtonClass}`}
                   >
                     {t.gallery.share}
                   </button>
@@ -2689,7 +2699,7 @@ export default function Page() {
                   <button
                     type="button"
                     onClick={() => handleDownload(previewItem.file_url, previewDownloadName)}
-                    className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#F58220] px-4 text-sm font-semibold text-white hover:bg-[#DB6E12]"
+                    className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-semibold ${primaryGradientClass}`}
                   >
                     {t.gallery.download}
                   </button>
