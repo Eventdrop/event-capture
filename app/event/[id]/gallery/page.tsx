@@ -27,6 +27,7 @@ const POSTER_HEIGHT = 3508
 const POSTER_MAX_TILES = 12
 const MIXED_POSTER_PORTRAIT_TILES = 8
 const MIXED_POSTER_LANDSCAPE_TILES = 4
+const PHOTOSTRIP_MIN_HEIGHT_RATIO = 2.4
 const STORY_WIDTH = 1080
 const STORY_HEIGHT = 1920
 const POSTER_MARGIN = 56
@@ -116,6 +117,22 @@ const STORY_LAYOUT = {
     { x: 546, y: 1460, width: 492, height: 288 },
   ],
 }
+const POSTER_DESIGN_EXAMPLES = {
+  color: [
+    { label: 'Portrait Poster', src: '/design-examples/memory-a3-portrait.webp' },
+    { label: 'Landscape Poster', src: '/design-examples/memory-a3-landscape.webp' },
+    { label: 'Mixed Poster', src: '/design-examples/memory-a3-mix.webp' },
+  ],
+  grayscale: [
+    { label: 'Portrait Poster', src: '/design-examples/memory-a3-portrait-bw.webp' },
+    { label: 'Landscape Poster', src: '/design-examples/memory-a3-landscape-bw.webp' },
+    { label: 'Mixed Poster', src: '/design-examples/memory-a3-mix-bw.webp' },
+  ],
+}
+const STORY_DESIGN_EXAMPLES = [
+  { label: 'Portrait Story', src: '/design-examples/story-portrait.webp' },
+  { label: 'Landscape Story', src: '/design-examples/story-landscape.webp' },
+]
 const POSTER_LAYOUTS = {
   portrait: [
     { x: 120, y: 760, width: 536, height: 820 },
@@ -718,14 +735,15 @@ export default function Page() {
   const [downloadingSelected, setDownloadingSelected] = useState(false)
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [creatingPoster, setCreatingPoster] = useState(false)
-  const [designFormat, setDesignFormat] = useState<DesignFormat | null>(null)
+  const [designFormat, setDesignFormat] = useState<DesignFormat | null>('poster')
   const [designMode, setDesignMode] = useState<DesignMode | null>(null)
+  const [posterGrayscale, setPosterGrayscale] = useState(false)
+  const [designExamplesOpen, setDesignExamplesOpen] = useState(false)
   const [galleryView, setGalleryView] = useState<GalleryView>('photos')
   const [standaloneGuestbookMessages, setStandaloneGuestbookMessages] = useState<
     GuestbookStandaloneRecord[]
   >([])
   const [photoMetricsById, setPhotoMetricsById] = useState<Record<string, PhotoMetrics>>({})
-  const [posterStyleModalOpen, setPosterStyleModalOpen] = useState(false)
   const [albumPackagesVisible, setAlbumPackagesVisible] = useState(false)
   const [previewItem, setPreviewItem] = useState<UploadRecord | null>(null)
   const guestbookEnabled = currentEvent?.guestbookEnabled !== false
@@ -905,6 +923,19 @@ export default function Page() {
     () => items.filter((item) => selected.includes(item.id)),
     [items, selected]
   )
+  const isLikelyPhotoStrip = (item: UploadRecord) => {
+    const metrics = photoMetricsById[item.id]
+
+    return Boolean(metrics && metrics.ratio <= 1 / PHOTOSTRIP_MIN_HEIGHT_RATIO)
+  }
+  const designItems = useMemo(
+    () => items.filter((item) => !isLikelyPhotoStrip(item)),
+    [items, photoMetricsById]
+  )
+  const designSelectedItems = useMemo(
+    () => selectedItems.filter((item) => !isLikelyPhotoStrip(item)),
+    [photoMetricsById, selectedItems]
+  )
 
   const guestbookFeedItems = useMemo(
     () =>
@@ -969,7 +1000,7 @@ export default function Page() {
     }),
     [albumPackageSize, items, t.gallery.albumPackageLabel, totalAlbumPackages]
   )
-  const selectedDesignMetrics = selectedItems.map(
+  const selectedDesignMetrics = designSelectedItems.map(
     (item) => photoMetricsById[item.id] || getFallbackPhotoMetrics()
   )
   const selectedPortraitCount = selectedDesignMetrics.filter(
@@ -979,6 +1010,7 @@ export default function Page() {
     (metrics) => metrics.orientation === 'landscape'
   ).length
   const designModeConfig = designMode ? DESIGN_MODE_CONFIG[designMode] : null
+  const activeDesignFormat = designFormat || 'poster'
   const designModeLimit = designModeConfig?.max || selectedLimit
   const designModeLabel =
     designMode === 'posterPortrait'
@@ -992,17 +1024,30 @@ export default function Page() {
             : designMode === 'storyLandscape'
               ? t.gallery.storyLandscapeMode
               : ''
-  const designSelectedCount = Math.min(selectedItems.length, designModeLimit)
-  const designLimitReached = Boolean(designMode && selectedItems.length >= designModeLimit)
+  const designSelectedCount = Math.min(designSelectedItems.length, designModeLimit)
+  const designLimitReached = Boolean(designMode && designSelectedItems.length >= designModeLimit)
   const mixedPosterReady =
     designMode === 'posterMixed' &&
     selectedPortraitCount === MIXED_POSTER_PORTRAIT_TILES &&
     selectedLandscapeCount === MIXED_POSTER_LANDSCAPE_TILES
   const designReady = Boolean(
     designMode &&
-      selectedItems.length > 0 &&
+      designSelectedItems.length > 0 &&
       (designMode !== 'posterMixed' || mixedPosterReady)
   )
+  const designRemainingCount = Math.max(0, designModeLimit - designSelectedCount)
+  const designIncompleteText =
+    designMode === 'posterMixed'
+      ? t.gallery.designMixedIncomplete
+      : designRemainingCount > 0
+        ? `${designRemainingCount} ${t.gallery.posterMoreNeeded}`
+        : ''
+  const designExamples =
+    activeDesignFormat === 'poster'
+      ? posterGrayscale
+        ? POSTER_DESIGN_EXAMPLES.grayscale
+        : POSTER_DESIGN_EXAMPLES.color
+      : STORY_DESIGN_EXAMPLES
 
   const getPhotoMetrics = (item: UploadRecord) =>
     photoMetricsById[item.id] || getFallbackPhotoMetrics()
@@ -1052,7 +1097,7 @@ export default function Page() {
       }
     }
 
-    if (selectedItems.length >= designModeLimit) {
+    if (designSelectedItems.length >= designModeLimit) {
       return t.gallery.designLimitReached
     }
 
@@ -1303,24 +1348,10 @@ export default function Page() {
     }
   }
 
-  const openPosterStyleOptions = () => {
-    if (!designMode || selectedItems.length === 0 || creatingPoster) {
-      setStatusMessage(t.gallery.posterChoose)
-      return
-    }
-
-    if (designMode === 'posterMixed' && !mixedPosterReady) {
-      setStatusMessage(t.gallery.designMixedIncomplete)
-      return
-    }
-
-    setPosterStyleModalOpen(true)
-  }
-
   const createPoster = async (options?: { grayscale?: boolean; mode?: DesignMode }) => {
     const activeMode = options?.mode || designMode
 
-    if (!activeMode || selectedItems.length === 0 || creatingPoster) {
+    if (!activeMode || designSelectedItems.length === 0 || creatingPoster) {
       setStatusMessage(t.gallery.posterChoose)
       return
     }
@@ -1330,7 +1361,6 @@ export default function Page() {
       return
     }
 
-    setPosterStyleModalOpen(false)
     setCreatingPoster(true)
     const modeConfig = DESIGN_MODE_CONFIG[activeMode]
     const format = modeConfig.format
@@ -1344,7 +1374,7 @@ export default function Page() {
     let storyTemplateResource: CanvasImageResource | null = null
 
     try {
-      if (format === 'poster' && selectedItems.length > POSTER_MAX_TILES) {
+      if (format === 'poster' && designSelectedItems.length > POSTER_MAX_TILES) {
         window.alert(t.gallery.posterLimitPopup)
       }
 
@@ -1352,14 +1382,14 @@ export default function Page() {
       const orderedItems =
         activeMode === 'posterMixed'
           ? [
-              ...selectedItems.filter(
+              ...designSelectedItems.filter(
                 (item) => getPhotoMetrics(item).orientation === 'portrait'
               ),
-              ...selectedItems.filter(
+              ...designSelectedItems.filter(
                 (item) => getPhotoMetrics(item).orientation === 'landscape'
               ),
             ]
-          : selectedItems
+          : designSelectedItems
 
       for (const [originalIndex, item] of orderedItems.entries()) {
         if (posterPhotos.length >= maxTiles) break
@@ -1549,7 +1579,7 @@ export default function Page() {
         body: JSON.stringify({
           activity: format,
           eventIdentifier,
-          itemCount: Math.min(selectedItems.length, maxTiles),
+          itemCount: Math.min(designSelectedItems.length, maxTiles),
         }),
       })
       setStatusMessage(format === 'story' ? t.gallery.storyReady : t.gallery.posterReady)
@@ -1854,176 +1884,236 @@ export default function Page() {
         ) : null}
 
         {galleryView === 'designs' && posterEnabled ? (
-          <section className="mb-3 rounded-[1.5rem] border border-white/30 bg-white/90 p-3 shadow-[0_16px_40px_rgba(61,44,22,0.1)] backdrop-blur sm:mb-4 sm:p-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => chooseDesignFormat('poster')}
-                disabled={creatingPoster}
-                className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                  designFormat === 'poster'
-                    ? 'bg-stone-950 text-white ring-2 ring-stone-950/20'
-                    : creatingPoster
-                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                      : 'bg-white text-stone-950 hover:bg-stone-100'
-                }`}
-              >
-                {t.gallery.posterButton}
-              </button>
+          <section className="space-y-3 py-3 sm:py-5">
+            <div>
+              <h2 className="text-xl font-black tracking-[-0.03em] text-neutral-950">
+                {t.gallery.designsTab}
+              </h2>
+            </div>
 
-              <button
-                type="button"
-                onClick={() => chooseDesignFormat('story')}
-                disabled={creatingPoster}
-                className={`inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-3 py-2 text-center text-xs font-semibold shadow-sm sm:flex-none ${
-                  designFormat === 'story'
-                    ? 'bg-[#B52E2E] text-white ring-2 ring-[#B52E2E]/20'
-                    : creatingPoster
-                      ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                      : 'bg-white text-[#B52E2E] hover:bg-[#FFF1F1]'
-                }`}
-              >
-                {t.gallery.storyButton}
-              </button>
+            <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
+              {([
+                ['poster', 'Memory Poster A3'],
+                ['story', t.gallery.storyButton],
+              ] as const).map(([format, label]) => {
+                const isActive = activeDesignFormat === format
 
-              {designFormat === 'poster' ? (
-                <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 p-2">
-                  <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#597594]">
-                    {t.gallery.designChoosePosterMode}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {([
+                return (
+                  <button
+                    key={format}
+                    type="button"
+                    onClick={() => chooseDesignFormat(format)}
+                    disabled={creatingPoster}
+                    className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-black transition ${
+                      isActive
+                        ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
+                        : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
+                    } disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
+              <div className="flex flex-wrap gap-2">
+                {(activeDesignFormat === 'poster'
+                  ? ([
                       ['posterPortrait', t.gallery.posterPortraitMode],
                       ['posterLandscape', t.gallery.posterLandscapeMode],
                       ['posterMixed', t.gallery.posterMixedMode],
-                    ] as const).map(([mode, label]) => (
-                      <button
-                        key={mode}
-                        type="button"
-                        onClick={() => chooseDesignMode(mode)}
-                        disabled={creatingPoster}
-                        className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm sm:flex-none ${
-                          designMode === mode
-                            ? 'bg-stone-950 text-white'
-                            : 'bg-white text-stone-950 hover:bg-stone-100'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {designFormat === 'story' ? (
-                <div className="basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 p-2">
-                  <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#597594]">
-                    {t.gallery.designChooseStoryMode}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {([
+                    ] as const)
+                  : ([
                       ['storyPortrait', t.gallery.storyPortraitMode],
                       ['storyLandscape', t.gallery.storyLandscapeMode],
-                    ] as const).map(([mode, label]) => (
-                      <button
-                        key={mode}
-                        type="button"
-                        onClick={() => chooseDesignMode(mode)}
-                        disabled={creatingPoster}
-                        className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold shadow-sm sm:flex-none ${
-                          designMode === mode
-                            ? 'bg-[#B52E2E] text-white'
-                            : 'bg-white text-[#B52E2E] hover:bg-[#FFF1F1]'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
+                    ] as const)
+                ).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => chooseDesignMode(mode)}
+                    disabled={creatingPoster}
+                    className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg border px-3 py-2 text-center text-xs font-black transition sm:flex-none ${
+                      designMode === mode
+                        ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
+                        : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
+                    } disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {activeDesignFormat === 'poster' ? (
+                <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-3">
+                  <p className="mr-1 text-[11px] font-black uppercase tracking-[0.12em] text-neutral-400">
+                    {t.gallery.posterStyleTitle}
+                  </p>
+                  {([
+                    [false, t.gallery.posterColorOption.replace(/\s*\([^)]*\)/, '').replace(/\s+poster$/i, '') || t.gallery.posterColorOption],
+                    [true, t.gallery.posterBlackWhite],
+                  ] as const).map(([grayscale, label]) => (
+                    <button
+                      key={String(grayscale)}
+                      type="button"
+                      onClick={() => setPosterGrayscale(grayscale)}
+                      disabled={creatingPoster}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-black transition ${
+                        posterGrayscale === grayscale
+                          ? 'border-[#d71920] bg-[#d71920] text-white'
+                          : 'border-neutral-200 bg-neutral-100 text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950'
+                      } disabled:cursor-not-allowed disabled:opacity-60`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               ) : null}
 
-              <p className={`basis-full rounded-2xl border border-[#D4DFEE] bg-white/80 px-3 py-2 text-xs font-semibold text-[#33516F] ${selectedItems.length === 0 ? 'hidden sm:block' : ''}`}>
-                {designMode
-                  ? designMode === 'posterMixed'
-                    ? t.gallery.designMixedHint
-                    : `${designModeLabel} — ${designSelectedCount} / ${designModeLimit} ${t.gallery.designSelected}`
-                  : t.gallery.designChooseFormat}
-              </p>
+              <div className="mt-3 flex justify-end border-t border-neutral-200 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setDesignExamplesOpen(true)}
+                  className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-black text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50"
+                >
+                  Voorbeeld bekijken
+                </button>
+              </div>
             </div>
-          </section>
-        ) : null}
 
-        {galleryView === 'designs' && posterEnabled && designMode ? (
-          <div className="sticky top-[calc(env(safe-area-inset-top)+4rem)] z-40 mb-3 rounded-2xl border border-white/40 bg-white/94 p-3 shadow-[0_18px_48px_rgba(15,33,53,0.18)] backdrop-blur sm:top-4 sm:mb-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#597594]">
-                  {designModeLabel}
-                </p>
-                {designMode === 'posterMixed' ? (
-                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                    <p className={`text-base font-bold ${selectedPortraitCount >= MIXED_POSTER_PORTRAIT_TILES ? 'text-[#B52E2E]' : 'text-stone-950'}`}>
-                      {t.gallery.designPortraitCount} {selectedPortraitCount} / {MIXED_POSTER_PORTRAIT_TILES}
+            {designMode ? (
+              <div className="sticky top-[58px] z-20 rounded-xl border border-neutral-200 bg-white/96 p-3 shadow-[0_8px_22px_rgba(20,20,20,0.08)] backdrop-blur">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
+                      {designModeLabel}
                     </p>
-                    <p className={`text-base font-bold ${selectedLandscapeCount >= MIXED_POSTER_LANDSCAPE_TILES ? 'text-[#B52E2E]' : 'text-stone-950'}`}>
-                      {t.gallery.designLandscapeCount} {selectedLandscapeCount} / {MIXED_POSTER_LANDSCAPE_TILES}
-                    </p>
+                    {designMode === 'posterMixed' ? (
+                      <p className="mt-1 text-sm font-black text-neutral-950">
+                        {selectedPortraitCount} / {MIXED_POSTER_PORTRAIT_TILES} portrait · {selectedLandscapeCount} / {MIXED_POSTER_LANDSCAPE_TILES} landscape
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-sm font-black text-neutral-950">
+                        {designSelectedCount} / {designModeLimit} {t.gallery.designSelected}
+                      </p>
+                    )}
+                    {!designReady && designSelectedItems.length > 0 && designIncompleteText ? (
+                      <p className="mt-0.5 text-xs font-bold text-[#d71920]">
+                        {designIncompleteText}
+                      </p>
+                    ) : designLimitReached ? (
+                      <p className="mt-0.5 text-xs font-bold text-[#d71920]">
+                        {t.gallery.designLimitReached}
+                      </p>
+                    ) : null}
                   </div>
-                ) : (
-                  <p className={`text-lg font-bold ${designLimitReached ? 'text-[#B52E2E]' : 'text-stone-950'}`}>
-                    {designSelectedCount} / {designModeLimit} {t.gallery.designSelected}
-                  </p>
-                )}
-                {designMode === 'posterMixed' && !mixedPosterReady && selectedItems.length > 0 ? (
-                  <p className="text-xs font-semibold text-[#B52E2E]">
-                    {t.gallery.designMixedIncomplete}
-                  </p>
-                ) : designLimitReached ? (
-                  <p className="text-xs font-semibold text-[#B52E2E]">
-                    {t.gallery.designLimitReached}
-                  </p>
-                ) : null}
-              </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => chooseDesignFormat(designFormat === 'poster' ? 'story' : 'poster')}
-                  disabled={creatingPoster}
-                  className="inline-flex min-h-9 flex-1 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-stone-500 sm:flex-none"
-                >
-                  {t.gallery.designChangeFormat}
-                </button>
-                <button
-                  type="button"
-                  onClick={clearDesignSelection}
-                  disabled={selectedItems.length === 0 || creatingPoster}
-                  className="inline-flex min-h-9 flex-1 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-stone-500 sm:flex-none"
-                >
-                  {t.gallery.clearSelection}
-                </button>
-                <button
-                  type="button"
-                  onClick={designFormat === 'poster' ? openPosterStyleOptions : () => createPoster({ grayscale: false, mode: designMode })}
-                  disabled={!designReady || creatingPoster}
-                  className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold text-white shadow-sm sm:flex-none ${
-                    !designReady || creatingPoster
-                      ? 'cursor-not-allowed bg-stone-300'
-                      : designFormat === 'poster'
-                        ? 'bg-stone-950 hover:bg-stone-800'
-                        : 'bg-[#B52E2E] hover:bg-[#982525]'
-                  }`}
-                >
-                  {creatingPoster
-                    ? designFormat === 'story'
-                      ? t.gallery.storyPreparing
-                      : t.gallery.posterPreparing
-                    : t.gallery.designCreate}
-                </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={clearDesignSelection}
+                      disabled={designSelectedItems.length === 0 || creatingPoster}
+                      className="inline-flex min-h-9 flex-1 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-100 px-3 py-2 text-xs font-black text-neutral-600 hover:border-neutral-300 hover:bg-white hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none"
+                    >
+                      {t.gallery.clearSelection}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => createPoster({ grayscale: activeDesignFormat === 'poster' ? posterGrayscale : false, mode: designMode })}
+                      disabled={!designReady || creatingPoster}
+                      className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-4 py-2 text-xs font-black text-white shadow-sm sm:flex-none ${
+                        !designReady || creatingPoster
+                          ? 'cursor-not-allowed bg-stone-300'
+                          : 'bg-[#d71920] hover:bg-[#b9151b]'
+                      }`}
+                    >
+                      {creatingPoster
+                        ? activeDesignFormat === 'story'
+                          ? t.gallery.storyPreparing
+                          : t.gallery.posterPreparing
+                        : t.gallery.designCreate}
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            ) : null}
+
+            {designItems.length === 0 ? (
+              <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center text-sm font-semibold text-neutral-500">
+                {t.gallery.noUploads}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5">
+                {designItems.map((item) => {
+                  const isSelected = selected.includes(item.id)
+                  const selectionBlockMessage = !isSelected ? getSelectionBlockMessage(item) : ''
+                  const isSelectionBlocked = Boolean(selectionBlockMessage)
+                  const downloadName = getUploadShortFileName(item, {
+                    eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
+                    sequence: shareSequenceById[item.id],
+                  })
+
+                  return (
+                    <article
+                      key={item.id}
+                      className={`overflow-hidden rounded-xl bg-[#343434] p-[2px] ${
+                        isSelected ? 'ring-2 ring-[#d71920]/75 ring-offset-2' : ''
+                      } ${isSelectionBlocked ? 'opacity-70' : ''}`}
+                    >
+                      <div className="relative">
+                        <Image
+                          src={item.file_url}
+                          alt={downloadName}
+                          width={1200}
+                          height={1200}
+                          unoptimized
+                          onLoad={(event) => registerPhotoMetrics(item, event.currentTarget)}
+                          className="aspect-[4/5] w-full rounded-[10px] bg-[#343434] object-contain"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleSelect(item.id)}
+                          disabled={isSelectionBlocked}
+                          aria-label={isSelected ? t.gallery.selected : t.gallery.select}
+                          title={
+                            isSelectionBlocked
+                              ? selectionBlockMessage
+                              : isSelected
+                                ? t.gallery.selected
+                                : t.gallery.select
+                          }
+                          className={`absolute left-1.5 top-1.5 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/75 shadow-sm backdrop-blur sm:h-7 sm:w-7 ${
+                            isSelected
+                              ? 'bg-[#d71920] text-white'
+                              : isSelectionBlocked
+                                ? 'cursor-not-allowed bg-stone-200/95 text-stone-500'
+                                : 'bg-white/90 text-neutral-700'
+                          }`}
+                        >
+                          {isSelected ? (
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.8]">
+                              <path d="M5 12.5 9.5 17 19 7.5" />
+                            </svg>
+                          ) : (
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
+                              <circle cx="12" cy="12" r="8" />
+                            </svg>
+                          )}
+                        </button>
+
+                        {isSelectionBlocked ? (
+                          <div className="absolute inset-x-1.5 bottom-1.5 z-20 rounded-lg bg-white/92 px-2 py-1.5 text-[10px] font-bold leading-tight text-[#d71920] shadow-sm backdrop-blur">
+                            {selectionBlockMessage}
+                          </div>
+                        ) : null}
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            )}
+          </section>
         ) : null}
 
         {galleryView === 'photos' ? (
@@ -2182,14 +2272,14 @@ export default function Page() {
               </div>
             )}
           </section>
-        ) : galleryView !== 'guestbook' && items.length === 0 ? (
+        ) : galleryView === 'downloads' && items.length === 0 ? (
           <div className="rounded-[2rem] border border-[#D4DFEE] bg-white p-10 text-center text-[#597594] shadow-[0_16px_40px_rgba(61,44,22,0.08)]">
             {t.gallery.noUploads}
           </div>
-        ) : galleryView !== 'guestbook' ? (
+        ) : galleryView === 'downloads' ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => {
-              const designSelectionActive = galleryView === 'designs' && Boolean(designMode)
+              const designSelectionActive = false
               const isSelected = selected.includes(item.id)
               const selectionBlockMessage = designSelectionActive && !isSelected ? getSelectionBlockMessage(item) : ''
               const isSelectionBlocked = Boolean(selectionBlockMessage)
@@ -2563,25 +2653,27 @@ export default function Page() {
         </div>
       ) : null}
 
-      {posterStyleModalOpen ? (
+      {designExamplesOpen ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
-          onClick={() => setPosterStyleModalOpen(false)}
+          onClick={() => setDesignExamplesOpen(false)}
         >
           <div
-            className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:p-5"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-stone-950">{t.gallery.posterStyleTitle}</h2>
-                <p className="mt-1 text-sm font-medium text-[#597594]">
-                  {t.gallery.posterStyleDescription}
+                <h2 className="text-lg font-black text-neutral-950">
+                  {activeDesignFormat === 'poster' ? 'Memory Poster A3' : t.gallery.storyButton}
+                </h2>
+                <p className="mt-1 text-sm font-medium text-neutral-500">
+                  Voorbeeld bekijken
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setPosterStyleModalOpen(false)}
+                onClick={() => setDesignExamplesOpen(false)}
                 aria-label={t.gallery.cancel}
                 className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-700 hover:bg-stone-200"
               >
@@ -2592,28 +2684,26 @@ export default function Page() {
               </button>
             </div>
 
-            <div className="grid gap-3">
-              <button
-                type="button"
-                onClick={() => createPoster({ grayscale: false, mode: designMode || undefined })}
-                className="rounded-2xl bg-[#F58220] px-4 py-4 text-left text-sm font-bold text-white shadow-sm hover:bg-[#DB6E12]"
-              >
-                {t.gallery.posterColorOption}
-              </button>
-              <button
-                type="button"
-                onClick={() => createPoster({ grayscale: true, mode: designMode || undefined })}
-                className="rounded-2xl bg-stone-950 px-4 py-4 text-left text-sm font-bold text-white shadow-sm hover:bg-stone-800"
-              >
-                {t.gallery.posterBlackWhiteOption}
-              </button>
-              <button
-                type="button"
-                onClick={() => setPosterStyleModalOpen(false)}
-                className="rounded-2xl border border-[#C8D3E5] bg-white px-4 py-3 text-sm font-bold text-[#0F3D66] hover:bg-[#EDF4FB]"
-              >
-                {t.gallery.cancel}
-              </button>
+            <div className="flex gap-3 overflow-x-auto pb-1">
+              {designExamples.map((example) => (
+                <figure
+                  key={example.src}
+                  className="w-44 shrink-0 rounded-2xl border border-neutral-200 bg-neutral-50 p-2 sm:w-56"
+                >
+                  <div className="flex h-64 items-center justify-center overflow-hidden rounded-xl bg-white sm:h-80">
+                    <Image
+                      src={example.src}
+                      alt={example.label}
+                      width={600}
+                      height={900}
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                  <figcaption className="mt-2 text-xs font-black text-neutral-700">
+                    {example.label}
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </div>
