@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { LANGUAGE_STORAGE_KEY, useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
-import { SiteHeader } from '@/app/_components/site-header'
 import { getPublicMediaUrl, getPublicPath } from '@/lib/app-url'
 import {
   getUploadShareKey,
@@ -430,6 +429,58 @@ function getPhotoOrientation(ratio: number): PhotoOrientation {
   if (ratio > ORIENTATION_CONFIG.landscapeMinRatio) return 'landscape'
   if (ratio < ORIENTATION_CONFIG.portraitMaxRatio) return 'portrait'
   return 'neutral'
+}
+
+function formatEventDateForShell(value: string | null, locale: Locale) {
+  if (!value) return ''
+
+  const dateParts = value.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  const date = dateParts
+    ? new Date(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3]))
+    : new Date(value)
+
+  if (Number.isNaN(date.getTime())) return value
+
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
+
+function GalleryNavIcon({ icon }: { icon: GalleryView }) {
+  if (icon === 'photos') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+        <path d="M4 8.5h3.3l1.4-2h6.6l1.4 2H20v9H4v-9Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M12 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" strokeWidth="1.8" />
+      </svg>
+    )
+  }
+
+  if (icon === 'guestbook') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+        <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H19v13.5H7.5A2.5 2.5 0 0 0 5 20V6.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M9 9.5c1.2-1.7 4.8-1.7 6 0 1 1.5-.4 3.1-3 4.7-2.6-1.6-4-3.2-3-4.7Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
+  if (icon === 'designs') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+        <path d="M5 5h6v6H5V5Zm8 2h6m-6 4h6M5 15h14v4H5v-4Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="m17.5 3 .5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5.5-1.2Z" fill="currentColor" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+      <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 18.5h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
 }
 
 async function detectFaceFocus(image: HTMLImageElement): Promise<FaceFocus | undefined> {
@@ -1596,11 +1647,11 @@ export default function Page() {
     }
   }
 
-  const eventBackgroundStyle = currentEvent?.backgroundImageUrl
-    ? {
-        backgroundImage: `linear-gradient(rgba(15,33,53,0.4), rgba(15,33,53,0.48)), url(${currentEvent.backgroundImageUrl})`,
-      }
-    : undefined
+  const eventDateLabel = formatEventDateForShell(currentEvent?.eventDate || null, locale)
+  const photoCountLabel = `${items.length} ${t.gallery.photosTab.toLowerCase()}`
+  const eventMetaLabel = eventDateLabel
+    ? `${eventDateLabel} · ${photoCountLabel}`
+    : photoCountLabel
   const eventCoverStyle = currentEvent?.coverImageUrl
     ? { backgroundImage: `url(${currentEvent.coverImageUrl})` }
     : undefined
@@ -1640,14 +1691,9 @@ export default function Page() {
   }, [nextPreviewItem, previousPreviewItem, previewItem])
 
   return (
-    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#faf6ef_0%,_#f0ebe2_55%,_#edf4fb_100%)] text-stone-900">
-      <SiteHeader currentLabel={t.gallery.badge} brandHref={uploadPageUrl} />
-
-      <main
-        className="flex-1 bg-cover bg-center p-3 sm:p-6"
-        style={eventBackgroundStyle}
-      >
-        <div className="mx-auto max-w-6xl">
+    <div className="flex min-h-screen flex-col bg-white text-stone-900">
+      <main className="flex-1 px-3 pb-5 pt-3 sm:px-6 sm:pb-8 sm:pt-5">
+        <div className="mx-auto w-full max-w-6xl">
         {downloadInProgress ? (
           <div
             role="status"
@@ -1661,42 +1707,63 @@ export default function Page() {
                 ? t.gallery.downloadingAll
                 : t.gallery.downloadingSelected}
           </div>
-        ) : currentEvent ? (
+        ) : !currentEvent && statusMessage ? (
           <div
             role="status"
             aria-live="polite"
-            className="mb-2 flex items-center justify-between gap-2 rounded-2xl border border-white/30 bg-white/85 px-3 py-2 text-sm font-semibold text-[#33516F] shadow-[0_12px_30px_rgba(15,33,53,0.1)] backdrop-blur sm:mb-4 sm:px-4 sm:py-3"
-          >
-            <span className="min-w-0 truncate text-stone-950">{eventName}</span>
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#597594]">
-              {items.length} {t.gallery.showing}
-            </span>
-          </div>
-        ) : statusMessage ? (
-          <div
-            role="status"
-            aria-live="polite"
-            className="mb-4 rounded-2xl border border-white/30 bg-white/85 px-4 py-3 text-sm font-semibold text-[#33516F] shadow-[0_12px_30px_rgba(15,33,53,0.1)] backdrop-blur"
+            className="mb-4 rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-[#555] shadow-sm"
           >
             {statusMessage}
           </div>
         ) : null}
 
-        <div className="mb-3 flex flex-col gap-2 rounded-[1.25rem] border border-white/20 bg-[rgba(255,250,242,0.92)] p-2 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:mb-4 sm:gap-4 sm:rounded-[1.5rem] sm:p-4">
-          <div className="min-w-0 flex-1">
+        {currentEvent ? (
+          <section className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <Link href={uploadPageUrl} aria-label="EventDrop Sharing">
+                <Image
+                  src="/eventdrop-brand.png"
+                  alt="EventDrop Sharing"
+                  width={120}
+                  height={40}
+                  className="h-auto w-[92px] sm:w-[108px]"
+                  priority
+                />
+              </Link>
+              <label className="sr-only" htmlFor="gallery-language">
+                Taal
+              </label>
+              <select
+                id="gallery-language"
+                value={locale}
+                onChange={(event) => setLocale(event.target.value as Locale)}
+                className="h-9 rounded-lg border border-neutral-200 bg-white px-2 text-xs font-black uppercase text-neutral-700 outline-none focus:border-[#d71920] focus:ring-2 focus:ring-[#d71920]/15"
+              >
+                {locales.map((language) => (
+                  <option key={language} value={language}>
+                    {language.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div
-              className="h-24 w-full overflow-hidden rounded-[1rem] bg-[#EDF4FB] bg-cover bg-center sm:h-56 sm:rounded-[1.2rem] lg:aspect-[3/1] lg:h-auto xl:aspect-[18/5]"
+              className="relative h-[195px] overflow-hidden rounded-[13px] bg-[#f3f4f6] bg-cover bg-center sm:h-[290px]"
               style={eventCoverStyle}
-            />
-            <h1 className="sr-only">
-              {eventName}
-            </h1>
-          </div>
+            >
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/72 via-black/34 to-transparent px-4 pb-4 pt-16 sm:px-5 sm:pb-5">
+                <h1 className="text-[1.65rem] font-black leading-none text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:text-3xl">
+                  {eventName}
+                </h1>
+                <p className="mt-1 text-[11px] font-semibold leading-tight text-white/85 [text-shadow:0_1px_7px_rgba(0,0,0,0.55)] sm:text-xs">
+                  {eventMetaLabel}
+                </p>
+              </div>
+            </div>
+          </section>
+        ) : null}
 
-        </div>
-
-        <div className="sticky top-[calc(env(safe-area-inset-top)+0.5rem)] z-30 mb-3 rounded-[1.25rem] border border-[#D4DFEE] bg-white/94 p-1 shadow-[0_12px_30px_rgba(61,44,22,0.12)] backdrop-blur sm:static sm:mb-5 sm:inline-flex">
-          <div className="grid grid-cols-4 gap-1 sm:flex">
+        <nav className="sticky top-0 z-30 mt-3 border-b border-neutral-200 bg-white">
+          <div className="grid grid-cols-4 gap-1">
             {([
               ['photos', t.gallery.photosTab],
               ...(guestbookEnabled ? [['guestbook', t.gallery.guestbookTab] as const] : []),
@@ -1707,17 +1774,21 @@ export default function Page() {
                 key={view}
                 type="button"
                 onClick={() => setGalleryView(view)}
-                className={`min-h-10 rounded-[1rem] px-2 py-2 text-center text-[11px] font-semibold sm:px-4 sm:text-sm ${
+                className={`relative flex flex-col items-center gap-1 px-1 pb-2.5 pt-2 text-[11px] font-black transition outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-[#d71920]/25 sm:text-sm ${
                   galleryView === view
-                    ? 'bg-[#0F3D66] text-white'
-                    : 'text-[#0F3D66] hover:bg-[#EDF4FB]'
+                    ? 'text-[#d71920]'
+                    : 'text-neutral-500 hover:text-neutral-950'
                 }`}
               >
-                {label}
+                <GalleryNavIcon icon={view} />
+                <span>{label}</span>
+                {galleryView === view ? (
+                  <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[#d71920]" />
+                ) : null}
               </button>
             ))}
           </div>
-        </div>
+        </nav>
 
         {galleryView === 'downloads' ? (
           <section className="mb-3 rounded-[1.5rem] border border-white/30 bg-white/90 p-3 shadow-[0_16px_40px_rgba(61,44,22,0.1)] backdrop-blur sm:mb-4 sm:p-4">
