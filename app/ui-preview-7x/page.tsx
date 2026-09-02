@@ -2167,9 +2167,14 @@ export default function UiPreview7xPage() {
               </div>
             </div>
           ) : designPreview === 'photostrip-story' ? (
-            <div className="relative aspect-[9/16] h-[82vh] max-h-[720px] overflow-hidden rounded-2xl bg-[#10100f] p-4 shadow-2xl">
-              <div className="absolute inset-3 rounded-[18px] border border-[#c8a45d]/80" />
-              <div className="absolute inset-6 rounded-[14px] border border-[#c8a45d]/20 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.08),rgba(255,255,255,0)_42%)]" />
+            <div className="relative aspect-[9/16] h-[82vh] max-h-[720px] overflow-hidden rounded-2xl bg-[#0d0d0c] p-4 shadow-2xl">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_43%,rgba(212,174,91,0.18),rgba(212,174,91,0.05)_24%,rgba(0,0,0,0)_48%)]" />
+              <div className="absolute -left-[26%] top-[18%] h-[42%] w-[70%] rotate-[-18deg] rounded-full bg-white/7 blur-3xl" />
+              <div className="absolute -right-[30%] bottom-[18%] h-[46%] w-[76%] rotate-[16deg] rounded-full bg-white/6 blur-3xl" />
+              <div className="absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_28%_22%,rgba(216,184,111,0.55)_0_1px,transparent_2px),radial-gradient(circle_at_74%_34%,rgba(216,184,111,0.42)_0_1px,transparent_2px),radial-gradient(circle_at_42%_72%,rgba(216,184,111,0.35)_0_1px,transparent_2px),radial-gradient(circle_at_82%_76%,rgba(216,184,111,0.3)_0_1px,transparent_2px)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_36%,rgba(0,0,0,0.48)_100%)]" />
+              <div className="absolute inset-3 z-30 rounded-[18px] border border-[#c8a45d]/75" />
+              <div className="absolute inset-6 rounded-[14px] border border-[#c8a45d]/18" />
               <img
                 src={photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'}
                 alt=""
