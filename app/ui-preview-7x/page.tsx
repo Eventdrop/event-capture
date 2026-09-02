@@ -11,6 +11,8 @@ type PreviewPhoto = {
   src: string
   ratio: string
   name?: string
+  width?: number
+  height?: number
   orientation?: 'portrait' | 'landscape' | 'neutral'
 }
 
@@ -18,6 +20,7 @@ const GUEST_MESSAGE_MAX_LENGTH = 500
 const UPLOAD_CONSENT_STORAGE_KEY = 'eventdrop-ui-preview-upload-consent'
 const DOWNLOAD_SELECTION_LIMIT = 100
 const ALBUM_PACKAGE_SIZE = 40
+const PHOTOSTRIP_MIN_HEIGHT_RATIO = 2.4
 
 const languages: { code: PreviewLocale; label: string }[] = [
   { code: 'nl', label: 'NL' },
@@ -129,6 +132,11 @@ const copy = {
     choosePhotostrips: 'Photostrips kiezen',
     viewStory: 'Story bekijken',
     makeStory: 'Story maken',
+    stripHelper: 'Kies volledige 5x15 photostrips.',
+    noStripsTitle: 'Geen photostrips gevonden.',
+    noStripsText: 'Upload eerst een volledige 5x15 photostrip via Foto’s.',
+    confirmSelection: 'Selectie bevestigen',
+    maxPhotostrips: 'Je kunt maximaal {count} photostrips selecteren.',
     stripChoices: ['1 strip', '3 strips'],
     stripsSelected: 'strips geselecteerd',
     downloadsTitle: 'Bewaar het complete album',
@@ -230,6 +238,11 @@ const copy = {
     choosePhotostrips: 'Choose photostrips',
     viewStory: 'View Story',
     makeStory: 'Create Story',
+    stripHelper: 'Choose complete 5x15 photostrips.',
+    noStripsTitle: 'No photostrips found.',
+    noStripsText: 'Upload a complete 5x15 photostrip via Photos first.',
+    confirmSelection: 'Confirm selection',
+    maxPhotostrips: 'You can select up to {count} photostrips.',
     stripChoices: ['1 strip', '3 strips'],
     stripsSelected: 'strips selected',
     downloadsTitle: 'Save the complete album',
@@ -331,6 +344,11 @@ const copy = {
     choosePhotostrips: 'Choisir des photostrips',
     viewStory: 'Voir la Story',
     makeStory: 'Créer la Story',
+    stripHelper: 'Choisissez des photostrips 5x15 complets.',
+    noStripsTitle: 'Aucun photostrip trouvé.',
+    noStripsText: 'Importez d’abord un photostrip 5x15 complet via Photos.',
+    confirmSelection: 'Confirmer la sélection',
+    maxPhotostrips: 'Vous pouvez sélectionner au maximum {count} photostrips.',
     stripChoices: ['1 strip', '3 strips'],
     stripsSelected: 'strips sélectionnés',
     downloadsTitle: 'Conserver tout l’album',
@@ -432,6 +450,11 @@ const copy = {
     choosePhotostrips: 'Photostrips auswählen',
     viewStory: 'Story ansehen',
     makeStory: 'Story erstellen',
+    stripHelper: 'Wähle vollständige 5x15-Photostrips.',
+    noStripsTitle: 'Keine Photostrips gefunden.',
+    noStripsText: 'Lade zuerst einen vollständigen 5x15-Photostrip über Fotos hoch.',
+    confirmSelection: 'Auswahl bestätigen',
+    maxPhotostrips: 'Du kannst maximal {count} Photostrips auswählen.',
     stripChoices: ['1 Strip', '3 Strips'],
     stripsSelected: 'Strips ausgewählt',
     downloadsTitle: 'Das komplette Album speichern',
@@ -533,6 +556,11 @@ const copy = {
     choosePhotostrips: 'Photostrip seç',
     viewStory: 'Story görüntüle',
     makeStory: 'Story oluştur',
+    stripHelper: 'Tam 5x15 photostrip seç.',
+    noStripsTitle: 'Photostrip bulunamadı.',
+    noStripsText: 'Önce Fotoğraflar üzerinden tam bir 5x15 photostrip yükle.',
+    confirmSelection: 'Seçimi onayla',
+    maxPhotostrips: 'En fazla {count} photostrip seçebilirsin.',
     stripChoices: ['1 strip', '3 strip'],
     stripsSelected: 'strip seçildi',
     downloadsTitle: 'Tüm albümü sakla',
@@ -699,6 +727,9 @@ export default function UiPreview7xPage() {
   const [designWarning, setDesignWarning] = useState('')
   const [downloadFeedback, setDownloadFeedback] = useState('')
   const [photostripCount, setPhotostripCount] = useState(3)
+  const [photostripSelectedPhotos, setPhotostripSelectedPhotos] = useState<string[]>([])
+  const [photostripDraftPhotos, setPhotostripDraftPhotos] = useState<string[]>([])
+  const [photostripSelectorOpen, setPhotostripSelectorOpen] = useState(false)
   const [photoToDelete, setPhotoToDelete] = useState<PreviewPhoto | null>(null)
   const [photoFeedback, setPhotoFeedback] = useState('')
   const [pendingPhotos, setPendingPhotos] = useState<PreviewPhoto[]>([])
@@ -733,6 +764,17 @@ export default function UiPreview7xPage() {
       ? selectedPosterPortraitCount === 8 && selectedPosterLandscapeCount === 4
       : activeDesignSelectedPhotos.length === activeDesignRequired
   const totalAlbumPackages = Math.max(1, Math.ceil(galleryPhotos.length / ALBUM_PACKAGE_SIZE))
+  const likelyPhotostripPhotos = galleryPhotos.filter(
+    (photo) =>
+      Boolean(photo.width && photo.height) &&
+      Number(photo.height) / Number(photo.width) >= PHOTOSTRIP_MIN_HEIGHT_RATIO
+  )
+  const likelyPhotostripPhotoSources = likelyPhotostripPhotos.map((photo) => photo.src)
+  const photostripSelectedPhotoSources = photostripSelectedPhotos.filter((src) =>
+    likelyPhotostripPhotoSources.includes(src)
+  )
+  const photostripSelectionReady = photostripSelectedPhotoSources.length === photostripCount
+  const photostripDraftReady = photostripDraftPhotos.length === photostripCount
 
   useEffect(() => {
     setHasUploadConsent(sessionStorage.getItem(UPLOAD_CONSENT_STORAGE_KEY) === 'true')
@@ -740,6 +782,37 @@ export default function UiPreview7xPage() {
       objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
     }
   }, [])
+
+  useEffect(() => {
+    const photosToMeasure = galleryPhotos.filter((photo) => !photo.width || !photo.height)
+    let cancelled = false
+
+    photosToMeasure.forEach((photo) => {
+      const image = new Image()
+      image.onload = () => {
+        if (cancelled) return
+
+        const orientation = getPreviewOrientation(image.naturalWidth, image.naturalHeight)
+        setGalleryPhotos((current) =>
+          current.map((item) =>
+            item.src === photo.src
+              ? {
+                  ...item,
+                  width: image.naturalWidth,
+                  height: image.naturalHeight,
+                  orientation,
+                }
+              : item
+          )
+        )
+      }
+      image.src = photo.src
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [galleryPhotos])
 
   const chooseFiles = () => {
     if (!hasUploadConsent) {
@@ -787,6 +860,40 @@ export default function UiPreview7xPage() {
     }
 
     setDownloadSelection([...downloadSelection, src])
+  }
+
+  const changePhotostripCount = (count: number) => {
+    setPhotostripCount(count)
+    if (count === 1) {
+      setPhotostripSelectedPhotos((current) => current.slice(0, 1))
+      setPhotostripDraftPhotos((current) => current.slice(0, 1))
+    }
+  }
+
+  const openPhotostripSelector = () => {
+    setPhotostripDraftPhotos(photostripSelectedPhotoSources.slice(0, photostripCount))
+    setPhotostripSelectorOpen(true)
+  }
+
+  const togglePhotostripDraftPhoto = (src: string) => {
+    if (photostripDraftPhotos.includes(src)) {
+      setPhotostripDraftPhotos(photostripDraftPhotos.filter((item) => item !== src))
+      return
+    }
+
+    if (photostripDraftPhotos.length >= photostripCount) {
+      showDesignWarning(templateText(t.maxPhotostrips, photostripCount))
+      return
+    }
+
+    setPhotostripDraftPhotos([...photostripDraftPhotos, src])
+  }
+
+  const confirmPhotostripSelection = () => {
+    if (!photostripDraftReady) return
+
+    setPhotostripSelectedPhotos(photostripDraftPhotos)
+    setPhotostripSelectorOpen(false)
   }
 
   const getDesignOrientationHint = (
@@ -865,8 +972,13 @@ export default function UiPreview7xPage() {
 
     setGalleryPhotos((current) =>
       current.map((photo) =>
-        photo.src === src && photo.orientation !== orientation
-          ? { ...photo, orientation }
+        photo.src === src
+          ? {
+              ...photo,
+              width: image.naturalWidth,
+              height: image.naturalHeight,
+              orientation,
+            }
           : photo
       )
     )
@@ -904,6 +1016,12 @@ export default function UiPreview7xPage() {
       current.filter((item) => item !== photoToDelete.src)
     )
     setDownloadSelection((current) =>
+      current.filter((item) => item !== photoToDelete.src)
+    )
+    setPhotostripSelectedPhotos((current) =>
+      current.filter((item) => item !== photoToDelete.src)
+    )
+    setPhotostripDraftPhotos((current) =>
       current.filter((item) => item !== photoToDelete.src)
     )
     if (previewPhoto === photoToDelete.src) setPreviewPhoto(null)
@@ -1595,7 +1713,7 @@ export default function UiPreview7xPage() {
                             <button
                               key={count}
                               type="button"
-                              onClick={() => setPhotostripCount(count)}
+                              onClick={() => changePhotostripCount(count)}
                               className={`rounded-full border px-3 py-1.5 text-xs font-black ${
                                 photostripCount === count
                                   ? 'border-[#d71920] bg-[#d71920] text-white shadow-[0_6px_14px_rgba(215,25,32,0.16)]'
@@ -1607,10 +1725,14 @@ export default function UiPreview7xPage() {
                           ))}
                         </div>
                         <p className="mt-2 text-xs font-semibold text-neutral-500">
-                          {photostripCount} {t.stripsSelected}
+                          {photostripSelectedPhotoSources.length} / {photostripCount} {t.selectedCount}
+                        </p>
+                        <p className="mt-1 text-xs font-semibold text-neutral-500">
+                          {t.stripHelper}
                         </p>
                         <button
                           type="button"
+                          onClick={openPhotostripSelector}
                           className="mt-3 inline-flex h-8 items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-xs font-black text-neutral-800"
                         >
                           {t.choosePhotostrips}
@@ -1620,7 +1742,8 @@ export default function UiPreview7xPage() {
                         <button
                           type="button"
                           onClick={() => setDesignPreview('photostrip-story')}
-                          className="inline-flex h-9 items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-xs font-black text-neutral-800"
+                          disabled={!photostripSelectionReady}
+                          className="inline-flex h-9 items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-xs font-black text-neutral-800 disabled:text-neutral-300"
                         >
                           {t.exampleAction}
                         </button>
@@ -2077,12 +2200,12 @@ export default function UiPreview7xPage() {
               {photostripCount === 3 ? (
                 <>
                   <img
-                    src="/home-strip-fun.jpg"
+                    src={photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'}
                     alt=""
                     className="absolute left-[12%] top-[29%] h-[44%] w-[20%] rotate-[-8deg] rounded-lg object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.18)]"
                   />
                   <img
-                    src="/home-strip-fun.jpg"
+                    src={photostripSelectedPhotoSources[2] || photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'}
                     alt=""
                     className="absolute right-[12%] top-[29%] h-[44%] w-[20%] rotate-[8deg] rounded-lg object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.18)]"
                   />
@@ -2090,19 +2213,23 @@ export default function UiPreview7xPage() {
               ) : (
                 <>
                   <img
-                    src="/home-strip-fun.jpg"
+                    src={photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'}
                     alt=""
                     className="absolute left-[9%] top-[33%] h-[34%] w-[17%] rotate-[-10deg] rounded-lg object-contain opacity-28 blur-[1px]"
                   />
                   <img
-                    src="/home-strip-fun.jpg"
+                    src={photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'}
                     alt=""
                     className="absolute right-[9%] top-[33%] h-[34%] w-[17%] rotate-[10deg] rounded-lg object-contain opacity-28 blur-[1px]"
                   />
                 </>
               )}
               <img
-                src="/home-strip-fun.jpg"
+                src={
+                  photostripCount === 3
+                    ? photostripSelectedPhotoSources[1] || photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'
+                    : photostripSelectedPhotoSources[0] || '/home-strip-fun.jpg'
+                }
                 alt=""
                 className="absolute left-1/2 top-[17%] h-[66%] w-[31%] -translate-x-1/2 rounded-xl object-contain drop-shadow-[0_22px_26px_rgba(0,0,0,0.24)]"
               />
@@ -2114,6 +2241,92 @@ export default function UiPreview7xPage() {
               className="max-h-[84vh] max-w-full rounded-2xl object-contain"
             />
           )}
+        </div>
+      ) : null}
+
+      {photostripSelectorOpen ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/35 p-3 sm:items-center sm:justify-center">
+          <div className="max-h-[86vh] w-full max-w-[520px] overflow-y-auto rounded-3xl bg-white p-4 shadow-2xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-black text-neutral-950">{t.choosePhotostrips}</h2>
+                <p className="mt-1 text-sm leading-5 text-neutral-600">{t.stripHelper}</p>
+                <p className="mt-2 text-xs font-black text-[#d71920]">
+                  {photostripDraftPhotos.length} / {photostripCount} {t.selectedCount}
+                </p>
+                {designWarning ? (
+                  <p className="mt-1 text-xs font-semibold text-[#d71920]">
+                    {designWarning}
+                  </p>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => setPhotostripSelectorOpen(false)}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-lg font-black text-neutral-700"
+                aria-label={t.close}
+              >
+                ×
+              </button>
+            </div>
+
+            {likelyPhotostripPhotos.length > 0 ? (
+              <div className="mt-4 grid grid-cols-3 gap-2 min-[520px]:grid-cols-4">
+                {likelyPhotostripPhotos.map((photo) => {
+                  const isSelected = photostripDraftPhotos.includes(photo.src)
+
+                  return (
+                    <button
+                      key={photo.src}
+                      type="button"
+                      onClick={() => togglePhotostripDraftPhoto(photo.src)}
+                      className={`relative overflow-hidden rounded-[10px] bg-[#171717] p-[2px] shadow-[0_8px_18px_rgba(0,0,0,0.18)] ${
+                        isSelected ? 'ring-2 ring-[#d71920]' : ''
+                      }`}
+                    >
+                      <img
+                        src={photo.src}
+                        alt=""
+                        className={`${photo.ratio} w-full rounded-md object-contain`}
+                      />
+                      <span
+                        className={`absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black ${
+                          isSelected
+                            ? 'border-[#d71920] bg-[#d71920] text-white'
+                            : 'border-white bg-white/90 text-transparent'
+                        }`}
+                      >
+                        {isSelected ? '✓' : ''}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="mt-4 rounded-2xl bg-neutral-100 p-4 text-center">
+                <p className="text-sm font-black text-neutral-950">{t.noStripsTitle}</p>
+                <p className="mt-1 text-sm leading-5 text-neutral-600">{t.noStripsText}</p>
+              </div>
+            )}
+
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPhotostripSelectorOpen(false)}
+                className="rounded-xl border border-neutral-200 px-4 py-3 text-sm font-black text-neutral-800"
+              >
+                {t.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={confirmPhotostripSelection}
+                disabled={!photostripDraftReady}
+                className="rounded-xl bg-[#d71920] px-4 py-3 text-sm font-black text-white disabled:bg-neutral-300"
+              >
+                {t.confirmSelection}
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
 
