@@ -14,7 +14,7 @@ export type UploadRecord = {
   created_at?: string | null
 }
 
-const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'])
+const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp'])
 
 export function padDatePart(value: number) {
   return value.toString().padStart(2, '0')
@@ -58,9 +58,11 @@ export function getFileExtension(file: File) {
 }
 
 export function getMediaKind(file: File): MediaKind | null {
-  if (file.type.startsWith('image/')) return 'photo'
-
   const extension = getFileExtension(file)
+
+  if (extension === 'heic' || extension === 'heif') return null
+  if (file.type.includes('heic') || file.type.includes('heif')) return null
+  if (file.type.startsWith('image/')) return 'photo'
 
   if (IMAGE_EXTENSIONS.has(extension)) return 'photo'
 

@@ -99,6 +99,12 @@ type TranslationTree = {
     eventsTab: string
     demoTemplatesTab: string
     createTitle: string
+    settingsGeneral: string
+    settingsBrandingMedia: string
+    settingsFeatures: string
+    settingsAccessSharing: string
+    settingsDownloadsExports: string
+    settingsDangerZone: string
     eventName: string
     demoTemplateName: string
     demoTemplateNamePlaceholder: string
@@ -552,6 +558,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       eventsTab: 'Etkinlikler',
       demoTemplatesTab: "Master Demo'lar",
       createTitle: 'Son public album burada yonetilir.',
+      settingsGeneral: 'Genel',
+      settingsBrandingMedia: 'Marka & medya',
+      settingsFeatures: 'Özellikler',
+      settingsAccessSharing: 'Erişim & paylaşım',
+      settingsDownloadsExports: 'İndirmeler & dışa aktarma',
+      settingsDangerZone: 'Tehlikeli işlemler',
       eventName: 'Etkinlik adi',
       demoTemplateName: 'Sablon adi',
       demoTemplateNamePlaceholder: 'Wedding Master',
@@ -729,7 +741,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photoTooLarge: 'fotograf 20 MB sinirini asti',
       photoBadRatio: 'cok uzun veya dar fotograf albume eklenmedi',
       selectionLimit: 'bir kerede en fazla 30 fotograf secilebilir',
-      chooseSupported: 'JPG, PNG, WEBP veya HEIC fotograf sec.',
+      chooseSupported: 'JPG, PNG of WEBP',
       chooseStart: 'Baslamak icin fotograf sec.',
       eventNotFound: 'Bu etkinlik bulunamadi. Linki veya QR kodu kontrol et.',
       eventNotReady: 'Bu etkinlik henuz yuklemeye hazir degil.',
@@ -1091,6 +1103,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       eventsTab: 'Evenementen',
       demoTemplatesTab: "Master Demo's",
       createTitle: 'Beheer hier je evenementen en albums.',
+      settingsGeneral: 'Algemeen',
+      settingsBrandingMedia: 'Branding & media',
+      settingsFeatures: 'Functies',
+      settingsAccessSharing: 'Toegang & delen',
+      settingsDownloadsExports: 'Downloads & exports',
+      settingsDangerZone: 'Gevarenzone',
       eventName: 'Naam van het evenement',
       demoTemplateName: 'Naam van het sjabloon',
       demoTemplateNamePlaceholder: 'Wedding Master',
@@ -1268,7 +1286,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photoTooLarge: 'foto boven limiet van 20 MB',
       photoBadRatio: 'te smalle of lange foto is niet aan het album toegevoegd',
       selectionLimit: 'je kunt maximaal 30 foto’s tegelijk selecteren',
-      chooseSupported: 'Kies een JPG-, PNG-, WEBP- of HEIC-bestand.',
+      chooseSupported: 'JPG, PNG of WEBP',
       chooseStart: 'Kies een bestand om te beginnen.',
       eventNotFound: 'Dit evenement is niet gevonden. Controleer de link of QR code.',
       eventNotReady: 'Dit evenement is nog niet beschikbaar voor uploads.',
@@ -1630,6 +1648,12 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       eventsTab: 'Events',
       demoTemplatesTab: 'Master Demos',
       createTitle: 'Manage the latest public album from here.',
+      settingsGeneral: 'General',
+      settingsBrandingMedia: 'Branding & media',
+      settingsFeatures: 'Features',
+      settingsAccessSharing: 'Access & sharing',
+      settingsDownloadsExports: 'Downloads & exports',
+      settingsDangerZone: 'Danger zone',
       eventName: 'Event name',
       demoTemplateName: 'Template name',
       demoTemplateNamePlaceholder: 'Wedding Master',
@@ -1807,7 +1831,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photoTooLarge: 'photo exceeds the 20 MB limit',
       photoBadRatio: 'very narrow or long photo was not added to the album',
       selectionLimit: 'you can choose up to 30 photos at a time',
-      chooseSupported: 'Choose a JPG, PNG, WEBP, or HEIC photo.',
+      chooseSupported: 'JPG, PNG of WEBP',
       chooseStart: 'Choose a photo to get started.',
       eventNotFound: 'This event could not be found. Check the link or QR code.',
       eventNotReady: 'This event is not ready for uploads yet.',
@@ -2068,6 +2092,12 @@ const germanTranslation: TranslationTree = {
   },
   admin: {
     ...baseTranslations.en.admin,
+    settingsGeneral: 'Allgemein',
+    settingsBrandingMedia: 'Branding & Medien',
+    settingsFeatures: 'Funktionen',
+    settingsAccessSharing: 'Zugang & Teilen',
+    settingsDownloadsExports: 'Downloads & Exporte',
+    settingsDangerZone: 'Gefahrenzone',
     downloadGuestbookPdf: 'Gästebuch herunterladen',
     noGuestbookMessages: 'Es gibt keine Gästebuchnachrichten zum Herunterladen.',
   },
@@ -2101,7 +2131,7 @@ const germanTranslation: TranslationTree = {
     photoTooLarge: 'Foto überschreitet das Limit von 20 MB',
     photoBadRatio: 'Sehr schmales oder langes Foto wurde nicht hinzugefügt',
     selectionLimit: 'Sie können bis zu 30 Fotos gleichzeitig auswählen',
-    chooseSupported: 'Wählen Sie ein JPG-, PNG-, WEBP- oder HEIC-Foto.',
+    chooseSupported: 'JPG, PNG of WEBP',
     chooseStart: 'Wählen Sie ein Foto, um zu beginnen.',
     eventNotFound: 'Dieses Event wurde nicht gefunden. Prüfen Sie den Link oder QR-Code.',
     eventNotReady: 'Dieses Event ist noch nicht für Uploads bereit.', uploadInProgress: 'Wird hochgeladen ...',
@@ -2260,6 +2290,12 @@ const frenchTranslation: TranslationTree = {
   },
   admin: {
     ...baseTranslations.en.admin,
+    settingsGeneral: 'Général',
+    settingsBrandingMedia: 'Branding & médias',
+    settingsFeatures: 'Fonctionnalités',
+    settingsAccessSharing: 'Accès & partage',
+    settingsDownloadsExports: 'Téléchargements & exports',
+    settingsDangerZone: 'Zone dangereuse',
     downloadGuestbookPdf: "Télécharger le livre d’or",
     noGuestbookMessages: "Aucun message du livre d’or à télécharger.",
   },
@@ -2292,7 +2328,7 @@ const frenchTranslation: TranslationTree = {
     filesSelected: 'fichiers sélectionnés', unsupportedIgnored: 'fichiers non pris en charge ignorés',
     photoTooLarge: 'la photo dépasse la limite de 20 Mo', photoBadRatio: "la photo très étroite ou très longue n’a pas été ajoutée",
     selectionLimit: "vous pouvez sélectionner jusqu’à 30 photos à la fois",
-    chooseSupported: 'Choisissez une photo JPG, PNG, WEBP ou HEIC.', chooseStart: 'Choisissez une photo pour commencer.',
+    chooseSupported: 'JPG, PNG of WEBP', chooseStart: 'Choisissez une photo pour commencer.',
     eventNotFound: "Cet événement est introuvable. Vérifiez le lien ou le QR code.",
     eventNotReady: "Cet événement n’est pas encore prêt à recevoir des photos.", uploadInProgress: 'Envoi en cours…',
     uploadComplete: 'Envoi terminé. Ouverture de la galerie…', uploadButton: "Ajouter à l’album partagé",
