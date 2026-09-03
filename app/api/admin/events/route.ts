@@ -345,6 +345,8 @@ export async function POST(request: Request) {
         allowGuestDelete?: boolean
         allowGuestPoster?: boolean
         guestbookEnabled?: boolean
+        photostripEnabled?: boolean
+        photostripBackgroundUrl?: string | null
         guestbookPdfTheme?: string
       }
     | null
@@ -367,6 +369,8 @@ export async function POST(request: Request) {
   const allowGuestDelete = body?.allowGuestDelete === true
   const allowGuestPoster = body?.allowGuestPoster === true
   const guestbookEnabled = body?.guestbookEnabled !== false
+  const photostripEnabled = body?.photostripEnabled === true
+  const photostripBackgroundUrl = body?.photostripBackgroundUrl?.trim() || ''
   const guestbookPdfTheme = normalizeGuestbookPdfTheme(body?.guestbookPdfTheme)
 
   if (!name || !albumName) {
@@ -400,6 +404,8 @@ export async function POST(request: Request) {
       allowGuestDelete,
       allowGuestPoster,
       guestbookEnabled,
+      photostripEnabled,
+      photostripBackgroundUrl,
       guestbookPdfTheme,
     })
 
@@ -438,6 +444,8 @@ export async function POST(request: Request) {
         allow_album_download: payload.allow_album_download,
         allow_guest_delete: payload.allow_guest_delete,
         allow_guest_poster: payload.allow_guest_poster,
+        photostrip_enabled: payload.photostrip_enabled,
+        photostrip_background_url: payload.photostrip_background_url,
       }
 
       const fallbackInsert = await withRetry(
@@ -509,8 +517,10 @@ export async function PATCH(request: Request) {
         allowGuestDelete?: boolean
         allowGuestPoster?: boolean
         guestbookEnabled?: boolean
+        photostripEnabled?: boolean
         guestbookPdfTheme?: string
         guestbookCoverImageUrl?: string | null
+        photostripBackgroundUrl?: string | null
       }
     | null
 
@@ -535,6 +545,7 @@ export async function PATCH(request: Request) {
       allow_guest_delete: body?.allowGuestDelete === true,
       allow_guest_poster: body?.allowGuestPoster === true,
       guestbook_enabled: body?.guestbookEnabled !== false,
+      photostrip_enabled: body?.photostripEnabled === true,
       guestbook_pdf_theme: normalizeGuestbookPdfTheme(body?.guestbookPdfTheme),
     }
     const name = body?.name?.trim()
@@ -568,6 +579,10 @@ export async function PATCH(request: Request) {
       updatePayload.guestbook_cover_image_url = body.guestbookCoverImageUrl?.trim() || null
     }
 
+    if (body && 'photostripBackgroundUrl' in body) {
+      updatePayload.photostrip_background_url = body.photostripBackgroundUrl?.trim() || null
+    }
+
     const richUpdate = await withRetry(
       () =>
         supabase
@@ -594,6 +609,8 @@ export async function PATCH(request: Request) {
       message.includes('allow_guest_download') ||
       message.includes('allow_guest_delete') ||
       message.includes('guestbook_enabled') ||
+      message.includes('photostrip_enabled') ||
+      message.includes('photostrip_background_url') ||
       message.includes('guestbook_pdf_theme') ||
       message.includes('guestbook_cover_image_url') ||
       message.includes('event_date')

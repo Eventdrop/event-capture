@@ -38,6 +38,7 @@ type EventVisualKind =
   | 'background'
   | 'posterTemplate'
   | 'storyTemplate'
+  | 'photostripBackground'
 
 type GuestAccessEntry = {
   email: string
@@ -72,6 +73,7 @@ type EventControls = {
   allowGuestDelete: boolean
   allowGuestPoster: boolean
   guestbookEnabled: boolean
+  photostripEnabled: boolean
   guestbookPdfTheme: GuestbookPdfThemeKey
 }
 
@@ -149,6 +151,7 @@ export default function AdminPage() {
     background: t.admin.backgroundImage,
     posterTemplate: t.admin.posterTemplateImage,
     storyTemplate: t.admin.storyTemplateImage,
+    photostripBackground: 'Photostrip achtergrond',
   }
 
   const customerEvents = useMemo(
@@ -228,6 +231,7 @@ export default function AdminPage() {
           allowGuestDelete: event.allowGuestDelete,
           allowGuestPoster: event.allowGuestPoster,
           guestbookEnabled: event.guestbookEnabled,
+          photostripEnabled: event.photostripEnabled,
           guestbookPdfTheme: event.guestbookPdfTheme,
         }
 
@@ -437,6 +441,7 @@ export default function AdminPage() {
         allowGuestDelete,
         allowGuestPoster,
         guestbookEnabled: true,
+        photostripEnabled: false,
         guestbookPdfTheme: 'wedding',
       })
 
@@ -465,6 +470,7 @@ export default function AdminPage() {
           allowGuestDelete: payload.allow_guest_delete,
           allowGuestPoster: payload.allow_guest_poster,
           guestbookEnabled: payload.guestbook_enabled,
+          photostripEnabled: payload.photostrip_enabled,
           guestbookPdfTheme: payload.guestbook_pdf_theme,
         }),
       })
@@ -511,6 +517,7 @@ export default function AdminPage() {
             allowGuestDelete: nextEvent.allowGuestDelete,
             allowGuestPoster: nextEvent.allowGuestPoster,
             guestbookEnabled: nextEvent.guestbookEnabled,
+            photostripEnabled: nextEvent.photostripEnabled,
             guestbookPdfTheme: nextEvent.guestbookPdfTheme,
           },
         }))
@@ -705,6 +712,8 @@ export default function AdminPage() {
           allowAlbumDownload: demoCloneSource.allowAlbumDownload,
           allowGuestDelete: demoCloneSource.allowGuestDelete,
           allowGuestPoster: demoCloneSource.allowGuestPoster,
+          photostripEnabled: demoCloneSource.photostripEnabled,
+          photostripBackgroundUrl: demoCloneSource.photostripBackgroundUrl,
         }),
       })
 
@@ -742,6 +751,7 @@ export default function AdminPage() {
           allowGuestDelete: normalized.allowGuestDelete,
           allowGuestPoster: normalized.allowGuestPoster,
           guestbookEnabled: normalized.guestbookEnabled,
+          photostripEnabled: normalized.photostripEnabled,
           guestbookPdfTheme: normalized.guestbookPdfTheme,
         },
       }))
@@ -1157,6 +1167,8 @@ export default function AdminPage() {
             eventControlsById[event.id]?.allowGuestPoster ?? event.allowGuestPoster,
           guestbookEnabled:
             eventControlsById[event.id]?.guestbookEnabled ?? event.guestbookEnabled,
+          photostripEnabled:
+            eventControlsById[event.id]?.photostripEnabled ?? event.photostripEnabled,
           guestbookPdfTheme:
             eventControlsById[event.id]?.guestbookPdfTheme ?? event.guestbookPdfTheme,
         }),
@@ -1192,11 +1204,12 @@ export default function AdminPage() {
             allowGuestShare: normalized.allowGuestShare,
             allowGuestDownload: normalized.allowGuestDownload,
             allowAlbumDownload: normalized.allowAlbumDownload,
-            allowGuestDelete: normalized.allowGuestDelete,
-            allowGuestPoster: normalized.allowGuestPoster,
-            guestbookEnabled: normalized.guestbookEnabled,
-            guestbookPdfTheme: normalized.guestbookPdfTheme,
-          },
+          allowGuestDelete: normalized.allowGuestDelete,
+          allowGuestPoster: normalized.allowGuestPoster,
+          guestbookEnabled: normalized.guestbookEnabled,
+          photostripEnabled: normalized.photostripEnabled,
+          guestbookPdfTheme: normalized.guestbookPdfTheme,
+        },
         }))
       }
 
@@ -1239,6 +1252,10 @@ export default function AdminPage() {
                   kind === 'posterTemplate' ? uploadedVisual.url : item.posterTemplateUrl,
                 storyTemplateUrl:
                   kind === 'storyTemplate' ? uploadedVisual.url : item.storyTemplateUrl,
+                photostripBackgroundUrl:
+                  kind === 'photostripBackground'
+                    ? uploadedVisual.url
+                    : item.photostripBackgroundUrl,
               }
             : item
         )
@@ -1285,6 +1302,8 @@ export default function AdminPage() {
                 ...item,
                 guestbookCoverImageUrl:
                   kind === 'guestbookCover' ? '' : item.guestbookCoverImageUrl,
+                photostripBackgroundUrl:
+                  kind === 'photostripBackground' ? '' : item.photostripBackgroundUrl,
               }
             : item
         )
@@ -1306,7 +1325,8 @@ export default function AdminPage() {
       | 'allowAlbumDownload'
       | 'allowGuestDelete'
       | 'allowGuestPoster'
-      | 'guestbookEnabled',
+      | 'guestbookEnabled'
+      | 'photostripEnabled',
     value: boolean
   ) => {
     setEventControlsById((prev) => ({
@@ -1318,6 +1338,7 @@ export default function AdminPage() {
         allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
         allowGuestPoster: prev[eventId]?.allowGuestPoster ?? false,
         guestbookEnabled: prev[eventId]?.guestbookEnabled ?? true,
+        photostripEnabled: prev[eventId]?.photostripEnabled ?? false,
         guestbookPdfTheme: prev[eventId]?.guestbookPdfTheme ?? 'wedding',
         [key]: value,
       },
@@ -1337,6 +1358,7 @@ export default function AdminPage() {
         allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
         allowGuestPoster: prev[eventId]?.allowGuestPoster ?? false,
         guestbookEnabled: prev[eventId]?.guestbookEnabled ?? true,
+        photostripEnabled: prev[eventId]?.photostripEnabled ?? false,
         guestbookPdfTheme: normalizeGuestbookPdfTheme(value),
       },
     }))
@@ -1363,6 +1385,7 @@ export default function AdminPage() {
           allowGuestDelete: currentSettings.allowGuestDelete,
           allowGuestPoster: currentSettings.allowGuestPoster,
           guestbookEnabled: currentSettings.guestbookEnabled,
+          photostripEnabled: currentSettings.photostripEnabled,
           guestbookPdfTheme: currentSettings.guestbookPdfTheme,
         }),
       })
@@ -1390,6 +1413,7 @@ export default function AdminPage() {
             allowGuestDelete: normalized.allowGuestDelete,
             allowGuestPoster: normalized.allowGuestPoster,
             guestbookEnabled: normalized.guestbookEnabled,
+            photostripEnabled: normalized.photostripEnabled,
             guestbookPdfTheme: normalized.guestbookPdfTheme,
           },
         }))
@@ -2177,6 +2201,7 @@ export default function AdminPage() {
                           [t.admin.backgroundImage, event.backgroundImageUrl],
                           [t.admin.posterTemplateImage, event.posterTemplateUrl],
                           [t.admin.storyTemplateImage, event.storyTemplateUrl],
+                          ['Photostrip achtergrond', event.photostripBackgroundUrl],
                         ] as const).map(([label, value]) => (
                           <div
                             key={label}
@@ -2219,6 +2244,7 @@ export default function AdminPage() {
                         ['allowGuestDelete', t.admin.deleteEnabled],
                         ['allowGuestPoster', t.admin.posterEnabled],
                         ['guestbookEnabled', t.admin.guestbookLabel],
+                        ['photostripEnabled', 'Photostrip Story 5x15'],
                       ] as const).map(([key, label]) => (
                         <div
                           key={key}
@@ -2246,6 +2272,70 @@ export default function AdminPage() {
                           </button>
                         </div>
                       ))}
+
+                      {eventControlsById[event.id]?.photostripEnabled ?? event.photostripEnabled ? (
+                        <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
+                          <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
+                            <div
+                              className="aspect-[9/16] rounded-2xl border border-[#D4DFEE] bg-white bg-cover bg-center"
+                              style={
+                                event.photostripBackgroundUrl
+                                  ? {
+                                      backgroundImage: `url(${event.photostripBackgroundUrl})`,
+                                    }
+                                  : undefined
+                              }
+                            />
+                            <div>
+                              <p className="text-sm font-semibold text-[#0B2742]">
+                                Achtergrond
+                              </p>
+                              <p className="mt-1 text-xs text-[#597594]">
+                                Aanbevolen: 1080 × 1920 px (9:16)
+                              </p>
+                              <p className="mt-2 text-xs font-semibold text-[#33516F]">
+                                {event.photostripBackgroundUrl
+                                  ? t.admin.visualReady
+                                  : t.admin.visualMissing}
+                              </p>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
+                                  {updatingEventVisual?.eventId === event.id &&
+                                  updatingEventVisual.kind === 'photostripBackground'
+                                    ? t.admin.mediaUploading
+                                    : event.photostripBackgroundUrl
+                                      ? 'Bestand wijzigen'
+                                      : 'Bestand kiezen'}
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(inputEvent) => {
+                                      const file = inputEvent.target.files?.[0] || null
+                                      void updateEventVisual(event, file, 'photostripBackground')
+                                      inputEvent.target.value = ''
+                                    }}
+                                    className="sr-only"
+                                  />
+                                </label>
+
+                                {event.photostripBackgroundUrl ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => void removeEventVisual(event, 'photostripBackground')}
+                                    disabled={
+                                      updatingEventVisual?.eventId === event.id &&
+                                      updatingEventVisual.kind === 'photostripBackground'
+                                    }
+                                    className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                  >
+                                    Verwijderen
+                                  </button>
+                                ) : null}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
 
                       {eventControlsById[event.id]?.guestbookEnabled ?? event.guestbookEnabled ? (
                         (() => {

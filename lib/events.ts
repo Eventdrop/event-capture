@@ -24,6 +24,8 @@ type EventRecordLike = {
   allow_guest_delete?: boolean | null
   allow_guest_poster?: boolean | null
   guestbook_enabled?: boolean | null
+  photostrip_enabled?: boolean | null
+  photostrip_background_url?: string | null
   guestbook_pdf_theme?: string | null
   is_demo_template?: boolean | null
   created_at?: string | null
@@ -48,6 +50,8 @@ export type NormalizedEvent = {
   allowGuestDelete: boolean
   allowGuestPoster: boolean
   guestbookEnabled: boolean
+  photostripEnabled: boolean
+  photostripBackgroundUrl: string
   guestbookPdfTheme: GuestbookPdfThemeKey
   isDemoTemplate: boolean
   createdAt: string | null
@@ -148,6 +152,8 @@ export function buildEventInsertPayload(input: {
   allowGuestDelete?: boolean
   allowGuestPoster?: boolean
   guestbookEnabled?: boolean
+  photostripEnabled?: boolean
+  photostripBackgroundUrl?: string | null
   guestbookPdfTheme?: string | null
   isDemoTemplate?: boolean
 }) {
@@ -171,6 +177,8 @@ export function buildEventInsertPayload(input: {
     allow_guest_delete: input.allowGuestDelete === true,
     allow_guest_poster: input.allowGuestPoster === true,
     guestbook_enabled: input.guestbookEnabled !== false,
+    photostrip_enabled: input.photostripEnabled === true,
+    photostrip_background_url: input.photostripBackgroundUrl || null,
     guestbook_pdf_theme: normalizeGuestbookPdfTheme(
       input.guestbookPdfTheme || DEFAULT_GUESTBOOK_PDF_THEME
     ),
@@ -208,6 +216,8 @@ export function normalizeEventRecord(
     allowGuestDelete: record.allow_guest_delete === true,
     allowGuestPoster: record.allow_guest_poster === true,
     guestbookEnabled: record.guestbook_enabled !== false,
+    photostripEnabled: record.photostrip_enabled === true,
+    photostripBackgroundUrl: record.photostrip_background_url || '',
     guestbookPdfTheme: normalizeGuestbookPdfTheme(record.guestbook_pdf_theme),
     isDemoTemplate: record.is_demo_template === true,
     createdAt: record.created_at || null,

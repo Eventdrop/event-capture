@@ -14,6 +14,7 @@ const eventVisualColumns = {
   background: 'background_image_url',
   posterTemplate: 'poster_template_url',
   storyTemplate: 'story_template_url',
+  photostripBackground: 'photostrip_background_url',
 } as const
 
 type EventVisualKind = keyof typeof eventVisualColumns
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
         {
           ok: false,
           error:
-            'Het type moet omslag, gastenboek-omslag, achtergrond, A3-sjabloon of Story-sjabloon zijn.',
+            'Het type moet omslag, gastenboek-omslag, achtergrond, A3-sjabloon, Story-sjabloon of Photostrip-achtergrond zijn.',
         },
         { status: 400 }
       )
@@ -228,7 +229,7 @@ export async function DELETE(request: Request) {
         {
           ok: false,
           error:
-            'Het type moet omslag, gastenboek-omslag, achtergrond, A3-sjabloon of Story-sjabloon zijn.',
+            'Het type moet omslag, gastenboek-omslag, achtergrond, A3-sjabloon, Story-sjabloon of Photostrip-achtergrond zijn.',
         },
         { status: 400 }
       )
