@@ -1805,97 +1805,93 @@ export default function AdminPage() {
               {creatingDemoTemplate ? t.admin.noDemoTemplates : t.admin.noEvents}
             </p>
           ) : (
-            <div className="mt-4 grid gap-2">
+            <>
+            <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
               {visibleEvents.map((event) => {
                 const isSelected = event.id === selectedVisibleEvent?.id
 
                 return (
-                  <div
+                  <button
                     key={event.id}
-                    className={`rounded-[1.2rem] border p-3 ${
+                    type="button"
+                    title={formatEventLabel(event)}
+                    onClick={() => setSelectedAlbumId(event.id)}
+                    className={`w-44 shrink-0 truncate rounded-full border px-4 py-2 text-left text-xs font-semibold ${
                       isSelected
-                        ? 'border-[#0F3D66] bg-white shadow-[0_12px_30px_rgba(15,61,102,0.10)]'
-                        : 'border-[#D4DFEE] bg-[#F7FAFD]'
+                        ? 'border-[#0F3D66] bg-[#0F3D66] text-white shadow-[0_10px_24px_rgba(15,61,102,0.16)]'
+                        : 'border-[#D4DFEE] bg-[#F7FAFD] text-[#0B2742] hover:bg-white'
                     }`}
                   >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedAlbumId(event.id)}
-                      className="w-full text-left"
-                    >
-                      <span className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                        <span className="text-sm font-semibold text-[#0B2742]">
-                          {formatEventLabel(event)}
-                        </span>
-                        {isSelected ? (
-                          <span className="flex flex-wrap gap-1.5">
-                            <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
-                              {guestAccessByEvent[event.id]?.length || 0} e-mail
-                            </span>
-                            <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
-                              ZIP {downloadStatsByEvent[event.id]?.downloads || 0}
-                            </span>
-                            <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
-                              Poster {downloadStatsByEvent[event.id]?.posters || 0}
-                            </span>
-                            <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
-                              Instagram {downloadStatsByEvent[event.id]?.stories || 0}
-                            </span>
-                            {downloadStatsByEvent[event.id]?.lastEmail ? (
-                              <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#597594]">
-                                Son: {downloadStatsByEvent[event.id]?.lastEmail}
-                              </span>
-                            ) : null}
-                          </span>
-                        ) : null}
-                      </span>
-                    </button>
-
-                    {isSelected ? (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <Link
-                          href={getPublicJoinPath(event)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
-                        >
-                          {t.common.guestEntryPage}
-                        </Link>
-                        <Link
-                          href={getPublicGalleryPath(event)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                        >
-                          {t.common.gallery}
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            copyToClipboard(getEventShareUrl(event), t.admin.uploadCopied)
-                          }
-                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                        >
-                          {t.common.copyUploadLink}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            copyToClipboard(
-                              getGalleryShareUrl(event),
-                              t.admin.galleryCopied
-                            )
-                          }
-                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                        >
-                          {t.common.copyGalleryLink}
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
+                    {formatEventLabel(event)}
+                  </button>
                 )
               })}
             </div>
+
+            {selectedVisibleEvent ? (
+              <div className="mt-3 rounded-[1.2rem] border border-[#D4DFEE] bg-[#F7FAFD] p-3">
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                    {guestAccessByEvent[selectedVisibleEvent.id]?.length || 0} e-mail
+                  </span>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                    ZIP {downloadStatsByEvent[selectedVisibleEvent.id]?.downloads || 0}
+                  </span>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                    Poster {downloadStatsByEvent[selectedVisibleEvent.id]?.posters || 0}
+                  </span>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                    Instagram {downloadStatsByEvent[selectedVisibleEvent.id]?.stories || 0}
+                  </span>
+                  {downloadStatsByEvent[selectedVisibleEvent.id]?.lastEmail ? (
+                    <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#597594]">
+                      Son: {downloadStatsByEvent[selectedVisibleEvent.id]?.lastEmail}
+                    </span>
+                  ) : null}
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    href={getPublicJoinPath(selectedVisibleEvent)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
+                  >
+                    {t.common.guestEntryPage}
+                  </Link>
+                  <Link
+                    href={getPublicGalleryPath(selectedVisibleEvent)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                  >
+                    {t.common.gallery}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      copyToClipboard(getEventShareUrl(selectedVisibleEvent), t.admin.uploadCopied)
+                    }
+                    className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                  >
+                    {t.common.copyUploadLink}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      copyToClipboard(
+                        getGalleryShareUrl(selectedVisibleEvent),
+                        t.admin.galleryCopied
+                      )
+                    }
+                    className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                  >
+                    {t.common.copyGalleryLink}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            </>
           )}
         </section>
 
