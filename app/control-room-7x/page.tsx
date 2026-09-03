@@ -128,6 +128,7 @@ export default function AdminPage() {
     Record<string, DownloadStatsEntry>
   >({})
   const [adminSection, setAdminSection] = useState<AdminEventSection>('events')
+  const [selectedAlbumId, setSelectedAlbumId] = useState('')
   const [eventName, setEventName] = useState('')
   const [eventDate, setEventDate] = useState('')
   const [defaultLocale, setDefaultLocale] = useState<Locale>('nl')
@@ -188,6 +189,8 @@ export default function AdminPage() {
     [events]
   )
   const visibleEvents = adminSection === 'templates' ? demoTemplateEvents : customerEvents
+  const selectedVisibleEvent =
+    visibleEvents.find((event) => event.id === selectedAlbumId) || visibleEvents[0] || null
   const latestEvent = useMemo(() => customerEvents[0] || null, [customerEvents])
   const creatingDemoTemplate = adminSection === 'templates'
 
@@ -1976,79 +1979,96 @@ export default function AdminPage() {
               {creatingDemoTemplate ? t.admin.noDemoTemplates : t.admin.noEvents}
             </p>
           ) : (
-            <div className="mt-4 grid gap-3">
-              {visibleEvents.map((event, index) => (
-                <details
-                  key={event.id}
-                  open={index === 0}
-                  className="rounded-[1.2rem] border border-[#D4DFEE] bg-[#F7FAFD] p-3"
-                >
-                  <summary className="cursor-pointer text-sm font-semibold text-[#0B2742]">
-                    <span className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                      <span>{formatEventLabel(event)}</span>
-                      <span className="flex flex-wrap gap-1.5">
-                        <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
-                          {guestAccessByEvent[event.id]?.length || 0} e-mail
+            <div className="mt-4 grid gap-2">
+              {visibleEvents.map((event) => {
+                const isSelected = event.id === selectedVisibleEvent?.id
+
+                return (
+                  <div
+                    key={event.id}
+                    className={`rounded-[1.2rem] border p-3 ${
+                      isSelected
+                        ? 'border-[#0F3D66] bg-white shadow-[0_12px_30px_rgba(15,61,102,0.10)]'
+                        : 'border-[#D4DFEE] bg-[#F7FAFD]'
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedAlbumId(event.id)}
+                      className="w-full text-left"
+                    >
+                      <span className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                        <span className="text-sm font-semibold text-[#0B2742]">
+                          {formatEventLabel(event)}
                         </span>
-                        <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
-                          ZIP {downloadStatsByEvent[event.id]?.downloads || 0}
-                        </span>
-                        <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
-                          Poster {downloadStatsByEvent[event.id]?.posters || 0}
-                        </span>
-                        <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
-                          Instagram {downloadStatsByEvent[event.id]?.stories || 0}
-                        </span>
-                        {downloadStatsByEvent[event.id]?.lastEmail ? (
-                          <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#597594]">
-                            Son: {downloadStatsByEvent[event.id]?.lastEmail}
+                        {isSelected ? (
+                          <span className="flex flex-wrap gap-1.5">
+                            <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                              {guestAccessByEvent[event.id]?.length || 0} e-mail
+                            </span>
+                            <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                              ZIP {downloadStatsByEvent[event.id]?.downloads || 0}
+                            </span>
+                            <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                              Poster {downloadStatsByEvent[event.id]?.posters || 0}
+                            </span>
+                            <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                              Instagram {downloadStatsByEvent[event.id]?.stories || 0}
+                            </span>
+                            {downloadStatsByEvent[event.id]?.lastEmail ? (
+                              <span className="rounded-full bg-[#F7FAFD] px-2.5 py-1 text-[0.7rem] font-semibold text-[#597594]">
+                                Son: {downloadStatsByEvent[event.id]?.lastEmail}
+                              </span>
+                            ) : null}
                           </span>
                         ) : null}
                       </span>
-                    </span>
-                  </summary>
+                    </button>
 
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Link
-                      href={getPublicJoinPath(event)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
-                    >
-                      {t.common.guestEntryPage}
-                    </Link>
-                    <Link
-                      href={getPublicGalleryPath(event)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                    >
-                      {t.common.gallery}
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        copyToClipboard(getEventShareUrl(event), t.admin.uploadCopied)
-                      }
-                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                    >
-                      {t.common.copyUploadLink}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        copyToClipboard(
-                          getGalleryShareUrl(event),
-                          t.admin.galleryCopied
-                        )
-                      }
-                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                    >
-                      {t.common.copyGalleryLink}
-                    </button>
+                    {isSelected ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Link
+                          href={getPublicJoinPath(event)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
+                        >
+                          {t.common.guestEntryPage}
+                        </Link>
+                        <Link
+                          href={getPublicGalleryPath(event)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                        >
+                          {t.common.gallery}
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            copyToClipboard(getEventShareUrl(event), t.admin.uploadCopied)
+                          }
+                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                        >
+                          {t.common.copyUploadLink}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            copyToClipboard(
+                              getGalleryShareUrl(event),
+                              t.admin.galleryCopied
+                            )
+                          }
+                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                        >
+                          {t.common.copyGalleryLink}
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
-                </details>
-              ))}
+                )
+              })}
             </div>
           )}
         </section>
@@ -2057,21 +2077,12 @@ export default function AdminPage() {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
-                {t.admin.eventDetails}
+                Geselecteerd album
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[#0B2742]">
-                {t.admin.eventDetails}
+                {selectedVisibleEvent ? formatEventLabel(selectedVisibleEvent) : t.admin.eventDetails}
               </h2>
             </div>
-
-            {latestEvent ? (
-              <Link
-                href={getPublicJoinPath(latestEvent)}
-                className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-5 py-3 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
-              >
-                {t.common.latestPublicAlbum}
-              </Link>
-            ) : null}
           </div>
 
           {!authenticated ? (
@@ -2082,16 +2093,12 @@ export default function AdminPage() {
             </p>
           ) : (
             <div className="mt-6 grid gap-4">
-              {visibleEvents.map((event, index) => (
-                <details
+              {selectedVisibleEvent ? [selectedVisibleEvent].map((event) => (
+                <div
                   key={event.id}
                   id={`event-editor-${event.id}`}
-                  open={index === 0}
                   className="rounded-[1.8rem] border border-[#D4DFEE] bg-[#F8FBFE] p-5"
                 >
-                  <summary className="cursor-pointer text-lg font-semibold text-[#0B2742]">
-                    {formatEventLabel(event)}
-                  </summary>
                   <p className="mt-2 break-all text-sm text-[#6A84A3]">
                     {t.common.eventId}: {event.id}
                   </p>
@@ -2897,8 +2904,8 @@ export default function AdminPage() {
                     </div>
                   </AdminSettingsSection>
                   </div>
-                </details>
-              ))}
+                </div>
+              )) : null}
             </div>
           )}
         </section>
