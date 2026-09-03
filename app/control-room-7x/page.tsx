@@ -64,6 +64,14 @@ type DownloadStatsEntry = {
   lastDownloadedAt: string | null
 }
 
+type GuestbookMessageApiEntry = {
+  createdAt?: string | null
+  guestName?: string | null
+  id?: string | null
+  message?: string | null
+  relatedUploadId?: string | null
+}
+
 type AdminEventSection = 'events' | 'templates'
 
 type EventControls = {
@@ -162,6 +170,7 @@ export default function AdminPage() {
   >({})
   const [editingGuestMessageId, setEditingGuestMessageId] = useState('')
   const [updatingGuestMessageId, setUpdatingGuestMessageId] = useState('')
+  const [refreshingGuestbookEventId, setRefreshingGuestbookEventId] = useState('')
   const [eventControlsById, setEventControlsById] = useState<
     Record<string, EventControls>
   >({})
@@ -207,9 +216,71 @@ export default function AdminPage() {
   const getSelectedGuestbookPdfTheme = (event: NormalizedEvent) =>
     eventControlsById[event.id]?.guestbookPdfTheme ?? event.guestbookPdfTheme
 
+  const refreshSelectedGuestbookMessages = useCallback(async (eventId: string) => {
+    if (!eventId) return
+
+    setRefreshingGuestbookEventId(eventId)
+
+    try {
+      const response = await fetch(
+        `/api/guestbook-messages?event=${encodeURIComponent(eventId)}`,
+        { cache: 'no-store' }
+      )
+      const payload = (await response.json()) as {
+        error?: string
+        messages?: GuestbookMessageApiEntry[]
+        ok?: boolean
+      }
+
+      if (!response.ok || payload.ok !== true) {
+        throw new Error(payload.error || t.admin.loadError)
+      }
+
+      const refreshedMessages = (payload.messages || [])
+        .map<GuestMessageEntry>((message) => ({
+          created_at: message.createdAt || null,
+          file_name: null,
+          guest_name: message.guestName || null,
+          id: message.id || null,
+          message: message.message || '',
+          related_upload_id: message.relatedUploadId || null,
+          source: 'guestbook',
+        }))
+        .filter((message) => message.message)
+
+      setGuestMessagesByEvent((prev) => {
+        const uploadMessages = (prev[eventId] || []).filter(
+          (message) => message.source === 'upload'
+        )
+        const nextMessages = [...refreshedMessages, ...uploadMessages].sort((left, right) => {
+          const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0
+          const rightTime = right.created_at ? new Date(right.created_at).getTime() : 0
+
+          return rightTime - leftTime
+        })
+
+        return {
+          ...prev,
+          [eventId]: nextMessages,
+        }
+      })
+    } catch (error) {
+      console.error('Failed to refresh guestbook messages', error)
+      setStatusMessage(error instanceof Error ? error.message : t.admin.loadError)
+    } finally {
+      setRefreshingGuestbookEventId('')
+    }
+  }, [t.admin.loadError])
+
   useEffect(() => {
     setStatusMessage(t.admin.loginPrompt)
   }, [t.admin.loginPrompt])
+
+  useEffect(() => {
+    if (!authenticated || !selectedVisibleEvent?.id) return
+
+    void refreshSelectedGuestbookMessages(selectedVisibleEvent.id)
+  }, [authenticated, refreshSelectedGuestbookMessages, selectedVisibleEvent?.id])
 
   const loadEvents = useCallback(async () => {
     const response = await fetch('/api/admin/events', {
@@ -1945,7 +2016,7 @@ export default function AdminPage() {
                   ) : null}
 
                   <div className="mt-4 space-y-3">
-                  <AdminSettingsSection title="Algemeen" defaultOpen>
+                  <AdminSettingsSection title={t.admin.settingsGeneral} defaultOpen>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                       {t.admin.eventDetails}
                     </p>
@@ -1988,7 +2059,7 @@ export default function AdminPage() {
                     </button>
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title="Branding & media">
+                  <AdminSettingsSection title={t.admin.settingsBrandingMedia}>
                     <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
                       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
@@ -2158,7 +2229,7 @@ export default function AdminPage() {
 
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title="Functies">
+                  <AdminSettingsSection title={t.admin.settingsFeatures}>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                       {t.admin.publicTools}
                     </p>
@@ -2353,7 +2424,7 @@ export default function AdminPage() {
                     </button>
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title="Toegang & delen">
+                  <AdminSettingsSection title={t.admin.settingsAccessSharing}>
                   <div className="rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
                     <div className="flex justify-center" data-event-qr={event.id}>
                       <QRCodeSVG value={getEventShareUrl(event)} size={160} />
@@ -2500,7 +2571,7 @@ export default function AdminPage() {
                   </div>
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title="Downloads & exports">
+                  <AdminSettingsSection title={t.admin.settingsDownloadsExports}>
 
                   {event.guestbookEnabled ? (
                   <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
@@ -2516,6 +2587,15 @@ export default function AdminPage() {
                         )}
                       </p>
                       </div>
+                      <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void refreshSelectedGuestbookMessages(event.id)}
+                        disabled={refreshingGuestbookEventId === event.id}
+                        className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-1.5 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Vernieuwen
+                      </button>
                       {getGuestbookPdfThemeConfig(event.guestbookPdfTheme).implemented ? (
                         guestMessagesByEvent[event.id]?.length ? (
                           <a
@@ -2544,6 +2624,7 @@ export default function AdminPage() {
                           {t.admin.guestbookPdfThemeComingSoonButton}
                         </button>
                       )}
+                      </div>
                     </div>
 
                     {guestMessagesByEvent[event.id]?.length ? (
@@ -2710,7 +2791,7 @@ export default function AdminPage() {
                   </div>
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title="Gevarenzone">
+                  <AdminSettingsSection title={t.admin.settingsDangerZone}>
                     <div className="rounded-[1.2rem] border border-[#F1B6B6] bg-[#FFF7F7] p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B52E2E]">
                         Tehlikeli islem
