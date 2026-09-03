@@ -28,6 +28,8 @@ const PHOTO_COMPRESS_THRESHOLD_BYTES = 1.5 * 1024 * 1024
 const PHOTO_COMPRESS_MAX_DIMENSION = 2000
 const PHOTO_COMPRESS_QUALITY = 0.82
 const PHOTO_MAX_ASPECT_RATIO = 2.2
+const PHOTO_STRIP_MIN_ASPECT_RATIO = 2.4
+const PHOTO_STRIP_MAX_ASPECT_RATIO = 3.4
 const GUEST_MESSAGE_MAX_LENGTH = 500
 
 function limitGuestMessage(value: string) {
@@ -72,7 +74,16 @@ async function isPhotoAspectRatioAllowed(file: File) {
 
     if (!width || !height) return true
 
-    return Math.max(width / height, height / width) <= PHOTO_MAX_ASPECT_RATIO
+    const normalPhotoRatio = Math.max(width / height, height / width)
+    const verticalPhotoStripRatio = height / width
+
+    return (
+      normalPhotoRatio <= PHOTO_MAX_ASPECT_RATIO ||
+      (
+        verticalPhotoStripRatio >= PHOTO_STRIP_MIN_ASPECT_RATIO &&
+        verticalPhotoStripRatio <= PHOTO_STRIP_MAX_ASPECT_RATIO
+      )
+    )
   } catch {
     return true
   }
