@@ -2150,7 +2150,7 @@ export default function Page() {
           </section>
         ) : null}
 
-        <nav className="sticky top-0 z-30 mt-3 border-b border-neutral-200 bg-white">
+        <nav className="sticky top-0 z-50 isolate mt-3 border-b border-neutral-200 bg-white">
           <div className="grid grid-cols-4 gap-1">
             {([
               ['photos', t.gallery.photosTab],
