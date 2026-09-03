@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
@@ -75,6 +75,31 @@ type EventControls = {
   guestbookEnabled: boolean
   photostripEnabled: boolean
   guestbookPdfTheme: GuestbookPdfThemeKey
+}
+
+function AdminSettingsSection({
+  children,
+  defaultOpen = false,
+  title,
+}: {
+  children: ReactNode
+  defaultOpen?: boolean
+  title: string
+}) {
+  return (
+    <details
+      open={defaultOpen}
+      className="rounded-[1.35rem] border border-[#D4DFEE] bg-white"
+    >
+      <summary className="cursor-pointer list-none px-4 py-3 text-sm font-bold text-[#0B2742] [&::-webkit-details-marker]:hidden">
+        <span className="flex items-center justify-between gap-3">
+          {title}
+          <span className="text-xs font-semibold text-[#6A84A3]">Open/sluit</span>
+        </span>
+      </summary>
+      <div className="border-t border-[#E4ECF5] px-4 py-4">{children}</div>
+    </details>
+  )
 }
 
 export default function AdminPage() {
@@ -2085,7 +2110,8 @@ export default function AdminPage() {
                     </p>
                   ) : null}
 
-                  <div className="mt-4 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
+                  <div className="mt-4 space-y-3">
+                  <AdminSettingsSection title="Algemeen" defaultOpen>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                       {t.admin.eventDetails}
                     </p>
@@ -2114,7 +2140,22 @@ export default function AdminPage() {
                       </label>
                     </div>
 
-                    <div className="mt-4 rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
+                    <button
+                      type="button"
+                      onClick={() => saveEventDetails(event)}
+                      disabled={submitting}
+                      className={`mt-4 rounded-full px-4 py-2 text-sm font-semibold ${
+                        submitting
+                          ? 'cursor-not-allowed bg-stone-300 text-stone-500'
+                          : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
+                      }`}
+                    >
+                      {submitting ? t.admin.saving : t.admin.saveEventDetails}
+                    </button>
+                  </AdminSettingsSection>
+
+                  <AdminSettingsSection title="Branding & media">
+                    <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
                       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                           {t.admin.visualsSection}
@@ -2217,21 +2258,73 @@ export default function AdminPage() {
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => saveEventDetails(event)}
-                      disabled={submitting}
-                      className={`mt-4 rounded-full px-4 py-2 text-sm font-semibold ${
-                        submitting
-                          ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                          : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
-                      }`}
-                    >
-                      {submitting ? t.admin.saving : t.admin.saveEventDetails}
-                    </button>
-                  </div>
+                    {eventControlsById[event.id]?.photostripEnabled ?? event.photostripEnabled ? (
+                      <div className="mt-3 rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
+                        <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
+                          <div
+                            className="aspect-[9/16] rounded-2xl border border-[#D4DFEE] bg-white bg-cover bg-center"
+                            style={
+                              event.photostripBackgroundUrl
+                                ? {
+                                    backgroundImage: `url(${event.photostripBackgroundUrl})`,
+                                  }
+                                : undefined
+                            }
+                          />
+                          <div>
+                            <p className="text-sm font-semibold text-[#0B2742]">
+                              Achtergrond
+                            </p>
+                            <p className="mt-1 text-xs text-[#597594]">
+                              Aanbevolen: 1080 × 1920 px (9:16)
+                            </p>
+                            <p className="mt-2 text-xs font-semibold text-[#33516F]">
+                              {event.photostripBackgroundUrl
+                                ? t.admin.visualReady
+                                : t.admin.visualMissing}
+                            </p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
+                                {updatingEventVisual?.eventId === event.id &&
+                                updatingEventVisual.kind === 'photostripBackground'
+                                  ? t.admin.mediaUploading
+                                  : event.photostripBackgroundUrl
+                                    ? 'Bestand wijzigen'
+                                    : 'Bestand kiezen'}
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(inputEvent) => {
+                                    const file = inputEvent.target.files?.[0] || null
+                                    void updateEventVisual(event, file, 'photostripBackground')
+                                    inputEvent.target.value = ''
+                                  }}
+                                  className="sr-only"
+                                />
+                              </label>
 
-                  <div className="mt-4 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
+                              {event.photostripBackgroundUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => void removeEventVisual(event, 'photostripBackground')}
+                                  disabled={
+                                    updatingEventVisual?.eventId === event.id &&
+                                    updatingEventVisual.kind === 'photostripBackground'
+                                  }
+                                  className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  Verwijderen
+                                </button>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                  </AdminSettingsSection>
+
+                  <AdminSettingsSection title="Functies">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                       {t.admin.publicTools}
                     </p>
@@ -2272,70 +2365,6 @@ export default function AdminPage() {
                           </button>
                         </div>
                       ))}
-
-                      {eventControlsById[event.id]?.photostripEnabled ?? event.photostripEnabled ? (
-                        <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
-                          <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
-                            <div
-                              className="aspect-[9/16] rounded-2xl border border-[#D4DFEE] bg-white bg-cover bg-center"
-                              style={
-                                event.photostripBackgroundUrl
-                                  ? {
-                                      backgroundImage: `url(${event.photostripBackgroundUrl})`,
-                                    }
-                                  : undefined
-                              }
-                            />
-                            <div>
-                              <p className="text-sm font-semibold text-[#0B2742]">
-                                Achtergrond
-                              </p>
-                              <p className="mt-1 text-xs text-[#597594]">
-                                Aanbevolen: 1080 × 1920 px (9:16)
-                              </p>
-                              <p className="mt-2 text-xs font-semibold text-[#33516F]">
-                                {event.photostripBackgroundUrl
-                                  ? t.admin.visualReady
-                                  : t.admin.visualMissing}
-                              </p>
-                              <div className="mt-3 flex flex-wrap gap-2">
-                                <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]">
-                                  {updatingEventVisual?.eventId === event.id &&
-                                  updatingEventVisual.kind === 'photostripBackground'
-                                    ? t.admin.mediaUploading
-                                    : event.photostripBackgroundUrl
-                                      ? 'Bestand wijzigen'
-                                      : 'Bestand kiezen'}
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(inputEvent) => {
-                                      const file = inputEvent.target.files?.[0] || null
-                                      void updateEventVisual(event, file, 'photostripBackground')
-                                      inputEvent.target.value = ''
-                                    }}
-                                    className="sr-only"
-                                  />
-                                </label>
-
-                                {event.photostripBackgroundUrl ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => void removeEventVisual(event, 'photostripBackground')}
-                                    disabled={
-                                      updatingEventVisual?.eventId === event.id &&
-                                      updatingEventVisual.kind === 'photostripBackground'
-                                    }
-                                    className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
-                                  >
-                                    Verwijderen
-                                  </button>
-                                ) : null}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
 
                       {eventControlsById[event.id]?.guestbookEnabled ?? event.guestbookEnabled ? (
                         (() => {
@@ -2488,9 +2517,10 @@ export default function AdminPage() {
                     >
                       {t.admin.saveVisibility}
                     </button>
-                  </div>
+                  </AdminSettingsSection>
 
-                  <div className="mt-4 rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
+                  <AdminSettingsSection title="Toegang & delen">
+                  <div className="rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
                     <div className="flex justify-center" data-event-qr={event.id}>
                       <QRCodeSVG value={getEventShareUrl(event)} size={160} />
                     </div>
@@ -2633,23 +2663,13 @@ export default function AdminPage() {
                       </div>
                     ) : null}
 
-                    <div className="rounded-[1.2rem] border border-[#F1B6B6] bg-[#FFF7F7] p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B52E2E]">
-                        Tehlikeli islem
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteEvent(event.id)}
-                        disabled={submitting}
-                        className="mt-3 inline-flex items-center justify-center rounded-full border border-[#F1B6B6] bg-[#FFF1F1] px-4 py-2 text-sm font-semibold text-[#B52E2E] hover:bg-[#FFE3E3] disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {t.common.deleteEvent}
-                      </button>
-                    </div>
                   </div>
+                  </AdminSettingsSection>
+
+                  <AdminSettingsSection title="Downloads & exports">
 
                   {event.guestbookEnabled ? (
-                  <div className="mt-4 rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
+                  <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex flex-col gap-1">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
@@ -2853,6 +2873,24 @@ export default function AdminPage() {
                         {t.admin.noGuestEmails}
                       </p>
                     )}
+                  </div>
+                  </AdminSettingsSection>
+
+                  <AdminSettingsSection title="Gevarenzone">
+                    <div className="rounded-[1.2rem] border border-[#F1B6B6] bg-[#FFF7F7] p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B52E2E]">
+                        Tehlikeli islem
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteEvent(event.id)}
+                        disabled={submitting}
+                        className="mt-3 inline-flex items-center justify-center rounded-full border border-[#F1B6B6] bg-[#FFF1F1] px-4 py-2 text-sm font-semibold text-[#B52E2E] hover:bg-[#FFE3E3] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {t.common.deleteEvent}
+                      </button>
+                    </div>
+                  </AdminSettingsSection>
                   </div>
                 </details>
               ))}
