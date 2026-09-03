@@ -154,6 +154,7 @@ export default function Page() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [eventMissing, setEventMissing] = useState(false)
   const [guidanceAccepted, setGuidanceAccepted] = useState(false)
+  const [selectedGuestbookPhotoIndex, setSelectedGuestbookPhotoIndex] = useState(-1)
   const [guestName, setGuestName] = useState('')
   const [guestMessage, setGuestMessage] = useState('')
 
@@ -313,20 +314,22 @@ export default function Page() {
       photoCount,
     }
   }, [acceptedFiles])
-  const selectedFilePreviews = useMemo(
+  const selectedUploadPhotoPreviews = useMemo(
     () =>
-      acceptedFiles.slice(0, 8).map((file) => ({
+      acceptedFiles.map((file, index) => ({
+        index,
         name: file.name,
         url: URL.createObjectURL(file),
       })),
     [acceptedFiles]
   )
+  const selectedFilePreviews = selectedUploadPhotoPreviews.slice(0, 8)
 
   useEffect(
     () => () => {
-      selectedFilePreviews.forEach((preview) => URL.revokeObjectURL(preview.url))
+      selectedUploadPhotoPreviews.forEach((preview) => URL.revokeObjectURL(preview.url))
     },
-    [selectedFilePreviews]
+    [selectedUploadPhotoPreviews]
   )
 
   const handleKeepLink = async () => {
@@ -358,6 +361,7 @@ export default function Page() {
   }
 
   const resetGuestbookFields = () => {
+    setSelectedGuestbookPhotoIndex(-1)
     setGuestName('')
     setGuestMessage('')
   }
@@ -404,6 +408,7 @@ export default function Page() {
     }
 
     setSelectedFiles(validFiles)
+    setSelectedGuestbookPhotoIndex(-1)
 
     const notes = [
       unsupportedFiles > 0 ? `${unsupportedFiles} ${t.upload.unsupportedIgnored}` : '',
@@ -557,7 +562,12 @@ export default function Page() {
     const uploadGuestMessage = guestbookEnabled
       ? limitGuestMessage(guestMessage).trim()
       : ''
+    const selectedGuestbookFile =
+      selectedGuestbookPhotoIndex >= 0
+        ? acceptedFiles[selectedGuestbookPhotoIndex] || null
+        : null
     let firstSuccessfulUploadId = ''
+    let selectedGuestbookUploadId = ''
 
     setUploading(true)
     setMessage(t.upload.uploadInProgress)
@@ -621,13 +631,17 @@ export default function Page() {
         if (!firstSuccessfulUploadId && uploadRecord?.id) {
           firstSuccessfulUploadId = uploadRecord.id
         }
+
+        if (selectedGuestbookFile === file && uploadRecord?.id) {
+          selectedGuestbookUploadId = uploadRecord.id
+        }
       }
 
       if (uploadGuestMessage && firstSuccessfulUploadId) {
         await createUploadLinkedGuestbookEntry({
           guestName: uploadGuestName,
           message: uploadGuestMessage,
-          relatedUploadId: firstSuccessfulUploadId,
+          relatedUploadId: selectedGuestbookUploadId || firstSuccessfulUploadId,
         })
       }
 
@@ -708,7 +722,7 @@ export default function Page() {
               type="file"
               name="media"
               multiple
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               onChange={handleFileChange}
               disabled={uploading || eventMissing}
               className="sr-only"
@@ -743,6 +757,44 @@ export default function Page() {
                 <p className="text-sm font-bold text-[#161616]">
                   {t.upload.guestbookCardTitle}
                 </p>
+
+                <div className="mt-2">
+                  <p className="text-xs font-semibold text-[#33516F]">
+                    Gastenboek foto
+                  </p>
+                  <div className="mt-1.5 flex gap-2 overflow-x-auto pb-1">
+                    {selectedUploadPhotoPreviews.map((preview) => {
+                      const selected = selectedGuestbookPhotoIndex === preview.index
+
+                      return (
+                        <button
+                          key={preview.url}
+                          type="button"
+                          onClick={() => setSelectedGuestbookPhotoIndex(preview.index)}
+                          disabled={uploading}
+                          className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border bg-white ${
+                            selected
+                              ? 'border-[#B91F32] ring-2 ring-[#B91F32]/25'
+                              : 'border-[#E3E7EC] hover:border-[#C8D3E5]'
+                          } disabled:cursor-not-allowed disabled:opacity-60`}
+                          aria-pressed={selected}
+                          title={preview.name}
+                        >
+                          <img
+                            src={preview.url}
+                            alt={preview.name}
+                            className="h-full w-full object-cover"
+                          />
+                          {selected ? (
+                            <span className="absolute inset-x-1 bottom-1 rounded-full bg-[linear-gradient(135deg,#7f1424_0%,#b91f32_55%,#e32636_100%)] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                              Gekozen
+                            </span>
+                          ) : null}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
 
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <label className="block text-xs font-semibold text-[#33516F]">
