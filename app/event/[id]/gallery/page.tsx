@@ -2344,7 +2344,7 @@ export default function Page() {
             ) : null}
 
             {activeDesignFormat === 'photostrip' ? (
-              <div className="sticky top-[58px] z-20 rounded-xl border border-neutral-200 bg-white/96 p-3 shadow-[0_8px_22px_rgba(20,20,20,0.08)] backdrop-blur">
+              <div className="sticky top-[58px] z-40 rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.08)]">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
@@ -2385,7 +2385,7 @@ export default function Page() {
                 </div>
               </div>
             ) : designMode ? (
-              <div className="sticky top-[58px] z-20 rounded-xl border border-neutral-200 bg-white/96 p-3 shadow-[0_8px_22px_rgba(20,20,20,0.08)] backdrop-blur">
+              <div className="sticky top-[58px] z-40 rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.08)]">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
