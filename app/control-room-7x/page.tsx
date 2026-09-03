@@ -1482,107 +1482,7 @@ export default function AdminPage() {
           </div>
         </nav>
 
-        <section className="grid gap-5 lg:grid-cols-[0.62fr_1.38fr]">
-          <div className="rounded-[1.8rem] border border-[#D4DFEE] bg-white/85 p-5 shadow-[0_18px_54px_rgba(15,61,102,0.08)]">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
-                  {t.admin.recentAlbums}
-                </p>
-                <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#0B2742]">
-                  {visibleEvents.length} album
-                </h1>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => copyToClipboard(adminUrl, t.admin.uploadCopied)}
-                className="rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-              >
-                Admin link
-              </button>
-            </div>
-
-            {!authenticated ? (
-              <p className="mt-5 rounded-[1.2rem] bg-[#F7FAFD] p-4 text-sm text-[#597594]">
-                {t.admin.unlockToManage}
-              </p>
-            ) : visibleEvents.length === 0 ? (
-              <p className="mt-5 rounded-[1.2rem] bg-[#F7FAFD] p-4 text-sm text-[#597594]">
-                {creatingDemoTemplate ? t.admin.noDemoTemplates : t.admin.noEvents}
-              </p>
-            ) : (
-              <div className="mt-5 space-y-3">
-                {visibleEvents.slice(0, 8).map((event, index) => (
-                  <details
-                    key={event.id}
-                    open={index === 0}
-                    className="rounded-[1.2rem] border border-[#D4DFEE] bg-[#F7FAFD] p-3"
-                  >
-                    <summary className="cursor-pointer text-sm font-semibold text-[#0B2742]">
-                      {formatEventLabel(event)}
-                    </summary>
-
-                    <div className="mt-3 space-y-2">
-                      <p className="text-xs text-[#6A84A3]">
-                        {guestAccessByEvent[event.id]?.length || 0} e-mail
-                      </p>
-                      <p className="rounded-lg bg-white px-2.5 py-2 text-xs font-semibold text-[#0F3D66]">
-                        ZIP: {downloadStatsByEvent[event.id]?.downloads || 0} ·{' '}
-                        Poster: {downloadStatsByEvent[event.id]?.posters || 0} ·{' '}
-                        Instagram: {downloadStatsByEvent[event.id]?.stories || 0}
-                        {downloadStatsByEvent[event.id]?.lastEmail
-                          ? ` · Son: ${downloadStatsByEvent[event.id]?.lastEmail}`
-                          : ''}
-                      </p>
-
-                      <div className="grid gap-2">
-                        <Link
-                          href={getPublicJoinPath(event)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
-                        >
-                          {t.common.guestEntryPage}
-                        </Link>
-                        <Link
-                          href={getPublicGalleryPath(event)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                        >
-                          {t.common.gallery}
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            copyToClipboard(getEventShareUrl(event), t.admin.uploadCopied)
-                          }
-                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                        >
-                          {t.common.copyUploadLink}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            copyToClipboard(
-                              getGalleryShareUrl(event),
-                              t.admin.galleryCopied
-                            )
-                          }
-                          className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                        >
-                          {t.common.copyGalleryLink}
-                        </button>
-                      </div>
-                    </div>
-                  </details>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-[1.8rem] border border-[#D4DFEE] bg-[#0F3D66] p-5 text-white shadow-[0_22px_60px_rgba(15,61,102,0.18)] md:p-6">
+        <section className="rounded-[1.8rem] border border-[#D4DFEE] bg-[#0F3D66] p-5 text-white shadow-[0_22px_60px_rgba(15,61,102,0.18)] md:p-6">
             {loadingSession ? (
               <p className="text-sm text-[#DDEAF7]">{t.admin.checkingSession}</p>
             ) : authenticated ? (
@@ -2045,7 +1945,112 @@ export default function AdminPage() {
                 </p>
               </div>
             )}
+        </section>
+
+        <section className="rounded-[1.8rem] border border-[#D4DFEE] bg-white/85 p-5 shadow-[0_18px_54px_rgba(15,61,102,0.08)]">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
+                Albümler
+              </p>
+              <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#0B2742]">
+                {visibleEvents.length} album
+              </h1>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => copyToClipboard(adminUrl, t.admin.uploadCopied)}
+              className="rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+            >
+              Admin link
+            </button>
           </div>
+
+          {!authenticated ? (
+            <p className="mt-4 rounded-[1.2rem] bg-[#F7FAFD] p-4 text-sm text-[#597594]">
+              {t.admin.unlockToManage}
+            </p>
+          ) : visibleEvents.length === 0 ? (
+            <p className="mt-4 rounded-[1.2rem] bg-[#F7FAFD] p-4 text-sm text-[#597594]">
+              {creatingDemoTemplate ? t.admin.noDemoTemplates : t.admin.noEvents}
+            </p>
+          ) : (
+            <div className="mt-4 grid gap-3">
+              {visibleEvents.map((event, index) => (
+                <details
+                  key={event.id}
+                  open={index === 0}
+                  className="rounded-[1.2rem] border border-[#D4DFEE] bg-[#F7FAFD] p-3"
+                >
+                  <summary className="cursor-pointer text-sm font-semibold text-[#0B2742]">
+                    <span className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                      <span>{formatEventLabel(event)}</span>
+                      <span className="flex flex-wrap gap-1.5">
+                        <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                          {guestAccessByEvent[event.id]?.length || 0} e-mail
+                        </span>
+                        <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                          ZIP {downloadStatsByEvent[event.id]?.downloads || 0}
+                        </span>
+                        <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                          Poster {downloadStatsByEvent[event.id]?.posters || 0}
+                        </span>
+                        <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#0F3D66]">
+                          Instagram {downloadStatsByEvent[event.id]?.stories || 0}
+                        </span>
+                        {downloadStatsByEvent[event.id]?.lastEmail ? (
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[0.7rem] font-semibold text-[#597594]">
+                            Son: {downloadStatsByEvent[event.id]?.lastEmail}
+                          </span>
+                        ) : null}
+                      </span>
+                    </span>
+                  </summary>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link
+                      href={getPublicJoinPath(event)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
+                    >
+                      {t.common.guestEntryPage}
+                    </Link>
+                    <Link
+                      href={getPublicGalleryPath(event)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                    >
+                      {t.common.gallery}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        copyToClipboard(getEventShareUrl(event), t.admin.uploadCopied)
+                      }
+                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                    >
+                      {t.common.copyUploadLink}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        copyToClipboard(
+                          getGalleryShareUrl(event),
+                          t.admin.galleryCopied
+                        )
+                      }
+                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                    >
+                      {t.common.copyGalleryLink}
+                    </button>
+                  </div>
+                </details>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="rounded-[2.2rem] border border-[#D4DFEE] bg-white/85 p-7 shadow-[0_18px_54px_rgba(15,61,102,0.08)]">
@@ -2076,7 +2081,7 @@ export default function AdminPage() {
               {creatingDemoTemplate ? t.admin.noDemoTemplates : t.admin.noEvents}
             </p>
           ) : (
-            <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            <div className="mt-6 grid gap-4">
               {visibleEvents.map((event, index) => (
                 <details
                   key={event.id}
