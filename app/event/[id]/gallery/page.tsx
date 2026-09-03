@@ -265,7 +265,7 @@ type CanvasImageResource = {
   objectUrl: string
 }
 
-type DesignFormat = 'poster' | 'story'
+type DesignFormat = 'poster' | 'story' | 'photostrip'
 type GalleryView = 'photos' | 'guestbook' | 'designs' | 'downloads'
 type DesignMode =
   | 'posterPortrait'
@@ -493,6 +493,20 @@ function formatSuitablePhotoShortage(count: number, required: number, locale: Lo
   }
 
   return `Er zijn ${count} geschikte foto's beschikbaar. Voor dit ontwerp zijn ${required} foto's nodig.`
+}
+
+function formatPhotostripShortage(count: number, locale: Locale) {
+  if (locale === 'en') return `${count} photostrips are available. This Story needs exactly 3 photostrips.`
+  if (locale === 'fr') return `${count} photostrips disponibles. Cette Story nécessite exactement 3 photostrips.`
+  if (locale === 'de') return `${count} Fotostreifen sind verfügbar. Diese Story benötigt genau 3 Fotostreifen.`
+  if (locale === 'tr') return `${count} photostrip var. Bu Story icin tam 3 photostrip gerekiyor.`
+
+  return `Er zijn ${count} photostrips beschikbaar. Voor deze Story zijn precies 3 photostrips nodig.`
+}
+
+function getPhotostripLabel(locale: Locale) {
+  if (locale === 'tr') return 'Photostrip Story 5x15'
+  return 'Photostrip 5x15'
 }
 
 function GalleryNavIcon({ icon }: { icon: GalleryView }) {
@@ -749,6 +763,129 @@ function drawStoryGrid(
   })
 }
 
+function drawPhotostripDefaultBackground(context: CanvasRenderingContext2D) {
+  context.fillStyle = '#070707'
+  context.fillRect(0, 0, STORY_WIDTH, STORY_HEIGHT)
+
+  const smokeLayers = [
+    { x: 150, y: 280, radius: 420, alpha: 0.22 },
+    { x: 910, y: 350, radius: 380, alpha: 0.18 },
+    { x: 180, y: 1500, radius: 360, alpha: 0.16 },
+    { x: 920, y: 1420, radius: 410, alpha: 0.18 },
+  ]
+
+  smokeLayers.forEach((layer) => {
+    const gradient = context.createRadialGradient(
+      layer.x,
+      layer.y,
+      0,
+      layer.x,
+      layer.y,
+      layer.radius
+    )
+    gradient.addColorStop(0, `rgba(210, 210, 210, ${layer.alpha})`)
+    gradient.addColorStop(0.45, `rgba(150, 150, 150, ${layer.alpha * 0.45})`)
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
+    context.fillStyle = gradient
+    context.fillRect(0, 0, STORY_WIDTH, STORY_HEIGHT)
+  })
+
+  const glow = context.createRadialGradient(
+    STORY_WIDTH / 2,
+    STORY_HEIGHT / 2,
+    80,
+    STORY_WIDTH / 2,
+    STORY_HEIGHT / 2,
+    640
+  )
+  glow.addColorStop(0, 'rgba(236, 184, 86, 0.2)')
+  glow.addColorStop(0.45, 'rgba(172, 117, 43, 0.12)')
+  glow.addColorStop(1, 'rgba(0, 0, 0, 0)')
+  context.fillStyle = glow
+  context.fillRect(0, 0, STORY_WIDTH, STORY_HEIGHT)
+
+  context.fillStyle = 'rgba(231, 190, 102, 0.2)'
+  for (let index = 0; index < 90; index += 1) {
+    const x = (index * 137) % STORY_WIDTH
+    const y = (index * 251) % STORY_HEIGHT
+    const nearEdge = x < 210 || x > STORY_WIDTH - 210 || y < 260 || y > STORY_HEIGHT - 260
+
+    if (!nearEdge && index % 4 !== 0) continue
+
+    context.globalAlpha = 0.18 + (index % 5) * 0.025
+    context.beginPath()
+    context.arc(x, y, 0.9 + (index % 3) * 0.45, 0, Math.PI * 2)
+    context.fill()
+  }
+  context.globalAlpha = 1
+
+  const vignette = context.createRadialGradient(
+    STORY_WIDTH / 2,
+    STORY_HEIGHT / 2,
+    360,
+    STORY_WIDTH / 2,
+    STORY_HEIGHT / 2,
+    980
+  )
+  vignette.addColorStop(0, 'rgba(0, 0, 0, 0)')
+  vignette.addColorStop(1, 'rgba(0, 0, 0, 0.64)')
+  context.fillStyle = vignette
+  context.fillRect(0, 0, STORY_WIDTH, STORY_HEIGHT)
+
+  context.strokeStyle = 'rgba(226, 183, 92, 0.78)'
+  context.lineWidth = 4
+  context.strokeRect(40, 40, STORY_WIDTH - 80, STORY_HEIGHT - 80)
+  context.strokeStyle = 'rgba(226, 183, 92, 0.24)'
+  context.lineWidth = 1.5
+  context.strokeRect(58, 58, STORY_WIDTH - 116, STORY_HEIGHT - 116)
+}
+
+function drawRotatedContainImage(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  centerX: number,
+  centerY: number,
+  width: number,
+  height: number,
+  rotation: number,
+  shadowBlur: number
+) {
+  context.save()
+  context.translate(centerX, centerY)
+  context.rotate(rotation)
+  context.shadowColor = 'rgba(0, 0, 0, 0.55)'
+  context.shadowBlur = shadowBlur
+  context.shadowOffsetY = shadowBlur * 0.18
+  drawContainImage(context, image, -width / 2, -height / 2, width, height)
+  context.restore()
+}
+
+function drawPhotostripStory(
+  context: CanvasRenderingContext2D,
+  photos: PosterPhoto[],
+  background?: HTMLImageElement
+) {
+  if (background) {
+    drawCoverImage(context, background, 0, 0, STORY_WIDTH, STORY_HEIGHT)
+  } else {
+    drawPhotostripDefaultBackground(context)
+  }
+
+  const [left, center, right] = photos
+
+  if (left) {
+    drawRotatedContainImage(context, left.image, 318, 970, 318, 1320, -8 * Math.PI / 180, 38)
+  }
+
+  if (right) {
+    drawRotatedContainImage(context, right.image, 762, 970, 318, 1320, 8 * Math.PI / 180, 38)
+  }
+
+  if (center) {
+    drawRotatedContainImage(context, center.image, STORY_WIDTH / 2, 960, 430, 1560, 0, 52)
+  }
+}
+
 export default function Page() {
   const { t, locale, setLocale } = useLanguage()
   const params = useParams()
@@ -760,6 +897,7 @@ export default function Page() {
   const [eventName, setEventName] = useState('Gedeelde evenementgalerij')
   const [selected, setSelected] = useState<string[]>([])
   const [downloadSelectedIds, setDownloadSelectedIds] = useState<string[]>([])
+  const [photostripSelectedIds, setPhotostripSelectedIds] = useState<string[]>([])
   const [photoTabSelected, setPhotoTabSelected] = useState<string[]>([])
   const [statusMessage, setStatusMessage] = useState(t.gallery.loading)
   const [deletingSelected, setDeletingSelected] = useState(false)
@@ -812,6 +950,16 @@ export default function Page() {
       setGalleryView('photos')
     }
   }, [galleryView, guestbookEnabled])
+
+  useEffect(() => {
+    items.forEach((item) => {
+      if (photoMetricsById[item.id]) return
+
+      const image = new window.Image()
+      image.onload = () => registerPhotoMetrics(item, image)
+      image.src = item.file_url
+    })
+  }, [items, photoMetricsById])
 
   useEffect(() => {
     const load = async () => {
@@ -960,11 +1108,22 @@ export default function Page() {
   )
   const designModeConfig = designMode ? DESIGN_MODE_CONFIG[designMode] : null
   const activeDesignFormat = designFormat || 'poster'
+  const photostripEnabled = currentEvent?.photostripEnabled === true
   const isLikelyPhotoStrip = (item: UploadRecord) => {
     const metrics = photoMetricsById[item.id]
 
     return Boolean(metrics && metrics.ratio <= 1 / PHOTOSTRIP_MIN_HEIGHT_RATIO)
   }
+  const photostripItems = useMemo(
+    () => items.filter((item) => isLikelyPhotoStrip(item)),
+    [items, photoMetricsById]
+  )
+  const photostripSelectedItems = useMemo(
+    () => photostripSelectedIds
+      .map((id) => photostripItems.find((item) => item.id === id))
+      .filter((item): item is UploadRecord => Boolean(item)),
+    [photostripItems, photostripSelectedIds]
+  )
   const designItems = useMemo(
     () => items.filter((item) => !isLikelyPhotoStrip(item)),
     [items, photoMetricsById]
@@ -1105,6 +1264,15 @@ export default function Page() {
         ? POSTER_DESIGN_EXAMPLES.grayscale
         : POSTER_DESIGN_EXAMPLES.color
       : STORY_DESIGN_EXAMPLES
+  const photostripReady = photostripSelectedItems.length === 3
+  const photostripShortageText =
+    photostripItems.length < 3 ? formatPhotostripShortage(photostripItems.length, locale) : ''
+
+  useEffect(() => {
+    if (!photostripEnabled && designFormat === 'photostrip') {
+      setDesignFormat('poster')
+    }
+  }, [designFormat, photostripEnabled])
 
   const getPhotoMetrics = (item: UploadRecord) =>
     photoMetricsById[item.id] || getFallbackPhotoMetrics()
@@ -1189,7 +1357,14 @@ export default function Page() {
   const chooseDesignFormat = (format: DesignFormat) => {
     if (designFormat === format && !designMode) return
 
-    if ((designFormat || designMode) && selected.length > 0) {
+    if (format === 'photostrip') {
+      setDesignFormat(format)
+      setDesignMode(null)
+      setStatusMessage(getPhotostripLabel(locale))
+      return
+    }
+
+    if ((designFormat === 'poster' || designFormat === 'story' || designMode) && selected.length > 0) {
       const confirmed = window.confirm(t.gallery.designSwitchConfirm)
 
       if (!confirmed) return
@@ -1276,6 +1451,21 @@ export default function Page() {
 
       if (prev.length >= selectedLimit) {
         setStatusMessage(t.gallery.selectionLimitReached)
+        return prev
+      }
+
+      return [...prev, id]
+    })
+  }
+
+  const togglePhotostripSelect = (id: string) => {
+    setPhotostripSelectedIds((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((itemId) => itemId !== id)
+      }
+
+      if (prev.length >= 3) {
+        setStatusMessage(formatPhotostripShortage(prev.length, locale))
         return prev
       }
 
@@ -1677,6 +1867,79 @@ export default function Page() {
     }
   }
 
+  const createPhotostripStory = async () => {
+    if (!photostripReady || creatingPoster) {
+      setStatusMessage(photostripShortageText || formatPhotostripShortage(photostripSelectedItems.length, locale))
+      return
+    }
+
+    setCreatingPoster(true)
+    setStatusMessage(locale === 'nl' ? 'Photostrip Story wordt gemaakt...' : t.gallery.storyPreparing)
+
+    const resources: CanvasImageResource[] = []
+    let backgroundResource: CanvasImageResource | null = null
+
+    try {
+      const photostripPhotos: PosterPhoto[] = []
+
+      for (const [originalIndex, item] of photostripSelectedItems.entries()) {
+        const resource = await loadCanvasImage(item.file_url)
+        const ratio = getImageRatio(resource.image)
+
+        resources.push(resource)
+        photostripPhotos.push({
+          image: resource.image,
+          originalIndex,
+          orientation: getPhotoOrientation(ratio),
+          ratio,
+        })
+      }
+
+      if (photostripPhotos.length !== 3) {
+        throw new Error(formatPhotostripShortage(photostripPhotos.length, locale))
+      }
+
+      backgroundResource = currentEvent?.photostripBackgroundUrl
+        ? await loadCanvasImage(currentEvent.photostripBackgroundUrl).catch(() => null)
+        : null
+
+      const canvas = document.createElement('canvas')
+      canvas.width = STORY_WIDTH
+      canvas.height = STORY_HEIGHT
+
+      const context = canvas.getContext('2d')
+
+      if (!context) {
+        throw new Error(t.gallery.loadError)
+      }
+
+      drawPhotostripStory(context, photostripPhotos, backgroundResource?.image)
+
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, 'image/png')
+      })
+
+      if (!blob) {
+        throw new Error(t.gallery.loadError)
+      }
+
+      const baseName = sanitizeDownloadName(eventName || 'photostrip-story')
+      saveBlob(blob, `${baseName}-photostrip-story-5x15.png`)
+      setStatusMessage(locale === 'nl' ? 'Photostrip Story is klaar.' : t.gallery.storyReady)
+    } catch (error) {
+      console.error('Photostrip Story creation failed', error)
+      setStatusMessage(error instanceof Error ? error.message : t.gallery.loadError)
+    } finally {
+      resources.forEach((resource) => window.URL.revokeObjectURL(resource.objectUrl))
+
+      if (backgroundResource) {
+        window.URL.revokeObjectURL(backgroundResource.objectUrl)
+      }
+
+      setCreatingPoster(false)
+    }
+  }
+
   const deleteSingle = async (item: UploadRecord) => {
     if (deletingSelected) return
 
@@ -1701,6 +1964,7 @@ export default function Page() {
       setItems((prev) => prev.filter((upload) => upload.id !== item.id))
       setSelected((prev) => prev.filter((id) => id !== item.id))
       setDownloadSelectedIds((prev) => prev.filter((id) => id !== item.id))
+      setPhotostripSelectedIds((prev) => prev.filter((id) => id !== item.id))
       setPhotoTabSelected((prev) => prev.filter((id) => id !== item.id))
       setStatusMessage(t.gallery.deleteSuccess)
     } catch (error) {
@@ -1968,6 +2232,9 @@ export default function Page() {
               {([
                 ['poster', 'Memory Poster A3'],
                 ['story', t.gallery.storyButton],
+                ...(photostripEnabled
+                  ? ([['photostrip', getPhotostripLabel(locale)]] as const)
+                  : []),
               ] as const).map(([format, label]) => {
                 const isActive = activeDesignFormat === format
 
@@ -1989,6 +2256,7 @@ export default function Page() {
               })}
             </div>
 
+            {activeDesignFormat !== 'photostrip' ? (
             <div className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
               <div className="flex flex-wrap gap-2">
                 {(activeDesignFormat === 'poster'
@@ -2054,8 +2322,50 @@ export default function Page() {
                 </button>
               </div>
             </div>
+            ) : null}
 
-            {designMode ? (
+            {activeDesignFormat === 'photostrip' ? (
+              <div className="sticky top-[58px] z-20 rounded-xl border border-neutral-200 bg-white/96 p-3 shadow-[0_8px_22px_rgba(20,20,20,0.08)] backdrop-blur">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-400">
+                      {getPhotostripLabel(locale)}
+                    </p>
+                    <p className="mt-1 text-sm font-black text-neutral-950">
+                      {photostripSelectedItems.length} / 3 {t.gallery.designSelected}
+                    </p>
+                    {!photostripReady ? (
+                      <p className="mt-0.5 text-xs font-bold text-[#d71920]">
+                        {photostripShortageText || formatPhotostripShortage(photostripSelectedItems.length, locale)}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPhotostripSelectedIds([])}
+                      disabled={photostripSelectedItems.length === 0 || creatingPoster}
+                      className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-3 py-2 text-xs font-black disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none ${neutralButtonClass}`}
+                    >
+                      {t.gallery.clearSelection}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void createPhotostripStory()}
+                      disabled={!photostripReady || creatingPoster}
+                      className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-4 py-2 text-xs font-black text-white shadow-sm sm:flex-none ${
+                        !photostripReady || creatingPoster
+                          ? disabledButtonClass
+                          : primaryGradientClass
+                      }`}
+                    >
+                      {creatingPoster ? t.gallery.storyPreparing : t.gallery.storyButton}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : designMode ? (
               <div className="sticky top-[58px] z-20 rounded-xl border border-neutral-200 bg-white/96 p-3 shadow-[0_8px_22px_rgba(20,20,20,0.08)] backdrop-blur">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
@@ -2112,17 +2422,75 @@ export default function Page() {
               </div>
             ) : null}
 
-            {!designMode ? (
+            {activeDesignFormat === 'photostrip' && photostripItems.length < 3 ? (
+              <div className="rounded-xl border border-[#d71920]/20 bg-[#fff5f5] p-3 text-sm font-bold text-[#d71920]">
+                {photostripShortageText}
+              </div>
+            ) : activeDesignFormat !== 'photostrip' && !designMode ? (
               <div className="rounded-xl border border-neutral-200 bg-white p-4 text-sm font-bold text-neutral-500">
                 {t.gallery.designChooseMode}
               </div>
-            ) : suitablePhotoShortageText ? (
+            ) : activeDesignFormat !== 'photostrip' && suitablePhotoShortageText ? (
               <div className="rounded-xl border border-[#d71920]/20 bg-[#fff5f5] p-3 text-sm font-bold text-[#d71920]">
                 {suitablePhotoShortageText}
               </div>
             ) : null}
 
-            {designMode && activeDesignItems.length === 0 ? (
+            {activeDesignFormat === 'photostrip' && photostripItems.length === 0 ? (
+              <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center text-sm font-semibold text-neutral-500">
+                {t.gallery.noUploads}
+              </div>
+            ) : activeDesignFormat === 'photostrip' ? (
+              <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5">
+                {photostripItems.map((item) => {
+                  const isSelected = photostripSelectedIds.includes(item.id)
+                  const downloadName = getUploadShortFileName(item, {
+                    eventSlug: currentEvent?.albumName || currentEvent?.name || eventIdentifier,
+                    sequence: shareSequenceById[item.id],
+                  })
+
+                  return (
+                    <article
+                      key={item.id}
+                      className={`overflow-hidden rounded-xl border bg-[#343434] p-px ${
+                        isSelected ? 'border-[#e32636]' : 'border-[#343434]'
+                      }`}
+                    >
+                      <div className="relative">
+                        <Image
+                          src={item.file_url}
+                          alt={downloadName}
+                          width={900}
+                          height={1800}
+                          unoptimized
+                          onLoad={(event) => registerPhotoMetrics(item, event.currentTarget)}
+                          className="aspect-[1/3] w-full rounded-[10px] bg-[#343434] object-contain"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => togglePhotostripSelect(item.id)}
+                          aria-label={isSelected ? t.gallery.selected : t.gallery.select}
+                          title={isSelected ? t.gallery.selected : t.gallery.select}
+                          className={`absolute left-1.5 top-1.5 z-20 inline-flex h-[30px] w-[30px] items-center justify-center rounded-full ${
+                            isSelected ? primaryRoundButtonClass : neutralRoundButtonClass
+                          }`}
+                        >
+                          {isSelected ? (
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.8]">
+                              <path d="M5 12.5 9.5 17 19 7.5" />
+                            </svg>
+                          ) : (
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
+                              <circle cx="12" cy="12" r="8" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            ) : designMode && activeDesignItems.length === 0 ? (
               <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center text-sm font-semibold text-neutral-500">
                 {t.gallery.noUploads}
               </div>
