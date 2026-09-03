@@ -2597,7 +2597,7 @@ export default function Page() {
                   href={uploadPageUrl}
                   className={`inline-flex min-h-8 shrink-0 items-center justify-center rounded-lg px-2.5 py-1.5 text-[11px] font-black sm:min-h-9 sm:px-3 sm:text-xs ${primaryGradientClass}`}
                 >
-                  {t.upload.selectButton}
+                  {t.gallery.backToUpload}
                 </Link>
               </div>
             </div>
