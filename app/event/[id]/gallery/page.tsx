@@ -1283,6 +1283,15 @@ export default function Page() {
         ? POSTER_DESIGN_EXAMPLES.grayscale
         : POSTER_DESIGN_EXAMPLES.color
       : STORY_DESIGN_EXAMPLES
+  const getDesignExampleLabel = (label: string) => {
+    if (label === 'Portrait Poster') return t.gallery.posterPortraitMode
+    if (label === 'Landscape Poster') return t.gallery.posterLandscapeMode
+    if (label === 'Mixed Poster') return t.gallery.posterMixedMode
+    if (label === 'Portrait Story') return t.gallery.storyPortraitMode
+    if (label === 'Landscape Story') return t.gallery.storyLandscapeMode
+
+    return label
+  }
   const photostripReady = photostripSelectedItems.length === 3
   const photostripShortageText =
     photostripItems.length < 3 ? formatPhotostripShortage(photostripItems.length, locale) : ''
@@ -1893,7 +1902,7 @@ export default function Page() {
     }
 
     setCreatingPoster(true)
-    setStatusMessage(locale === 'nl' ? 'Photostrip Story wordt gemaakt...' : t.gallery.storyPreparing)
+    setStatusMessage(t.gallery.photostripCreating)
 
     const resources: CanvasImageResource[] = []
     let backgroundResource: CanvasImageResource | null = null
@@ -1944,7 +1953,7 @@ export default function Page() {
 
       const baseName = sanitizeDownloadName(eventName || 'photostrip-story')
       saveBlob(blob, `${baseName}-photostrip-story-5x15.png`)
-      setStatusMessage(locale === 'nl' ? 'Photostrip Story is klaar.' : t.gallery.storyReady)
+      setStatusMessage(t.gallery.photostripReady)
     } catch (error) {
       console.error('Photostrip Story creation failed', error)
       setStatusMessage(error instanceof Error ? error.message : t.gallery.loadError)
@@ -2337,7 +2346,7 @@ export default function Page() {
                   onClick={() => setDesignExamplesOpen(true)}
                   className={`rounded-lg px-3 py-2 text-xs font-black ${neutralButtonClass}`}
                 >
-                  Voorbeeld bekijken
+                  {t.gallery.designPreview}
                 </button>
               </div>
             </div>
@@ -2393,7 +2402,7 @@ export default function Page() {
                     </p>
                     {designMode === 'posterMixed' ? (
                       <p className="mt-1 text-sm font-black text-neutral-950">
-                        {selectedPortraitCount} / {MIXED_POSTER_PORTRAIT_TILES} portrait · {selectedLandscapeCount} / {MIXED_POSTER_LANDSCAPE_TILES} landscape
+                        {selectedPortraitCount} / {MIXED_POSTER_PORTRAIT_TILES} {t.gallery.designPortraitCount} · {selectedLandscapeCount} / {MIXED_POSTER_LANDSCAPE_TILES} {t.gallery.designLandscapeCount}
                       </p>
                     ) : (
                       <p className="mt-1 text-sm font-black text-neutral-950">
@@ -3130,10 +3139,10 @@ export default function Page() {
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-black text-neutral-950">
-                  {activeDesignFormat === 'poster' ? 'Memory Poster A3' : t.gallery.storyButton}
+                  {activeDesignFormat === 'poster' ? t.gallery.memoryPosterTitle : t.gallery.storyButton}
                 </h2>
                 <p className="mt-1 text-sm font-medium text-neutral-500">
-                  Voorbeeld bekijken
+                  {t.gallery.designPreview}
                 </p>
               </div>
               <button
@@ -3158,14 +3167,14 @@ export default function Page() {
                   <div className="flex h-64 items-center justify-center overflow-hidden rounded-xl bg-white sm:h-80">
                     <Image
                       src={example.src}
-                      alt={example.label}
+                      alt={getDesignExampleLabel(example.label)}
                       width={600}
                       height={900}
                       className="h-full w-full object-contain"
                     />
                   </div>
                   <figcaption className="mt-2 text-xs font-black text-neutral-700">
-                    {example.label}
+                    {getDesignExampleLabel(example.label)}
                   </figcaption>
                 </figure>
               ))}

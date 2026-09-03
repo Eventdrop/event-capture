@@ -89,10 +89,12 @@ function AdminSettingsSection({
   children,
   defaultOpen = false,
   title,
+  toggleLabel,
 }: {
   children: ReactNode
   defaultOpen?: boolean
   title: string
+  toggleLabel: string
 }) {
   return (
     <details
@@ -102,7 +104,7 @@ function AdminSettingsSection({
       <summary className="cursor-pointer list-none px-4 py-3 text-sm font-bold text-[#0B2742] [&::-webkit-details-marker]:hidden">
         <span className="flex items-center justify-between gap-3">
           {title}
-          <span className="text-xs font-semibold text-[#6A84A3]">Open/sluit</span>
+          <span className="text-xs font-semibold text-[#6A84A3]">{toggleLabel}</span>
         </span>
       </summary>
       <div className="border-t border-[#E4ECF5] px-4 py-4">{children}</div>
@@ -186,7 +188,7 @@ export default function AdminPage() {
     background: t.admin.backgroundImage,
     posterTemplate: t.admin.posterTemplateImage,
     storyTemplate: t.admin.storyTemplateImage,
-    photostripBackground: 'Photostrip achtergrond',
+    photostripBackground: t.admin.photostripBackground,
   }
 
   const customerEvents = useMemo(
@@ -1970,7 +1972,7 @@ export default function AdminPage() {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6A84A3]">
-                Geselecteerd album
+                {t.admin.selectedAlbumLabel}
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[#0B2742]">
                 {selectedVisibleEvent ? formatEventLabel(selectedVisibleEvent) : t.admin.eventDetails}
@@ -1997,7 +1999,7 @@ export default function AdminPage() {
                   </p>
                   {event.slug ? (
                     <p className="mt-1 break-all text-sm text-[#6A84A3]">
-                      Openbare slug: {event.slug}
+                      {t.admin.publicSlugLabel}: {event.slug}
                     </p>
                   ) : null}
                   {event.accessCode ? (
@@ -2016,7 +2018,7 @@ export default function AdminPage() {
                   ) : null}
 
                   <div className="mt-4 space-y-3">
-                  <AdminSettingsSection title={t.admin.settingsGeneral} defaultOpen>
+                  <AdminSettingsSection title={t.admin.settingsGeneral} toggleLabel={t.admin.openClose} defaultOpen>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                       {t.admin.eventDetails}
                     </p>
@@ -2059,7 +2061,7 @@ export default function AdminPage() {
                     </button>
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title={t.admin.settingsBrandingMedia}>
+                  <AdminSettingsSection title={t.admin.settingsBrandingMedia} toggleLabel={t.admin.openClose}>
                     <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
                       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
@@ -2147,7 +2149,7 @@ export default function AdminPage() {
                           [t.admin.backgroundImage, event.backgroundImageUrl],
                           [t.admin.posterTemplateImage, event.posterTemplateUrl],
                           [t.admin.storyTemplateImage, event.storyTemplateUrl],
-                          ['Photostrip achtergrond', event.photostripBackgroundUrl],
+                          [t.admin.photostripBackground, event.photostripBackgroundUrl],
                         ] as const).map(([label, value]) => (
                           <div
                             key={label}
@@ -2178,10 +2180,10 @@ export default function AdminPage() {
                           />
                           <div>
                             <p className="text-sm font-semibold text-[#0B2742]">
-                              Achtergrond
+                              {t.admin.photostripBackground}
                             </p>
                             <p className="mt-1 text-xs text-[#597594]">
-                              Aanbevolen: 1080 × 1920 px (9:16)
+                              {t.admin.photostripBackgroundHelp}
                             </p>
                             <p className="mt-2 text-xs font-semibold text-[#33516F]">
                               {event.photostripBackgroundUrl
@@ -2194,8 +2196,8 @@ export default function AdminPage() {
                                 updatingEventVisual.kind === 'photostripBackground'
                                   ? t.admin.mediaUploading
                                   : event.photostripBackgroundUrl
-                                    ? 'Bestand wijzigen'
-                                    : 'Bestand kiezen'}
+                                    ? t.admin.changeFile
+                                    : t.admin.chooseFile}
                                 <input
                                   type="file"
                                   accept="image/*"
@@ -2218,7 +2220,7 @@ export default function AdminPage() {
                                   }
                                   className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
-                                  Verwijderen
+                                  {t.admin.guestbookCoverPhotoRemove}
                                 </button>
                               ) : null}
                             </div>
@@ -2229,7 +2231,7 @@ export default function AdminPage() {
 
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title={t.admin.settingsFeatures}>
+                  <AdminSettingsSection title={t.admin.settingsFeatures} toggleLabel={t.admin.openClose}>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
                       {t.admin.publicTools}
                     </p>
@@ -2424,7 +2426,7 @@ export default function AdminPage() {
                     </button>
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title={t.admin.settingsAccessSharing}>
+                  <AdminSettingsSection title={t.admin.settingsAccessSharing} toggleLabel={t.admin.openClose}>
                   <div className="rounded-[1.5rem] border border-[#D4DFEE] bg-white p-4">
                     <div className="flex justify-center" data-event-qr={event.id}>
                       <QRCodeSVG value={getEventShareUrl(event)} size={160} />
@@ -2481,7 +2483,7 @@ export default function AdminPage() {
 
                     <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
-                        Misafir linki
+                        {t.admin.guestLinkLabel}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <Link
@@ -2490,7 +2492,7 @@ export default function AdminPage() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-4 py-2 text-sm font-semibold text-white hover:bg-[#DB6E12]"
                         >
-                          Ac
+                          {t.admin.openAction}
                         </Link>
                         <button
                           type="button"
@@ -2499,14 +2501,14 @@ export default function AdminPage() {
                           }
                           className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                         >
-                          Kopyala
+                          {t.admin.copyAction}
                         </button>
                       </div>
                     </div>
 
                     <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
-                        Galeri
+                        {t.common.gallery}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <Link
@@ -2515,7 +2517,7 @@ export default function AdminPage() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
                         >
-                          Ac
+                          {t.admin.openAction}
                         </Link>
                         <button
                           type="button"
@@ -2527,7 +2529,7 @@ export default function AdminPage() {
                           }
                           className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                         >
-                          Kopyala
+                          {t.admin.copyAction}
                         </button>
                       </div>
                     </div>
@@ -2549,7 +2551,7 @@ export default function AdminPage() {
                     {event.accessCode ? (
                       <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
-                          Event code
+                          {t.admin.accessCodeLabel}
                         </p>
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           <span className="rounded-full bg-[#F8FBFE] px-4 py-2 text-sm font-semibold tracking-[0.16em] text-[#0F3D66]">
@@ -2562,7 +2564,7 @@ export default function AdminPage() {
                             }
                             className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                           >
-                            Kopyala
+                            {t.admin.copyAction}
                           </button>
                         </div>
                       </div>
@@ -2571,7 +2573,7 @@ export default function AdminPage() {
                   </div>
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title={t.admin.settingsDownloadsExports}>
+                  <AdminSettingsSection title={t.admin.settingsDownloadsExports} toggleLabel={t.admin.openClose}>
 
                   {event.guestbookEnabled ? (
                   <div className="rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4">
@@ -2594,7 +2596,7 @@ export default function AdminPage() {
                         disabled={refreshingGuestbookEventId === event.id}
                         className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-1.5 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB] disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        Vernieuwen
+                        {t.admin.refreshGuestbook}
                       </button>
                       {getGuestbookPdfThemeConfig(event.guestbookPdfTheme).implemented ? (
                         guestMessagesByEvent[event.id]?.length ? (
@@ -2791,10 +2793,10 @@ export default function AdminPage() {
                   </div>
                   </AdminSettingsSection>
 
-                  <AdminSettingsSection title={t.admin.settingsDangerZone}>
+                  <AdminSettingsSection title={t.admin.settingsDangerZone} toggleLabel={t.admin.openClose}>
                     <div className="rounded-[1.2rem] border border-[#F1B6B6] bg-[#FFF7F7] p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B52E2E]">
-                        Tehlikeli islem
+                        {t.admin.dangerAction}
                       </p>
                       <button
                         type="button"

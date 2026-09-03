@@ -148,7 +148,7 @@ export default function Page() {
 
   const [resolvedEventId, setResolvedEventId] = useState('')
   const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
-  const [eventName, setEventName] = useState('Gedeeld evenementalbum')
+  const [eventName, setEventName] = useState(t.upload.defaultAlbumName)
   const [message, setMessage] = useState(t.upload.chooseStart)
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -230,7 +230,7 @@ export default function Page() {
       setEventMissing(false)
       const normalizedEvent = normalizeEventRecord(event)
       setCurrentEvent(normalizedEvent)
-      setEventName(normalizedEvent?.albumName || normalizedEvent?.name || 'Gedeeld evenementalbum')
+      setEventName(normalizedEvent?.albumName || normalizedEvent?.name || t.upload.defaultAlbumName)
       setResolvedEventId(normalizedEvent?.id || '')
       setMessage(t.upload.intro)
     }
@@ -536,7 +536,7 @@ export default function Page() {
         | { error?: string }
         | null
 
-      throw new Error(payload?.error || 'Gastenboekbericht kon niet worden geplaatst.')
+      throw new Error(payload?.error || t.upload.guestbookPostError)
     }
   }
 
@@ -576,7 +576,7 @@ export default function Page() {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 
       if (!supabaseUrl) {
-        throw new Error('De uploadomgeving is niet volledig ingesteld.')
+        throw new Error(t.upload.uploadEnvironmentError)
       }
 
       const existingUploadsCountQuery = await supabase
@@ -652,7 +652,7 @@ export default function Page() {
     } catch (error) {
       console.error('Upload failed', error)
       setMessage(
-        error instanceof Error ? error.message : 'Uploaden is niet gelukt.'
+        error instanceof Error ? error.message : t.upload.uploadFailedFallback
       )
     } finally {
       setUploading(false)
@@ -692,7 +692,7 @@ export default function Page() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-base font-bold text-[#161616]">
-                  Foto's toevoegen
+                  {t.gallery.backToUpload}
                 </p>
                 <p className="mt-1 text-sm text-[#6B7280]">
                   {t.upload.photoOnlyNotice}
@@ -760,7 +760,7 @@ export default function Page() {
 
                 <div className="mt-2">
                   <p className="text-xs font-semibold text-[#33516F]">
-                    Gastenboek foto
+                    {t.upload.guestbookPhotoLabel}
                   </p>
                   <div className="mt-1.5 flex gap-2 overflow-x-auto pb-1">
                     {selectedUploadPhotoPreviews.map((preview) => {
@@ -787,7 +787,7 @@ export default function Page() {
                           />
                           {selected ? (
                             <span className="absolute inset-x-1 bottom-1 rounded-full bg-[linear-gradient(135deg,#7f1424_0%,#b91f32_55%,#e32636_100%)] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                              Gekozen
+                              {t.upload.guestbookPhotoSelected}
                             </span>
                           ) : null}
                         </button>
@@ -898,7 +898,7 @@ export default function Page() {
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm font-bold text-[#161616]">
-                  Album delen / QR-code
+                  {t.upload.shareSectionTitle}
                 </p>
                 <p className="mt-1 truncate text-xs font-medium text-[#6B7280]">
                   {t.upload.albumLink}
