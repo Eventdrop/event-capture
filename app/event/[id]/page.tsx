@@ -313,6 +313,21 @@ export default function Page() {
       photoCount,
     }
   }, [acceptedFiles])
+  const selectedFilePreviews = useMemo(
+    () =>
+      acceptedFiles.slice(0, 8).map((file) => ({
+        name: file.name,
+        url: URL.createObjectURL(file),
+      })),
+    [acceptedFiles]
+  )
+
+  useEffect(
+    () => () => {
+      selectedFilePreviews.forEach((preview) => URL.revokeObjectURL(preview.url))
+    },
+    [selectedFilePreviews]
+  )
 
   const handleKeepLink = async () => {
     const shareData = {
@@ -630,54 +645,71 @@ export default function Page() {
     }
   }
 
-  const eventBackgroundStyle = currentEvent?.backgroundImageUrl
-    ? {
-        backgroundImage: `linear-gradient(rgba(15,33,53,0.34), rgba(15,33,53,0.42)), url(${currentEvent.backgroundImageUrl})`,
-      }
-    : undefined
   const eventCoverStyle = currentEvent?.coverImageUrl
     ? { backgroundImage: `url(${currentEvent.coverImageUrl})` }
     : undefined
 
   return (
-    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,_#f9f5ee_0%,_#efe8dc_52%,_#edf4fb_100%)] text-stone-900">
+    <div className="flex min-h-screen flex-col bg-[#FAFAF8] text-[#161616]">
       <SiteHeader
         currentLabel={t.upload.badge}
         brandHref={uploadPath}
       />
 
-      <main
-        className="relative flex-1 bg-cover bg-center px-4 py-5 sm:px-6 sm:py-8"
-        style={eventBackgroundStyle}
-      >
-        <section className="mx-auto w-full max-w-5xl rounded-[1.6rem] border border-white/25 bg-[rgba(255,250,242,0.93)] p-4 shadow-[0_18px_50px_rgba(15,33,53,0.18)] backdrop-blur sm:p-5 lg:p-6">
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
+      <main className="relative flex-1 px-3 py-4 sm:px-6 sm:py-7">
+        <section className="mx-auto w-full max-w-5xl">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <img
+              src="/eventdrop-brand.png"
+              alt="EventDrop Sharing"
+              className="h-auto w-28 object-contain"
+            />
+            <span className="rounded-full border border-[#E3E7EC] bg-white px-3 py-1.5 text-xs font-semibold uppercase text-[#6B7280]">
+              {locale.toUpperCase()}
+            </span>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
             <div>
               <div
-                className="mt-3 h-44 w-full overflow-hidden rounded-[1.2rem] bg-[#EDF4FB] bg-cover bg-center sm:h-52"
+                className="relative h-48 w-full overflow-hidden rounded-[0.9rem] bg-[#E9EEF3] bg-cover bg-center sm:h-60"
                 style={eventCoverStyle}
-              />
-              <h1 className="mt-3 text-sm font-semibold leading-tight text-stone-950 sm:text-sm">
-                {eventName}
-              </h1>
-              {currentEvent?.eventDate ? (
-                <p className="mt-1 text-sm font-medium text-[#597594]">
-                  {t.common.eventDate}: {currentEvent.eventDate}
-                </p>
-              ) : null}
+              >
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/28 to-transparent px-4 pb-4 pt-16">
+                  <h1 className="text-2xl font-bold leading-tight text-white drop-shadow-sm sm:text-3xl">
+                    {eventName}
+                  </h1>
+                  {currentEvent?.eventDate ? (
+                    <p className="mt-1 text-xs font-semibold text-white/85 sm:text-sm">
+                      {currentEvent.eventDate}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
 
-              <label className="mt-5 flex items-start gap-3 rounded-[1.1rem] border border-[#D4DFEE] bg-white px-4 py-3 text-sm leading-6 text-[#33516F]">
-                <input
-                  type="checkbox"
-                  checked={guidanceAccepted}
-                  onChange={(event) => handleGuidanceAcceptedChange(event.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-[#C8D3E5] accent-[#F58220]"
-                />
-                <span>{t.upload.consentLabel}</span>
-              </label>
+              <div className="mt-4 rounded-[1rem] border border-[#E3E7EC] bg-white p-4 shadow-[0_12px_34px_rgba(15,23,42,0.06)]">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-base font-bold text-[#161616]">
+                      Foto's toevoegen
+                    </p>
+                    <p className="mt-1 text-sm text-[#6B7280]">
+                      {t.upload.photoOnlyNotice}
+                    </p>
+                  </div>
+                  <label
+                    htmlFor="event-media"
+                    className={`inline-flex w-fit cursor-pointer items-center justify-center rounded-full px-4 py-2.5 text-sm font-bold shadow-[0_10px_22px_rgba(185,31,50,0.22)] ${
+                      uploading || eventMissing
+                        ? 'cursor-not-allowed bg-stone-300 text-stone-500 shadow-none'
+                        : 'bg-[linear-gradient(135deg,#7f1424_0%,#b91f32_55%,#e32636_100%)] text-white hover:brightness-105'
+                    }`}
+                  >
+                    {t.upload.selectButton}
+                  </label>
+                </div>
 
-              <div className="mt-4 rounded-[1.25rem] border-2 border-dashed border-[#C8D3E5] bg-[#FDFEFE] p-3">
-                <p className="mb-3 rounded-full bg-[#EDF4FB] px-4 py-2 text-center text-xs font-semibold text-[#0F3D66]">
+                <p className="mt-3 rounded-xl bg-[#F6F7F9] px-3 py-2 text-xs font-semibold text-[#4B5563]">
                   {t.upload.photoOnlyNotice}
                 </p>
 
@@ -699,35 +731,36 @@ export default function Page() {
                   className="sr-only"
                 />
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <label
-                    htmlFor="event-media"
-                    className={`inline-flex cursor-pointer items-center justify-center rounded-full px-5 py-3 text-sm font-semibold ${
-                      uploading || eventMissing
-                        ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                        : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
-                    }`}
-                  >
-                    {t.upload.selectButton}
-                  </label>
-
-                  <p className="min-w-0 flex-1 truncate text-sm text-[#597594]">
+                <div className="mt-3 flex flex-col gap-3">
+                  <p className="min-w-0 truncate text-sm font-medium text-[#6B7280]">
                     {hasSelectedPhotos
                       ? `${acceptedFiles.length} ${t.upload.filesSelected}`
                       : t.upload.noFilesChosen}
                   </p>
+                  {selectedFilePreviews.length ? (
+                    <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                      {selectedFilePreviews.map((preview) => (
+                        <img
+                          key={preview.url}
+                          src={preview.url}
+                          alt={preview.name}
+                          className="aspect-square w-full rounded-xl object-cover"
+                        />
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
 
                 {!guestbookEnabled ? null : !hasSelectedPhotos ? (
-                  <p className="mt-3 rounded-2xl border border-[#F9D8B8] bg-[#FFF8F0] px-4 py-3 text-sm font-semibold text-[#8A4A07]">
+                  <p className="mt-3 rounded-xl border border-[#F0E1CF] bg-[#FFF9F2] px-3 py-2 text-sm font-semibold text-[#7A4A14]">
                     {t.upload.guestbookHint}
                   </p>
                 ) : (
-                  <div className="mt-3 rounded-[1.1rem] border border-[#F9D8B8] bg-[#FFF8F0] px-4 py-3 text-sm text-[#33516F] shadow-[0_10px_24px_rgba(245,130,32,0.08)]">
-                    <p className="text-base font-bold text-[#0B2742]">
+                  <div className="mt-3 rounded-[0.9rem] border border-[#E8D9C7] bg-[#FFF9F2] px-3 py-3 text-sm text-[#4B5563]">
+                    <p className="text-sm font-bold text-[#161616]">
                       {t.upload.guestbookCardTitle}
                     </p>
-                    <p className="mt-1 text-sm leading-6 text-[#597594]">
+                    <p className="mt-1 text-xs leading-5 text-[#6B7280]">
                       {t.upload.guestbookCardDescription}
                     </p>
 
@@ -739,7 +772,7 @@ export default function Page() {
                           onChange={(event) => setGuestName(event.target.value)}
                           disabled={uploading}
                           placeholder={t.upload.guestNamePlaceholder}
-                          className="mt-2 w-full rounded-2xl border border-[#D4DFEE] bg-white px-3 py-2 text-sm text-[#0B2742] outline-none focus:border-[#F58220] disabled:opacity-60"
+                          className="mt-2 w-full rounded-xl border border-[#E3E7EC] bg-white px-3 py-2 text-sm text-[#161616] outline-none focus:border-[#B91F32] disabled:opacity-60"
                         />
                       </label>
 
@@ -752,7 +785,7 @@ export default function Page() {
                           maxLength={GUEST_MESSAGE_MAX_LENGTH}
                           placeholder={t.upload.messagePlaceholder}
                           rows={3}
-                          className="mt-2 w-full resize-none rounded-2xl border border-[#D4DFEE] bg-white px-3 py-2 text-sm text-[#0B2742] outline-none focus:border-[#F58220] disabled:opacity-60"
+                          className="mt-2 w-full resize-none rounded-xl border border-[#E3E7EC] bg-white px-3 py-2 text-sm text-[#161616] outline-none focus:border-[#B91F32] disabled:opacity-60"
                         />
                         <span className="mt-1 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-[#6A84A3]">
                           <span>
@@ -780,8 +813,8 @@ export default function Page() {
                     disabled={uploading || eventMissing || !guidanceAccepted}
                     className={`rounded-full px-5 py-3 text-sm font-semibold shadow-[0_12px_22px_rgba(245,130,32,0.18)] ${
                       uploading || eventMissing || !guidanceAccepted
-                        ? 'cursor-not-allowed bg-stone-300 text-stone-500'
-                        : 'bg-[#F58220] text-white hover:bg-[#DB6E12]'
+                        ? 'cursor-not-allowed bg-stone-300 text-stone-500 shadow-none'
+                        : 'bg-[linear-gradient(135deg,#7f1424_0%,#b91f32_55%,#e32636_100%)] text-white hover:brightness-105'
                     }`}
                   >
                     {!guidanceAccepted
@@ -809,9 +842,19 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-[1.1rem] border border-[#D4DFEE] bg-white px-4 py-3 text-sm text-[#33516F]">
+              <label className="mt-3 flex items-start gap-3 rounded-[0.9rem] border border-[#E3E7EC] bg-white px-4 py-3 text-sm leading-6 text-[#4B5563]">
+                <input
+                  type="checkbox"
+                  checked={guidanceAccepted}
+                  onChange={(event) => handleGuidanceAcceptedChange(event.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-[#C8D3E5] accent-[#B91F32]"
+                />
+                <span>{t.upload.consentLabel}</span>
+              </label>
+
+              <div className="mt-3 rounded-[0.9rem] border border-[#E3E7EC] bg-white px-4 py-3 text-sm text-[#4B5563]">
                 {selectionSummary ? (
-                  <p className="font-medium text-stone-900">
+                  <p className="font-semibold text-[#161616]">
                     {t.upload.readyPrefix} {selectionSummary.total} {t.upload.filesSelected}
                     {selectionSummary.photoCount
                       ? ` • ${selectionSummary.photoCount} ${t.upload.photos}`
@@ -822,7 +865,7 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="rounded-[1.35rem] border border-[#D4DFEE] bg-white p-4 text-stone-950 lg:sticky lg:top-5">
+            <div className="rounded-[1rem] border border-[#E3E7EC] bg-white p-4 text-[#161616] shadow-[0_12px_34px_rgba(15,23,42,0.06)] lg:sticky lg:top-5">
               <div className="flex items-center justify-between gap-3 lg:block">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6A84A3]">
@@ -839,7 +882,7 @@ export default function Page() {
               <button
                 type="button"
                 onClick={handleKeepLink}
-                className="mt-3 w-full rounded-full bg-[#0F3D66] px-4 py-3 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
+                className="mt-3 w-full rounded-full bg-[#161616] px-4 py-3 text-sm font-semibold text-white hover:bg-[#2A2A2A]"
               >
                 {t.upload.keepLinkButton}
               </button>
