@@ -1595,7 +1595,12 @@ export default function AdminPage() {
                   ) : null}
                 </details>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                <details className="rounded-[1.2rem] border border-white/12 bg-white/8 p-4">
+                  <summary className="cursor-pointer text-sm font-semibold text-[#EAF3FB]">
+                    + Nieuw album
+                  </summary>
+
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
                   <div className="md:col-span-2">
                     <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
                       {creatingDemoTemplate ? t.admin.demoTemplateName : t.admin.eventName}
@@ -1706,186 +1711,6 @@ export default function AdminPage() {
                     </p>
                   </div>
 
-                  <div className="md:col-span-2 rounded-2xl border border-white/12 bg-white/8 p-4">
-                    <p className="text-sm font-medium text-[#EAF3FB]">
-                      {t.admin.publicTools}
-                    </p>
-
-                    <div className="mt-3 grid gap-3 md:grid-cols-2">
-                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
-                        <span className="text-sm text-[#EAF3FB]">{t.admin.shareEnabled}</span>
-                        <button
-                          type="button"
-                          onClick={() => setAllowGuestShare((current) => !current)}
-                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
-                            allowGuestShare ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
-                          }`}
-                        >
-                          {allowGuestShare ? t.admin.toggleOn : t.admin.toggleOff}
-                        </button>
-                      </div>
-
-                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
-                        <span className="text-sm text-[#EAF3FB]">{t.admin.downloadEnabled}</span>
-                        <button
-                          type="button"
-                          onClick={() => setAllowGuestDownload((current) => !current)}
-                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
-                            allowGuestDownload ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
-                          }`}
-                        >
-                          {allowGuestDownload ? t.admin.toggleOn : t.admin.toggleOff}
-                        </button>
-                      </div>
-
-                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
-                        <span className="text-sm text-[#EAF3FB]">{t.admin.albumDownloadEnabled}</span>
-                        <button
-                          type="button"
-                          onClick={() => setAllowAlbumDownload((current) => !current)}
-                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
-                            allowAlbumDownload ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
-                          }`}
-                        >
-                          {allowAlbumDownload ? t.admin.toggleOn : t.admin.toggleOff}
-                        </button>
-                      </div>
-
-                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
-                        <span className="text-sm text-[#EAF3FB]">{t.admin.deleteEnabled}</span>
-                        <button
-                          type="button"
-                          onClick={() => setAllowGuestDelete((current) => !current)}
-                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
-                            allowGuestDelete ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
-                          }`}
-                        >
-                          {allowGuestDelete ? t.admin.toggleOn : t.admin.toggleOff}
-                        </button>
-                      </div>
-
-                      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
-                        <span className="text-sm text-[#EAF3FB]">{t.admin.posterEnabled}</span>
-                        <button
-                          type="button"
-                          onClick={() => setAllowGuestPoster((current) => !current)}
-                          className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-semibold ${
-                            allowGuestPoster ? 'bg-[#F58220] text-white' : 'bg-white text-[#0F3D66]'
-                          }`}
-                        >
-                          {allowGuestPoster ? t.admin.toggleOn : t.admin.toggleOff}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                      {t.admin.coverImage}
-                    </label>
-                    <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
-                      {uploadingVisual === 'cover'
-                        ? t.admin.mediaUploading
-                        : coverImageFile?.name || t.admin.uploadCover}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(event) => {
-                          const file = event.target.files?.[0] || null
-                          setCoverImageFile(file)
-                          setCoverImageUrl(file ? URL.createObjectURL(file) : '')
-                        }}
-                        className="sr-only"
-                      />
-                    </label>
-                    {coverImageUrl ? (
-                      <div
-                        className="mt-3 h-28 rounded-2xl border border-white/10 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${coverImageUrl})` }}
-                      />
-                    ) : null}
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                      {t.admin.backgroundImage}
-                    </label>
-                    <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
-                      {uploadingVisual === 'background'
-                        ? t.admin.mediaUploading
-                        : backgroundImageFile?.name || t.admin.uploadBackground}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(event) => {
-                          const file = event.target.files?.[0] || null
-                          setBackgroundImageFile(file)
-                          setBackgroundImageUrl(file ? URL.createObjectURL(file) : '')
-                        }}
-                        className="sr-only"
-                      />
-                    </label>
-                    {backgroundImageUrl ? (
-                      <div
-                        className="mt-3 h-28 rounded-2xl border border-white/10 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${backgroundImageUrl})` }}
-                      />
-                    ) : null}
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                      {t.admin.posterTemplateImage}
-                    </label>
-                    <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
-                      {uploadingVisual === 'posterTemplate'
-                        ? t.admin.mediaUploading
-                        : posterTemplateFile?.name || t.admin.uploadPosterTemplate}
-                      <input
-                        type="file"
-                        accept="image/png,image/*"
-                        onChange={(event) => {
-                          const file = event.target.files?.[0] || null
-                          setPosterTemplateFile(file)
-                          setPosterTemplateUrl(file ? URL.createObjectURL(file) : '')
-                        }}
-                        className="sr-only"
-                      />
-                    </label>
-                    {posterTemplateUrl ? (
-                      <div
-                        className="mt-3 h-36 rounded-2xl border border-white/10 bg-black bg-contain bg-center bg-no-repeat"
-                        style={{ backgroundImage: `url(${posterTemplateUrl})` }}
-                      />
-                    ) : null}
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#EAF3FB]">
-                      {t.admin.storyTemplateImage}
-                    </label>
-                    <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/8 px-4 py-3 text-sm font-semibold text-white hover:bg-white/12">
-                      {uploadingVisual === 'storyTemplate'
-                        ? t.admin.mediaUploading
-                        : storyTemplateFile?.name || t.admin.uploadStoryTemplate}
-                      <input
-                        type="file"
-                        accept="image/png,image/*"
-                        onChange={(event) => {
-                          const file = event.target.files?.[0] || null
-                          setStoryTemplateFile(file)
-                          setStoryTemplateUrl(file ? URL.createObjectURL(file) : '')
-                        }}
-                        className="sr-only"
-                      />
-                    </label>
-                    {storyTemplateUrl ? (
-                      <div
-                        className="mt-3 h-44 rounded-2xl border border-white/10 bg-black bg-contain bg-center bg-no-repeat"
-                        style={{ backgroundImage: `url(${storyTemplateUrl})` }}
-                      />
-                    ) : null}
-                  </div>
                 </div>
 
                 <button
@@ -1903,6 +1728,7 @@ export default function AdminPage() {
                       ? t.admin.createDemoTemplateButton
                       : t.admin.createButton}
                 </button>
+                </details>
               </div>
             ) : (
               <div className="space-y-6">
