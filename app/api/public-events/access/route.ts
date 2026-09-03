@@ -4,6 +4,7 @@ import {
   EVENT_ACCESS_COOKIE_NAME,
   getSafeEventReturnToPath,
   grantEventAccess,
+  hasEventAccess,
   isValidGuestEmail,
   normalizeEventAccessInput,
 } from '@/lib/event-access'
@@ -30,6 +31,40 @@ function isMissingColumnError(error: { message?: string } | null | undefined) {
     message.includes('column') ||
     message.includes('schema cache') ||
     message.includes('could not find')
+  )
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const identifiers = [
+    searchParams.get('identifier'),
+    searchParams.get('eventId'),
+    searchParams.get('eventSlug'),
+  ].filter((value): value is string => Boolean(value?.trim()))
+
+  if (identifiers.length === 0) {
+    return NextResponse.json(
+      {
+        ok: false,
+        hasAccess: false,
+        errorCode: 'MISSING_IDENTIFIER',
+      },
+      { status: 400 }
+    )
+  }
+
+  const cookieStore = await cookies()
+  const existingCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
+  const hasAccess = identifiers.some((identifier) =>
+    hasEventAccess(existingCookie, identifier)
+  )
+
+  return NextResponse.json(
+    {
+      ok: hasAccess,
+      hasAccess,
+    },
+    { status: hasAccess ? 200 : 401 }
   )
 }
 

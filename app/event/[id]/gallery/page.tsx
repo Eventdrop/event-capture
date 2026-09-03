@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { LANGUAGE_STORAGE_KEY, useLanguage } from '@/app/_components/language-provider'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { getPublicMediaUrl } from '@/lib/app-url'
@@ -889,6 +889,7 @@ function drawPhotostripStory(
 export default function Page() {
   const { t, locale, setLocale } = useLanguage()
   const params = useParams()
+  const router = useRouter()
   const eventIdentifier = params.id as string
   const initializedLocaleForEventRef = useRef('')
 
@@ -986,6 +987,24 @@ export default function Page() {
         return
       }
 
+      const accessParams = new URLSearchParams({
+        identifier: eventIdentifier,
+        eventId: normalizedEvent.id,
+      })
+
+      if (normalizedEvent.slug) {
+        accessParams.set('eventSlug', normalizedEvent.slug)
+      }
+
+      const accessResponse = await fetch(
+        `/api/public-events/access?${accessParams.toString()}`
+      )
+
+      if (!accessResponse.ok) {
+        router.replace(`/event/${eventIdentifier}?lang=${locale}`)
+        return
+      }
+
       setCurrentEvent(normalizedEvent)
 
       const { data: uploads, error: uploadsError } = await supabase
@@ -1012,7 +1031,7 @@ export default function Page() {
     }
 
     void load()
-  }, [eventIdentifier, t.gallery.loadError, t.gallery.noUploads, t.gallery.notFound, t.gallery.showing])
+  }, [eventIdentifier, locale, router, t.gallery.loadError, t.gallery.noUploads, t.gallery.notFound, t.gallery.showing])
 
   useEffect(() => {
     const loadBranding = async () => {
