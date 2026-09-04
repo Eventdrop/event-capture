@@ -3,7 +3,7 @@ import { hasAdminSession } from '@/lib/admin-auth'
 import { getStoragePathFromUpload, type UploadRecord } from '@/lib/eventdrop'
 import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
-import { buildEventInsertPayload, cleanRepeatedEventLabel } from '@/lib/events'
+import { buildEventInsertPayload, cleanRepeatedEventLabel, slugifyEventName } from '@/lib/events'
 import { normalizeGuestbookPdfTheme } from '@/lib/guestbook-pdf-theme'
 import type { Locale } from '@/lib/i18n'
 import { withRetry } from '@/lib/with-retry'
@@ -329,6 +329,7 @@ export async function POST(request: Request) {
     | {
         name?: string
         albumName?: string
+        demoSlug?: string
         eventDate?: string
         defaultLocale?: Locale
         accessCode?: string
@@ -353,6 +354,8 @@ export async function POST(request: Request) {
 
   const name = body?.name?.trim() || ''
   const albumName = body?.albumName?.trim() || ''
+  const requestedDemoSlug = body?.demoSlug?.trim() || ''
+  const demoSlugBase = requestedDemoSlug ? slugifyEventName(requestedDemoSlug) : ''
   const eventDate = body?.eventDate || ''
   const defaultLocale = body?.defaultLocale || 'nl'
   const accessCode = body?.accessCode?.trim() || ''
@@ -383,11 +386,42 @@ export async function POST(request: Request) {
     )
   }
 
+  if (requestedDemoSlug && !demoSlugBase) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'De demo-link kon niet uit de klantnaam worden gemaakt.',
+      },
+      { status: 400 }
+    )
+  }
+
   try {
     const supabase = createAdminSupabaseClient()
+
+    let finalDemoSlug = demoSlugBase
+
+    if (demoSlugBase) {
+      let suffix = 1
+
+      while (true) {
+        const { data: existingDemo, error: demoLookupError } = await supabase
+          .from('events')
+          .select('id')
+          .eq('demo_slug', finalDemoSlug)
+          .limit(1)
+
+        if (demoLookupError) throw demoLookupError
+        if (!existingDemo || existingDemo.length === 0) break
+
+        suffix += 1
+        finalDemoSlug = `${demoSlugBase}-${suffix}`
+      }
+    }
     const payload = buildEventInsertPayload({
       name,
       albumName,
+      demoSlug: finalDemoSlug,
       eventDate,
       defaultLocale,
       accessCode,
@@ -433,6 +467,7 @@ export async function POST(request: Request) {
       const withoutAccessCode = {
         name: payload.name,
         album_name: payload.album_name,
+        demo_slug: payload.demo_slug,
         slug: payload.slug,
         event_date: payload.event_date,
         cover_image_url: payload.cover_image_url,
@@ -460,6 +495,10 @@ export async function POST(request: Request) {
       if (!fallbackInsert.error) {
         createdRecord = fallbackInsert.data
       } else {
+        if (finalDemoSlug) {
+          throw fallbackInsert.error
+        }
+
         const minimalInsert = await withRetry(
           () =>
             supabase
@@ -480,6 +519,10 @@ export async function POST(request: Request) {
 
     if (!createdRecord?.id) {
       throw new Error('Supabase heeft geen nieuw event teruggegeven.')
+    }
+
+    if (finalDemoSlug && createdRecord.demo_slug !== finalDemoSlug) {
+      throw new Error('De demo is aangemaakt zonder geldige demo-link.')
     }
 
     if (isDemoTemplate && createdRecord.is_demo_template !== true) {
