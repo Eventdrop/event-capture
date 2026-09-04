@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+
+import { hasAdminSession } from '@/lib/admin-auth'
 import {
   EVENT_ACCESS_COOKIE_NAME,
   getSafeEventReturnToPath,
@@ -51,6 +53,13 @@ export async function GET(request: Request) {
       },
       { status: 400 }
     )
+  }
+
+  if (await hasAdminSession()) {
+    return NextResponse.json({
+      ok: true,
+      hasAccess: true,
+    })
   }
 
   const cookieStore = await cookies()
