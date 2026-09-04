@@ -1,7 +1,8 @@
 import { normalizeEventAccessCode } from '@/lib/events'
 
 export const EVENT_ACCESS_COOKIE_NAME = 'eventdrop_event_access'
-export const EVENT_ACCESS_LIMIT = 24
+export const EVENT_ACCESS_LIMIT = 8
+export const EVENT_ACCESS_COOKIE_MAX_BYTES = 3000
 
 export type EventAccessGrant = {
   eventId: string
@@ -40,7 +41,23 @@ export function parseEventAccessCookie(rawValue?: string | null) {
 }
 
 export function serializeEventAccessCookie(grants: EventAccessGrant[]) {
-  return JSON.stringify(grants.slice(0, EVENT_ACCESS_LIMIT))
+  const limitedGrants = grants.slice(0, EVENT_ACCESS_LIMIT)
+  const safeGrants: EventAccessGrant[] = []
+
+  for (const grant of limitedGrants) {
+    const candidate = JSON.stringify([...safeGrants, grant])
+    const encodedByteLength = new TextEncoder().encode(
+      encodeURIComponent(candidate)
+    ).length
+
+    if (encodedByteLength > EVENT_ACCESS_COOKIE_MAX_BYTES) {
+      break
+    }
+
+    safeGrants.push(grant)
+  }
+
+  return JSON.stringify(safeGrants)
 }
 
 export function grantEventAccess(
