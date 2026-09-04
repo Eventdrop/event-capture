@@ -208,6 +208,9 @@ type TranslationTree = {
     demoOpenUpload: string
     demoOpenGallery: string
     demoCopyLink: string
+    liveOpen: string
+    liveCopyLink: string
+    liveCopied: string
     comingSoon: string
     guestbookCoverPhoto: string
     guestbookCoverPhotoActive: string
@@ -698,6 +701,9 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       demoOpenUpload: 'Yükleme linkini aç',
       demoOpenGallery: 'Galeri linkini aç',
       demoCopyLink: 'Demo linkini kopyala',
+      liveOpen: 'Canlı yayını aç',
+      liveCopyLink: 'Canlı linki kopyala',
+      liveCopied: 'Canlı link kopyalandı.',
       comingSoon: 'Yakinda',
       guestbookCoverPhoto: 'Anı defteri kapak fotoğrafı',
       guestbookCoverPhotoActive: 'Ayrı seçilmiş anı defteri fotoğrafı aktif.',
@@ -1266,6 +1272,9 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       demoOpenUpload: 'Uploadlink openen',
       demoOpenGallery: 'Galerijlink openen',
       demoCopyLink: 'Demo-link kopiëren',
+      liveOpen: 'Live openen',
+      liveCopyLink: 'Live-link kopiëren',
+      liveCopied: 'Live-link gekopieerd.',
       comingSoon: 'Binnenkort',
       guestbookCoverPhoto: 'Gastenboek omslagfoto',
       guestbookCoverPhotoActive: 'Aparte gastenboekfoto actief.',
@@ -1834,6 +1843,9 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       demoOpenUpload: 'Open upload link',
       demoOpenGallery: 'Open gallery link',
       demoCopyLink: 'Copy demo link',
+      liveOpen: 'Open live',
+      liveCopyLink: 'Copy live link',
+      liveCopied: 'Live link copied.',
       comingSoon: 'Coming soon',
       guestbookCoverPhoto: 'Guestbook cover photo',
       guestbookCoverPhotoActive: 'Dedicated guestbook photo is active.',

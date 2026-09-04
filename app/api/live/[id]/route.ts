@@ -10,8 +10,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
+  const identifier = id?.trim() || ''
 
-  if (!id) {
+  if (!identifier) {
     return NextResponse.json(
       { ok: false, error: 'Event niet gevonden.' },
       { status: 404 }
@@ -19,12 +20,20 @@ export async function GET(
   }
 
   const supabase = createAdminSupabaseClient()
+  const isUuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      identifier
+    )
 
-  const { data: event, error: eventError } = await supabase
+  const eventQuery = supabase
     .from('events')
     .select('id, name, album_name')
-    .eq('id', id)
-    .maybeSingle()
+
+  const { data: event, error: eventError } = await (
+    isUuid
+      ? eventQuery.eq('id', identifier)
+      : eventQuery.eq('demo_slug', identifier)
+  ).maybeSingle()
 
   if (eventError) {
     console.error('Live event lookup failed', eventError)
