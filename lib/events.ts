@@ -10,6 +10,7 @@ type EventRecordLike = {
   name?: string | null
   album_name?: string | null
   slug?: string | null
+  demo_slug?: string | null
   access_code?: string | null
   cover_image_url?: string | null
   guestbook_cover_image_url?: string | null
@@ -36,6 +37,7 @@ export type NormalizedEvent = {
   name: string
   albumName: string
   slug: string
+  demoSlug: string
   accessCode: string
   coverImageUrl: string
   guestbookCoverImageUrl: string
@@ -137,6 +139,7 @@ export function deriveEventAccessCode(
 export function buildEventInsertPayload(input: {
   name: string
   albumName: string
+  demoSlug?: string
   eventDate?: string
   defaultLocale?: Locale
   accessCode?: string
@@ -164,6 +167,7 @@ export function buildEventInsertPayload(input: {
   const payload = {
     name: cleanRepeatedEventLabel(input.name),
     album_name: cleanRepeatedEventLabel(input.albumName),
+    demo_slug: input.demoSlug ? slugifyEventName(input.demoSlug) || null : null,
     slug: `${slugBase}-${Math.random().toString(36).slice(2, 6)}`,
     access_code: accessCode,
     cover_image_url: input.coverImageUrl || null,
@@ -202,6 +206,7 @@ export function normalizeEventRecord(
     name: cleanRepeatedEventLabel(record.name),
     albumName: cleanRepeatedEventLabel(record.album_name || record.name),
     slug: record.slug || '',
+    demoSlug: record.demo_slug || '',
     accessCode: deriveEventAccessCode(record),
     coverImageUrl: record.cover_image_url || '',
     guestbookCoverImageUrl: record.guestbook_cover_image_url || '',

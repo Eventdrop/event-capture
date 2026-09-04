@@ -208,6 +208,8 @@ export default function AdminPage() {
     `${publicBaseUrl}${getEventRoute(getEventIdentifier(event))}`
   const getGalleryShareUrl = (event: NormalizedEvent) =>
     `${publicBaseUrl}${getEventGalleryRoute(getEventIdentifier(event))}`
+  const getDemoShareUrl = (event: NormalizedEvent) =>
+    event.demoSlug ? `${publicBaseUrl}/demo/${event.demoSlug}` : ''
   const getPublicJoinPath = (event: NormalizedEvent) =>
     getPublicPath(getEventRoute(getEventIdentifier(event)))
   const getPublicGalleryPath = (event: NormalizedEvent) =>
@@ -797,6 +799,7 @@ export default function AdminPage() {
         body: JSON.stringify({
           name: demoName,
           albumName: demoName,
+          demoSlug: customerName,
           eventDate: '',
           defaultLocale: demoCloneSource.defaultLocale,
           accessCode: demoCloneSource.accessCode ? generateDemoAccessCode() : '',
@@ -2857,6 +2860,11 @@ export default function AdminPage() {
                 <p className="mt-1 break-words text-sm text-emerald-700">
                   {formatEventLabel(createdDemoEvent)}
                 </p>
+                {createdDemoEvent.demoSlug ? (
+                  <p className="mt-3 break-all rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-[#0F3D66]">
+                    {getDemoShareUrl(createdDemoEvent)}
+                  </p>
+                ) : null}
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     href={getPublicJoinPath(createdDemoEvent)}
@@ -2877,7 +2885,7 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() =>
-                      copyToClipboard(getGalleryShareUrl(createdDemoEvent), t.admin.galleryCopied)
+                      copyToClipboard(getDemoShareUrl(createdDemoEvent), t.admin.demoCopyLink)
                     }
                     className="inline-flex items-center justify-center rounded-full border border-[#B9CBE0] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#F2F6FA]"
                   >
