@@ -496,7 +496,7 @@ function formatSuitablePhotoShortage(count: number, required: number, locale: Lo
 }
 
 function getPhotostripLabel(locale: Locale) {
-  if (locale === 'tr') return 'Photostrip Story 5x15'
+  if (locale === 'tr') return 'Photobooth Story 5x15'
   return 'Photostrip 5x15'
 }
 
@@ -2353,11 +2353,6 @@ export default function Page() {
                     <p className="mt-1 text-sm font-black text-neutral-950">
                       {photostripSelectedItems.length} / 3 {t.gallery.designSelected}
                     </p>
-                    {!photostripReady ? (
-                      <p className="mt-0.5 text-xs font-bold text-[#d71920]">
-                        {photostripShortageText || t.gallery.photostripShortage}
-                      </p>
-                    ) : null}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
