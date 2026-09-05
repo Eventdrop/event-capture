@@ -310,6 +310,7 @@ type TranslationTree = {
     albumPackageNotice: string
     albumPackageLabel: string
     backToUpload: string
+    addPhotosButton: string
     posterButton: string
     posterPreparing: string
     posterChoose: string
@@ -791,6 +792,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       albumPackageNotice: 'Album guvenli indirme icin {count} ZIP paketine bolundu.',
       albumPackageLabel: 'Paket',
       backToUpload: 'Yukleme',
+      addPhotosButton: 'Fotograf ekle',
       posterButton: 'A3 poster',
       posterPreparing: 'Poster hazirlaniyor...',
       posterChoose: 'Poster icin en fazla 12 fotograf sec.',
@@ -1341,6 +1343,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       albumPackageNotice: 'Voor veilig downloaden is het album verdeeld in {count} ZIP-pakketten.',
       albumPackageLabel: 'Pakket',
       backToUpload: 'Naar upload',
+      addPhotosButton: 'Foto’s toevoegen',
       posterButton: 'A3-poster',
       posterPreparing: 'Poster wordt gemaakt...',
       posterChoose: 'Selecteer maximaal 12 foto’s voor de poster.',
@@ -1891,6 +1894,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       albumPackageNotice: 'For safe downloading, the album was split into {count} ZIP packages.',
       albumPackageLabel: 'Package',
       backToUpload: 'Upload',
+      addPhotosButton: 'Add photos',
       posterButton: 'A3 poster',
       posterPreparing: 'Preparing poster...',
       posterChoose: 'Select up to 12 photos for the poster.',
