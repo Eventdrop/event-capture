@@ -496,8 +496,8 @@ function formatSuitablePhotoShortage(count: number, required: number, locale: Lo
 }
 
 function getPhotostripLabel(locale: Locale) {
-  if (locale === 'tr') return 'Photobooth Story 5x15'
-  return 'Photostrip 5x15'
+  void locale
+  return 'Photobooth Story 5x15'
 }
 
 function GalleryNavIcon({ icon }: { icon: GalleryView }) {
