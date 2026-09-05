@@ -11,6 +11,8 @@ type EventRecordLike = {
   album_name?: string | null
   slug?: string | null
   demo_slug?: string | null
+  live_token?: string | null
+  live_enabled?: boolean | null
   access_code?: string | null
   cover_image_url?: string | null
   guestbook_cover_image_url?: string | null
@@ -38,6 +40,8 @@ export type NormalizedEvent = {
   albumName: string
   slug: string
   demoSlug: string
+  liveToken: string
+  liveEnabled: boolean
   accessCode: string
   coverImageUrl: string
   guestbookCoverImageUrl: string
@@ -207,6 +211,8 @@ export function normalizeEventRecord(
     albumName: cleanRepeatedEventLabel(record.album_name || record.name),
     slug: record.slug || '',
     demoSlug: record.demo_slug || '',
+    liveToken: record.live_token || '',
+    liveEnabled: record.live_enabled === true,
     accessCode: deriveEventAccessCode(record),
     coverImageUrl: record.cover_image_url || '',
     guestbookCoverImageUrl: record.guestbook_cover_image_url || '',

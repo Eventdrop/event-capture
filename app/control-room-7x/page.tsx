@@ -213,11 +213,15 @@ export default function AdminPage() {
   const getDemoShareUrl = (event: NormalizedEvent) =>
     event.demoSlug ? `${publicBaseUrl}/demo/${event.demoSlug}` : ''
   const getLiveIdentifier = (event: NormalizedEvent) =>
-    event.demoSlug || event.id
+    event.liveToken
   const getLiveShareUrl = (event: NormalizedEvent) =>
-    `${publicBaseUrl}/live/${encodeURIComponent(getLiveIdentifier(event))}`
+    event.liveToken
+      ? `${publicBaseUrl}/live/${encodeURIComponent(event.liveToken)}`
+      : ''
   const getPublicLivePath = (event: NormalizedEvent) =>
-    getPublicPath(`/live/${encodeURIComponent(getLiveIdentifier(event))}`)
+    event.liveToken
+      ? getPublicPath(`/live/${encodeURIComponent(event.liveToken)}`)
+      : ''
   const getPublicJoinPath = (event: NormalizedEvent) =>
     getPublicPath(getEventRoute(getEventIdentifier(event)))
   const getPublicGalleryPath = (event: NormalizedEvent) =>
@@ -1241,6 +1245,71 @@ export default function AdminPage() {
     )
   }
 
+  const toggleLiveEnabled = async (event: NormalizedEvent) => {
+    setSubmitting(true)
+
+    try {
+      const controls = eventControlsById[event.id]
+
+      const response = await fetch('/api/admin/events', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: event.id,
+          allowGuestShare:
+            controls?.allowGuestShare ?? event.allowGuestShare,
+          allowGuestDownload:
+            controls?.allowGuestDownload ?? event.allowGuestDownload,
+          allowAlbumDownload:
+            controls?.allowAlbumDownload ?? event.allowAlbumDownload,
+          allowGuestDelete:
+            controls?.allowGuestDelete ?? event.allowGuestDelete,
+          allowGuestPoster:
+            controls?.allowGuestPoster ?? event.allowGuestPoster,
+          guestbookEnabled:
+            controls?.guestbookEnabled ?? event.guestbookEnabled,
+          photostripEnabled:
+            controls?.photostripEnabled ?? event.photostripEnabled,
+          guestbookPdfTheme:
+            controls?.guestbookPdfTheme ?? event.guestbookPdfTheme,
+          liveEnabled: !event.liveEnabled,
+        }),
+      })
+
+      const payload = (await response.json()) as {
+        ok?: boolean
+        event?: Record<string, unknown>
+        error?: string
+      }
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || t.admin.eventDetailsSaveError)
+      }
+
+      const normalized = normalizeEventRecord(payload.event)
+
+      if (!normalized) {
+        throw new Error(t.admin.eventDetailsSaveError)
+      }
+
+      setEvents((prev) =>
+        prev.map((item) => (item.id === event.id ? normalized : item))
+      )
+
+      setStatusMessage(t.admin.eventDetailsSaved)
+    } catch (error) {
+      setStatusMessage(
+        error instanceof Error
+          ? error.message
+          : t.admin.eventDetailsSaveError
+      )
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const saveEventDetails = async (event: NormalizedEvent) => {
     const draft = eventDraftsById[event.id] || {
       albumName: event.albumName,
@@ -1266,6 +1335,7 @@ export default function AdminPage() {
           name: draft.name,
           albumName: draft.name,
           eventDate: draft.eventDate,
+          liveEnabled: event.liveEnabled,
           allowGuestShare: eventControlsById[event.id]?.allowGuestShare ?? event.allowGuestShare,
           allowGuestDownload:
             eventControlsById[event.id]?.allowGuestDownload ?? event.allowGuestDownload,
@@ -1949,14 +2019,32 @@ export default function AdminPage() {
                   >
                     {t.common.gallery}
                   </Link>
-                  <Link
-                    href={getPublicLivePath(selectedVisibleEvent)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0B2F4F]"
+                  <button
+                    type="button"
+                    disabled={submitting}
+                    onClick={() => void toggleLiveEnabled(selectedVisibleEvent)}
+                    className={`inline-flex items-center justify-center rounded-full px-3 py-2 text-xs font-semibold ${
+                      selectedVisibleEvent.liveEnabled
+                        ? 'border border-[#C8D3E5] bg-white text-[#0F3D66] hover:bg-[#EDF4FB]'
+                        : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
+                    } disabled:opacity-60`}
                   >
-                    {t.admin.liveOpen}
-                  </Link>
+                    {selectedVisibleEvent.liveEnabled
+                      ? t.admin.liveDisable
+                      : t.admin.liveEnable}
+                  </button>
+
+                  {selectedVisibleEvent.liveEnabled &&
+                  selectedVisibleEvent.liveToken ? (
+                    <Link
+                      href={getPublicLivePath(selectedVisibleEvent)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0B2F4F]"
+                    >
+                      {t.admin.liveOpen}
+                    </Link>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() =>
@@ -1978,18 +2066,21 @@ export default function AdminPage() {
                   >
                     {t.common.copyGalleryLink}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      copyToClipboard(
-                        getLiveShareUrl(selectedVisibleEvent),
-                        t.admin.liveCopied
-                      )
-                    }
-                    className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                  >
-                    {t.admin.liveCopyLink}
-                  </button>
+                  {selectedVisibleEvent.liveEnabled &&
+                  selectedVisibleEvent.liveToken ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        copyToClipboard(
+                          getLiveShareUrl(selectedVisibleEvent),
+                          t.admin.liveCopied
+                        )
+                      }
+                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                    >
+                      {t.admin.liveCopyLink}
+                    </button>
+                  ) : null}
                 </div>
               </div>
             ) : null}

@@ -554,6 +554,7 @@ export async function PATCH(request: Request) {
         name?: string
         albumName?: string
         eventDate?: string | null
+        liveEnabled?: boolean
         allowGuestShare?: boolean
         allowGuestDownload?: boolean
         allowAlbumDownload?: boolean
@@ -616,6 +617,10 @@ export async function PATCH(request: Request) {
 
     if (body && 'eventDate' in body) {
       updatePayload.event_date = body.eventDate?.trim() || null
+    }
+
+    if (body && 'liveEnabled' in body) {
+      updatePayload.live_enabled = body.liveEnabled === true
     }
 
     if (body && 'guestbookCoverImageUrl' in body) {
