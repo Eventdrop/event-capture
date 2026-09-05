@@ -42,6 +42,10 @@ export default function LiveSlideshowPage() {
       const result = (await response.json()) as LiveResponse
 
       if (!response.ok || !result.ok || !result.event) {
+        setPhotos([])
+        setCurrentIndex(0)
+        knownPhotoIdsRef.current = new Set()
+        loadedOnceRef.current = false
         setStatus(result.error || 'Live slideshow kon niet worden geladen.')
         return
       }
