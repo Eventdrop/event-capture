@@ -356,6 +356,7 @@ type TranslationTree = {
     storyLandscapeMode: string
     storyPreparing: string
     storyReady: string
+    photostripShortage: string
     cancel: string
     posterHorizontalTip: string
     posterLimitPopup: string
@@ -841,6 +842,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       storyLandscapeMode: 'Landscape Story',
       storyPreparing: 'Instagram story hazirlaniyor...',
       storyReady: 'Instagram story indirildi.',
+      photostripShortage:
+        "Bu Story’yi oluşturmak için önce photobooth’tan en az 3 photostrip’i galeriye yükleyin. Daha sonra buradan 3 strip seçebilirsiniz.",
       cancel: 'Iptal',
       posterHorizontalTip: 'Poster icin yatay fotograflar daha iyi sonuc verir.',
       posterLimitPopup: '12 fotograf secildi. A3 poster en fazla 12 fotograf kullanir. Fazla secilenler albume iner ama posterde kullanilmaz.',
@@ -1395,6 +1398,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       storyLandscapeMode: 'Landscape Story',
       storyPreparing: 'Instagram story wordt gemaakt...',
       storyReady: 'Instagram story is gedownload.',
+      photostripShortage:
+        'Om deze Story te maken, upload je eerst minimaal 3 photostrips uit de photobooth naar de galerij. Daarna kun je hier 3 strips selecteren.',
       cancel: 'Annuleren',
       posterHorizontalTip: 'Liggende foto’s geven het beste resultaat op de poster.',
       posterLimitPopup: '12 foto’s geselecteerd. Een A3-poster gebruikt maximaal 12 foto’s. Extra foto’s blijven beschikbaar voor albumdownload, maar worden niet gebruikt op de poster.',
@@ -1949,6 +1954,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       storyLandscapeMode: 'Landscape Story',
       storyPreparing: 'Preparing Instagram story...',
       storyReady: 'Instagram story downloaded.',
+      photostripShortage:
+        'To create this Story, first upload at least 3 photobooth strips to the gallery. You can then select 3 strips here.',
       cancel: 'Cancel',
       posterHorizontalTip: 'Landscape photos work best on the poster.',
       posterLimitPopup: '12 photos selected. An A3 poster uses up to 12 photos. Extra photos remain available for album download, but will not be used on the poster.',
@@ -2231,6 +2238,7 @@ const germanTranslation: TranslationTree = {
     storyOption: 'Instagram Story', storyButton: 'Instagram Story',
     storyPortraitMode: 'Portrait Story', storyLandscapeMode: 'Landscape Story',
     storyPreparing: 'Instagram Story wird vorbereitet ...', storyReady: 'Instagram Story heruntergeladen.',
+    photostripShortage: 'Um diese Story zu erstellen, lade zuerst mindestens 3 Photobooth-Strips in die Galerie hoch. Danach kannst du hier 3 Strips auswählen.',
     cancel: 'Abbrechen', posterHorizontalTip: 'Querformatfotos liefern das beste Poster-Ergebnis.',
     posterLimitPopup: '12 Fotos ausgewählt. Ein A3-Poster verwendet höchstens 12 Fotos. Weitere Fotos bleiben für den Album-Download verfügbar.',
     posterRatioPopup: 'Ein sehr langes oder schmales Foto wurde nicht auf dem Poster platziert. Querformatfotos funktionieren besser.',
@@ -2426,6 +2434,7 @@ const frenchTranslation: TranslationTree = {
     storyOption: 'Story Instagram', storyButton: 'Story Instagram',
     storyPortraitMode: 'Portrait Story', storyLandscapeMode: 'Landscape Story',
     storyPreparing: 'Préparation de la Story Instagram…', storyReady: 'Story Instagram téléchargée.',
+    photostripShortage: 'Pour créer cette Story, téléchargez d’abord au moins 3 photostrips du photobooth dans la galerie. Vous pourrez ensuite sélectionner 3 strips ici.',
     cancel: 'Annuler', posterHorizontalTip: 'Les photos horizontales donnent le meilleur résultat sur le poster.',
     posterLimitPopup: '12 photos sélectionnées. Un poster A3 utilise au maximum 12 photos. Les autres restent disponibles pour le téléchargement de l’album.',
     posterRatioPopup: 'Une photo très longue ou étroite n’a pas été placée sur le poster. Les photos horizontales fonctionnent mieux.',
