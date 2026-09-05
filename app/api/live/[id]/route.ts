@@ -10,30 +10,28 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const identifier = id?.trim() || ''
+  const liveToken = id?.trim() || ''
 
-  if (!identifier) {
+  const isValidLiveToken =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      liveToken
+    )
+
+  if (!isValidLiveToken) {
     return NextResponse.json(
-      { ok: false, error: 'Event niet gevonden.' },
+      { ok: false, error: 'Live uitzending niet gevonden.' },
       { status: 404 }
     )
   }
 
   const supabase = createAdminSupabaseClient()
-  const isUuid =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-      identifier
-    )
 
-  const eventQuery = supabase
+  const { data: event, error: eventError } = await supabase
     .from('events')
     .select('id, name, album_name')
-
-  const { data: event, error: eventError } = await (
-    isUuid
-      ? eventQuery.eq('id', identifier)
-      : eventQuery.eq('demo_slug', identifier)
-  ).maybeSingle()
+    .eq('live_token', liveToken)
+    .eq('live_enabled', true)
+    .maybeSingle()
 
   if (eventError) {
     console.error('Live event lookup failed', eventError)
