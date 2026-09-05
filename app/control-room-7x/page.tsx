@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode, useRef } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { SiteHeader } from '@/app/_components/site-header'
@@ -1245,7 +1245,12 @@ export default function AdminPage() {
     )
   }
 
+  const liveToggleLockRef = useRef(false)
+
   const toggleLiveEnabled = async (event: NormalizedEvent) => {
+    if (liveToggleLockRef.current) return
+
+    liveToggleLockRef.current = true
     setSubmitting(true)
 
     try {
@@ -1306,6 +1311,7 @@ export default function AdminPage() {
           : t.admin.eventDetailsSaveError
       )
     } finally {
+      liveToggleLockRef.current = false
       setSubmitting(false)
     }
   }
