@@ -179,6 +179,7 @@ export default function AdminPage() {
   const [demoCloneSource, setDemoCloneSource] = useState<NormalizedEvent | null>(null)
   const [demoCustomerName, setDemoCustomerName] = useState('')
   const [createdDemoEvent, setCreatedDemoEvent] = useState<NormalizedEvent | null>(null)
+  const [liveQrEvent, setLiveQrEvent] = useState<NormalizedEvent | null>(null)
 
   const publicBaseUrl = getPublicAppUrl()
   const adminUrl = getPublicPath('/control-room-7x')
@@ -888,17 +889,25 @@ export default function AdminPage() {
 
   const getQrSvg = (eventId: string) =>
     document.querySelector<SVGSVGElement>(`[data-event-qr="${eventId}"] svg`)
+  const getLiveQrSvg = (eventId: string) =>
+    document.querySelector<SVGSVGElement>(`[data-live-qr="${eventId}"] svg`)
 
-  const getQrFileName = (event: NormalizedEvent, extension: 'png' | 'svg') => {
-    const safeName = formatEventLabel(event)
+  const getSafeEventName = (event: NormalizedEvent) =>
+    formatEventLabel(event)
       .normalize('NFKD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-zA-Z0-9_-]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .slice(0, 80)
 
+  const getQrFileName = (event: NormalizedEvent, extension: 'png' | 'svg') => {
+    const safeName = getSafeEventName(event)
+
     return `${safeName || 'event'}-qr.${extension}`
   }
+
+  const getLiveQrFileName = (event: NormalizedEvent) =>
+    `eventdrop-live-${getSafeEventName(event) || 'event'}.png`
 
   const downloadBlob = (blob: Blob, fileName: string) => {
     const url = URL.createObjectURL(blob)
@@ -953,6 +962,42 @@ export default function AdminPage() {
       URL.revokeObjectURL(sourceUrl)
       canvas.toBlob((blob) => {
         if (blob) downloadBlob(blob, getQrFileName(event, 'png'))
+      }, 'image/png')
+    }
+
+    image.onerror = () => URL.revokeObjectURL(sourceUrl)
+    image.src = sourceUrl
+  }
+
+  const downloadLiveQrPng = (event: NormalizedEvent) => {
+    const svg = getLiveQrSvg(event.id)
+    if (!svg) return
+
+    const copy = svg.cloneNode(true) as SVGSVGElement
+    copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+    copy.setAttribute('width', '1024')
+    copy.setAttribute('height', '1024')
+    const source = new XMLSerializer().serializeToString(copy)
+    const sourceUrl = URL.createObjectURL(
+      new Blob([source], { type: 'image/svg+xml;charset=utf-8' })
+    )
+    const image = new Image()
+
+    image.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = 1024
+      canvas.height = 1024
+      const context = canvas.getContext('2d')
+      if (!context) {
+        URL.revokeObjectURL(sourceUrl)
+        return
+      }
+      context.fillStyle = '#FFFFFF'
+      context.fillRect(0, 0, canvas.width, canvas.height)
+      context.drawImage(image, 0, 0, canvas.width, canvas.height)
+      URL.revokeObjectURL(sourceUrl)
+      canvas.toBlob((blob) => {
+        if (blob) downloadBlob(blob, getLiveQrFileName(event))
       }, 'image/png')
     }
 
@@ -2087,6 +2132,15 @@ export default function AdminPage() {
                       {t.admin.liveCopyLink}
                     </button>
                   ) : null}
+                  {selectedVisibleEvent.liveToken ? (
+                    <button
+                      type="button"
+                      onClick={() => setLiveQrEvent(selectedVisibleEvent)}
+                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                    >
+                      QR tonen
+                    </button>
+                  ) : null}
                 </div>
               </div>
             ) : null}
@@ -3035,6 +3089,57 @@ export default function AdminPage() {
                   {submitting ? t.admin.saving : t.admin.demoCreate}
                 </button>
               ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {liveQrEvent && getLiveShareUrl(liveQrEvent) ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-sm rounded-[1.5rem] bg-white p-5 text-center shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+            <div className="flex items-start justify-between gap-4 text-left">
+              <div>
+                <p className="text-lg font-bold text-[#0B2742]">QR tonen</p>
+                <p className="mt-1 text-sm font-semibold text-[#597594]">
+                  {formatEventLabel(liveQrEvent)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLiveQrEvent(null)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#F2F6FA] text-[#0F3D66] hover:bg-[#E2ECF6]"
+                aria-label={t.gallery.cancel}
+                title={t.gallery.cancel}
+              >
+                ×
+              </button>
+            </div>
+
+            <div
+              className="mt-5 flex justify-center rounded-[1.2rem] border border-[#D4DFEE] bg-white p-4"
+              data-live-qr={liveQrEvent.id}
+            >
+              <QRCodeSVG value={getLiveShareUrl(liveQrEvent)} size={240} />
+            </div>
+            <p className="mt-4 text-sm font-medium text-[#33516F]">
+              Scan deze QR-code om de Live Slideshow te openen.
+            </p>
+
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => downloadLiveQrPng(liveQrEvent)}
+                className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
+              >
+                QR downloaden
+              </button>
+              <button
+                type="button"
+                onClick={() => setLiveQrEvent(null)}
+                className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+              >
+                {t.gallery.cancel}
+              </button>
             </div>
           </div>
         </div>
