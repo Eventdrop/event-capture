@@ -501,7 +501,7 @@ function formatPhotostripShortage(count: number, locale: Locale) {
   if (locale === 'de') return `${count} Fotostreifen sind verfügbar. Diese Story benötigt genau 3 Fotostreifen.`
   if (locale === 'tr') return `${count} photostrip var. Bu Story icin tam 3 photostrip gerekiyor.`
 
-  return `Er zijn ${count} photostrips beschikbaar. Voor deze Story zijn precies 3 photostrips nodig.`
+  return 'Om deze Story te maken, upload je eerst minimaal 3 photostrips uit de photobooth naar de galerij. Daarna kun je hier 3 strips selecteren.'
 }
 
 function getPhotostripLabel(locale: Locale) {
