@@ -495,15 +495,6 @@ function formatSuitablePhotoShortage(count: number, required: number, locale: Lo
   return `Er zijn ${count} geschikte foto's beschikbaar. Voor dit ontwerp zijn ${required} foto's nodig.`
 }
 
-function formatPhotostripShortage(count: number, locale: Locale) {
-  if (locale === 'en') return `${count} photostrips are available. This Story needs exactly 3 photostrips.`
-  if (locale === 'fr') return `${count} photostrips disponibles. Cette Story nécessite exactement 3 photostrips.`
-  if (locale === 'de') return `${count} Fotostreifen sind verfügbar. Diese Story benötigt genau 3 Fotostreifen.`
-  if (locale === 'tr') return `${count} photostrip var. Bu Story icin tam 3 photostrip gerekiyor.`
-
-  return 'Om deze Story te maken, upload je eerst minimaal 3 photostrips uit de photobooth naar de galerij. Daarna kun je hier 3 strips selecteren.'
-}
-
 function getPhotostripLabel(locale: Locale) {
   if (locale === 'tr') return 'Photostrip Story 5x15'
   return 'Photostrip 5x15'
@@ -1294,7 +1285,7 @@ export default function Page() {
   }
   const photostripReady = photostripSelectedItems.length === 3
   const photostripShortageText =
-    photostripItems.length < 3 ? formatPhotostripShortage(photostripItems.length, locale) : ''
+    photostripItems.length < 3 ? t.gallery.photostripShortage : ''
 
   useEffect(() => {
     if (!photostripEnabled && designFormat === 'photostrip') {
@@ -1493,7 +1484,7 @@ export default function Page() {
       }
 
       if (prev.length >= 3) {
-        setStatusMessage(formatPhotostripShortage(prev.length, locale))
+        setStatusMessage(t.gallery.photostripShortage)
         return prev
       }
 
@@ -1897,7 +1888,7 @@ export default function Page() {
 
   const createPhotostripStory = async () => {
     if (!photostripReady || creatingPoster) {
-      setStatusMessage(photostripShortageText || formatPhotostripShortage(photostripSelectedItems.length, locale))
+      setStatusMessage(photostripShortageText || t.gallery.photostripShortage)
       return
     }
 
@@ -1924,7 +1915,7 @@ export default function Page() {
       }
 
       if (photostripPhotos.length !== 3) {
-        throw new Error(formatPhotostripShortage(photostripPhotos.length, locale))
+        throw new Error(t.gallery.photostripShortage)
       }
 
       backgroundResource = currentEvent?.photostripBackgroundUrl
@@ -2364,7 +2355,7 @@ export default function Page() {
                     </p>
                     {!photostripReady ? (
                       <p className="mt-0.5 text-xs font-bold text-[#d71920]">
-                        {photostripShortageText || formatPhotostripShortage(photostripSelectedItems.length, locale)}
+                        {photostripShortageText || t.gallery.photostripShortage}
                       </p>
                     ) : null}
                   </div>
