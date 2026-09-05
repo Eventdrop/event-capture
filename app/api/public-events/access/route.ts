@@ -21,6 +21,17 @@ import { withRetry } from '@/lib/with-retry'
 
 export const runtime = 'nodejs'
 
+const MARKETING_CONSENT_VERSION = 'event-access-v1'
+const MARKETING_CONSENT_TEXTS = {
+  nl: 'Ja, ik ontvang graag af en toe nieuws, inspiratie en aanbiedingen van EventDrop Sharing en Photobooth Holland per e-mail.',
+  en: 'Yes, I would like to occasionally receive news, inspiration and offers from EventDrop Sharing and Photobooth Holland by email.',
+  tr: "Evet, EventDrop Sharing ve Photobooth Holland'dan zaman zaman e-posta ile haberler, ilham veren içerikler ve teklifler almak istiyorum.",
+  de: 'Ja, ich möchte gelegentlich Neuigkeiten, Inspirationen und Angebote von EventDrop Sharing und Photobooth Holland per E-Mail erhalten.',
+  fr: 'Oui, je souhaite recevoir de temps en temps par e-mail des actualités, de l’inspiration et des offres d’EventDrop Sharing et de Photobooth Holland.',
+} as const
+
+type MarketingConsentLocale = keyof typeof MARKETING_CONSENT_TEXTS
+
 function isEventActive(event: NormalizedEvent) {
   void event
   return true
@@ -135,6 +146,59 @@ async function persistGuestAccessLog(input: {
   }
 }
 
+function normalizeMarketingLocale(value: string | null | undefined) {
+  const locale = (value || '').trim().toLowerCase()
+  return locale in MARKETING_CONSENT_TEXTS ? (locale as MarketingConsentLocale) : 'nl'
+}
+
+function getMarketingConsentText(locale: MarketingConsentLocale) {
+  return MARKETING_CONSENT_TEXTS[locale]
+}
+
+async function persistMarketingSubscriber(input: {
+  email: string
+  eventId: string
+  locale?: string | null
+}) {
+  try {
+    const now = new Date().toISOString()
+    const supabase = createAdminSupabaseClient()
+    const locale = normalizeMarketingLocale(input.locale)
+    const result = await withRetry(
+      () =>
+        supabase.from('marketing_subscribers').upsert(
+          {
+            email: input.email.trim().toLowerCase(),
+            consented_at: now,
+            source_event_id: input.eventId,
+            source: 'event-access',
+            locale,
+            consent_version: MARKETING_CONSENT_VERSION,
+            consent_text: getMarketingConsentText(locale),
+            unsubscribed_at: null,
+            updated_at: now,
+          },
+          {
+            onConflict: 'email',
+          }
+        ),
+      {
+        attempts: 3,
+        delayMs: 250,
+      }
+    )
+
+    if (result.error) {
+      throw result.error
+    }
+  } catch (error) {
+    logOperation('warn', 'public-access', 'Failed to persist marketing subscriber', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      eventId: input.eventId,
+    })
+  }
+}
+
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as
     | {
@@ -142,6 +206,8 @@ export async function POST(request: Request) {
         code?: string
         identifier?: string
         returnTo?: string
+        marketingConsent?: boolean
+        locale?: string
       }
     | null
 
@@ -303,6 +369,14 @@ export async function POST(request: Request) {
       email,
       source: identifier ? 'direct' : 'manual',
     })
+
+    if (body?.marketingConsent === true) {
+      await persistMarketingSubscriber({
+        email,
+        eventId: matchedEvent.id,
+        locale: body.locale,
+      })
+    }
 
     response.cookies.set(EVENT_ACCESS_COOKIE_NAME, grantEventAccess(existingCookie, {
       eventId: matchedEvent.id,

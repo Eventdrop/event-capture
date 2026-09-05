@@ -54,6 +54,8 @@ type TranslationTree = {
     manualAccessHelp: string
     prefilledEvent: string
     prefilledEventEmailOnly: string
+    marketingConsentLabel: string
+    marketingConsentHelp: string
     latestAlbumLabel: string
     latestAlbumReady: string
     noAlbum: string
@@ -487,6 +489,9 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         'Bu bağlantı belirli bir etkinliğe ait. Devam etmek için sadece e-posta ve etkinlik kodu girmen yeterli.',
       prefilledEventEmailOnly:
         'Bu bağlantı belirli bir etkinliğe ait. Devam etmek için sadece e-posta girmen yeterli.',
+      marketingConsentLabel:
+        "Evet, EventDrop Sharing ve Photobooth Holland'dan zaman zaman e-posta ile haberler, ilham veren içerikler ve teklifler almak istiyorum.",
+      marketingConsentHelp: 'İstediğiniz zaman abonelikten çıkabilirsiniz.',
       latestAlbumLabel: 'Misafir girişi',
       latestAlbumReady: 'Misafir girişi etkinlik kodu ile doğrulanır.',
       noAlbum:
@@ -1062,6 +1067,9 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         'Deze link hoort al bij een specifiek evenement. Vul alleen je e-mail en eventcode in om verder te gaan.',
       prefilledEventEmailOnly:
         'Deze link hoort al bij een specifiek evenement. Vul alleen je e-mailadres in om verder te gaan.',
+      marketingConsentLabel:
+        'Ja, ik ontvang graag af en toe nieuws, inspiratie en aanbiedingen van EventDrop Sharing en Photobooth Holland per e-mail.',
+      marketingConsentHelp: 'Je kunt je op elk moment afmelden.',
       latestAlbumLabel: 'Gasttoegang',
       latestAlbumReady: 'Gasttoegang wordt met een eventcode bevestigd.',
       noAlbum:
@@ -1633,6 +1641,9 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         'This link already belongs to a specific event. Enter your email and event code to continue.',
       prefilledEventEmailOnly:
         'This link already belongs to a specific event. Enter only your email to continue.',
+      marketingConsentLabel:
+        'Yes, I would like to occasionally receive news, inspiration and offers from EventDrop Sharing and Photobooth Holland by email.',
+      marketingConsentHelp: 'You can unsubscribe at any time.',
       latestAlbumLabel: 'Guest entry',
       latestAlbumReady: 'Guest access is confirmed with an event code.',
       noAlbum:
@@ -2186,6 +2197,8 @@ const germanTranslation: TranslationTree = {
     manualAccessHelp: 'Kein QR-Code? Öffnen Sie Ihr Album mit E-Mail-Adresse und Eventcode.',
     prefilledEvent: 'Dieses Event ist bereits ausgewählt. Geben Sie Ihre E-Mail-Adresse und den Eventcode ein.',
     prefilledEventEmailOnly: 'Dieses Event ist bereits ausgewählt. Geben Sie nur Ihre E-Mail-Adresse ein.',
+    marketingConsentLabel: 'Ja, ich möchte gelegentlich Neuigkeiten, Inspirationen und Angebote von EventDrop Sharing und Photobooth Holland per E-Mail erhalten.',
+    marketingConsentHelp: 'Sie können sich jederzeit abmelden.',
     latestAlbumLabel: 'Neuestes Album', latestAlbumReady: 'Das neueste Album ist bereit.',
     noAlbum: 'Noch kein Eventalbum verfügbar.', uploadCta: 'Fotos hochladen',
     galleryCta: 'Galerie ansehen', contactLabel: 'Kontakt', loading: 'Wird geladen ...',
@@ -2407,6 +2420,8 @@ const frenchTranslation: TranslationTree = {
     checkingAccess: 'Vérification…', manualAccessHelp: "Pas de QR code ? Accédez à l’album avec votre e-mail et le code.",
     prefilledEvent: 'Cet événement est déjà sélectionné. Saisissez votre e-mail et le code.',
     prefilledEventEmailOnly: 'Cet événement est déjà sélectionné. Saisissez uniquement votre e-mail.',
+    marketingConsentLabel: 'Oui, je souhaite recevoir de temps en temps par e-mail des actualités, de l’inspiration et des offres d’EventDrop Sharing et de Photobooth Holland.',
+    marketingConsentHelp: 'Vous pouvez vous désinscrire à tout moment.',
     latestAlbumLabel: 'Dernier album', latestAlbumReady: 'Le dernier album est disponible.',
     noAlbum: "Aucun album n’est encore disponible.", uploadCta: 'Ajouter des photos',
     galleryCta: 'Voir la galerie', contactLabel: 'Contact', loading: 'Chargement…',
