@@ -2054,12 +2054,12 @@ export default function AdminPage() {
                   ) : null}
                 </div>
 
-                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   <Link
                     href={getPublicJoinPath(selectedVisibleEvent)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
+                    className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
                   >
                     Upload
                   </Link>
@@ -2067,7 +2067,7 @@ export default function AdminPage() {
                     href={getPublicGalleryPath(selectedVisibleEvent)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                    className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                   >
                     Galeri
                   </Link>
@@ -2075,7 +2075,7 @@ export default function AdminPage() {
                     type="button"
                     disabled={submitting}
                     onClick={() => void toggleLiveEnabled(selectedVisibleEvent)}
-                    className={`inline-flex items-center justify-center rounded-full px-3 py-2 text-xs font-semibold ${
+                    className={`inline-flex min-h-10 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold ${
                       selectedVisibleEvent.liveEnabled
                         ? 'border border-[#C8D3E5] bg-white text-[#0F3D66] hover:bg-[#EDF4FB]'
                         : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
@@ -2083,8 +2083,6 @@ export default function AdminPage() {
                   >
                     {selectedVisibleEvent.liveEnabled ? 'Live açık' : 'Live kapalı'}
                   </button>
-                </div>
-                <div className="mt-2 flex justify-end">
                   <div className="relative">
                     {selectedVisibleEvent.liveToken ? (
                       <div className="sr-only" data-live-qr={selectedVisibleEvent.id}>
@@ -2098,7 +2096,7 @@ export default function AdminPage() {
                           current === selectedVisibleEvent.id ? '' : selectedVisibleEvent.id
                         )
                       }
-                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                      className="inline-flex min-h-10 w-full items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                       aria-expanded={shareMenuEventId === selectedVisibleEvent.id}
                     >
                       Paylaş
