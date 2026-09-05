@@ -223,7 +223,7 @@ export default function AdminPage() {
   const getPublicJoinPath = (event: NormalizedEvent) =>
     getPublicPath(getEventRoute(getEventIdentifier(event)))
   const getPublicGalleryPath = (event: NormalizedEvent) =>
-    getPublicPath(getEventGalleryRoute(getEventIdentifier(event)))
+    getEventGalleryRoute(getEventIdentifier(event))
 
   const getSelectedGuestbookPdfTheme = (event: NormalizedEvent) =>
     eventControlsById[event.id]?.guestbookPdfTheme ?? event.guestbookPdfTheme
