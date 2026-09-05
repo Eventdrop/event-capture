@@ -27,6 +27,7 @@ export function EventAccessForm({
   const [statusMessage, setStatusMessage] = useState(t.home.accessHint)
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const showMarketingConsent = Boolean(eventIdentifier) && !requireCode
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -127,22 +128,24 @@ export function EventAccessForm({
         />
       ) : null}
 
-      <label
-        className={`flex items-start gap-2 rounded-2xl border border-[#d7c5af] bg-[rgba(255,248,239,0.5)] text-[#191511] ${
-          compact ? 'px-3 py-2 text-[10px] leading-4' : 'px-4 py-3 text-xs leading-5'
-        }`}
-      >
-        <input
-          type="checkbox"
-          checked={marketingConsent}
-          onChange={(event) => setMarketingConsent(event.target.checked)}
-          className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#191511] accent-[#F28C18]"
-        />
-        <span>
-          <span className="block font-medium">{t.home.marketingConsentLabel}</span>
-          <span className="mt-1 block text-[#5d6775]">{t.home.marketingConsentHelp}</span>
-        </span>
-      </label>
+      {showMarketingConsent ? (
+        <label
+          className={`flex items-start gap-2 rounded-2xl border border-[#d7c5af] bg-[rgba(255,248,239,0.5)] text-[#191511] ${
+            compact ? 'px-3 py-2 text-[10px] leading-4' : 'px-4 py-3 text-xs leading-5'
+          }`}
+        >
+          <input
+            type="checkbox"
+            checked={marketingConsent}
+            onChange={(event) => setMarketingConsent(event.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#191511] accent-[#F28C18]"
+          />
+          <span>
+            <span className="block font-medium">{t.home.marketingConsentLabel}</span>
+            <span className="mt-1 block text-[#5d6775]">{t.home.marketingConsentHelp}</span>
+          </span>
+        </label>
+      ) : null}
 
       <button
         type="submit"
