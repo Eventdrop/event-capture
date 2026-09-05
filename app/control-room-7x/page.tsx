@@ -218,7 +218,7 @@ export default function AdminPage() {
       : ''
   const getPublicLivePath = (event: NormalizedEvent) =>
     event.liveToken
-      ? getPublicPath(`/live/${encodeURIComponent(event.liveToken)}`)
+      ? `/live/${encodeURIComponent(event.liveToken)}`
       : ''
   const getPublicJoinPath = (event: NormalizedEvent) =>
     getPublicPath(getEventRoute(getEventIdentifier(event)))
