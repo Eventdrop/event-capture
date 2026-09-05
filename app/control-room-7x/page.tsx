@@ -180,6 +180,7 @@ export default function AdminPage() {
   const [demoCustomerName, setDemoCustomerName] = useState('')
   const [createdDemoEvent, setCreatedDemoEvent] = useState<NormalizedEvent | null>(null)
   const [liveQrEvent, setLiveQrEvent] = useState<NormalizedEvent | null>(null)
+  const [shareMenuEventId, setShareMenuEventId] = useState('')
 
   const publicBaseUrl = getPublicAppUrl()
   const adminUrl = getPublicPath('/control-room-7x')
@@ -2053,14 +2054,14 @@ export default function AdminPage() {
                   ) : null}
                 </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
                   <Link
                     href={getPublicJoinPath(selectedVisibleEvent)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
                   >
-                    {t.common.guestEntryPage}
+                    Upload
                   </Link>
                   <Link
                     href={getPublicGalleryPath(selectedVisibleEvent)}
@@ -2068,7 +2069,7 @@ export default function AdminPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                   >
-                    {t.common.gallery}
+                    Galeri
                   </Link>
                   <button
                     type="button"
@@ -2080,30 +2081,51 @@ export default function AdminPage() {
                         : 'bg-[#0F3D66] text-white hover:bg-[#0B2F4F]'
                     } disabled:opacity-60`}
                   >
-                    {selectedVisibleEvent.liveEnabled
-                      ? t.admin.liveDisable
-                      : t.admin.liveEnable}
+                    {selectedVisibleEvent.liveEnabled ? 'Live açık' : 'Live kapalı'}
                   </button>
-
-                  {selectedVisibleEvent.liveEnabled &&
-                  selectedVisibleEvent.liveToken ? (
-                    <Link
-                      href={getPublicLivePath(selectedVisibleEvent)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0B2F4F]"
+                </div>
+                <div className="mt-2 flex justify-end">
+                  <div className="relative">
+                    {selectedVisibleEvent.liveToken ? (
+                      <div className="sr-only" data-live-qr={selectedVisibleEvent.id}>
+                        <QRCodeSVG value={getLiveShareUrl(selectedVisibleEvent)} size={240} />
+                      </div>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShareMenuEventId((current) =>
+                          current === selectedVisibleEvent.id ? '' : selectedVisibleEvent.id
+                        )
+                      }
+                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                      aria-expanded={shareMenuEventId === selectedVisibleEvent.id}
                     >
-                      {t.admin.liveOpen}
-                    </Link>
-                  ) : null}
+                      Paylaş
+                    </button>
+
+                    {shareMenuEventId === selectedVisibleEvent.id ? (
+                      <div className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-[1rem] border border-[#D4DFEE] bg-white p-1.5 text-left shadow-[0_18px_44px_rgba(15,61,102,0.18)]">
+                        {selectedVisibleEvent.liveEnabled &&
+                        selectedVisibleEvent.liveToken ? (
+                          <Link
+                            href={getPublicLivePath(selectedVisibleEvent)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                            onClick={() => setShareMenuEventId('')}
+                          >
+                            Canlı aç
+                          </Link>
+                        ) : null}
                   <button
                     type="button"
                     onClick={() =>
                       copyToClipboard(getEventShareUrl(selectedVisibleEvent), t.admin.uploadCopied)
                     }
-                    className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                          className="block w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                   >
-                    {t.common.copyUploadLink}
+                          Misafir linkini kopyala
                   </button>
                   <button
                     type="button"
@@ -2113,9 +2135,9 @@ export default function AdminPage() {
                         t.admin.galleryCopied
                       )
                     }
-                    className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                          className="block w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                   >
-                    {t.common.copyGalleryLink}
+                          Galeri linkini kopyala
                   </button>
                   {selectedVisibleEvent.liveEnabled &&
                   selectedVisibleEvent.liveToken ? (
@@ -2127,20 +2149,35 @@ export default function AdminPage() {
                           t.admin.liveCopied
                         )
                       }
-                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                            className="block w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                     >
-                      {t.admin.liveCopyLink}
+                            Canlı linki kopyala
                     </button>
                   ) : null}
                   {selectedVisibleEvent.liveToken ? (
-                    <button
-                      type="button"
-                      onClick={() => setLiveQrEvent(selectedVisibleEvent)}
-                      className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
-                    >
-                      QR tonen
-                    </button>
-                  ) : null}
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setLiveQrEvent(selectedVisibleEvent)
+                                setShareMenuEventId('')
+                              }}
+                              className="block w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                            >
+                              QR tonen
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => downloadLiveQrPng(selectedVisibleEvent)}
+                              className="block w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
+                            >
+                              QR downloaden
+                            </button>
+                          </>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             ) : null}
