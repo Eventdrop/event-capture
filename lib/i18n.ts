@@ -762,8 +762,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         'Bu fotoğrafları yükleme ve paylaşma yetkisine sahip olduğumu; bu albüme yüklenen fotoğrafların üçüncü kişiler tarafından görüntülenebileceğini, indirilebileceğini ve paylaşılabileceğini onaylıyorum.',
       consentHelp: '',
       consentRequired:
-        'Devam etmek için önce onay kutusunu işaretleyin.',
-      uploadNeedsConsent: 'Ortak albüme yüklemek için önce yukarıdaki onay kutusunu işaretle.',
+        'Devam etmeden önce onay kutusunu işaretleyin.',
+      uploadNeedsConsent: 'Devam etmeden önce onay kutusunu işaretleyin.',
       consentLinks:
         'Devam ederek kullanım şartlarını ve gizlilik bilgisini de kabul ettiğini beyan edersin.',
       consentButton: 'Devam et',
@@ -1340,8 +1340,8 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
         'Ik bevestig dat ik bevoegd ben om deze foto’s te uploaden en te delen, en dat foto’s die aan dit album worden toegevoegd door derden kunnen worden bekeken, gedownload en gedeeld.',
       consentHelp: '',
       consentRequired:
-        'Vink eerst de toestemming aan om door te gaan.',
-      uploadNeedsConsent: 'Vink eerst de toestemming hierboven aan om naar het gedeelde album te uploaden.',
+        'Vink het toestemmingsvakje aan voordat je verdergaat.',
+      uploadNeedsConsent: 'Vink het toestemmingsvakje aan voordat je verdergaat.',
       consentLinks:
         'Door verder te gaan bevestig je ook dat je de gebruiksvoorwaarden en privacyinformatie hebt gelezen.',
       consentButton: 'Verdergaan',
@@ -1919,7 +1919,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       consentHelp: '',
       consentRequired:
         'Please tick the consent checkbox before continuing.',
-      uploadNeedsConsent: 'Tick the consent checkbox above before uploading to the shared album.',
+      uploadNeedsConsent: 'Please tick the consent checkbox before continuing.',
       consentLinks:
         'By continuing, you also confirm that you have read the terms and privacy notice.',
       consentButton: 'Continue',
@@ -2256,8 +2256,8 @@ const germanTranslation: TranslationTree = {
       'Dateien werden vorübergehend gespeichert. Für eine Löschung können Sie uns kontaktieren.',
     ],
     consentLabel: 'Ich bestätige, dass ich diese Fotos hochladen und teilen darf und dass sie von Dritten angesehen, heruntergeladen und geteilt werden können.',
-    consentRequired: 'Bitte stimmen Sie zuerst zu, um fortzufahren.',
-    uploadNeedsConsent: 'Bitte markieren Sie zuerst die Zustimmung oben.',
+    consentRequired: 'Bitte aktiviere das Zustimmungsfeld, bevor du fortfährst.',
+    uploadNeedsConsent: 'Bitte aktiviere das Zustimmungsfeld, bevor du fortfährst.',
     consentLinks: 'Mit dem Fortfahren bestätigen Sie auch, dass Sie die Nutzungsbedingungen und Datenschutzhinweise gelesen haben.',
     consentButton: 'Weiter', uploadLabel: 'Upload', namingLabel: 'Dateiname',
     namingText: 'Dateien werden in datumsbasierten Ordnern gespeichert.', retentionLabel: 'Speicherdauer',
@@ -2480,8 +2480,8 @@ const frenchTranslation: TranslationTree = {
       'Les fichiers sont conservés temporairement. Contactez-nous pour demander une suppression.',
     ],
     consentLabel: "Je confirme être autorisé à ajouter et partager ces photos et qu’elles peuvent être vues, téléchargées et partagées par des tiers.",
-    consentRequired: 'Veuillez accepter avant de continuer.',
-    uploadNeedsConsent: 'Veuillez d’abord cocher la case de consentement ci-dessus.',
+    consentRequired: 'Cochez la case de consentement avant de continuer.',
+    uploadNeedsConsent: 'Cochez la case de consentement avant de continuer.',
     consentLinks: "En continuant, vous confirmez également avoir lu les conditions d’utilisation et la politique de confidentialité.",
     consentButton: 'Continuer', uploadLabel: 'Ajout', namingLabel: 'Nom du fichier',
     namingText: 'Les fichiers sont classés dans des dossiers par date.', retentionLabel: 'Durée de conservation',
