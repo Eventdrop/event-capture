@@ -1,5 +1,6 @@
 import { guestbookPdfThemeConfigs, guestbookPdfThemeKeys, normalizeGuestbookPdfTheme } from '@/lib/guestbook-pdf-theme'
 import { resolveGuestbookThemeToken } from '@/lib/guestbook-theme-link'
+import { resolveGuestbookShortCode, SHORT_THEME_CODE } from '@/lib/guestbook-theme-short-link'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export const runtime = 'nodejs'
@@ -12,7 +13,10 @@ function reply(body: object, status = 200) {
 
 async function handle(request: Request, context: Context, save: boolean) {
   try {
-    const eventId = resolveGuestbookThemeToken((await context.params).token)
+    const { token } = await context.params
+    const eventId = SHORT_THEME_CODE.test(token)
+      ? await resolveGuestbookShortCode(token)
+      : resolveGuestbookThemeToken(token)
     if (!eventId) return reply({ error: 'Deze link is ongeldig of verlopen. Vraag een nieuwe link aan.' }, 403)
     const supabase = createAdminSupabaseClient()
     if (save) {

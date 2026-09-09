@@ -782,7 +782,7 @@ export default function AdminPage() {
       })
       const result = await response.json()
       if (!response.ok || result.ok !== true || typeof result.path !== 'string' ||
-        !/^\/theme-select\/[A-Za-z0-9_-]+$/.test(result.path)) {
+        !/^\/t\/[A-Za-z0-9_-]{12}$/.test(result.path)) {
         throw new Error(result.error || 'De klantlink kon niet worden gemaakt.')
       }
       await navigator.clipboard.writeText(`${window.location.origin}${result.path}`)

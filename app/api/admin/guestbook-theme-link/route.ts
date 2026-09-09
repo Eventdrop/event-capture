@@ -1,5 +1,5 @@
 import { hasAdminSession } from '@/lib/admin-auth'
-import { createGuestbookThemeToken } from '@/lib/guestbook-theme-link'
+import { getOrCreateGuestbookShortCode } from '@/lib/guestbook-theme-short-link'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export const runtime = 'nodejs'
@@ -16,10 +16,10 @@ export async function POST(request: Request) {
       return reply({ error: 'Ongeldig evenement.' }, 400)
     }
     const { data, error } = await createAdminSupabaseClient().from('events')
-      .select('id').eq('id', body.eventId).maybeSingle()
+      .select('id,event_date').eq('id', body.eventId).maybeSingle()
     if (error) throw error
     if (!data) return reply({ error: 'Evenement niet gevonden.' }, 404)
-    return reply({ ok: true, path: `/theme-select/${createGuestbookThemeToken(data.id)}` })
+    return reply({ ok: true, path: `/t/${await getOrCreateGuestbookShortCode(data.id, data.event_date)}` })
   } catch {
     console.error('Guestbook theme link creation failed')
     return reply({ error: 'De klantlink kon niet worden gemaakt.' }, 500)

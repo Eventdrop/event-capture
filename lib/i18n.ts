@@ -10,6 +10,68 @@ export const localeLabels: Record<Locale, string> = {
   fr: 'FR',
 }
 
+export const customerThemeTranslations = {
+  nl: {
+    guestbook: 'Gastenboek', title: 'Jullie gastenboek', language: 'Taal',
+    instruction: 'Kies hieronder het ontwerp voor jullie gastenboek.',
+    choose: 'Kies dit thema', confirmation: '✓ {theme} is gekozen',
+    info: 'Namen en datum worden automatisch aangepast aan jullie evenement.',
+    wedding: 'Bruiloft', party: 'Feest', selected: 'Gekozen', preview: 'Voorbeeld',
+    loading: 'Even laden...', saving: 'Opslaan...',
+    invalidLink: 'Deze link is ongeldig of verlopen. Vraag een nieuwe link aan.',
+    invalidTheme: 'Kies een beschikbaar thema.', error: 'Het thema kon niet worden geladen of opgeslagen. Probeer het opnieuw.',
+  },
+  en: {
+    guestbook: 'Guestbook', title: 'Your guestbook', language: 'Language',
+    instruction: 'Choose the design for your guestbook below.',
+    choose: 'Choose this theme', confirmation: '✓ {theme} has been chosen',
+    info: 'Names and date are automatically adapted to your event.',
+    wedding: 'Wedding', party: 'Party', selected: 'Chosen', preview: 'Preview',
+    loading: 'Loading...', saving: 'Saving...',
+    invalidLink: 'This link is invalid or has expired. Please request a new link.',
+    invalidTheme: 'Choose an available theme.', error: 'The theme could not be loaded or saved. Please try again.',
+  },
+  de: {
+    guestbook: 'Gästebuch', title: 'Euer Gästebuch', language: 'Sprache',
+    instruction: 'Wählt unten das Design für euer Gästebuch.',
+    choose: 'Dieses Design wählen', confirmation: '✓ {theme} wurde gewählt',
+    info: 'Namen und Datum werden automatisch an eure Veranstaltung angepasst.',
+    wedding: 'Hochzeit', party: 'Party', selected: 'Gewählt', preview: 'Vorschau',
+    loading: 'Wird geladen...', saving: 'Wird gespeichert...',
+    invalidLink: 'Dieser Link ist ungültig oder abgelaufen. Bitte fordert einen neuen Link an.',
+    invalidTheme: 'Wählt ein verfügbares Design.', error: 'Das Design konnte nicht geladen oder gespeichert werden. Bitte versucht es erneut.',
+  },
+  fr: {
+    guestbook: "Livre d’or", title: "Votre livre d’or", language: 'Langue',
+    instruction: 'Choisissez ci-dessous le design de votre livre d’or.',
+    choose: 'Choisir ce thème', confirmation: '✓ {theme} a été choisi',
+    info: 'Les noms et la date sont automatiquement adaptés à votre événement.',
+    wedding: 'Mariage', party: 'Fête', selected: 'Choisi', preview: 'Aperçu',
+    loading: 'Chargement...', saving: 'Enregistrement...',
+    invalidLink: 'Ce lien est invalide ou a expiré. Veuillez demander un nouveau lien.',
+    invalidTheme: 'Choisissez un thème disponible.', error: 'Le thème n’a pas pu être chargé ou enregistré. Veuillez réessayer.',
+  },
+  tr: {
+    guestbook: 'Anı defteri', title: 'Anı defteriniz', language: 'Dil',
+    instruction: 'Anı defteriniz için aşağıdan bir tasarım seçin.',
+    choose: 'Bu temayı seç', confirmation: '✓ {theme} seçildi',
+    info: 'İsimler ve tarih etkinliğinize göre otomatik olarak uyarlanır.',
+    wedding: 'Düğün', party: 'Parti', selected: 'Seçildi', preview: 'Önizleme',
+    loading: 'Yükleniyor...', saving: 'Kaydediliyor...',
+    invalidLink: 'Bu bağlantı geçersiz veya süresi dolmuş. Lütfen yeni bir bağlantı isteyin.',
+    invalidTheme: 'Kullanılabilir bir tema seçin.', error: 'Tema yüklenemedi veya kaydedilemedi. Lütfen tekrar deneyin.',
+  },
+} satisfies Record<Locale, Record<string, string>>
+
+export function resolveCustomerThemeLocale(saved: string | null, languages: readonly string[]): Locale {
+  if (locales.includes(saved as Locale)) return saved as Locale
+  for (const language of languages) {
+    const code = language.toLowerCase().split(/[-_]/)[0] as Locale
+    if (locales.includes(code)) return code
+  }
+  return 'nl'
+}
+
 type TranslationTree = {
   common: {
     contact: string
