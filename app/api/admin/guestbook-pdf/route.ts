@@ -11,8 +11,10 @@ import {
   type GuestbookEntry,
 } from '@/lib/guestbook'
 import {
+  getGuestbookPdfThemeConfig,
   guestbookPdfThemeLabels,
   normalizeGuestbookPdfTheme,
+  type GuestbookPdfTextFrame,
   type GuestbookPdfThemeKey,
 } from '@/lib/guestbook-pdf-theme'
 import { heightOfRichPdfText, renderRichPdfText } from '@/lib/pdf-rich-text'
@@ -97,42 +99,6 @@ type ResolvedPdfFonts = {
 }
 
 const PDF_THEMES: Record<GuestbookPdfThemeKey, PdfTheme> = {
-  birthday: {
-    accent: '#EC4899',
-    background: '#FFF8EB',
-    border: '#F8C7DD',
-    card: '#FFFFFF',
-    footer: '#A4516F',
-    heading: '#6D214F',
-    muted: '#9D637D',
-    name: '#B42364',
-    stripe: '#FDBA3B',
-    subheading: '#7C3457',
-  },
-  business: {
-    accent: '#0F766E',
-    background: '#F4F7F8',
-    border: '#C6D5DA',
-    card: '#FFFFFF',
-    footer: '#536A73',
-    heading: '#102A36',
-    muted: '#607680',
-    name: '#17485C',
-    stripe: '#0F766E',
-    subheading: '#29485A',
-  },
-  elegant: {
-    accent: '#C59B46',
-    background: '#F8F6F0',
-    border: '#DED6C4',
-    card: '#FFFFFF',
-    footer: '#746B5C',
-    heading: '#202126',
-    muted: '#756D64',
-    name: '#4D4538',
-    stripe: '#C59B46',
-    subheading: '#3B3A35',
-  },
   wedding: {
     accent: '#D98AA3',
     background: '#FFF7F7',
@@ -144,6 +110,126 @@ const PDF_THEMES: Record<GuestbookPdfThemeKey, PdfTheme> = {
     name: '#7D4050',
     stripe: '#F3C5D4',
     subheading: '#67424B',
+  },
+  'memories-together': {
+    accent: '#C59B46',
+    background: '#FBF4EA',
+    border: '#E2C67A',
+    card: '#FFFFFF',
+    footer: '#8D7651',
+    heading: '#191511',
+    muted: '#8C7B65',
+    name: '#7A633C',
+    stripe: '#D8B65A',
+    subheading: '#5D513C',
+  },
+  'love-begins-here': {
+    accent: '#C59B46',
+    background: '#FFF8EF',
+    border: '#E9C86B',
+    card: '#FFFFFF',
+    footer: '#956F33',
+    heading: '#6D214F',
+    muted: '#9D637D',
+    name: '#7C3457',
+    stripe: '#F0C857',
+    subheading: '#7C3457',
+  },
+  'our-beginning': {
+    accent: '#9AA083',
+    background: '#F2FAF6',
+    border: '#C9D9CF',
+    card: '#FFFFFF',
+    footer: '#69745F',
+    heading: '#69745F',
+    muted: '#7E8A78',
+    name: '#596653',
+    stripe: '#D5B64F',
+    subheading: '#69745F',
+  },
+  'forever-starts-here': {
+    accent: '#A5B79A',
+    background: '#F7FAF6',
+    border: '#D6E0D3',
+    card: '#FFFFFF',
+    footer: '#63725B',
+    heading: '#7D7B5A',
+    muted: '#7B8975',
+    name: '#63725B',
+    stripe: '#B4C5A7',
+    subheading: '#7D7B5A',
+  },
+  'a-note-for-us': {
+    accent: '#7FAFD3',
+    background: '#F4FBFF',
+    border: '#C7DCEB',
+    card: '#FFFFFF',
+    footer: '#5C7890',
+    heading: '#1A2730',
+    muted: '#6F8595',
+    name: '#3E6D8C',
+    stripe: '#9DC7E4',
+    subheading: '#5C7890',
+  },
+  'love-notes': {
+    accent: '#9BAA8B',
+    background: '#FAFCF8',
+    border: '#D4DEC8',
+    card: '#FFFFFF',
+    footer: '#68755D',
+    heading: '#7A7C5C',
+    muted: '#7C8A73',
+    name: '#647157',
+    stripe: '#B9C7A8',
+    subheading: '#7A7C5C',
+  },
+  'cheers-memories': {
+    accent: '#D4AF37',
+    background: '#2D1247',
+    border: '#D4AF37',
+    card: '#FFFFFF',
+    footer: '#D8C17B',
+    heading: '#D9C16B',
+    muted: '#BFA9CF',
+    name: '#F3D777',
+    stripe: '#D4AF37',
+    subheading: '#E5D39B',
+  },
+  'share-the-fun': {
+    accent: '#13B5EA',
+    background: '#F4F0FF',
+    border: '#85D7F2',
+    card: '#FFFFFF',
+    footer: '#4252A5',
+    heading: '#FFFFFF',
+    muted: '#6A78BE',
+    name: '#2E5FD0',
+    stripe: '#F5D84C',
+    subheading: '#4252A5',
+  },
+  'night-to-remember': {
+    accent: '#FF4FD8',
+    background: '#160B2F',
+    border: '#25D9FF',
+    card: '#FFFFFF',
+    footer: '#BDA2FF',
+    heading: '#FFFFFF',
+    muted: '#BDA2FF',
+    name: '#F08BFF',
+    stripe: '#25D9FF',
+    subheading: '#FFD16A',
+  },
+  'party-people': {
+    accent: '#2AE4F0',
+    background: '#1B0D23',
+    border: '#FF4FD8',
+    card: '#FFFFFF',
+    footer: '#F0B9FF',
+    heading: '#FFF0A6',
+    muted: '#D9B7D9',
+    name: '#2AE4F0',
+    stripe: '#FF4FD8',
+    subheading: '#FFF0A6',
   },
 }
 
@@ -548,6 +634,131 @@ function drawWeddingCoverPhoto(
     fit: [document.page.width, document.page.height],
     valign: 'center',
   })
+}
+
+function getPublicAssetPath(value?: string | null) {
+  if (!value) return ''
+  return path.join(process.cwd(), value.replace(/^\//, ''))
+}
+
+function scaleAssetThemeTextFrame(
+  document: PDFKit.PDFDocument,
+  frame: GuestbookPdfTextFrame
+) {
+  const scaleX = document.page.width / 1414
+  const scaleY = document.page.height / 2000
+  const textScale = Math.min(scaleX, scaleY)
+
+  return {
+    ...frame,
+    fontSize: frame.fontSize * textScale,
+    width: frame.width * scaleX,
+    x: frame.x * scaleX,
+    y: frame.y * scaleY,
+  }
+}
+
+function drawAssetThemeText(
+  document: PDFKit.PDFDocument,
+  value: string,
+  frame: GuestbookPdfTextFrame,
+  fallbackColor: string,
+  weight: 'bold' | 'regular'
+) {
+  const scaledFrame = scaleAssetThemeTextFrame(document, frame)
+  const minFontSize = weight === 'bold' ? 8 : 6
+  let fontSize = scaledFrame.fontSize
+
+  if (weight === 'bold') {
+    setBoldFont(document)
+  } else {
+    setRegularFont(document)
+  }
+
+  while (fontSize > minFontSize) {
+    document.fontSize(fontSize)
+    if (document.widthOfString(value) <= scaledFrame.width) break
+    fontSize -= 0.5
+  }
+
+  document
+    .fontSize(fontSize)
+    .fillColor(scaledFrame.color || fallbackColor)
+    .text(value, scaledFrame.x, scaledFrame.y, {
+      align: scaledFrame.align || 'center',
+      lineBreak: false,
+      width: scaledFrame.width,
+    })
+}
+
+function drawAssetThemeCoverPage(
+  document: PDFKit.PDFDocument,
+  event: NormalizedEvent,
+  coverImage: Buffer | null,
+  theme: PdfTheme
+) {
+  const config = getGuestbookPdfThemeConfig(event.guestbookPdfTheme)
+  const backgroundPath = getPublicAssetPath(config.coverBackground)
+
+  if (!backgroundPath || !fs.existsSync(backgroundPath) || !config.photoFrame) {
+    drawCoverPage(document, event, coverImage, theme)
+    return
+  }
+
+  document.image(backgroundPath, 0, 0, {
+    align: 'center',
+    fit: [document.page.width, document.page.height],
+    valign: 'center',
+  })
+
+  if (coverImage) {
+    const scaleX = document.page.width / 1414
+    const scaleY = document.page.height / 2000
+    const frame = {
+      height: config.photoFrame.height * scaleY,
+      radius: (config.photoFrame.radius || 0) * Math.min(scaleX, scaleY),
+      width: config.photoFrame.width * scaleX,
+      x: config.photoFrame.x * scaleX,
+      y: config.photoFrame.y * scaleY,
+    }
+
+    try {
+      document.save()
+      if (frame.radius > 0) {
+        document.roundedRect(frame.x, frame.y, frame.width, frame.height, frame.radius).clip()
+      } else {
+        document.rect(frame.x, frame.y, frame.width, frame.height).clip()
+      }
+      document.image(coverImage, frame.x, frame.y, {
+        align: 'center',
+        cover: [frame.width, frame.height],
+        valign: 'center',
+      })
+      document.restore()
+    } catch {
+      document.restore()
+    }
+  }
+
+  if (config.eventText?.name) {
+    drawAssetThemeText(
+      document,
+      getEventTitle(event),
+      config.eventText.name,
+      theme.name,
+      'bold'
+    )
+  }
+
+  if (event.eventDate && config.eventText?.date) {
+    drawAssetThemeText(
+      document,
+      formatWeddingCoverDate(event.eventDate) || event.eventDate,
+      config.eventText.date,
+      theme.footer,
+      'regular'
+    )
+  }
 }
 
 function formatWeddingCoverDate(value?: string | null) {
@@ -1184,6 +1395,8 @@ async function buildGuestbookPdf(input: {
   document.addPage()
   if (themeKey === 'wedding' && weddingAssets) {
     drawWeddingCoverPage(document, input.event, input.coverImage, weddingAssets)
+  } else if (getGuestbookPdfThemeConfig(themeKey).coverBackground) {
+    drawAssetThemeCoverPage(document, input.event, input.coverImage, theme)
   } else {
     drawCoverPage(document, input.event, input.coverImage, theme)
   }

@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
       './public/pdf-assets/wedding/wedding-cover-background.png',
       './public/pdf-assets/wedding/wedding-message-background.png',
       './public/pdf-assets/wedding/wedding-photo-mask.png',
+      './public/pdf-assets/guestbook-themes/*.jpg',
       './node_modules/twemoji-emojis/vendor/72x72/*.png',
     ],
   },

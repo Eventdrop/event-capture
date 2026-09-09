@@ -2495,36 +2495,92 @@ export default function AdminPage() {
 
                           return (
                         <>
-                          <label className="flex items-center justify-between gap-4 rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] px-4 py-3">
-                            <span className="text-sm text-[#33516F]">
+                          <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
+                            <p className="text-sm font-semibold text-[#33516F]">
                               {t.admin.guestbookPdfStyle}
-                            </span>
-                            <select
-                              value={selectedTheme}
-                              onChange={(item) =>
-                                handleEventThemeChange(
-                                  event.id,
-                                  normalizeGuestbookPdfTheme(item.target.value)
-                                )
-                              }
-                              className="min-w-36 rounded-xl border border-[#B9CBE0] bg-white px-3 py-2 text-sm font-semibold text-[#0F3D66] outline-none focus:border-[#F58220]"
-                            >
-                              {guestbookPdfThemeKeys.map((theme) => {
-                                const themeConfig = guestbookPdfThemeConfigs[theme]
-
-                                return (
-                                <option
-                                  key={theme}
-                                  value={theme}
-                                  disabled={!themeConfig.implemented}
+                            </p>
+                            {selectedThemeConfig.category === 'legacy' ? (
+                              <div className="mt-3">
+                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6A84A3]">
+                                  Classic
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={() => handleEventThemeChange(event.id, 'wedding')}
+                                  className="mt-2 w-full rounded-2xl border border-[#F58220] bg-white p-2 text-left ring-2 ring-[#F58220]/25 transition sm:w-40"
                                 >
-                                  {guestbookPdfThemeLabels[theme]}
-                                  {themeConfig.implemented ? '' : ` - ${t.admin.comingSoon}`}
-                                </option>
-                                )
-                              })}
-                            </select>
-                          </label>
+                                  <span
+                                    className="block aspect-[1414/2000] rounded-xl bg-[#F2F6FA] bg-cover bg-center"
+                                    style={
+                                      selectedThemeConfig.previewImage
+                                        ? {
+                                            backgroundImage: `url(${selectedThemeConfig.previewImage})`,
+                                          }
+                                        : undefined
+                                    }
+                                  />
+                                  <span className="mt-2 block text-xs font-semibold text-[#0B2742]">
+                                    {guestbookPdfThemeLabels.wedding}
+                                  </span>
+                                </button>
+                              </div>
+                            ) : null}
+                            {(['wedding', 'party'] as const).map((category) => (
+                              <div key={category} className="mt-4">
+                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6A84A3]">
+                                  {category === 'wedding' ? 'Wedding' : 'Party'}
+                                </p>
+                                <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                  {guestbookPdfThemeKeys
+                                    .filter(
+                                      (theme) =>
+                                        guestbookPdfThemeConfigs[theme].category === category
+                                    )
+                                    .sort(
+                                      (first, second) =>
+                                        guestbookPdfThemeConfigs[first].sortOrder -
+                                        guestbookPdfThemeConfigs[second].sortOrder
+                                    )
+                                    .map((theme) => {
+                                      const themeConfig = guestbookPdfThemeConfigs[theme]
+                                      const isSelected = selectedTheme === theme
+
+                                      return (
+                                        <button
+                                          key={theme}
+                                          type="button"
+                                          onClick={() =>
+                                            handleEventThemeChange(
+                                              event.id,
+                                              normalizeGuestbookPdfTheme(theme)
+                                            )
+                                          }
+                                          className={`rounded-2xl border bg-white p-2 text-left transition ${
+                                            isSelected
+                                              ? 'border-[#F58220] ring-2 ring-[#F58220]/25'
+                                              : 'border-[#D4DFEE] hover:border-[#9DB3CC]'
+                                          }`}
+                                        >
+                                          <span
+                                            className="block aspect-[1414/2000] rounded-xl bg-[#F2F6FA] bg-cover bg-center"
+                                            style={
+                                              themeConfig.previewImage
+                                                ? {
+                                                    backgroundImage: `url(${themeConfig.previewImage})`,
+                                                  }
+                                                : undefined
+                                            }
+                                          />
+                                          <span className="mt-2 block text-xs font-semibold text-[#0B2742]">
+                                            {guestbookPdfThemeLabels[theme]}
+                                          </span>
+                                        </button>
+                                      )
+                                    })}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
 
                           <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
                             <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
