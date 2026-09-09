@@ -714,12 +714,13 @@ function drawAssetThemeCoverPage(
   if (coverImage) {
     const scaleX = document.page.width / 1414
     const scaleY = document.page.height / 2000
+    const photoBleed = 6
     const frame = {
-      height: config.photoFrame.height * scaleY,
+      height: (config.photoFrame.height + photoBleed * 2) * scaleY,
       radius: (config.photoFrame.radius || 0) * Math.min(scaleX, scaleY),
-      width: config.photoFrame.width * scaleX,
-      x: config.photoFrame.x * scaleX,
-      y: config.photoFrame.y * scaleY,
+      width: (config.photoFrame.width + photoBleed * 2) * scaleX,
+      x: (config.photoFrame.x - photoBleed) * scaleX,
+      y: (config.photoFrame.y - photoBleed) * scaleY,
     }
 
     try {
@@ -1378,6 +1379,15 @@ async function buildGuestbookPdf(input: {
     themeKey === 'wedding' || Boolean(getGuestbookPdfThemeConfig(themeKey).coverBackground)
   const weddingAssets =
     useWeddingMessagePages ? resolveRequiredWeddingPdfAssets() : null
+  if (themeKey !== 'wedding' && weddingAssets) {
+    const messageBackground = getPublicAssetPath(
+      getGuestbookPdfThemeConfig(themeKey).messageBackground
+    )
+    if (!messageBackground || !fs.existsSync(messageBackground)) {
+      throw new Error(`Guestbook message background missing for theme: ${themeKey}`)
+    }
+    weddingAssets.messageBackground = messageBackground
+  }
   const document = new PDFDocument({
     autoFirstPage: false,
     bufferPages: true,
