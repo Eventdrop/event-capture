@@ -74,7 +74,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/memories-together-messages.jpg',
     eventText: {
       date: { color: '#8D7651', fontSize: 26, width: 610, x: 402, y: 1725 },
-      name: { color: '#191511', fontSize: 54, width: 720, x: 347, y: 1663 },
+      name: { color: '#191511', fontSize: 76, width: 720, x: 347, y: 1663 },
     },
     implemented: true,
     label: 'Memories Together',
@@ -88,7 +88,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/love-begins-here-messages.jpg',
     eventText: {
       date: { color: '#956F33', fontSize: 25, width: 610, x: 402, y: 1747 },
-      name: { color: '#6D214F', fontSize: 54, width: 720, x: 347, y: 1687 },
+      name: { color: '#6D214F', fontSize: 76, width: 720, x: 347, y: 1687 },
     },
     implemented: true,
     label: 'Love Begins Here',
@@ -102,7 +102,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/our-beginning-messages.jpg',
     eventText: {
       date: { color: '#69745F', fontSize: 25, width: 610, x: 402, y: 1783 },
-      name: { color: '#596653', fontSize: 54, width: 720, x: 347, y: 1723 },
+      name: { color: '#596653', fontSize: 76, width: 720, x: 347, y: 1723 },
     },
     implemented: true,
     label: 'Our Beginning',
@@ -116,7 +116,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/forever-starts-here-messages.jpg',
     eventText: {
       date: { color: '#63725B', fontSize: 25, width: 610, x: 402, y: 1763 },
-      name: { color: '#63725B', fontSize: 54, width: 720, x: 347, y: 1703 },
+      name: { color: '#63725B', fontSize: 76, width: 720, x: 347, y: 1703 },
     },
     implemented: true,
     label: 'Forever Starts Here',
@@ -130,7 +130,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/a-note-for-us-messages.jpg',
     eventText: {
       date: { color: '#5C7890', fontSize: 24, width: 610, x: 402, y: 1780 },
-      name: { color: '#1A2730', fontSize: 54, width: 720, x: 347, y: 1720 },
+      name: { color: '#1A2730', fontSize: 76, width: 720, x: 347, y: 1720 },
     },
     implemented: true,
     label: 'A Note for Us',
@@ -144,7 +144,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/love-notes-messages.jpg',
     eventText: {
       date: { color: '#68755D', fontSize: 25, width: 610, x: 402, y: 1743 },
-      name: { color: '#647157', fontSize: 54, width: 720, x: 347, y: 1683 },
+      name: { color: '#647157', fontSize: 76, width: 720, x: 347, y: 1683 },
     },
     implemented: true,
     label: 'Love Notes',
@@ -158,7 +158,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/cheers-memories-messages.jpg',
     eventText: {
       date: { color: '#E5D39B', fontSize: 24, width: 610, x: 402, y: 1730 },
-      name: { color: '#F3D777', fontSize: 54, width: 720, x: 347, y: 1670 },
+      name: { color: '#F3D777', fontSize: 76, width: 720, x: 347, y: 1670 },
     },
     implemented: true,
     label: 'Cheers & Memories',
@@ -172,7 +172,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/share-the-fun-messages.jpg',
     eventText: {
       date: { color: '#4252A5', fontSize: 24, width: 560, x: 427, y: 1745 },
-      name: { color: '#2E5FD0', fontSize: 54, width: 680, x: 367, y: 1685 },
+      name: { color: '#2E5FD0', fontSize: 76, width: 680, x: 367, y: 1685 },
     },
     implemented: true,
     label: 'Share the Fun',
@@ -186,7 +186,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/night-to-remember-messages.jpg',
     eventText: {
       date: { color: '#FFD16A', fontSize: 24, width: 560, x: 427, y: 1743 },
-      name: { color: '#F08BFF', fontSize: 54, width: 680, x: 367, y: 1683 },
+      name: { color: '#F08BFF', fontSize: 76, width: 680, x: 367, y: 1683 },
     },
     implemented: true,
     label: 'Night to Remember',
@@ -200,7 +200,7 @@ export const guestbookPdfThemeConfigs: Record<
     messageBackground: '/pdf-assets/guestbook-themes/party-people-messages.jpg',
     eventText: {
       date: { color: '#F0B9FF', fontSize: 24, width: 560, x: 427, y: 1737 },
-      name: { color: '#2AE4F0', fontSize: 54, width: 680, x: 367, y: 1677 },
+      name: { color: '#2AE4F0', fontSize: 76, width: 680, x: 367, y: 1677 },
     },
     implemented: true,
     label: 'Party People',

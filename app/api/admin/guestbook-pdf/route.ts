@@ -744,7 +744,7 @@ function drawAssetThemeCoverPage(
   if (config.eventText?.name) {
     drawAssetThemeText(
       document,
-      getEventTitle(event),
+      getEventTitle(event).replace(/\s*&\s*/g, ' & ').trim(),
       config.eventText.name,
       theme.name,
       'bold'
@@ -1189,11 +1189,11 @@ function drawGuestbookPageHeader(document: PDFKit.PDFDocument, theme: PdfTheme) 
 
 function drawWeddingGuestbookPageHeader(
   document: PDFKit.PDFDocument,
-  _event: NormalizedEvent,
+  event: NormalizedEvent,
   assets: WeddingPdfAssets
 ) {
   drawWeddingMessageBackground(document, assets)
-  document.y = 244
+  document.y = getEventPdfThemeKey(event) === 'wedding' ? 244 : 96
 }
 
 function drawMessageCard(input: {
@@ -1280,9 +1280,10 @@ function drawMessageCard(input: {
 function drawWeddingMessageCard(input: {
   document: PDFKit.PDFDocument
   entry: GuestbookEntry
+  gap?: number
   photo?: Buffer | null
 }) {
-  const { document, entry, photo } = input
+  const { document, entry, gap = 11, photo } = input
   const hasPhoto = entryHasPhoto(entry, photo)
   const cardHeight = estimateWeddingCardHeight(document, entry, photo)
   const width = getWeddingMessageContentWidth(document)
@@ -1364,7 +1365,7 @@ function drawWeddingMessageCard(input: {
     y: innerY + 22,
   })
 
-  document.y = y + cardHeight + 11
+  document.y = y + cardHeight + gap
 }
 
 async function buildGuestbookPdf(input: {
@@ -1420,10 +1421,43 @@ async function buildGuestbookPdf(input: {
   }
   let entriesOnCurrentPage = 0
 
-  for (const entry of input.entries) {
+  const pendingEntries = [...input.entries]
+  for (let entryIndex = 0; entryIndex < pendingEntries.length; entryIndex += 1) {
+    let entry = pendingEntries[entryIndex]
     const photoUpload =
       entry.source === 'upload' ? entry.upload : entry.relatedUpload || null
     const photo = photoUpload ? await fetchImageBuffer(photoUpload.file_url) : null
+    // Continue an oversized message on another card without dropping any text.
+    if (
+      themeKey !== 'wedding' &&
+      useWeddingMessagePages &&
+      estimateWeddingCardHeight(document, entry, photo) >
+        getWeddingMessageContentBottom(document) - 96
+    ) {
+      const characters = Array.from(
+        new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(entry.message),
+        (part) => part.segment
+      )
+      let low = 1
+      let high = characters.length
+      while (low < high) {
+        const middle = Math.ceil((low + high) / 2)
+        const candidate = { ...entry, message: characters.slice(0, middle).join('') }
+        if (
+          estimateWeddingCardHeight(document, candidate, photo) <=
+          getWeddingMessageContentBottom(document) - 96
+        ) {
+          low = middle
+        } else {
+          high = middle - 1
+        }
+      }
+      pendingEntries.splice(entryIndex + 1, 0, {
+        ...entry,
+        message: characters.slice(low).join(''),
+      })
+      entry = { ...entry, message: characters.slice(0, low).join('') }
+    }
     const cardHeight =
       useWeddingMessagePages
         ? estimateWeddingCardHeight(document, entry, photo)
@@ -1431,10 +1465,11 @@ async function buildGuestbookPdf(input: {
 
     if (
       entriesOnCurrentPage > 0 &&
-      document.y + cardHeight >
-        (useWeddingMessagePages
-          ? getWeddingMessageContentBottom(document)
-          : getPageContentBottom(document))
+      ((themeKey !== 'wedding' && entriesOnCurrentPage >= 6) ||
+        document.y + cardHeight >
+          (useWeddingMessagePages
+            ? getWeddingMessageContentBottom(document)
+            : getPageContentBottom(document)))
     ) {
       if (useWeddingMessagePages && weddingAssets) {
         drawWeddingFooter(document)
@@ -1454,6 +1489,7 @@ async function buildGuestbookPdf(input: {
       drawWeddingMessageCard({
         document,
         entry,
+        gap: themeKey === 'wedding' ? 11 : 8,
         photo,
       })
     } else {

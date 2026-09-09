@@ -2525,12 +2525,13 @@ export default function AdminPage() {
                                 </button>
                               </div>
                             ) : null}
+                            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
                             {(['wedding', 'party'] as const).map((category) => (
-                              <div key={category} className="mt-4">
+                              <div key={category} className={category === 'wedding' ? 'col-span-2 lg:col-span-3' : 'col-span-2'}>
                                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6A84A3]">
                                   {category === 'wedding' ? 'Wedding' : 'Party'}
                                 </p>
-                                <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                <div className={`mt-1 grid grid-cols-2 gap-2 ${category === 'wedding' ? 'lg:grid-cols-3' : ''}`}>
                                   {guestbookPdfThemeKeys
                                     .filter(
                                       (theme) =>
@@ -2555,14 +2556,14 @@ export default function AdminPage() {
                                               normalizeGuestbookPdfTheme(theme)
                                             )
                                           }
-                                          className={`rounded-2xl border bg-white p-2 text-left transition ${
+                                          className={`rounded-lg border bg-white p-1.5 text-left transition ${
                                             isSelected
                                               ? 'border-[#F58220] ring-2 ring-[#F58220]/25'
                                               : 'border-[#D4DFEE] hover:border-[#9DB3CC]'
                                           }`}
                                         >
                                           <span
-                                            className="block aspect-[1414/2000] rounded-xl bg-[#F2F6FA] bg-cover bg-center"
+                                            className="mx-auto block aspect-[1414/2000] w-full max-w-24 rounded-md bg-[#F2F6FA] bg-cover bg-center"
                                             style={
                                               themeConfig.previewImage
                                                 ? {
@@ -2571,7 +2572,7 @@ export default function AdminPage() {
                                                 : undefined
                                             }
                                           />
-                                          <span className="mt-2 block text-xs font-semibold text-[#0B2742]">
+                                          <span className="mt-1 block text-xs font-semibold text-[#0B2742]">
                                             {guestbookPdfThemeLabels[theme]}
                                           </span>
                                         </button>
@@ -2580,30 +2581,6 @@ export default function AdminPage() {
                                 </div>
                               </div>
                             ))}
-                          </div>
-
-                          <div className="rounded-2xl border border-[#D4DFEE] bg-[#F8FBFE] p-4">
-                            <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
-                              <div
-                                className="aspect-[3/4] rounded-2xl border border-[#D4DFEE] bg-white bg-cover bg-center"
-                                style={
-                                  selectedThemeConfig.previewImage
-                                    ? {
-                                        backgroundImage: `url(${selectedThemeConfig.previewImage})`,
-                                      }
-                                    : undefined
-                                }
-                              />
-                              <div>
-                                <p className="text-sm font-semibold text-[#0B2742]">
-                                  {guestbookPdfThemeLabels[selectedTheme]}
-                                </p>
-                                <p className="mt-1 text-xs text-[#597594]">
-                                  {selectedThemeConfig.implemented
-                                    ? t.admin.guestbookPdfPreviewHelp
-                                    : t.admin.guestbookPdfThemeComingSoon}
-                                </p>
-                              </div>
                             </div>
                           </div>
 
