@@ -181,6 +181,8 @@ export default function AdminPage() {
   const [createdDemoEvent, setCreatedDemoEvent] = useState<NormalizedEvent | null>(null)
   const [liveQrEvent, setLiveQrEvent] = useState<NormalizedEvent | null>(null)
   const [shareMenuEventId, setShareMenuEventId] = useState('')
+  const [themeLinkCopyState, setThemeLinkCopyState] = useState({ eventId: '', status: '' })
+  const themeLinkCopyLock = useRef(false)
 
   const publicBaseUrl = getPublicAppUrl()
   const adminUrl = getPublicPath('/control-room-7x')
@@ -767,6 +769,30 @@ export default function AdminPage() {
     setDemoCustomerName('')
     setCreatedDemoEvent(null)
     setStatusMessage(t.admin.demoCloneIntro)
+  }
+
+  const copyCustomerThemeLink = async (eventId: string) => {
+    if (themeLinkCopyLock.current) return
+    themeLinkCopyLock.current = true
+    setThemeLinkCopyState({ eventId, status: 'loading' })
+    try {
+      const response = await fetch('/api/admin/guestbook-theme-link', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId }),
+      })
+      const result = await response.json()
+      if (!response.ok || result.ok !== true || typeof result.path !== 'string' ||
+        !/^\/theme-select\/[A-Za-z0-9_-]+$/.test(result.path)) {
+        throw new Error(result.error || 'De klantlink kon niet worden gemaakt.')
+      }
+      await navigator.clipboard.writeText(`${window.location.origin}${result.path}`)
+      setThemeLinkCopyState({ eventId, status: 'copied' })
+    } catch (error) {
+      setThemeLinkCopyState({ eventId: '', status: '' })
+      setStatusMessage(error instanceof Error ? error.message : 'De klantlink kon niet worden gekopieerd.')
+    } finally {
+      themeLinkCopyLock.current = false
+    }
   }
 
   const closeDemoCloneModal = () => {
@@ -2499,6 +2525,14 @@ export default function AdminPage() {
                             <p className="text-sm font-semibold text-[#33516F]">
                               {t.admin.guestbookPdfStyle}
                             </p>
+                            <button type="button" onClick={() => copyCustomerThemeLink(event.id)}
+                              disabled={themeLinkCopyState.status === 'loading'}
+                              className="mt-2 rounded-lg border border-[#D4DFEE] bg-white px-3 py-2 text-xs font-semibold text-[#123D66] disabled:opacity-60">
+                              {themeLinkCopyState.eventId === event.id && themeLinkCopyState.status === 'copied'
+                                ? 'Link gekopieerd'
+                                : themeLinkCopyState.eventId === event.id && themeLinkCopyState.status === 'loading'
+                                  ? 'Even wachten...' : 'Klantlink thema kopiëren'}
+                            </button>
                             {selectedThemeConfig.category === 'legacy' ? (
                               <div className="mt-3">
                                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6A84A3]">

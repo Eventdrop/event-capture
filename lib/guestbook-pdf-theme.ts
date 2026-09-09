@@ -73,7 +73,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/memories-together.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/memories-together-messages.jpg',
     eventText: {
-      date: { color: '#8D7651', fontSize: 26, width: 610, x: 402, y: 1725 },
+      date: { color: '#8D7651', fontSize: 26, width: 610, x: 402, y: 1745 },
       name: { color: '#191511', fontSize: 76, width: 720, x: 347, y: 1663 },
     },
     implemented: true,
@@ -87,7 +87,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/love-begins-here.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/love-begins-here-messages.jpg',
     eventText: {
-      date: { color: '#956F33', fontSize: 25, width: 610, x: 402, y: 1747 },
+      date: { color: '#956F33', fontSize: 25, width: 610, x: 402, y: 1767 },
       name: { color: '#6D214F', fontSize: 76, width: 720, x: 347, y: 1687 },
     },
     implemented: true,
@@ -101,7 +101,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/our-beginning.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/our-beginning-messages.jpg',
     eventText: {
-      date: { color: '#69745F', fontSize: 25, width: 610, x: 402, y: 1783 },
+      date: { color: '#69745F', fontSize: 25, width: 610, x: 402, y: 1803 },
       name: { color: '#596653', fontSize: 76, width: 720, x: 347, y: 1723 },
     },
     implemented: true,
@@ -115,7 +115,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/forever-starts-here.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/forever-starts-here-messages.jpg',
     eventText: {
-      date: { color: '#63725B', fontSize: 25, width: 610, x: 402, y: 1763 },
+      date: { color: '#63725B', fontSize: 25, width: 610, x: 402, y: 1783 },
       name: { color: '#63725B', fontSize: 76, width: 720, x: 347, y: 1703 },
     },
     implemented: true,
@@ -129,7 +129,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/a-note-for-us.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/a-note-for-us-messages.jpg',
     eventText: {
-      date: { color: '#5C7890', fontSize: 24, width: 610, x: 402, y: 1780 },
+      date: { color: '#5C7890', fontSize: 24, width: 610, x: 402, y: 1800 },
       name: { color: '#1A2730', fontSize: 76, width: 720, x: 347, y: 1720 },
     },
     implemented: true,
@@ -143,7 +143,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/love-notes.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/love-notes-messages.jpg',
     eventText: {
-      date: { color: '#68755D', fontSize: 25, width: 610, x: 402, y: 1743 },
+      date: { color: '#68755D', fontSize: 25, width: 610, x: 402, y: 1763 },
       name: { color: '#647157', fontSize: 76, width: 720, x: 347, y: 1683 },
     },
     implemented: true,
@@ -157,7 +157,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/cheers-memories.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/cheers-memories-messages.jpg',
     eventText: {
-      date: { color: '#E5D39B', fontSize: 24, width: 610, x: 402, y: 1730 },
+      date: { color: '#E5D39B', fontSize: 24, width: 610, x: 402, y: 1750 },
       name: { color: '#F3D777', fontSize: 76, width: 720, x: 347, y: 1670 },
     },
     implemented: true,
@@ -171,7 +171,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/share-the-fun.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/share-the-fun-messages.jpg',
     eventText: {
-      date: { color: '#4252A5', fontSize: 24, width: 560, x: 427, y: 1745 },
+      date: { color: '#4252A5', fontSize: 24, width: 560, x: 427, y: 1765 },
       name: { color: '#2E5FD0', fontSize: 76, width: 680, x: 367, y: 1685 },
     },
     implemented: true,
@@ -185,7 +185,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/night-to-remember.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/night-to-remember-messages.jpg',
     eventText: {
-      date: { color: '#FFD16A', fontSize: 24, width: 560, x: 427, y: 1743 },
+      date: { color: '#FFD16A', fontSize: 24, width: 560, x: 427, y: 1763 },
       name: { color: '#F08BFF', fontSize: 76, width: 680, x: 367, y: 1683 },
     },
     implemented: true,
@@ -199,7 +199,7 @@ export const guestbookPdfThemeConfigs: Record<
     coverBackground: '/pdf-assets/guestbook-themes/party-people.jpg',
     messageBackground: '/pdf-assets/guestbook-themes/party-people-messages.jpg',
     eventText: {
-      date: { color: '#F0B9FF', fontSize: 24, width: 560, x: 427, y: 1737 },
+      date: { color: '#F0B9FF', fontSize: 24, width: 560, x: 427, y: 1757 },
       name: { color: '#2AE4F0', fontSize: 76, width: 680, x: 367, y: 1677 },
     },
     implemented: true,
