@@ -638,7 +638,7 @@ function drawWeddingCoverPhoto(
 
 function getPublicAssetPath(value?: string | null) {
   if (!value) return ''
-  return path.join(process.cwd(), value.replace(/^\//, ''))
+  return path.join(process.cwd(), 'public', value.replace(/^\//, ''))
 }
 
 function scaleAssetThemeTextFrame(
