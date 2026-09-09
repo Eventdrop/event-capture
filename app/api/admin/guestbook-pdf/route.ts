@@ -670,7 +670,7 @@ function drawAssetThemeText(
   let fontSize = scaledFrame.fontSize
 
   if (weight === 'bold') {
-    setBoldFont(document)
+    document.font(WEDDING_SCRIPT_FONT_PATH)
   } else {
     setRegularFont(document)
   }
@@ -1374,8 +1374,10 @@ async function buildGuestbookPdf(input: {
   const fonts = resolveRequiredPdfFonts()
   const themeKey = getEventPdfThemeKey(input.event)
   const theme = getEventPdfTheme(input.event)
+  const useWeddingMessagePages =
+    themeKey === 'wedding' || Boolean(getGuestbookPdfThemeConfig(themeKey).coverBackground)
   const weddingAssets =
-    themeKey === 'wedding' ? resolveRequiredWeddingPdfAssets() : null
+    useWeddingMessagePages ? resolveRequiredWeddingPdfAssets() : null
   const document = new PDFDocument({
     autoFirstPage: false,
     bufferPages: true,
@@ -1401,7 +1403,7 @@ async function buildGuestbookPdf(input: {
     drawCoverPage(document, input.event, input.coverImage, theme)
   }
   document.addPage()
-  if (themeKey === 'wedding' && weddingAssets) {
+  if (useWeddingMessagePages && weddingAssets) {
     drawWeddingGuestbookPageHeader(document, input.event, weddingAssets)
   } else {
     drawGuestbookPageHeader(document, theme)
@@ -1413,24 +1415,24 @@ async function buildGuestbookPdf(input: {
       entry.source === 'upload' ? entry.upload : entry.relatedUpload || null
     const photo = photoUpload ? await fetchImageBuffer(photoUpload.file_url) : null
     const cardHeight =
-      themeKey === 'wedding'
+      useWeddingMessagePages
         ? estimateWeddingCardHeight(document, entry, photo)
         : estimateCardHeight(document, entry, photo)
 
     if (
       entriesOnCurrentPage > 0 &&
       document.y + cardHeight >
-        (themeKey === 'wedding'
+        (useWeddingMessagePages
           ? getWeddingMessageContentBottom(document)
           : getPageContentBottom(document))
     ) {
-      if (themeKey === 'wedding' && weddingAssets) {
+      if (useWeddingMessagePages && weddingAssets) {
         drawWeddingFooter(document)
       } else {
         drawFooter(document, input.event, theme)
       }
       document.addPage()
-      if (themeKey === 'wedding' && weddingAssets) {
+      if (useWeddingMessagePages && weddingAssets) {
         drawWeddingGuestbookPageHeader(document, input.event, weddingAssets)
       } else {
         drawGuestbookPageHeader(document, theme)
@@ -1438,7 +1440,7 @@ async function buildGuestbookPdf(input: {
       entriesOnCurrentPage = 0
     }
 
-    if (themeKey === 'wedding') {
+    if (useWeddingMessagePages) {
       drawWeddingMessageCard({
         document,
         entry,
@@ -1455,7 +1457,7 @@ async function buildGuestbookPdf(input: {
     entriesOnCurrentPage += 1
   }
 
-  if (themeKey === 'wedding' && weddingAssets) {
+  if (useWeddingMessagePages && weddingAssets) {
     drawWeddingFooter(document)
   } else {
     drawFooter(document, input.event, theme)
