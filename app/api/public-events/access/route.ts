@@ -18,6 +18,7 @@ import {
 import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { withRetry } from '@/lib/with-retry'
+import { createVideoAccessGrant, VIDEO_ACCESS_COOKIE_NAME, VIDEO_ACCESS_MAX_AGE } from '@/lib/video-access'
 
 export const runtime = 'nodejs'
 
@@ -391,6 +392,19 @@ export async function POST(request: Request) {
       maxAge: 60 * 60 * 24 * 3,
     })
 
+    try {
+      response.cookies.set(VIDEO_ACCESS_COOKIE_NAME, createVideoAccessGrant(matchedEvent.id), {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: VIDEO_ACCESS_MAX_AGE,
+      })
+    } catch {
+      response.cookies.delete(VIDEO_ACCESS_COOKIE_NAME)
+      logOperation('error', 'video-access', 'Video access grant could not be issued; check signing configuration')
+    }
+
     return response
   } catch (error) {
     logOperation('error', 'public-access', 'Event access failed', {
@@ -411,5 +425,6 @@ export async function POST(request: Request) {
 export async function DELETE() {
   const response = NextResponse.json({ ok: true })
   response.cookies.delete(EVENT_ACCESS_COOKIE_NAME)
+  response.cookies.delete(VIDEO_ACCESS_COOKIE_NAME)
   return response
 }
