@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { isEnabledVideoType } from '@/lib/video'
 import { VIDEO_ACCESS_COOKIE_NAME, verifyVideoAccessGrant } from '@/lib/video-access'
+import { cleanupStaleVideoUploads } from '@/lib/video-cleanup'
 
 export const runtime = 'nodejs'
 
@@ -57,6 +58,14 @@ export async function POST(request: Request) {
 
     const grant = verifyVideoAccessGrant(token, event.id)
     if (!grant) return failure(403, 'Video access is invalid or expired.')
+
+    try {
+      await cleanupStaleVideoUploads(supabase, grant)
+    } catch {
+      // Cleanup is opportunistic. The authoritative count below still includes
+      // any pending rows whose transition failed, preserving the admission limit.
+      console.error('Stale video upload cleanup failed')
+    }
 
     // Best-effort admission limit; concurrent requests are not serialized across instances.
     const { count, error: countError } = await supabase.from('event_videos')
