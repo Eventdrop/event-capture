@@ -29,7 +29,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const routeDefaultLocale = getRouteDefaultLocale(pathname)
   const [locale, setLocale] = useState<Locale>(() => {
-    if (typeof window === 'undefined') return routeDefaultLocale
+    // The homepage restores its query/saved language after hydration so its
+    // initial client markup matches the server. Other route behavior is unchanged.
+    if (typeof window === 'undefined' || pathname === '/') return routeDefaultLocale
 
     try {
       const storedLocale = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)

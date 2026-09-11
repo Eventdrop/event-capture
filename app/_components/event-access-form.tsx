@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react'
 import { useLanguage } from '@/app/_components/language-provider'
 
+type AccessMessage = 'accessHint' | 'emailRequired' | 'codeRequired' | 'checkingAccess' | 'accessError' | 'accessGranted'
+
 type EventAccessFormProps = {
   eventIdentifier?: string
   returnTo?: string
@@ -24,7 +26,7 @@ export function EventAccessForm({
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [marketingConsent, setMarketingConsent] = useState(false)
-  const [statusMessage, setStatusMessage] = useState(t.home.accessHint)
+  const [statusMessage, setStatusMessage] = useState<AccessMessage>('accessHint')
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [isPending, startTransition] = useTransition()
   const showMarketingConsent = Boolean(eventIdentifier) && !requireCode
@@ -34,16 +36,16 @@ export function EventAccessForm({
     setHasSubmitted(true)
 
     if (!email.trim() || !isValidEmail(email)) {
-      setStatusMessage(t.home.emailRequired)
+      setStatusMessage('emailRequired')
       return
     }
 
     if (requireCode && !code.trim()) {
-      setStatusMessage(t.home.codeRequired)
+      setStatusMessage('codeRequired')
       return
     }
 
-    setStatusMessage(t.home.checkingAccess)
+    setStatusMessage('checkingAccess')
 
     try {
       const response = await fetch('/api/public-events/access', {
@@ -71,24 +73,26 @@ export function EventAccessForm({
       if (!response.ok || !payload.redirectTo) {
         const message =
           payload.errorCode === 'INVALID_EMAIL'
-            ? t.home.emailRequired
+            ? 'emailRequired'
             : payload.errorCode === 'MISSING_CODE'
-              ? t.home.codeRequired
+              ? 'codeRequired'
               : payload.errorCode === 'INVALID_CODE'
-                ? t.home.accessError
-                : t.home.accessError
+                ? 'accessError'
+                : 'accessError'
 
         throw new Error(message)
       }
 
-      setStatusMessage(t.home.accessGranted)
+      setStatusMessage('accessGranted')
 
       startTransition(() => {
         window.location.assign(payload.redirectTo!)
       })
     } catch (error) {
       setStatusMessage(
-        error instanceof Error ? error.message : t.home.accessError
+        error instanceof Error && ['emailRequired', 'codeRequired', 'accessError'].includes(error.message)
+          ? error.message as AccessMessage
+          : 'accessError'
       )
     }
   }
@@ -174,7 +178,7 @@ export function EventAccessForm({
           ? requireCode
             ? t.home.prefilledEvent
             : t.home.prefilledEventEmailOnly
-          : statusMessage}
+          : t.home[statusMessage]}
       </p>
     </form>
   )
