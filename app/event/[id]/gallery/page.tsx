@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { LANGUAGE_STORAGE_KEY, useLanguage } from '@/app/_components/language-provider'
+import { VideoMessageGallery } from '@/app/_components/video-message-gallery'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { getPublicMediaUrl } from '@/lib/app-url'
 import {
@@ -266,7 +267,7 @@ type CanvasImageResource = {
 }
 
 type DesignFormat = 'poster' | 'story' | 'photostrip'
-type GalleryView = 'photos' | 'guestbook' | 'designs' | 'downloads'
+type GalleryView = 'photos' | 'videos' | 'guestbook' | 'designs' | 'downloads'
 type DesignMode =
   | 'posterPortrait'
   | 'posterLandscape'
@@ -508,6 +509,10 @@ function GalleryNavIcon({ icon }: { icon: GalleryView }) {
         <path d="M12 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" strokeWidth="1.8" />
       </svg>
     )
+  }
+
+  if (icon === 'videos') {
+    return <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none"><rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" strokeWidth="1.8" /><path d="m10 9 5 3-5 3V9Z" fill="currentColor" /></svg>
   }
 
   if (icon === 'guestbook') {
@@ -2151,10 +2156,11 @@ export default function Page() {
         ) : null}
 
         <nav className="sticky top-0 z-50 isolate mt-3 border-b border-neutral-200 bg-white">
-          <div className="grid grid-cols-4 gap-1">
+          <div className="grid auto-cols-fr grid-flow-col gap-1">
             {([
               ['photos', t.gallery.photosTab],
               ...(guestbookEnabled ? [['guestbook', t.gallery.guestbookTab] as const] : []),
+              ['videos', t.gallery.videoMessagesTab],
               ['designs', t.gallery.designsTab],
               ['downloads', t.gallery.downloadsTab],
             ] as const).map(([view, label]) => (
@@ -2177,6 +2183,8 @@ export default function Page() {
             ))}
           </div>
         </nav>
+
+        {galleryView === 'videos' ? <VideoMessageGallery key={eventIdentifier} identifier={eventIdentifier} /> : null}
 
         {galleryView === 'downloads' ? (
           <section className="mb-3 rounded-[1.5rem] border border-white/30 bg-white/90 p-3 shadow-[0_16px_40px_rgba(61,44,22,0.1)] backdrop-blur sm:mb-4 sm:p-4">

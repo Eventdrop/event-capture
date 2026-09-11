@@ -472,6 +472,14 @@ type TranslationTree = {
     selectionLimitReached: string
     uploadTimeUnavailable: string
     photo: string
+    videoMessagesTab: string
+    videoEmpty: string
+    videoLoading: string
+    videoGalleryError: string
+    videoPlaybackError: string
+    videoRefresh: string
+    videoPrevious: string
+    videoNext: string
     photosTab: string
     guestbookTab: string
     designsTab: string
@@ -981,6 +989,14 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectionLimitReached: 'Bir kerede en fazla 100 fotoğraf seçebilirsin.',
       uploadTimeUnavailable: 'Yükleme zamanı yok',
       photo: 'Fotoğraf',
+      videoMessagesTab: "Video mesajları",
+      videoEmpty: "Henüz video mesajı yok. İlk mesajı siz paylaşın!",
+      videoLoading: "Videolar yükleniyor…",
+      videoGalleryError: "Videolar yüklenemedi. Erişiminizi kontrol edip yenileyin.",
+      videoPlaybackError: "Bu video oynatılamıyor veya bağlantının süresi dolmuş.",
+      videoRefresh: "Yenile",
+      videoPrevious: "Önceki",
+      videoNext: "Sonraki",
       photosTab: 'Fotoğraflar',
       guestbookTab: 'Anı defteri',
       designsTab: 'Tasarla',
@@ -1559,6 +1575,14 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectionLimitReached: 'Je kunt maximaal 100 foto’s tegelijk selecteren.',
       uploadTimeUnavailable: 'Uploadtijd onbekend',
       photo: 'Foto',
+      videoMessagesTab: "Videoboodschappen",
+      videoEmpty: "Nog geen videoboodschappen. Deel de eerste!",
+      videoLoading: "Video’s laden…",
+      videoGalleryError: "Video’s konden niet worden geladen. Controleer je toegang en vernieuw.",
+      videoPlaybackError: "Deze video kan niet worden afgespeeld of de link is verlopen.",
+      videoRefresh: "Vernieuwen",
+      videoPrevious: "Vorige",
+      videoNext: "Volgende",
       photosTab: "Foto's",
       guestbookTab: 'Gastenboek',
       designsTab: 'Ontwerpen',
@@ -2137,6 +2161,14 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectionLimitReached: 'You can select up to 100 photos at a time.',
       uploadTimeUnavailable: 'Upload time unavailable',
       photo: 'Photo',
+      videoMessagesTab: "Video Messages",
+      videoEmpty: "No video messages yet. Share the first one!",
+      videoLoading: "Loading videos…",
+      videoGalleryError: "Videos could not be loaded. Check your access and refresh.",
+      videoPlaybackError: "This video cannot be played or its link has expired.",
+      videoRefresh: "Refresh",
+      videoPrevious: "Previous",
+      videoNext: "Next",
       photosTab: "Photos",
       guestbookTab: 'Guestbook',
       designsTab: 'Designs',
@@ -2428,6 +2460,14 @@ const germanTranslation: TranslationTree = {
     downloaded: 'Dateien heruntergeladen', chooseBeforeDownload: 'Wählen Sie vor dem Download mindestens ein Foto aus.',
     selectionLimitReached: 'Sie können bis zu 100 Fotos gleichzeitig auswählen.',
     uploadTimeUnavailable: 'Upload-Zeit nicht verfügbar', photo: 'Foto',
+    videoMessagesTab: "Videobotschaften",
+    videoEmpty: "Noch keine Videobotschaften. Teile die erste!",
+    videoLoading: "Videos werden geladen…",
+    videoGalleryError: "Videos konnten nicht geladen werden. Prüfe deinen Zugang und lade neu.",
+    videoPlaybackError: "Dieses Video kann nicht abgespielt werden oder der Link ist abgelaufen.",
+    videoRefresh: "Aktualisieren",
+    videoPrevious: "Zurück",
+    videoNext: "Weiter",
     photosTab: 'Fotos', guestbookTab: 'Gästebuch', designsTab: 'Designs', downloadsTab: 'Downloads', guestbookTitle: 'Gästebuch',
     guestbookFormTitle: 'Nachricht hinterlassen',
     guestbookNameLabel: 'Name (optional)',
@@ -2646,6 +2686,14 @@ const frenchTranslation: TranslationTree = {
     downloaded: 'fichiers téléchargés', chooseBeforeDownload: 'Sélectionnez au moins une photo avant de télécharger.',
     selectionLimitReached: "Vous pouvez sélectionner jusqu’à 100 photos à la fois.",
     uploadTimeUnavailable: "Heure d’envoi indisponible", photo: 'Photo',
+    videoMessagesTab: "Messages vidéo",
+    videoEmpty: "Pas encore de message vidéo. Partagez le premier !",
+    videoLoading: "Chargement des vidéos…",
+    videoGalleryError: "Impossible de charger les vidéos. Vérifiez votre accès et actualisez.",
+    videoPlaybackError: "Cette vidéo ne peut pas être lue ou son lien a expiré.",
+    videoRefresh: "Actualiser",
+    videoPrevious: "Précédent",
+    videoNext: "Suivant",
     photosTab: 'Photos', guestbookTab: "Livre d’or", designsTab: 'Créations', downloadsTab: 'Télécharger', guestbookTitle: "Livre d’or",
     guestbookFormTitle: 'Laisser un message',
     guestbookNameLabel: 'Nom (facultatif)',
@@ -2688,3 +2736,61 @@ export const translations: Record<Locale, TranslationTree> = {
   de: germanTranslation,
   fr: frenchTranslation,
 }
+
+export const videoMessageUploadTranslations = {
+  nl: {
+    duration: 'Videoboodschappen mogen maximaal 15 seconden duren.',
+    metadata: 'De videoduur kon niet worden gelezen. Kies een ander bestand.',
+    checking: 'Videoduur controleren…',
+
+    title: 'Videoboodschap', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    choose: 'Kies een video', send: 'Verstuur video', cancel: 'Annuleren',
+    uploading: 'Video uploaden…', finalizing: 'Video afronden…', success: 'Je videoboodschap is opgeslagen.',
+    type: 'Kies een MP4- of WebM-video.', size: 'Deze video is groter dan 25 MiB.', empty: 'Dit bestand is leeg.',
+    upload: 'Uploaden is niet gelukt. Probeer het opnieuw.', finalize: 'Opslaan kon niet worden bevestigd. Probeer het opnieuw.', cancelled: 'Upload geannuleerd.',
+  },
+  en: {
+    duration: 'Video messages can be a maximum of 15 seconds.',
+    metadata: 'The video duration could not be read. Choose another file.',
+    checking: 'Checking video duration…',
+
+    title: 'Video Message', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    choose: 'Choose a video', send: 'Upload video', cancel: 'Cancel',
+    uploading: 'Uploading video…', finalizing: 'Finalizing video…', success: 'Your video message has been saved.',
+    type: 'Choose an MP4 or WebM video.', size: 'This video exceeds 25 MiB.', empty: 'This file is empty.',
+    upload: 'Upload failed. Please try again.', finalize: 'Saving could not be confirmed. Please try again.', cancelled: 'Upload cancelled.',
+  },
+  de: {
+    duration: 'Videobotschaften dürfen maximal 15 Sekunden dauern.',
+    metadata: 'Die Videodauer konnte nicht gelesen werden. Wähle eine andere Datei.',
+    checking: 'Videodauer wird geprüft…',
+
+    title: 'Videobotschaft', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    choose: 'Video auswählen', send: 'Video hochladen', cancel: 'Abbrechen',
+    uploading: 'Video wird hochgeladen…', finalizing: 'Video wird gespeichert…', success: 'Deine Videobotschaft wurde gespeichert.',
+    type: 'Wähle ein MP4- oder WebM-Video.', size: 'Dieses Video ist größer als 25 MiB.', empty: 'Diese Datei ist leer.',
+    upload: 'Upload fehlgeschlagen. Bitte erneut versuchen.', finalize: 'Speichern konnte nicht bestätigt werden. Bitte erneut versuchen.', cancelled: 'Upload abgebrochen.',
+  },
+  fr: {
+    duration: 'Les messages vidéo ne peuvent pas dépasser 15 secondes.',
+    metadata: 'Impossible de lire la durée. Choisissez un autre fichier.',
+    checking: 'Vérification de la durée…',
+
+    title: 'Message vidéo', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    choose: 'Choisir une vidéo', send: 'Envoyer la vidéo', cancel: 'Annuler',
+    uploading: 'Envoi de la vidéo…', finalizing: 'Enregistrement de la vidéo…', success: 'Votre message vidéo a été enregistré.',
+    type: 'Choisissez une vidéo MP4 ou WebM.', size: 'Cette vidéo dépasse 25 MiB.', empty: 'Ce fichier est vide.',
+    upload: 'Échec de l’envoi. Veuillez réessayer.', finalize: 'L’enregistrement n’a pas pu être confirmé. Veuillez réessayer.', cancelled: 'Envoi annulé.',
+  },
+  tr: {
+    duration: 'Video mesajları en fazla 15 saniye olabilir.',
+    metadata: 'Video süresi okunamadı. Başka bir dosya seçin.',
+    checking: 'Video süresi kontrol ediliyor…',
+
+    title: 'Video mesajı', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    choose: 'Video seç', send: 'Videoyu yükle', cancel: 'İptal',
+    uploading: 'Video yükleniyor…', finalizing: 'Video kaydediliyor…', success: 'Video mesajınız kaydedildi.',
+    type: 'MP4 veya WebM video seçin.', size: 'Bu video 25 MiB sınırını aşıyor.', empty: 'Bu dosya boş.',
+    upload: 'Yükleme başarısız. Lütfen tekrar deneyin.', finalize: 'Kayıt doğrulanamadı. Lütfen tekrar deneyin.', cancelled: 'Yükleme iptal edildi.',
+  },
+} satisfies Record<Locale, Record<string, string>>
