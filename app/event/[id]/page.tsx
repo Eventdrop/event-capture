@@ -157,6 +157,11 @@ export default function Page() {
   const [selectedGuestbookPhotoIndex, setSelectedGuestbookPhotoIndex] = useState(-1)
   const [guestName, setGuestName] = useState('')
   const [guestMessage, setGuestMessage] = useState('')
+  const [clientOrigin, setClientOrigin] = useState('')
+
+  useEffect(() => {
+    setClientOrigin(window.location.origin)
+  }, [])
 
   useEffect(() => {
     if (!currentEvent) return
@@ -284,10 +289,10 @@ export default function Page() {
 
   const uploadPath = useMemo(() => getEventRoute(eventIdentifier), [eventIdentifier])
   const uploadUrl = useMemo(() => {
-    if (typeof window === 'undefined') return uploadPath
+    if (!clientOrigin) return uploadPath
 
-    return new URL(uploadPath, window.location.origin).toString()
-  }, [uploadPath])
+    return new URL(uploadPath, clientOrigin).toString()
+  }, [clientOrigin, uploadPath])
 
   const galleryUrl = useMemo(
     () => `/event/${eventIdentifier}/gallery?lang=${locale}`,
