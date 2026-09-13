@@ -1122,7 +1122,6 @@ export default function Page() {
     [downloadSelectedIds, items]
   )
   const designModeConfig = designMode ? DESIGN_MODE_CONFIG[designMode] : null
-  const activeDesignFormat = designFormat || 'poster'
   const photostripEnabled = currentEvent?.photostripEnabled === true
   const isLikelyPhotoStrip = (item: UploadRecord) => {
     const metrics = photoMetricsById[item.id]
@@ -1207,7 +1206,22 @@ export default function Page() {
   const albumDownloadEnabled = currentEvent?.allowAlbumDownload !== false
   const deleteEnabled = currentEvent?.allowGuestDelete === true
   const posterEnabled = currentEvent?.allowGuestPoster === true
+  const videoMessagesEnabled = currentEvent?.videoMessagesEnabled !== false
+  const storyCreatorEnabled = currentEvent?.storyCreatorEnabled !== false
+  const designsEnabled = posterEnabled || storyCreatorEnabled || photostripEnabled
+  const activeDesignFormat =
+    designFormat || (posterEnabled ? 'poster' : storyCreatorEnabled ? 'story' : 'photostrip')
   const downloadInProgress = downloadingSelected || downloadingAll || creatingPoster
+
+  useEffect(() => {
+    if (!videoMessagesEnabled && galleryView === 'videos') {
+      setGalleryView('photos')
+    }
+    if (!designsEnabled && galleryView === 'designs') {
+      setGalleryView('photos')
+    }
+  }, [designsEnabled, galleryView, videoMessagesEnabled])
+
   const totalAlbumPackages = Math.max(1, Math.ceil(items.length / albumPackageSize))
   const albumPackageButtonLabel =
     items.length <= albumPackageSize
@@ -1294,9 +1308,17 @@ export default function Page() {
 
   useEffect(() => {
     if (!photostripEnabled && designFormat === 'photostrip') {
-      setDesignFormat('poster')
+      setDesignFormat(posterEnabled ? 'poster' : storyCreatorEnabled ? 'story' : null)
     }
-  }, [designFormat, photostripEnabled])
+    if (!posterEnabled && designFormat === 'poster') {
+      setDesignFormat(storyCreatorEnabled ? 'story' : photostripEnabled ? 'photostrip' : null)
+      setDesignMode(null)
+    }
+    if (!storyCreatorEnabled && designFormat === 'story') {
+      setDesignFormat(posterEnabled ? 'poster' : photostripEnabled ? 'photostrip' : null)
+      setDesignMode(null)
+    }
+  }, [designFormat, photostripEnabled, posterEnabled, storyCreatorEnabled])
 
   const getPhotoMetrics = (item: UploadRecord) =>
     photoMetricsById[item.id] || getFallbackPhotoMetrics()
@@ -1379,6 +1401,9 @@ export default function Page() {
   }
 
   const chooseDesignFormat = (format: DesignFormat) => {
+    if (format === 'poster' && !posterEnabled) return
+    if (format === 'story' && !storyCreatorEnabled) return
+    if (format === 'photostrip' && !photostripEnabled) return
     if (designFormat === format && !designMode) return
 
     if (format === 'photostrip') {
@@ -1406,6 +1431,9 @@ export default function Page() {
   }
 
   const chooseDesignMode = (mode: DesignMode) => {
+    const modeFormat = DESIGN_MODE_CONFIG[mode].format
+    if (modeFormat === 'poster' && !posterEnabled) return
+    if (modeFormat === 'story' && !storyCreatorEnabled) return
     if (designMode === mode) return
 
     if (selected.length > 0) {
@@ -1639,6 +1667,11 @@ export default function Page() {
 
     if (!activeMode || activeDesignSelectedItems.length === 0 || creatingPoster) {
       setStatusMessage(t.gallery.posterChoose)
+      return
+    }
+
+    if (DESIGN_MODE_CONFIG[activeMode].format === 'story' && !storyCreatorEnabled) {
+      setStatusMessage(t.gallery.designChooseMode)
       return
     }
 
@@ -2160,8 +2193,8 @@ export default function Page() {
             {([
               ['photos', t.gallery.photosTab],
               ...(guestbookEnabled ? [['guestbook', t.gallery.guestbookTab] as const] : []),
-              ['videos', t.gallery.videoMessagesTab],
-              ['designs', t.gallery.designsTab],
+              ...(videoMessagesEnabled ? [['videos', t.gallery.videoMessagesTab] as const] : []),
+              ...(designsEnabled ? [['designs', t.gallery.designsTab] as const] : []),
               ['downloads', t.gallery.downloadsTab],
             ] as const).map(([view, label]) => (
               <button
@@ -2184,7 +2217,7 @@ export default function Page() {
           </div>
         </nav>
 
-        {galleryView === 'videos' ? <VideoMessageGallery key={eventIdentifier} identifier={eventIdentifier} /> : null}
+        {galleryView === 'videos' && videoMessagesEnabled ? <VideoMessageGallery key={eventIdentifier} identifier={eventIdentifier} /> : null}
 
         {galleryView === 'downloads' ? (
           <section className="mb-3 rounded-[1.5rem] border border-white/30 bg-white/90 p-3 shadow-[0_16px_40px_rgba(61,44,22,0.1)] backdrop-blur sm:mb-4 sm:p-4">
@@ -2247,7 +2280,7 @@ export default function Page() {
           </section>
         ) : null}
 
-        {galleryView === 'designs' && posterEnabled ? (
+        {galleryView === 'designs' && designsEnabled ? (
           <section className="space-y-3 py-3 sm:py-5">
             <div>
               <h2 className="text-xl font-black tracking-[-0.03em] text-neutral-950">
@@ -2257,8 +2290,8 @@ export default function Page() {
 
             <div className="-mx-3 flex snap-x gap-1.5 overflow-x-auto scroll-smooth px-3 pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-1 sm:gap-1 sm:px-1">
               {([
-                ['poster', 'Memory Poster A3'],
-                ['story', t.gallery.storyButton],
+                ...(posterEnabled ? ([['poster', 'Memory Poster A3']] as const) : []),
+                ...(storyCreatorEnabled ? ([['story', t.gallery.storyButton]] as const) : []),
                 ...(photostripEnabled
                   ? ([['photostrip', getPhotostripLabel(locale)]] as const)
                   : []),
@@ -2287,15 +2320,15 @@ export default function Page() {
             <div className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
               <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                 {(activeDesignFormat === 'poster'
-                  ? ([
+                  ? (posterEnabled ? [
                       ['posterPortrait', t.gallery.posterPortraitMode],
                       ['posterLandscape', t.gallery.posterLandscapeMode],
                       ['posterMixed', t.gallery.posterMixedMode],
-                    ] as const)
-                  : ([
+                    ] as const : [])
+                  : (storyCreatorEnabled ? [
                       ['storyPortrait', t.gallery.storyPortraitMode],
                       ['storyLandscape', t.gallery.storyLandscapeMode],
-                    ] as const)
+                    ] as const : [])
                 ).map(([mode, label]) => (
                   <button
                     key={mode}

@@ -22,6 +22,8 @@ Onerilen alanlar:
 - `allow_album_download` boolean not null default true
 - `allow_guest_delete` boolean not null default false
 - `allow_guest_poster` boolean not null default false
+- `video_messages_enabled` boolean not null default true
+- `story_creator_enabled` boolean not null default true
 - `poster_template_url` text null
 - `created_at` timestamptz not null default now()
 
@@ -136,6 +138,8 @@ create table if not exists public.events (
   allow_album_download boolean not null default true,
   allow_guest_delete boolean not null default false,
   allow_guest_poster boolean not null default false,
+  video_messages_enabled boolean not null default true,
+  story_creator_enabled boolean not null default true,
   poster_template_url text,
   created_at timestamptz not null default now()
 );

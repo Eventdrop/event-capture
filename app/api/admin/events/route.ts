@@ -345,6 +345,8 @@ export async function POST(request: Request) {
         allowAlbumDownload?: boolean
         allowGuestDelete?: boolean
         allowGuestPoster?: boolean
+        videoMessagesEnabled?: boolean
+        storyCreatorEnabled?: boolean
         guestbookEnabled?: boolean
         photostripEnabled?: boolean
         photostripBackgroundUrl?: string | null
@@ -371,6 +373,8 @@ export async function POST(request: Request) {
   const allowAlbumDownload = body?.allowAlbumDownload !== false
   const allowGuestDelete = body?.allowGuestDelete === true
   const allowGuestPoster = body?.allowGuestPoster === true
+  const videoMessagesEnabled = body?.videoMessagesEnabled !== false
+  const storyCreatorEnabled = body?.storyCreatorEnabled !== false
   const guestbookEnabled = body?.guestbookEnabled !== false
   const photostripEnabled = body?.photostripEnabled === true
   const photostripBackgroundUrl = body?.photostripBackgroundUrl?.trim() || ''
@@ -437,6 +441,8 @@ export async function POST(request: Request) {
       allowAlbumDownload,
       allowGuestDelete,
       allowGuestPoster,
+      videoMessagesEnabled,
+      storyCreatorEnabled,
       guestbookEnabled,
       photostripEnabled,
       photostripBackgroundUrl,
@@ -479,6 +485,8 @@ export async function POST(request: Request) {
         allow_album_download: payload.allow_album_download,
         allow_guest_delete: payload.allow_guest_delete,
         allow_guest_poster: payload.allow_guest_poster,
+        video_messages_enabled: payload.video_messages_enabled,
+        story_creator_enabled: payload.story_creator_enabled,
         photostrip_enabled: payload.photostrip_enabled,
         photostrip_background_url: payload.photostrip_background_url,
       }
@@ -560,6 +568,8 @@ export async function PATCH(request: Request) {
         allowAlbumDownload?: boolean
         allowGuestDelete?: boolean
         allowGuestPoster?: boolean
+        videoMessagesEnabled?: boolean
+        storyCreatorEnabled?: boolean
         guestbookEnabled?: boolean
         photostripEnabled?: boolean
         guestbookPdfTheme?: string
@@ -588,6 +598,8 @@ export async function PATCH(request: Request) {
       allow_album_download: body?.allowAlbumDownload !== false,
       allow_guest_delete: body?.allowGuestDelete === true,
       allow_guest_poster: body?.allowGuestPoster === true,
+      video_messages_enabled: body?.videoMessagesEnabled !== false,
+      story_creator_enabled: body?.storyCreatorEnabled !== false,
       guestbook_enabled: body?.guestbookEnabled !== false,
       photostrip_enabled: body?.photostripEnabled === true,
       guestbook_pdf_theme: normalizeGuestbookPdfTheme(body?.guestbookPdfTheme),
@@ -652,6 +664,8 @@ export async function PATCH(request: Request) {
     const message = richUpdate.error.message.toLowerCase()
     if (
       message.includes('allow_guest_poster') ||
+      message.includes('video_messages_enabled') ||
+      message.includes('story_creator_enabled') ||
       message.includes('allow_album_download') ||
       message.includes('allow_guest_share') ||
       message.includes('allow_guest_download') ||

@@ -26,6 +26,8 @@ type EventRecordLike = {
   allow_album_download?: boolean | null
   allow_guest_delete?: boolean | null
   allow_guest_poster?: boolean | null
+  video_messages_enabled?: boolean | null
+  story_creator_enabled?: boolean | null
   guestbook_enabled?: boolean | null
   photostrip_enabled?: boolean | null
   photostrip_background_url?: string | null
@@ -55,6 +57,8 @@ export type NormalizedEvent = {
   allowAlbumDownload: boolean
   allowGuestDelete: boolean
   allowGuestPoster: boolean
+  videoMessagesEnabled: boolean
+  storyCreatorEnabled: boolean
   guestbookEnabled: boolean
   photostripEnabled: boolean
   photostripBackgroundUrl: string
@@ -158,6 +162,8 @@ export function buildEventInsertPayload(input: {
   allowAlbumDownload?: boolean
   allowGuestDelete?: boolean
   allowGuestPoster?: boolean
+  videoMessagesEnabled?: boolean
+  storyCreatorEnabled?: boolean
   guestbookEnabled?: boolean
   photostripEnabled?: boolean
   photostripBackgroundUrl?: string | null
@@ -184,6 +190,8 @@ export function buildEventInsertPayload(input: {
     allow_album_download: input.allowAlbumDownload !== false,
     allow_guest_delete: input.allowGuestDelete === true,
     allow_guest_poster: input.allowGuestPoster === true,
+    video_messages_enabled: input.videoMessagesEnabled !== false,
+    story_creator_enabled: input.storyCreatorEnabled !== false,
     guestbook_enabled: input.guestbookEnabled !== false,
     photostrip_enabled: input.photostripEnabled === true,
     photostrip_background_url: input.photostripBackgroundUrl || null,
@@ -226,6 +234,8 @@ export function normalizeEventRecord(
     allowAlbumDownload: record.allow_album_download !== false,
     allowGuestDelete: record.allow_guest_delete === true,
     allowGuestPoster: record.allow_guest_poster === true,
+    videoMessagesEnabled: record.video_messages_enabled !== false,
+    storyCreatorEnabled: record.story_creator_enabled !== false,
     guestbookEnabled: record.guestbook_enabled !== false,
     photostripEnabled: record.photostrip_enabled === true,
     photostripBackgroundUrl: record.photostrip_background_url || '',

@@ -56,6 +56,16 @@ export async function POST(request: Request) {
     if (video.type !== 'video_message' || !isEnabledVideoType(video.type)) {
       return failure(400, 'Video type is not enabled.')
     }
+
+    const { data: event, error: eventError } = await supabase.from('events')
+      .select('video_messages_enabled')
+      .eq('id', video.event_id)
+      .maybeSingle()
+    if (eventError) throw eventError
+    if (event?.video_messages_enabled === false) {
+      return failure(403, 'Video messages are disabled for this event.')
+    }
+
     // failed is the existing terminal status used for cancelled pending uploads.
     // Retain this tombstone and its ownership/path for authenticated cleanup retries.
     // It must never be revived; finalize only transitions pending_upload rows.

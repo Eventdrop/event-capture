@@ -107,7 +107,8 @@ export async function GET(request: Request) {
     const coverFromRow = `${event.cover_image_url || ''}`.trim()
     const backgroundFromRow = `${event.background_image_url || ''}`.trim()
     const posterTemplateFromRow = `${event.poster_template_url || ''}`.trim()
-    const storyTemplateFromRow = `${event.story_template_url || ''}`.trim()
+    const storyTemplateFromRow =
+      event.story_creator_enabled === false ? '' : `${event.story_template_url || ''}`.trim()
 
     if (coverFromRow && backgroundFromRow && posterTemplateFromRow && storyTemplateFromRow) {
       return NextResponse.json({
@@ -133,7 +134,10 @@ export async function GET(request: Request) {
     const latestCover = findNewestBrandingFile(files, 'cover-')
     const latestBackground = findNewestBrandingFile(files, 'background-')
     const latestPosterTemplate = findNewestBrandingFile(files, 'posterTemplate-')
-    const latestStoryTemplate = findNewestBrandingFile(files, 'storyTemplate-')
+    const latestStoryTemplate =
+      event.story_creator_enabled === false
+        ? null
+        : findNewestBrandingFile(files, 'storyTemplate-')
 
     return NextResponse.json({
       ok: true,

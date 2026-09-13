@@ -44,10 +44,13 @@ export async function DELETE(
     }
 
     const { data: event, error: eventError } = await supabase.from('events')
-      .select('allow_guest_delete')
+      .select('allow_guest_delete, video_messages_enabled')
       .eq('id', video.event_id)
       .maybeSingle()
     if (eventError) throw eventError
+    if (event?.video_messages_enabled === false) {
+      return failure(403, 'Video messages are disabled for this event.')
+    }
 
     const canDelete =
       event?.allow_guest_delete === true ||

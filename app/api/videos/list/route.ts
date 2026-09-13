@@ -27,11 +27,14 @@ export async function GET(request: Request) {
     if (!token) return reply({ ok: false, error: 'Event access is required.' }, 401)
     const supabase = createAdminSupabaseClient()
     const { data: event, error: eventError } = await supabase.from('events')
-      .select('id, allow_guest_delete').eq(UUID.test(identifier) ? 'id' : 'slug', identifier).maybeSingle()
+      .select('id, allow_guest_delete, video_messages_enabled').eq(UUID.test(identifier) ? 'id' : 'slug', identifier).maybeSingle()
     if (eventError) throw eventError
     if (!event) return reply({ ok: false, error: 'Event not found.' }, 404)
     const grant = verifyVideoAccessGrant(token, event.id)
     if (!grant) return reply({ ok: false, error: 'Event access is invalid or expired.' }, 403)
+    if (event.video_messages_enabled === false) {
+      return reply({ ok: false, error: 'Video messages are disabled for this event.' }, 403)
+    }
 
     // Event-wide viewing, unlike cancellation which is uploader-specific.
     const { data: rows, error } = await supabase.from('event_videos')

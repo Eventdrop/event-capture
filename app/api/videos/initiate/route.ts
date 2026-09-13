@@ -50,11 +50,14 @@ export async function POST(request: Request) {
     const supabase = createAdminSupabaseClient()
     const eventIdentifier = identifier.trim()
     const { data: event, error: eventError } = await supabase.from('events')
-      .select('id')
+      .select('id, video_messages_enabled')
       .eq(UUID.test(eventIdentifier) ? 'id' : 'slug', eventIdentifier)
       .maybeSingle()
     if (eventError) throw eventError
     if (!event) return failure(404, 'Event not found.')
+    if (event.video_messages_enabled === false) {
+      return failure(403, 'Video messages are disabled for this event.')
+    }
 
     const grant = verifyVideoAccessGrant(token, event.id)
     if (!grant) return failure(403, 'Video access is invalid or expired.')

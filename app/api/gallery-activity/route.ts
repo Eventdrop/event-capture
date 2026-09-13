@@ -33,6 +33,14 @@ export async function POST(request: Request) {
 
   if (!event) return NextResponse.json({ ok: false }, { status: 404 })
 
+  if (activity === 'poster' && event.allowGuestPoster !== true) {
+    return NextResponse.json({ ok: false }, { status: 403 })
+  }
+
+  if (activity === 'story' && event.storyCreatorEnabled === false) {
+    return NextResponse.json({ ok: false }, { status: 403 })
+  }
+
   const cookieStore = await cookies()
   const grants = parseEventAccessCookie(cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value)
   const email = grants.find((grant) => grant.eventId === event.id)?.email || null

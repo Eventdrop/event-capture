@@ -80,6 +80,8 @@ type EventControls = {
   allowAlbumDownload: boolean
   allowGuestDelete: boolean
   allowGuestPoster: boolean
+  videoMessagesEnabled: boolean
+  storyCreatorEnabled: boolean
   guestbookEnabled: boolean
   photostripEnabled: boolean
   guestbookPdfTheme: GuestbookPdfThemeKey
@@ -148,6 +150,8 @@ export default function AdminPage() {
   const [allowAlbumDownload, setAllowAlbumDownload] = useState(true)
   const [allowGuestDelete, setAllowGuestDelete] = useState(false)
   const [allowGuestPoster, setAllowGuestPoster] = useState(false)
+  const [videoMessagesEnabled] = useState(true)
+  const [storyCreatorEnabled] = useState(true)
   const [accessCode, setAccessCode] = useState(() => generateEventAccessCode())
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('')
@@ -347,6 +351,8 @@ export default function AdminPage() {
           allowAlbumDownload: event.allowAlbumDownload,
           allowGuestDelete: event.allowGuestDelete,
           allowGuestPoster: event.allowGuestPoster,
+          videoMessagesEnabled: event.videoMessagesEnabled,
+          storyCreatorEnabled: event.storyCreatorEnabled,
           guestbookEnabled: event.guestbookEnabled,
           photostripEnabled: event.photostripEnabled,
           guestbookPdfTheme: event.guestbookPdfTheme,
@@ -557,6 +563,8 @@ export default function AdminPage() {
         allowAlbumDownload,
         allowGuestDelete,
         allowGuestPoster,
+        videoMessagesEnabled,
+        storyCreatorEnabled,
         guestbookEnabled: true,
         photostripEnabled: false,
         guestbookPdfTheme: 'wedding',
@@ -586,6 +594,8 @@ export default function AdminPage() {
           allowAlbumDownload: payload.allow_album_download,
           allowGuestDelete: payload.allow_guest_delete,
           allowGuestPoster: payload.allow_guest_poster,
+          videoMessagesEnabled: payload.video_messages_enabled,
+          storyCreatorEnabled: payload.story_creator_enabled,
           guestbookEnabled: payload.guestbook_enabled,
           photostripEnabled: payload.photostrip_enabled,
           guestbookPdfTheme: payload.guestbook_pdf_theme,
@@ -633,6 +643,8 @@ export default function AdminPage() {
             allowAlbumDownload: nextEvent.allowAlbumDownload,
             allowGuestDelete: nextEvent.allowGuestDelete,
             allowGuestPoster: nextEvent.allowGuestPoster,
+            videoMessagesEnabled: nextEvent.videoMessagesEnabled,
+            storyCreatorEnabled: nextEvent.storyCreatorEnabled,
             guestbookEnabled: nextEvent.guestbookEnabled,
             photostripEnabled: nextEvent.photostripEnabled,
             guestbookPdfTheme: nextEvent.guestbookPdfTheme,
@@ -854,6 +866,8 @@ export default function AdminPage() {
           allowAlbumDownload: demoCloneSource.allowAlbumDownload,
           allowGuestDelete: demoCloneSource.allowGuestDelete,
           allowGuestPoster: demoCloneSource.allowGuestPoster,
+          videoMessagesEnabled: demoCloneSource.videoMessagesEnabled,
+          storyCreatorEnabled: demoCloneSource.storyCreatorEnabled,
           photostripEnabled: demoCloneSource.photostripEnabled,
           photostripBackgroundUrl: demoCloneSource.photostripBackgroundUrl,
         }),
@@ -892,6 +906,8 @@ export default function AdminPage() {
           allowAlbumDownload: normalized.allowAlbumDownload,
           allowGuestDelete: normalized.allowGuestDelete,
           allowGuestPoster: normalized.allowGuestPoster,
+          videoMessagesEnabled: normalized.videoMessagesEnabled,
+          storyCreatorEnabled: normalized.storyCreatorEnabled,
           guestbookEnabled: normalized.guestbookEnabled,
           photostripEnabled: normalized.photostripEnabled,
           guestbookPdfTheme: normalized.guestbookPdfTheme,
@@ -1345,6 +1361,10 @@ export default function AdminPage() {
             controls?.allowGuestDelete ?? event.allowGuestDelete,
           allowGuestPoster:
             controls?.allowGuestPoster ?? event.allowGuestPoster,
+          videoMessagesEnabled:
+            controls?.videoMessagesEnabled ?? event.videoMessagesEnabled,
+          storyCreatorEnabled:
+            controls?.storyCreatorEnabled ?? event.storyCreatorEnabled,
           guestbookEnabled:
             controls?.guestbookEnabled ?? event.guestbookEnabled,
           photostripEnabled:
@@ -1423,6 +1443,10 @@ export default function AdminPage() {
             eventControlsById[event.id]?.allowGuestDelete ?? event.allowGuestDelete,
           allowGuestPoster:
             eventControlsById[event.id]?.allowGuestPoster ?? event.allowGuestPoster,
+          videoMessagesEnabled:
+            eventControlsById[event.id]?.videoMessagesEnabled ?? event.videoMessagesEnabled,
+          storyCreatorEnabled:
+            eventControlsById[event.id]?.storyCreatorEnabled ?? event.storyCreatorEnabled,
           guestbookEnabled:
             eventControlsById[event.id]?.guestbookEnabled ?? event.guestbookEnabled,
           photostripEnabled:
@@ -1464,6 +1488,8 @@ export default function AdminPage() {
             allowAlbumDownload: normalized.allowAlbumDownload,
           allowGuestDelete: normalized.allowGuestDelete,
           allowGuestPoster: normalized.allowGuestPoster,
+          videoMessagesEnabled: normalized.videoMessagesEnabled,
+          storyCreatorEnabled: normalized.storyCreatorEnabled,
           guestbookEnabled: normalized.guestbookEnabled,
           photostripEnabled: normalized.photostripEnabled,
           guestbookPdfTheme: normalized.guestbookPdfTheme,
@@ -1583,6 +1609,8 @@ export default function AdminPage() {
       | 'allowAlbumDownload'
       | 'allowGuestDelete'
       | 'allowGuestPoster'
+      | 'videoMessagesEnabled'
+      | 'storyCreatorEnabled'
       | 'guestbookEnabled'
       | 'photostripEnabled',
     value: boolean
@@ -1595,6 +1623,8 @@ export default function AdminPage() {
         allowAlbumDownload: prev[eventId]?.allowAlbumDownload ?? true,
         allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
         allowGuestPoster: prev[eventId]?.allowGuestPoster ?? false,
+        videoMessagesEnabled: prev[eventId]?.videoMessagesEnabled ?? true,
+        storyCreatorEnabled: prev[eventId]?.storyCreatorEnabled ?? true,
         guestbookEnabled: prev[eventId]?.guestbookEnabled ?? true,
         photostripEnabled: prev[eventId]?.photostripEnabled ?? false,
         guestbookPdfTheme: prev[eventId]?.guestbookPdfTheme ?? 'wedding',
@@ -1615,6 +1645,8 @@ export default function AdminPage() {
         allowAlbumDownload: prev[eventId]?.allowAlbumDownload ?? true,
         allowGuestDelete: prev[eventId]?.allowGuestDelete ?? false,
         allowGuestPoster: prev[eventId]?.allowGuestPoster ?? false,
+        videoMessagesEnabled: prev[eventId]?.videoMessagesEnabled ?? true,
+        storyCreatorEnabled: prev[eventId]?.storyCreatorEnabled ?? true,
         guestbookEnabled: prev[eventId]?.guestbookEnabled ?? true,
         photostripEnabled: prev[eventId]?.photostripEnabled ?? false,
         guestbookPdfTheme: normalizeGuestbookPdfTheme(value),
@@ -1642,6 +1674,8 @@ export default function AdminPage() {
           allowAlbumDownload: currentSettings.allowAlbumDownload,
           allowGuestDelete: currentSettings.allowGuestDelete,
           allowGuestPoster: currentSettings.allowGuestPoster,
+          videoMessagesEnabled: currentSettings.videoMessagesEnabled,
+          storyCreatorEnabled: currentSettings.storyCreatorEnabled,
           guestbookEnabled: currentSettings.guestbookEnabled,
           photostripEnabled: currentSettings.photostripEnabled,
           guestbookPdfTheme: currentSettings.guestbookPdfTheme,
@@ -1670,6 +1704,8 @@ export default function AdminPage() {
             allowAlbumDownload: normalized.allowAlbumDownload,
             allowGuestDelete: normalized.allowGuestDelete,
             allowGuestPoster: normalized.allowGuestPoster,
+            videoMessagesEnabled: normalized.videoMessagesEnabled,
+            storyCreatorEnabled: normalized.storyCreatorEnabled,
             guestbookEnabled: normalized.guestbookEnabled,
             photostripEnabled: normalized.photostripEnabled,
             guestbookPdfTheme: normalized.guestbookPdfTheme,
@@ -2484,6 +2520,8 @@ export default function AdminPage() {
                         ['allowAlbumDownload', t.admin.albumDownloadEnabled],
                         ['allowGuestDelete', t.admin.deleteEnabled],
                         ['allowGuestPoster', t.admin.posterEnabled],
+                        ['videoMessagesEnabled', 'Videoboodschappen'],
+                        ['storyCreatorEnabled', 'Instagram Story Creator'],
                         ['guestbookEnabled', t.admin.guestbookLabel],
                         ['photostripEnabled', 'Photostrip Story 5x15'],
                       ] as const).map(([key, label]) => (

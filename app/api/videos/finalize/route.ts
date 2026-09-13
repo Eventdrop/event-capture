@@ -64,6 +64,16 @@ export async function POST(request: Request) {
     if (video.type !== 'video_message' || !policy.enabled) {
       return failure(400, 'Video type is not enabled.')
     }
+
+    const { data: event, error: eventError } = await supabase.from('events')
+      .select('video_messages_enabled')
+      .eq('id', video.event_id)
+      .maybeSingle()
+    if (eventError) throw eventError
+    if (event?.video_messages_enabled === false) {
+      return failure(403, 'Video messages are disabled for this event.')
+    }
+
     // An authenticated retry never rewrites metadata or revives hidden/failed records.
     if (video.status === 'ready') return success(video.id)
     if (video.status !== 'pending_upload') {

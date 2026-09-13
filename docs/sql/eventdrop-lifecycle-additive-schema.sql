@@ -71,6 +71,12 @@ alter table public.events
 alter table public.events
   add column if not exists allow_guest_poster boolean not null default false;
 
+alter table public.events
+  add column if not exists video_messages_enabled boolean not null default true;
+
+alter table public.events
+  add column if not exists story_creator_enabled boolean not null default true;
+
 alter table public.uploads
   add column if not exists storage_path text;
 
