@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     if (!token) return reply({ ok: false, error: 'Event access is required.' }, 401)
     const supabase = createAdminSupabaseClient()
     const { data: event, error: eventError } = await supabase.from('events')
-      .select('id').eq(UUID.test(identifier) ? 'id' : 'slug', identifier).maybeSingle()
+      .select('id, allow_guest_delete').eq(UUID.test(identifier) ? 'id' : 'slug', identifier).maybeSingle()
     if (eventError) throw eventError
     if (!event) return reply({ ok: false, error: 'Event not found.' }, 404)
     const grant = verifyVideoAccessGrant(token, event.id)
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 
     // Event-wide viewing, unlike cancellation which is uploader-specific.
     const { data: rows, error } = await supabase.from('event_videos')
-      .select('id, created_at, storage_path')
+      .select('id, created_at, storage_path, uploader_session_id')
       .eq('event_id', grant.eventId).eq('type', 'video_message').eq('status', 'ready')
       .order('created_at', { ascending: false }).order('id', { ascending: false })
       .range(offset, offset + PAGE_SIZE)
@@ -43,7 +43,12 @@ export async function GET(request: Request) {
     const expiresIn = Math.min(PLAYBACK_SECONDS, grant.expiresAt - Math.floor(Date.now() / 1000))
     if (expiresIn <= 0) return reply({ ok: false, error: 'Event access has expired.' }, 403)
     const videos = await Promise.all((rows || []).slice(0, PAGE_SIZE).map(async video => {
-      const safe = { id: video.id, createdAt: video.created_at, playbackUrl: null as string | null }
+      const safe = {
+        id: video.id,
+        canDelete: event.allow_guest_delete === true || video.uploader_session_id === grant.uploaderSessionId,
+        createdAt: video.created_at,
+        playbackUrl: null as string | null,
+      }
       // Only sign the canonical path of a server-loaded ready row. A bad/missing
       // object affects this card only, never the rest of the gallery.
       const prefix = `${grant.eventId}/${video.id}/original`

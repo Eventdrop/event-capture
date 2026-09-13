@@ -1,21 +1,23 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { EventAccessForm } from '@/app/_components/event-access-form'
-import { LanguageSwitcher } from '@/app/_components/language-switcher'
 import { LANGUAGE_STORAGE_KEY, useLanguage } from '@/app/_components/language-provider'
+import { MarketingEntryLink, MarketingFeatureNavigation, MarketingHeader, MarketingMobileFeatureMenu } from '@/app/_components/marketing-shell'
 import { locales, type Locale } from '@/lib/i18n'
 import { brand } from '@/lib/brand'
 import styles from '../home.module.css'
 
 const photos = ['/home-tile-2.png', '/home-tile-1.png', '/home-tile-3.png']
-const guestbookCovers = [
-  { src: '/pdf-assets/guestbook-themes/love-notes.jpg', label: 'Love Notes' },
-  { src: '/pdf-assets/guestbook-themes/memories-together.jpg', label: 'Messages & Memories' },
-  { src: '/pdf-assets/guestbook-themes/party-people.jpg', label: 'Party People' },
+const featureAssets = [
+  { kind: 'image', src: '/marketing/eventdrop-fotos-main.png', width: 1600, height: 1200, fit: 'cover' },
+  { kind: 'video', src: '/marketing/eventdrop-video-messages-wedding-main.mp4', fit: 'cover' },
+  { kind: 'image', src: '/marketing/eventdrop-guestbook-main.png', width: 1200, height: 1600, fit: 'contain' },
+  { kind: 'image', src: '/marketing/eventdrop-live-tv-main.png', width: 1600, height: 1200, fit: 'cover' },
+  { kind: 'image', src: '/marketing/eventdrop-story-creator-main.png', width: 941, height: 1672, fit: 'contain' },
+  { kind: 'image', src: '/marketing/eventdrop-memory-poster-creator-main.png', width: 941, height: 1672, fit: 'contain' },
 ] as const
-
 
 function Icon({ kind, className = '' }: { kind: string; className?: string }) {
   const paths: Record<string, string> = {
@@ -39,20 +41,17 @@ function Icon({ kind, className = '' }: { kind: string; className?: string }) {
 function Photo({ index = 0, className = '', priority = false }: { index?: number; className?: string; priority?: boolean }) {
   return <div className={`${styles.photo} ${className}`}><Image src={photos[index % photos.length]} alt="" fill sizes="(max-width: 640px) 80vw, 400px" priority={priority} className={styles.photoImage} /></div>
 }
-function GuestbookCover({ cover, className = '' }: { cover: typeof guestbookCovers[number]; className?: string }) {
-  return <div className={`${styles.guestbookCover} ${className}`}><Image src={cover.src} alt={cover.label} width={1414} height={2000} sizes="(max-width: 640px) 48vw, 180px" /></div>
-}
-function Brand() {
-  const h = useLanguage().t.marketing
-  return <a href="#" aria-label={h.homeLabel} className={styles.brand}><Image src="/eventdrop-brand.png" alt="EventDrop Sharing" width={540} height={540} priority /></a>
+function FeatureCardVisual({ index, title }: { index: number; title: string }) {
+  const asset = featureAssets[index]
+  const className = `${styles.featureAsset} ${asset.fit === 'contain' ? styles.featureAssetContain : ''}`
+  if (asset.kind === 'video') {
+    return <div className={`${className} ${styles.featureVideoAsset}`}><video src={asset.src} muted playsInline loop autoPlay preload="metadata" aria-label={title} /></div>
+  }
+  return <div className={className}><Image src={asset.src} alt="" width={asset.width} height={asset.height} sizes="(max-width: 760px) 45vw, 340px" /></div>
 }
 function BrandAccent({ text }: { text: string }) {
   const [before, after] = text.split('EventDrop')
   return <>{before}<em>EventDrop</em>{after}</>
-}
-function EntryLink() {
-  const h = useLanguage().t.marketing
-  return <a href="#jouw-event" className={styles.button}>{h.entry}<Icon kind="arrow" /></a>
 }
 
 function PhonePreview() {
@@ -88,32 +87,6 @@ function ProductShowcase() {
         {[h.noApp, h.oneQr, h.private].map((item) => <li key={item}><Icon kind="check" />{item}</li>)}
       </ul>
     </div>
-  </div>
-}
-
-function FeatureNavigation({ items, className = '' }: { items: readonly (readonly [string, string])[]; className?: string }) {
-  const h = useLanguage().t.marketing
-  return <nav className={`${styles.featureNav} ${className}`} aria-label={h.featureNavigationLabel}>{items.map(([label, href], index) => <a key={href} href={href} aria-current={index === 0 ? 'page' : undefined}>{label}</a>)}</nav>
-}
-
-function MobileFeatureMenu({ items }: { items: readonly (readonly [string, string])[] }) {
-  const h = useLanguage().t.marketing
-  const [open, setOpen] = useState(false)
-  return <div className={styles.mobileFeatureNav}>
-    <button type="button" className={styles.featureMenuButton} aria-expanded={open} aria-controls="feature-drawer" onClick={() => setOpen(true)}>
-      <span aria-hidden="true"><i /><i /><i /></span>
-      {h.featureNavigationLabel}
-    </button>
-    {open ? <button type="button" className={styles.featureDrawerBackdrop} aria-label="Sluit menu" onClick={() => setOpen(false)} /> : null}
-    <aside id="feature-drawer" className={`${styles.featureDrawer} ${open ? styles.featureDrawerOpen : ''}`} aria-hidden={!open}>
-      <div className={styles.featureDrawerHeader}>
-        <strong>EventDrop Sharing</strong>
-        <button type="button" onClick={() => setOpen(false)} aria-label="Sluit menu">×</button>
-      </div>
-      <nav aria-label={h.featureNavigationLabel}>
-        {items.map(([label, href], index) => <a key={href} href={href} aria-current={index === 0 ? 'page' : undefined} onClick={() => setOpen(false)}>{label}</a>)}
-      </nav>
-    </aside>
   </div>
 }
 
@@ -157,32 +130,22 @@ export default function Home() {
   ['story', h.story, h.storyBody, '/story-creator'],
   ['poster', h.poster, h.posterBody, '/memory-poster'],
 ] as const
-  const featureNavigation = [
-    [h.homeNav, '/'],
-    [h.photos, '/fotos'],
-    [h.videos, '/video-messages'],
-    [h.guestbook, '/gastenboek'],
-    [h.live, '/live-tv'],
-    [h.story, '/story-creator'],
-    [h.photoboothMemory, '/photobooth-memory'],
-    [h.memoryPosterNav, '/memory-poster'],
-  ] as const
   return <div className={styles.home} lang={locale}>
-    <header className={styles.header}><div className={styles.headerInner}><Brand /><nav aria-label={h.nav}><a href="#hoe-werkt-het">{h.how}</a><a href="#mogelijkheden">{h.features}</a><a href="#voor-events">{h.events}</a></nav><div className={styles.headerActions}><div className={styles.languages}><LanguageSwitcher /></div><EntryLink /></div></div></header>
-    <MobileFeatureMenu items={featureNavigation} />
+    <MarketingHeader />
+    <MarketingMobileFeatureMenu />
     <main>
       <section className={`${styles.container} ${styles.hero}`}>
-        <div className={styles.heroCopy}><p className={styles.eyebrow}><span /> {h.heroEyebrow}</p><h1>{h.heroTitle}<br /><em>{h.heroAccent}</em></h1><p className={styles.intro}>{h.intro}</p><div className={styles.heroActions}><EntryLink /><a href="#hoe-werkt-het" className={styles.textLink}>{h.watchHow} <span>↗</span></a></div><p className={styles.trust}><Icon kind="check" />{h.trust}</p></div><HeroVisual />
+        <div className={styles.heroCopy}><p className={styles.eyebrow}><span /> {h.heroEyebrow}</p><h1>{h.heroTitle}<br /><em>{h.heroAccent}</em></h1><p className={styles.intro}>{h.intro}</p><div className={styles.heroActions}><MarketingEntryLink /><a href="#hoe-werkt-het" className={styles.textLink}>{h.watchHow} <span>↗</span></a></div><p className={styles.trust}><Icon kind="check" />{h.trust}</p></div><HeroVisual />
       </section>
-      <FeatureNavigation items={featureNavigation} className={styles.desktopFeatureNav} />
+      <MarketingFeatureNavigation className={styles.desktopFeatureNav} />
       <section className={`${styles.container} ${styles.section}`}><ProductShowcase /></section>
-      <section id="mogelijkheden" className={`${styles.container} ${styles.section}`}><div className={styles.sectionHeading}><p className={styles.eyebrow}>{h.featureEyebrow}</p><h2>{h.featureTitle}</h2><p>{h.featureIntro}</p></div><div className={styles.features}>{features.map(([icon, title, body, href], i) => <a key={title} href={href} className={styles.feature}><div className={styles.featureTop}><span className={styles.iconBox}><Icon kind={icon} /></span><span className={styles.featureNumber}>0{i + 1}</span></div><h3>{title}</h3><p>{body}</p>{i === 0 ? <div className={styles.miniPhotos}>{[0, 1, 2].map(index => <Photo key={index} index={index} />)}</div> : i === 1 ? <div className={styles.miniVideo}><Photo index={1} /><span>▷</span><small>{h.personal}</small></div> : i === 2 ? <div className={styles.miniGuestbookCover}><GuestbookCover cover={guestbookCovers[0]} /></div> : <div className={styles.featureBottom}><Icon kind={icon} /><span>{i === 3 ? h.liveTag : i === 4 ? h.storyTag : h.posterTag}</span></div>}</a>)}</div></section>
-      <section className={styles.photoBand} aria-label={h.photoBandHeadline}><Image src="/home-tile-2.png" alt="" fill sizes="100vw" className={styles.photoBandImage} /><div className={styles.photoBandOverlay}><div className={styles.container}><h2>{h.photoBandHeadline}</h2><p>{h.photoBandBody}</p></div></div></section>
+      <section id="mogelijkheden" className={`${styles.container} ${styles.section}`}><div className={styles.sectionHeading}><p className={styles.eyebrow}>{h.featureEyebrow}</p><h2>{h.featureTitle}</h2><p>{h.featureIntro}</p></div><div className={styles.features}>{features.map(([icon, title, body, href], i) => <a key={title} href={href} className={styles.feature}><div className={styles.featureTop}><span className={styles.iconBox}><Icon kind={icon} /></span><span className={styles.featureNumber}>0{i + 1}</span></div><h3>{title}</h3><p>{body}</p><FeatureCardVisual index={i} title={title} /></a>)}</div></section>
+      <section className={styles.photoBand} aria-label={h.photoBandHeadline}><Image src="/marketing/home-feature-band.png" alt="" fill sizes="100vw" className={styles.photoBandImage} /><div className={styles.photoBandOverlay}><div className={styles.container}><h2>{h.photoBandHeadline}</h2><p>{h.photoBandBody}</p></div></div></section>
       <section id="hoe-werkt-het" className={styles.workflow}><div className={styles.container}><div className={styles.sectionHeading}><p className={styles.eyebrow}>{h.workflowEyebrow}</p><h2>{h.workflowTitle}</h2></div><ol className={styles.steps}>{[['qr', h.scan, h.scanBody], ['phone', h.upload, h.uploadBody], ['screen', h.share, h.shareBody], ['heart', h.relive, h.reliveBody]].map(([icon, title, body], i) => <li key={title}><div className={styles.stepIcon}><Icon kind={icon} /><span>0{i + 1}</span></div><h3>{title}</h3><p>{body}</p></li>)}</ol></div></section>
       <section id="voor-events" className={`${styles.container} ${styles.section} ${styles.useCases}`}><div className={styles.sectionHeading}><p className={styles.eyebrow}>{h.occasionsEyebrow}</p><h2>{h.occasionsTitle}</h2></div><div className={styles.occasions}>{[[h.weddings, h.weddingBody], [h.parties, h.partyBody], [h.corporate, h.corporateBody]].map(([title, body], i) => <article key={title}><Photo index={i} /><div><h3>{title}</h3><p>{body}</p></div></article>)}</div></section>
       <section id="jouw-event" className={`${styles.container} ${styles.access}`}><div className={styles.accessCopy}><p className={styles.eyebrow}>{h.accessEyebrow}</p><h2><BrandAccent text={h.accessTitle} /></h2><p>{h.accessIntro}</p><div className={styles.accessDetail}><Icon kind="lock" /><span>{h.accessHelp}</span></div></div><div className={styles.formCard}><div className={styles.formHeading}><h3>{h.entry}</h3></div><EventAccessForm /></div></section>
     </main>
     <BottomQuickNav />
-    <footer className={`${styles.container} ${styles.footer}`}><Brand /><p>{h.footer}</p><div><a href="/privacy">{t.common.privacy}</a><a href="/terms">{t.common.terms}</a></div></footer>
+    <footer className={`${styles.container} ${styles.footer}`}><a href="/" aria-label={h.homeLabel} className={styles.brand}><Image src="/eventdrop-brand.png" alt="EventDrop Sharing" width={540} height={540} /></a><p>{h.footer}</p><div><a href="/privacy">{t.common.privacy}</a><a href="/terms">{t.common.terms}</a></div></footer>
   </div>
 }

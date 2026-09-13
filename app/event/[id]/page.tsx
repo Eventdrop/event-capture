@@ -767,6 +767,9 @@ export default function Page() {
                   <p className="text-xs font-semibold text-[#33516F]">
                     {t.upload.guestbookPhotoLabel}
                   </p>
+                  <p className="mt-0.5 text-xs leading-5 text-[#6B7280]">
+                    {t.upload.guestbookPhotoHelp}
+                  </p>
                   <div className="mt-1.5 flex gap-2 overflow-x-auto pb-1">
                     {selectedUploadPhotoPreviews.map((preview) => {
                       const selected = selectedGuestbookPhotoIndex === preview.index

@@ -331,6 +331,7 @@ type TranslationTree = {
     selectButton: string
     defaultAlbumName: string
     guestbookPhotoLabel: string
+    guestbookPhotoHelp: string
     guestbookPhotoSelected: string
     shareSectionTitle: string
     guestbookPostError: string
@@ -846,6 +847,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectButton: 'Dosyaları seç',
       defaultAlbumName: 'Paylaşılan etkinlik albümü',
       guestbookPhotoLabel: 'Anı defteri fotoğrafı',
+      guestbookPhotoHelp: 'İsterseniz mesajınızla birlikte gösterilecek bir fotoğraf seçin.',
       guestbookPhotoSelected: 'Seçildi',
       shareSectionTitle: 'Albümü paylaş / QR kod',
       guestbookPostError: 'Anı defteri mesajı gönderilemedi.',
@@ -1432,6 +1434,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectButton: 'Bestanden kiezen',
       defaultAlbumName: 'Gedeeld evenementalbum',
       guestbookPhotoLabel: 'Gastenboekfoto',
+      guestbookPhotoHelp: 'Selecteer eventueel één foto die bij je bericht wordt getoond.',
       guestbookPhotoSelected: 'Gekozen',
       shareSectionTitle: 'Album delen / QR-code',
       guestbookPostError: 'Gastenboekbericht kon niet worden geplaatst.',
@@ -2018,6 +2021,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       selectButton: 'Choose files',
       defaultAlbumName: 'Shared event album',
       guestbookPhotoLabel: 'Guestbook photo',
+      guestbookPhotoHelp: 'Optionally select one photo to display with your message.',
       guestbookPhotoSelected: 'Selected',
       shareSectionTitle: 'Share album / QR code',
       guestbookPostError: 'Guestbook message could not be posted.',
@@ -2358,6 +2362,7 @@ const germanTranslation: TranslationTree = {
     selectLabel: 'Fotos auswählen', selectButton: 'Dateien auswählen',
     defaultAlbumName: 'Geteiltes Eventalbum',
     guestbookPhotoLabel: 'Gästebuchfoto',
+    guestbookPhotoHelp: 'Wähle optional ein Foto aus, das zusammen mit deiner Nachricht angezeigt wird.',
     guestbookPhotoSelected: 'Ausgewählt',
     shareSectionTitle: 'Album teilen / QR-Code',
     guestbookPostError: 'Gästebuchnachricht konnte nicht gesendet werden.',
@@ -2590,6 +2595,7 @@ const frenchTranslation: TranslationTree = {
     selectLabel: 'Sélectionner des photos', selectButton: 'Choisir des fichiers',
     defaultAlbumName: 'Album événementiel partagé',
     guestbookPhotoLabel: 'Photo du livre d’or',
+    guestbookPhotoHelp: 'Sélectionnez éventuellement une photo à afficher avec votre message.',
     guestbookPhotoSelected: 'Sélectionnée',
     shareSectionTitle: 'Partager l’album / QR code',
     guestbookPostError: "Le message du livre d’or n’a pas pu être publié.",

@@ -2085,7 +2085,7 @@ export default function Page() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white text-stone-900">
-      <main className="flex-1 px-3 pb-5 pt-3 sm:px-6 sm:pb-8 sm:pt-5">
+      <main className="flex-1 px-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-8 sm:pt-5">
         <div className="mx-auto w-full max-w-6xl">
         {downloadInProgress ? (
           <div
@@ -2140,11 +2140,11 @@ export default function Page() {
               </select>
             </div>
             <div
-              className="relative h-[195px] overflow-hidden rounded-[13px] bg-[#f3f4f6] bg-cover bg-center sm:h-[290px]"
+              className="relative h-[155px] overflow-hidden rounded-[13px] bg-[#f3f4f6] bg-cover bg-center sm:h-[290px]"
               style={eventCoverStyle}
             >
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/72 via-black/34 to-transparent px-4 pb-4 pt-16 sm:px-5 sm:pb-5">
-                <h1 className="text-[1.65rem] font-black leading-none text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:text-3xl">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/72 via-black/34 to-transparent px-3 pb-3 pt-12 sm:px-5 sm:pb-5 sm:pt-16">
+                <h1 className="text-[1.35rem] font-black leading-none text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:text-3xl">
                   {eventName}
                 </h1>
                 <p className="mt-1 text-[11px] font-semibold leading-tight text-white/85 [text-shadow:0_1px_7px_rgba(0,0,0,0.55)] sm:text-xs">
@@ -2155,8 +2155,8 @@ export default function Page() {
           </section>
         ) : null}
 
-        <nav className="sticky top-0 z-50 isolate mt-3 border-b border-neutral-200 bg-white">
-          <div className="grid auto-cols-fr grid-flow-col gap-1">
+        <nav className="sticky top-0 z-50 isolate mt-2 overflow-x-auto border-b border-neutral-200 bg-white scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] sm:mt-3 sm:overflow-visible [&::-webkit-scrollbar]:hidden">
+          <div className="flex w-max gap-2 sm:grid sm:w-full sm:auto-cols-fr sm:grid-flow-col sm:gap-1">
             {([
               ['photos', t.gallery.photosTab],
               ...(guestbookEnabled ? [['guestbook', t.gallery.guestbookTab] as const] : []),
@@ -2168,7 +2168,7 @@ export default function Page() {
                 key={view}
                 type="button"
                 onClick={() => setGalleryView(view)}
-                className={`relative flex flex-col items-center gap-1 px-1 pb-2.5 pt-2 text-[11px] font-black transition outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-[#d71920]/25 sm:text-sm ${
+                className={`relative flex min-h-[54px] min-w-[88px] flex-col items-center justify-center gap-0.5 px-1.5 pb-2 pt-1.5 text-center text-[10px] font-black leading-tight transition outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-[#d71920]/25 [&_svg]:h-4 [&_svg]:w-4 sm:min-h-0 sm:min-w-0 sm:gap-1 sm:px-1 sm:pb-2.5 sm:pt-2 sm:text-sm sm:[&_svg]:h-5 sm:[&_svg]:w-5 ${
                   galleryView === view
                     ? 'text-[#d71920]'
                     : 'text-neutral-500 hover:text-neutral-950'
@@ -2255,7 +2255,7 @@ export default function Page() {
               </h2>
             </div>
 
-            <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
+            <div className="-mx-3 flex snap-x gap-1.5 overflow-x-auto scroll-smooth px-3 pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-1 sm:gap-1 sm:px-1">
               {([
                 ['poster', 'Memory Poster A3'],
                 ['story', t.gallery.storyButton],
@@ -2271,7 +2271,7 @@ export default function Page() {
                     type="button"
                     onClick={() => chooseDesignFormat(format)}
                     disabled={creatingPoster}
-                    className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-black transition ${
+                    className={`shrink-0 snap-center rounded-lg border px-3 py-2 text-xs font-black transition ${
                       isActive
                         ? primaryGradientClass
                         : neutralButtonClass
@@ -2285,7 +2285,7 @@ export default function Page() {
 
             {activeDesignFormat !== 'photostrip' ? (
             <div className="rounded-xl border border-neutral-200 bg-white p-3 shadow-[0_8px_22px_rgba(20,20,20,0.04)]">
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                 {(activeDesignFormat === 'poster'
                   ? ([
                       ['posterPortrait', t.gallery.posterPortraitMode],
@@ -2302,7 +2302,7 @@ export default function Page() {
                     type="button"
                     onClick={() => chooseDesignMode(mode)}
                     disabled={creatingPoster}
-                    className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg border px-3 py-2 text-center text-xs font-black transition sm:flex-none ${
+                    className={`inline-flex min-h-10 items-center justify-center rounded-lg border px-3 py-2 text-center text-xs font-black transition sm:min-h-9 sm:flex-none ${
                       designMode === mode
                         ? primaryGradientClass
                         : neutralButtonClass
@@ -2343,7 +2343,7 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={() => setDesignExamplesOpen(true)}
-                  className={`rounded-lg px-3 py-2 text-xs font-black ${neutralButtonClass}`}
+                  className={`w-full rounded-lg px-3 py-2 text-xs font-black sm:w-auto ${neutralButtonClass}`}
                 >
                   {t.gallery.designPreview}
                 </button>
@@ -2363,12 +2363,12 @@ export default function Page() {
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="grid grid-cols-2 gap-2 max-[360px]:grid-cols-1 sm:flex sm:flex-wrap sm:items-center">
                     <button
                       type="button"
                       onClick={() => setPhotostripSelectedIds([])}
                       disabled={photostripSelectedItems.length === 0 || creatingPoster}
-                      className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-3 py-2 text-xs font-black disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none ${neutralButtonClass}`}
+                      className={`inline-flex min-h-10 items-center justify-center rounded-lg px-3 py-2 text-xs font-black disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-9 sm:flex-none ${neutralButtonClass}`}
                     >
                       {t.gallery.clearSelection}
                     </button>
@@ -2376,7 +2376,7 @@ export default function Page() {
                       type="button"
                       onClick={() => void createPhotostripStory()}
                       disabled={!photostripReady || creatingPoster}
-                      className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-4 py-2 text-xs font-black text-white shadow-sm sm:flex-none ${
+                      className={`inline-flex min-h-10 items-center justify-center rounded-lg px-4 py-2 text-xs font-black text-white shadow-sm sm:min-h-9 sm:flex-none ${
                         !photostripReady || creatingPoster
                           ? disabledButtonClass
                           : primaryGradientClass
@@ -2414,12 +2414,12 @@ export default function Page() {
                     ) : null}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="grid grid-cols-2 gap-2 max-[360px]:grid-cols-1 sm:flex sm:flex-wrap sm:items-center">
                     <button
                       type="button"
                       onClick={clearDesignSelection}
                       disabled={activeDesignSelectedItems.length === 0 || creatingPoster}
-                      className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-3 py-2 text-xs font-black disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none ${neutralButtonClass}`}
+                      className={`inline-flex min-h-10 items-center justify-center rounded-lg px-3 py-2 text-xs font-black disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-9 sm:flex-none ${neutralButtonClass}`}
                     >
                       {t.gallery.clearSelection}
                     </button>
@@ -2427,7 +2427,7 @@ export default function Page() {
                       type="button"
                       onClick={() => createPoster({ grayscale: activeDesignFormat === 'poster' ? posterGrayscale : false, mode: designMode })}
                       disabled={!designReady || creatingPoster}
-                      className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-4 py-2 text-xs font-black text-white shadow-sm sm:flex-none ${
+                      className={`inline-flex min-h-10 items-center justify-center rounded-lg px-4 py-2 text-xs font-black text-white shadow-sm sm:min-h-9 sm:flex-none ${
                         !designReady || creatingPoster
                           ? disabledButtonClass
                           : primaryGradientClass
@@ -2463,7 +2463,7 @@ export default function Page() {
                 {t.gallery.noUploads}
               </div>
             ) : activeDesignFormat === 'photostrip' ? (
-              <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2 lg:grid-cols-5">
                 {photostripItems.map((item) => {
                   const isSelected = photostripSelectedIds.includes(item.id)
                   const downloadName = getUploadShortFileName(item, {
@@ -2493,7 +2493,7 @@ export default function Page() {
                           onClick={() => togglePhotostripSelect(item.id)}
                           aria-label={isSelected ? t.gallery.selected : t.gallery.select}
                           title={isSelected ? t.gallery.selected : t.gallery.select}
-                          className={`absolute left-1.5 top-1.5 z-20 inline-flex h-[30px] w-[30px] items-center justify-center rounded-full ${
+                          className={`absolute left-1.5 top-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full sm:h-[30px] sm:w-[30px] ${
                             isSelected ? primaryRoundButtonClass : neutralRoundButtonClass
                           }`}
                         >
@@ -2517,7 +2517,7 @@ export default function Page() {
                 {t.gallery.noUploads}
               </div>
             ) : designMode ? (
-              <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2 lg:grid-cols-5">
                 {activeDesignItems.map((item) => {
                   const isSelected = selected.includes(item.id)
                   const selectionBlockMessage = !isSelected ? getSelectionBlockMessage(item) : ''
@@ -2556,7 +2556,7 @@ export default function Page() {
                                 ? t.gallery.selected
                                 : t.gallery.select
                           }
-                          className={`absolute left-1.5 top-1.5 z-20 inline-flex h-[30px] w-[30px] items-center justify-center rounded-full ${
+                          className={`absolute left-1.5 top-1.5 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full sm:h-[30px] sm:w-[30px] ${
                             isSelected
                               ? primaryRoundButtonClass
                               : isSelectionBlocked
@@ -2610,7 +2610,7 @@ export default function Page() {
                 {t.gallery.noUploads}
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3 min-[500px]:grid-cols-4 sm:gap-2 lg:grid-cols-5">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2 lg:grid-cols-5">
                 {items.map((item) => {
                   const isSelected = photoTabSelected.includes(item.id)
                   const downloadName = getUploadShortFileName(item, {

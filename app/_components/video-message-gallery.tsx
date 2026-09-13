@@ -3,17 +3,80 @@
 import { useEffect, useState } from 'react'
 import { useLanguage } from '@/app/_components/language-provider'
 import { VideoMessageUpload } from '@/app/_components/video-message-upload'
+import { shareMedia } from '@/lib/share-media'
 
-type GalleryVideo = { id: string; createdAt: string; playbackUrl: string | null }
+type GalleryVideo = {
+  id: string
+  canDelete: boolean
+  createdAt: string
+  playbackUrl: string | null
+}
 
 export function VideoMessagePlayer({ video, refresh }: { video: GalleryVideo; refresh: () => void }) {
   const { t } = useLanguage()
+  const [deleting, setDeleting] = useState(false)
   const [failed, setFailed] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [status, setStatus] = useState('')
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null)
-  const portrait = dimensions ? dimensions.height > dimensions.width : false
+  const signedUrl = video.playbackUrl || ''
+  const downloadName = `eventdrop-video-${video.id}.mp4`
+
+  const deleteVideo = async () => {
+    if (deleting || !video.canDelete) return
+    if (!window.confirm(t.gallery.deleteConfirm)) return
+    setDeleting(true)
+    setStatus('')
+    try {
+      const response = await fetch(`/api/videos/${encodeURIComponent(video.id)}`, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+      })
+      const payload = await response.json().catch(() => ({})) as { error?: string }
+      if (!response.ok || payload.error) throw new Error(payload.error || t.gallery.deleteError)
+      setStatus(t.gallery.deleteSuccess)
+      refresh()
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : t.gallery.deleteError)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const downloadVideo = () => {
+    if (!signedUrl) return
+    const anchor = document.createElement('a')
+    anchor.href = signedUrl
+    anchor.download = downloadName
+    anchor.rel = 'noopener'
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
+    setStatus(`1 ${t.gallery.downloaded}`)
+  }
+
+  const shareVideo = async () => {
+    if (!signedUrl) return
+    try {
+      const result = await shareMedia({
+        fileName: downloadName,
+        fileUrl: signedUrl,
+        shareUrl: signedUrl,
+        title: t.gallery.videoMessagesTab,
+      })
+      setStatus(result === 'copied' ? t.gallery.shareCopied : t.gallery.shareSuccess)
+    } catch {
+      try {
+        await navigator.clipboard.writeText(signedUrl)
+        setStatus(t.gallery.shareCopied)
+      } catch {
+        setStatus(t.gallery.shareError)
+      }
+    }
+  }
+
   return (
-    <article data-orientation={portrait ? 'portrait' : 'landscape'} className={`w-full max-w-full rounded-xl border border-[#E3E7EC] bg-white p-3 shadow-sm ${portrait ? 'sm:w-72' : 'sm:w-[32rem]'}`}>
+    <article className="mx-auto w-[76vw] max-w-[280px] rounded-2xl border border-neutral-200 bg-neutral-50 p-2.5 shadow-[0_10px_28px_rgba(20,20,20,0.08)] sm:mx-0 sm:w-[300px] sm:max-w-[300px]">
       {failed || !video.playbackUrl ? (
         <div role="status" className="p-4 text-sm text-[#6B7280]">
           <p>{t.gallery.videoPlaybackError}</p>
@@ -21,8 +84,9 @@ export function VideoMessagePlayer({ video, refresh }: { video: GalleryVideo; re
         </div>
       ) : (
         <>
+          <div className="relative">
           <video src={video.playbackUrl} controls playsInline preload="metadata"
-            aria-label={t.gallery.videoMessagesTab} className="h-auto w-full rounded-lg bg-black object-contain"
+            aria-label={t.gallery.videoMessagesTab} className="mx-auto max-h-[420px] w-full rounded-xl bg-black object-contain sm:max-h-[460px]"
             style={dimensions ? { aspectRatio: `${dimensions.width} / ${dimensions.height}` } : undefined}
             onLoadedMetadata={(event) => {
               const { videoWidth, videoHeight } = event.currentTarget
@@ -30,7 +94,53 @@ export function VideoMessagePlayer({ video, refresh }: { video: GalleryVideo; re
               setDimensions({ width: videoWidth, height: videoHeight })
               setLoading(false)
             }} onError={() => setFailed(true)} />
+            {video.canDelete ? (
+              <button
+                type="button"
+                onClick={deleteVideo}
+                disabled={deleting}
+                aria-label={t.gallery.delete}
+                title={t.gallery.delete}
+                className="absolute right-2 top-2 z-20 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/70 bg-[linear-gradient(135deg,#7f1424_0%,#b91f32_55%,#e32636_100%)] text-white shadow-[0_6px_18px_rgba(127,20,36,0.26)] backdrop-blur disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2">
+                  <path d="M4 7h16" />
+                  <path d="M10 11v6" />
+                  <path d="M14 11v6" />
+                  <path d="M6 7l1 12h10l1-12" />
+                  <path d="M9 7V4h6v3" />
+                </svg>
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={shareVideo}
+              aria-label={t.gallery.share}
+              title={t.gallery.share}
+              className="absolute bottom-2 left-2 z-20 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/75 bg-white/92 text-neutral-800 shadow-[0_4px_14px_rgba(0,0,0,0.16)] backdrop-blur"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.2]">
+                <path d="M12 5v10" />
+                <path d="m8 9 4-4 4 4" />
+                <path d="M5 19h14" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={downloadVideo}
+              aria-label={t.gallery.download}
+              title={t.gallery.download}
+              className="absolute bottom-2 right-2 z-20 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/70 bg-[linear-gradient(135deg,#7f1424_0%,#b91f32_55%,#e32636_100%)] text-white shadow-[0_6px_18px_rgba(127,20,36,0.26)] backdrop-blur"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[2.2]">
+                <path d="M12 4v10" />
+                <path d="m8 10 4 4 4-4" />
+                <path d="M5 19h14" />
+              </svg>
+            </button>
+          </div>
           {loading ? <p role="status" className="mt-2 text-sm text-[#6B7280]">{t.gallery.videoLoading}</p> : null}
+          {status ? <p role="status" className="mt-2 text-xs font-semibold text-[#6B7280]">{status}</p> : null}
         </>
       )}
     </article>
@@ -73,7 +183,7 @@ export function VideoMessageGallery({ identifier }: { identifier: string }) {
       {error ? <p role="alert" className="rounded-xl bg-white p-4 text-sm text-[#B91F32]">{t.gallery.videoGalleryError}</p>
         : !result ? <p role="status" className="p-4 text-sm text-[#6B7280]">{t.gallery.videoLoading}</p>
         : result.videos.length === 0 ? <p className="rounded-xl border border-neutral-200 bg-white p-4 text-sm text-[#6B7280]">{t.gallery.videoEmpty}</p>
-        : <div className="flex flex-wrap items-start gap-3">
+        : <div className="flex flex-wrap items-start justify-center gap-3 sm:justify-start">
           {result.videos.map(video => <VideoMessagePlayer key={`${video.id}:${revision}:${video.playbackUrl}`} video={video} refresh={refresh} />)}
         </div>}
       <div className="flex justify-between gap-3 text-sm font-semibold text-[#0F3D66]">

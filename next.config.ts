@@ -13,9 +13,12 @@ if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
 }
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ['192.168.2.12'],
+
   images: {
     remotePatterns,
   },
+
   outputFileTracingIncludes: {
     '/api/admin/guestbook-pdf': [
       './public/pdf-fonts/NotoSans-Regular.ttf',

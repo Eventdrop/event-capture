@@ -14,6 +14,7 @@ import {
   getGuestbookPdfThemeConfig,
   guestbookPdfThemeLabels,
   normalizeGuestbookPdfTheme,
+  type GuestbookPdfMessageCardColors,
   type GuestbookPdfTextFrame,
   type GuestbookPdfThemeKey,
 } from '@/lib/guestbook-pdf-theme'
@@ -1199,10 +1200,11 @@ function drawWeddingGuestbookPageHeader(
 function drawMessageCard(input: {
   document: PDFKit.PDFDocument
   entry: GuestbookEntry
+  messageCard?: GuestbookPdfMessageCardColors
   photo?: Buffer | null
   theme: PdfTheme
 }) {
-  const { document, entry, photo, theme } = input
+  const { document, entry, messageCard, photo, theme } = input
   const hasPhoto = entryHasPhoto(entry, photo)
   const cardHeight = estimateCardHeight(document, entry, photo)
 
@@ -1213,12 +1215,12 @@ function drawMessageCard(input: {
   document
     .save()
     .roundedRect(x, y, width, cardHeight, 10)
-    .fill(theme.card)
+    .fill(messageCard?.background || theme.card)
     .rect(x, y, 5, cardHeight)
     .fill(theme.stripe)
     .roundedRect(x, y, width, cardHeight, 10)
     .lineWidth(0.6)
-    .strokeColor(theme.border)
+    .strokeColor(messageCard?.border || theme.border)
     .stroke()
     .restore()
 
@@ -1244,7 +1246,7 @@ function drawMessageCard(input: {
     setBoldFont(document)
     document
       .fontSize(NAME_FONT_SIZE)
-      .fillColor(theme.name)
+      .fillColor(messageCard?.text || theme.name)
       .text(entry.guestName, textX, innerY, {
         width: textWidth,
       })
@@ -1256,7 +1258,7 @@ function drawMessageCard(input: {
   setRegularFont(document)
   document
     .fontSize(MESSAGE_FONT_SIZE)
-    .fillColor(theme.heading)
+    .fillColor(messageCard?.text || theme.heading)
     .text(entry.message, textX, document.y, {
       lineGap: 3,
       width: textWidth,
@@ -1268,7 +1270,7 @@ function drawMessageCard(input: {
     document
       .moveDown(0.5)
       .fontSize(DATE_FONT_SIZE)
-      .fillColor(theme.muted)
+      .fillColor(messageCard?.text || theme.muted)
       .text(date, textX, document.y, {
         width: textWidth,
       })
@@ -1281,9 +1283,10 @@ function drawWeddingMessageCard(input: {
   document: PDFKit.PDFDocument
   entry: GuestbookEntry
   gap?: number
+  messageCard?: GuestbookPdfMessageCardColors
   photo?: Buffer | null
 }) {
-  const { document, entry, gap = 11, photo } = input
+  const { document, entry, gap = 11, messageCard, photo } = input
   const hasPhoto = entryHasPhoto(entry, photo)
   const cardHeight = estimateWeddingCardHeight(document, entry, photo)
   const width = getWeddingMessageContentWidth(document)
@@ -1295,10 +1298,10 @@ function drawWeddingMessageCard(input: {
   document
     .save()
     .roundedRect(x, y, width, cardHeight, 8)
-    .fill('#FFFCF5')
+    .fill(messageCard?.background || '#FFFCF5')
     .roundedRect(x, y, width, cardHeight, 8)
     .lineWidth(0.5)
-    .strokeColor('#D5B45B')
+    .strokeColor(messageCard?.border || '#D5B45B')
     .stroke()
     .restore()
 
@@ -1335,7 +1338,7 @@ function drawWeddingMessageCard(input: {
   setBoldFont(document)
   document
     .fontSize(10.2)
-    .fillColor('#24452D')
+    .fillColor(messageCard?.text || '#24452D')
     .text(guestName, textX, innerY, {
       height: 14,
       lineBreak: false,
@@ -1346,7 +1349,7 @@ function drawWeddingMessageCard(input: {
     setRegularFont(document)
     document
       .fontSize(7.3)
-      .fillColor('#7A7157')
+      .fillColor(messageCard?.text || '#7A7157')
       .text(date, textX + textWidth - dateWidth, innerY + 1, {
         align: 'right',
         height: 10,
@@ -1356,7 +1359,7 @@ function drawWeddingMessageCard(input: {
   }
 
   renderRichPdfText(document, entry.message, {
-    color: '#33412E',
+    color: messageCard?.text || '#33412E',
     font: REGISTERED_FONTS.regular,
     fontSize: 10.4,
     lineGap: 2,
@@ -1376,13 +1379,14 @@ async function buildGuestbookPdf(input: {
   const fonts = resolveRequiredPdfFonts()
   const themeKey = getEventPdfThemeKey(input.event)
   const theme = getEventPdfTheme(input.event)
+  const themeConfig = getGuestbookPdfThemeConfig(themeKey)
   const useWeddingMessagePages =
-    themeKey === 'wedding' || Boolean(getGuestbookPdfThemeConfig(themeKey).coverBackground)
+    themeKey === 'wedding' || Boolean(themeConfig.coverBackground)
   const weddingAssets =
     useWeddingMessagePages ? resolveRequiredWeddingPdfAssets() : null
   if (themeKey !== 'wedding' && weddingAssets) {
     const messageBackground = getPublicAssetPath(
-      getGuestbookPdfThemeConfig(themeKey).messageBackground
+      themeConfig.messageBackground
     )
     if (!messageBackground || !fs.existsSync(messageBackground)) {
       throw new Error(`Guestbook message background missing for theme: ${themeKey}`)
@@ -1408,7 +1412,7 @@ async function buildGuestbookPdf(input: {
   document.addPage()
   if (themeKey === 'wedding' && weddingAssets) {
     drawWeddingCoverPage(document, input.event, input.coverImage, weddingAssets)
-  } else if (getGuestbookPdfThemeConfig(themeKey).coverBackground) {
+  } else if (themeConfig.coverBackground) {
     drawAssetThemeCoverPage(document, input.event, input.coverImage, theme)
   } else {
     drawCoverPage(document, input.event, input.coverImage, theme)
@@ -1490,12 +1494,14 @@ async function buildGuestbookPdf(input: {
         document,
         entry,
         gap: themeKey === 'wedding' ? 11 : 8,
+        messageCard: themeConfig.messageCard,
         photo,
       })
     } else {
       drawMessageCard({
         document,
         entry,
+        messageCard: themeConfig.messageCard,
         photo,
         theme,
       })

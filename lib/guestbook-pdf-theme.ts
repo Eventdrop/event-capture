@@ -35,6 +35,12 @@ export type GuestbookPdfTextFrame = {
   y: number
 }
 
+export type GuestbookPdfMessageCardColors = {
+  background: string
+  border: string
+  text: string
+}
+
 type GuestbookPdfThemeConfig = {
   category: GuestbookPdfThemeCategory
   coverBackground?: string
@@ -44,6 +50,7 @@ type GuestbookPdfThemeConfig = {
   }
   implemented: boolean
   label: string
+  messageCard?: GuestbookPdfMessageCardColors
   messageBackground?: string
   photoFrame?: GuestbookPdfPhotoFrame
   photoMask?: string
@@ -162,6 +169,7 @@ export const guestbookPdfThemeConfigs: Record<
     },
     implemented: true,
     label: 'Cheers & Memories',
+    messageCard: { background: '#E9DDF4', border: '#CBB4E3', text: '#3F314D' },
     photoFrame: { height: 956, radius: 72, width: 678, x: 376, y: 556 },
     previewImage: '/pdf-assets/guestbook-themes/cheers-memories.jpg',
     sortOrder: 7,
@@ -176,6 +184,7 @@ export const guestbookPdfThemeConfigs: Record<
     },
     implemented: true,
     label: 'Share the Fun',
+    messageCard: { background: '#E9DDF4', border: '#CBB4E3', text: '#3F314D' },
     photoFrame: { height: 952, radius: 72, width: 676, x: 378, y: 558 },
     previewImage: '/pdf-assets/guestbook-themes/share-the-fun.jpg',
     sortOrder: 8,
@@ -190,6 +199,7 @@ export const guestbookPdfThemeConfigs: Record<
     },
     implemented: true,
     label: 'Night to Remember',
+    messageCard: { background: '#E9DDF4', border: '#CBB4E3', text: '#3F314D' },
     photoFrame: { height: 958, radius: 72, width: 678, x: 378, y: 556 },
     previewImage: '/pdf-assets/guestbook-themes/night-to-remember.jpg',
     sortOrder: 9,
@@ -204,6 +214,7 @@ export const guestbookPdfThemeConfigs: Record<
     },
     implemented: true,
     label: 'Party People',
+    messageCard: { background: '#E9DDF4', border: '#CBB4E3', text: '#3F314D' },
     photoFrame: { height: 956, radius: 72, width: 676, x: 378, y: 556 },
     previewImage: '/pdf-assets/guestbook-themes/party-people.jpg',
     sortOrder: 10,

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { LanguageSwitcher } from '@/app/_components/language-switcher'
+import { MarketingFeatureNavigation, MarketingHeader, MarketingMobileFeatureMenu } from '@/app/_components/marketing-shell'
 import styles from '@/app/home.module.css'
 
 export const metadata: Metadata = {
@@ -19,23 +19,10 @@ export const metadata: Metadata = {
 export default function PhotoboothMemoryPage() {
   return (
     <div className={styles.home}>
-      <header className={styles.header}>
-        <div className={styles.headerInner}>
-          <Link href="/" aria-label="EventDrop Sharing home" className={styles.brand}>
-            <Image src="/eventdrop-brand.png" alt="EventDrop Sharing" width={540} height={540} priority />
-          </Link>
-          <nav aria-label="Hoofdnavigatie">
-            <Link href="/#hoe-werkt-het">Hoe werkt het</Link>
-            <Link href="/#mogelijkheden">Mogelijkheden</Link>
-            <Link href="/#voor-events">Voor events</Link>
-          </nav>
-          <div className={styles.headerActions}>
-            <div className={styles.languages}><LanguageSwitcher /></div>
-            <Link href="/#jouw-event" className={styles.button}>Naar je event</Link>
-          </div>
-        </div>
-      </header>
+      <MarketingHeader />
+      <MarketingMobileFeatureMenu />
       <main>
+        <MarketingFeatureNavigation className={styles.desktopFeatureNav} />
         <section className={`${styles.container} ${styles.photoboothHero}`}>
           <div className={styles.photoboothCopy}>
             <p className={styles.eyebrow}><span /> SOCIAL MEMORY VOOR PHOTOBOOTH STRIPS</p>
@@ -48,17 +35,9 @@ export default function PhotoboothMemoryPage() {
               <Link href="/" className={styles.textLink}>EventDrop Sharing <span>↗</span></Link>
             </div>
           </div>
-          <div className={styles.photoboothVisual} aria-label="Voorbeeld van een verticale Photobooth Memory compositie">
-            <div className={styles.memoryFrame}>
-              <div className={`${styles.memoryStrip} ${styles.memoryStripSide} ${styles.memoryStripLeft}`}>
-                <Image src="/home-strip-fun.jpg" alt="" width={390} height={844} />
-              </div>
-              <div className={styles.memoryStrip}>
-                <Image src="/home-strip-fun.jpg" alt="Afgewerkte photobooth strip in een Photobooth Memory voorbeeld" width={390} height={844} priority />
-              </div>
-              <div className={`${styles.memoryStrip} ${styles.memoryStripSide} ${styles.memoryStripRight}`}>
-                <Image src="/home-strip-fun.jpg" alt="" width={390} height={844} />
-              </div>
+          <div className={`${styles.photoboothVisual} ${styles.featurePageVisual} ${styles.featurePageVisualVertical}`} aria-label="Voorbeeld van een verticale Photobooth Memory compositie">
+            <div className={styles.featurePageMediaFrame}>
+              <Image src="/marketing/eventdrop-photobooth-memory-creator-main.png" alt="Photobooth Memory voorbeeld met afgewerkte photobooth strips" width={941} height={1672} priority className={styles.featurePageMedia} />
             </div>
           </div>
         </section>

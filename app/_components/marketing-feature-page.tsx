@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { LanguageSwitcher } from '@/app/_components/language-switcher'
+import { MarketingFeatureNavigation, MarketingHeader, MarketingMobileFeatureMenu } from '@/app/_components/marketing-shell'
 import styles from '@/app/home.module.css'
 
 type FeaturePageProps = {
@@ -11,48 +11,43 @@ type FeaturePageProps = {
   visual: 'photos' | 'video' | 'guestbook' | 'live' | 'story' | 'poster'
 }
 
-const photos = ['/home-tile-2.png', '/home-tile-1.png', '/home-tile-3.png']
-
-function Header() {
-  return (
-    <header className={styles.header}>
-      <div className={styles.headerInner}>
-        <Link href="/" aria-label="EventDrop Sharing home" className={styles.brand}>
-          <Image src="/eventdrop-brand.png" alt="EventDrop Sharing" width={540} height={540} priority />
-        </Link>
-        <nav aria-label="Hoofdnavigatie">
-          <Link href="/#hoe-werkt-het">Hoe werkt het</Link>
-          <Link href="/#mogelijkheden">Mogelijkheden</Link>
-          <Link href="/#voor-events">Voor events</Link>
-        </nav>
-        <div className={styles.headerActions}>
-          <div className={styles.languages}><LanguageSwitcher /></div>
-          <Link href="/#jouw-event" className={styles.button}>Naar je event</Link>
-        </div>
-      </div>
-    </header>
-  )
-}
+const visualAssets = {
+  photos: { src: '/marketing/eventdrop-fotos-main.png', width: 1600, height: 1200, fit: 'wide' },
+  guestbook: { src: '/marketing/eventdrop-guestbook-main.png', width: 1200, height: 1600, fit: 'contain' },
+  live: { src: '/marketing/eventdrop-live-tv-main.png', width: 1600, height: 1200, fit: 'wide' },
+  story: { src: '/marketing/eventdrop-story-creator-main.png', width: 941, height: 1672, fit: 'contain' },
+  poster: { src: '/marketing/eventdrop-memory-poster-creator-main.png', width: 941, height: 1672, fit: 'contain' },
+} as const
 
 function Visual({ type }: { type: FeaturePageProps['visual'] }) {
-  if (type === 'poster') {
-    return <Image src="/design-examples/memory-a3-landscape.webp" alt="" width={900} height={636} />
-  }
-  if (type === 'story') {
-    return <Image src="/design-examples/story-portrait.webp" alt="" width={540} height={960} />
-  }
-  return (
-    <div className={styles.featurePageGrid}>
-      {photos.map((src) => <Image key={src} src={src} alt="" width={700} height={700} />)}
+  if (type === 'video') {
+    return <div className={styles.featurePageVideoStack}>
+      <div className={styles.featurePageVideoFrame}>
+        <video src="/marketing/eventdrop-video-messages-wedding-main.mp4" muted playsInline loop autoPlay preload="metadata" className={styles.featurePageVideo} aria-label="Video Messages wedding preview" />
+      </div>
+      <div className={styles.featurePageVideoFrame}>
+        <video src="/marketing/eventdrop-video-messages-business-main.mp4" muted playsInline loop autoPlay preload="metadata" className={styles.featurePageVideo} aria-label="Video Messages business preview" />
+      </div>
     </div>
-  )
+  }
+  const asset = visualAssets[type]
+  const frameClassName = `${styles.featurePageMediaFrame} ${asset.fit === 'wide' ? styles.featurePageMediaFrameWide : ''}`
+  return <div className={frameClassName}><Image src={asset.src} alt="" width={asset.width} height={asset.height} className={styles.featurePageMedia} /></div>
 }
 
 export function MarketingFeaturePage({ title, eyebrow, intro, benefits, visual }: FeaturePageProps) {
+  const visualClassName = [
+    styles.featurePageVisual,
+    visual === 'video' ? styles.featurePageVisualVideo : '',
+    ['guestbook', 'story', 'poster'].includes(visual) ? styles.featurePageVisualVertical : '',
+  ].filter(Boolean).join(' ')
+
   return (
     <div className={styles.home}>
-      <Header />
+      <MarketingHeader />
+      <MarketingMobileFeatureMenu />
       <main>
+        <MarketingFeatureNavigation className={styles.desktopFeatureNav} />
         <section className={`${styles.container} ${styles.featurePageHero}`}>
           <div className={styles.photoboothCopy}>
             <p className={styles.eyebrow}><span /> {eyebrow}</p>
@@ -63,7 +58,7 @@ export function MarketingFeaturePage({ title, eyebrow, intro, benefits, visual }
               <Link href="/" className={styles.textLink}>EventDrop Sharing <span>↗</span></Link>
             </div>
           </div>
-          <div className={styles.featurePageVisual}>
+          <div className={visualClassName}>
             <Visual type={visual} />
           </div>
         </section>

@@ -24,11 +24,6 @@ export function LanguageSwitcher() {
     <div ref={wrapperRef} className="relative z-[120]">
       <button
         type="button"
-        onPointerDown={(event) => {
-          if (event.pointerType === 'mouse') return
-          event.preventDefault()
-          setOpen((current) => !current)
-        }}
         onClick={() => setOpen((current) => !current)}
         className="inline-flex items-center gap-2 rounded-full border border-[#C8D3E5] bg-white/92 px-3 py-2 text-xs font-semibold tracking-[0.18em] text-[#0F3D66] shadow-sm"
       >
