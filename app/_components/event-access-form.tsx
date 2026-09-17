@@ -29,7 +29,7 @@ export function EventAccessForm({
   const [statusMessage, setStatusMessage] = useState<AccessMessage>('accessHint')
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [isPending, startTransition] = useTransition()
-  const showMarketingConsent = Boolean(eventIdentifier) && !requireCode
+  const showMarketingConsent = Boolean(eventIdentifier)
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

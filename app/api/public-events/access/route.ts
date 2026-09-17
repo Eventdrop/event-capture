@@ -12,6 +12,7 @@ import {
 } from '@/lib/event-access'
 import {
   getEventRoute,
+  isEventCodeEnabled,
   normalizeEventRecord,
   type NormalizedEvent,
 } from '@/lib/events'
@@ -283,6 +284,28 @@ export async function POST(request: Request) {
     let matchedEvent: NormalizedEvent | null = null
 
     if (identifier) {
+      if (eventByIdentifier && isEventCodeEnabled(eventByIdentifier)) {
+        if (!code) {
+          return NextResponse.json(
+            {
+              ok: false,
+              errorCode: 'MISSING_CODE',
+            },
+            { status: 400 }
+          )
+        }
+
+        if (eventByIdentifier.accessCode !== code) {
+          return NextResponse.json(
+            {
+              ok: false,
+              errorCode: 'INVALID_CODE',
+            },
+            { status: 404 }
+          )
+        }
+      }
+
       matchedEvent = eventByIdentifier
     } else if (code) {
       const codeLookup = await withRetry(

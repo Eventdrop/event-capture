@@ -8,7 +8,12 @@ import {
   getSafeEventReturnToPath,
   hasEventAccess,
 } from '@/lib/event-access'
-import { getEventRoute } from '@/lib/events'
+import {
+  getEventRoute,
+  isEventCodeEnabled,
+  normalizeEventRecord,
+} from '@/lib/events'
+import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export default async function JoinPage({
   params,
@@ -19,7 +24,17 @@ export default async function JoinPage({
 }) {
   const { id } = await params
   const { returnTo } = await searchParams
-  const requireCode = false
+
+  const supabase = createAdminSupabaseClient()
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+  const lookup = UUID.test(id)
+    ? await supabase.from('events').select('*').eq('id', id).maybeSingle()
+    : await supabase.from('events').select('*').eq('slug', id).maybeSingle()
+
+  const eventRecord = normalizeEventRecord(lookup.data)
+  const requireCode = eventRecord ? isEventCodeEnabled(eventRecord) : false
+
   const cookieStore = await cookies()
   const accessCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
 
