@@ -2177,7 +2177,7 @@ export default function Page() {
               style={eventCoverStyle}
             >
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/72 via-black/34 to-transparent px-3 pb-3 pt-12 sm:px-5 sm:pb-5 sm:pt-16">
-                <h1 className="text-[1.35rem] font-black leading-none text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:text-3xl">
+                <h1 className="text-xl font-black leading-[0.98] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:text-[1.75rem] sm:leading-none">
                   {eventName}
                 </h1>
                 <p className="mt-1 text-[11px] font-semibold leading-tight text-white/85 [text-shadow:0_1px_7px_rgba(0,0,0,0.55)] sm:text-xs">
