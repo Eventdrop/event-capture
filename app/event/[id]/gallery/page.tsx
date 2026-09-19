@@ -2178,14 +2178,17 @@ export default function Page() {
             >
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/72 via-black/34 to-transparent sm:h-auto sm:px-5 sm:pb-5 sm:pt-16" />
               <div className="contents sm:absolute sm:inset-x-0 sm:bottom-0 sm:flex sm:flex-row sm:items-end sm:justify-between sm:gap-5 sm:px-5 sm:pb-5">
-                <h1 className="absolute bottom-[28px] left-3 min-w-0 max-w-[68%] text-left text-[12px] font-black leading-[13px] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:static sm:max-w-none sm:flex-1 sm:text-[1.75rem] sm:leading-none">
+                <h1 className="absolute bottom-[10px] left-3 min-w-0 max-w-[70%] text-left text-[12px] font-black leading-[13px] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:static sm:max-w-none sm:flex-1 sm:text-[1.75rem] sm:leading-none">
                   {eventName}
                 </h1>
-                <p className="absolute bottom-[10px] right-3 max-w-none whitespace-nowrap text-right text-[9px] font-semibold leading-tight text-white/80 [text-shadow:0_1px_7px_rgba(0,0,0,0.55)] sm:static sm:max-w-none sm:shrink-0 sm:pb-0.5 sm:text-[11px]">
+                <p className="hidden text-right font-semibold leading-tight text-white/80 [text-shadow:0_1px_7px_rgba(0,0,0,0.55)] sm:static sm:block sm:max-w-none sm:shrink-0 sm:pb-0.5 sm:text-[11px]">
                   {eventMetaLabel}
                 </p>
               </div>
             </div>
+            <p className="mt-1 whitespace-nowrap text-right text-[9px] font-medium leading-tight text-neutral-500 sm:hidden">
+              {eventMetaLabel}
+            </p>
           </section>
         ) : null}
 
