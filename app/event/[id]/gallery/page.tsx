@@ -2176,9 +2176,9 @@ export default function Page() {
               className="relative h-[155px] overflow-hidden rounded-[13px] bg-[#f3f4f6] bg-cover bg-center sm:h-[290px]"
               style={eventCoverStyle}
             >
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/72 via-black/34 to-transparent px-3 pb-3 pt-12 sm:px-5 sm:pb-5 sm:pt-16">
-                <div className="flex flex-row items-end justify-between gap-2 sm:gap-5">
-                  <h1 className="min-w-0 text-[16px] font-black leading-[17px] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:text-[1.75rem] sm:leading-none">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/72 via-black/34 to-transparent px-3 pb-2 pt-8 sm:px-5 sm:pb-5 sm:pt-16">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 sm:flex sm:flex-row sm:justify-between sm:gap-5">
+                  <h1 className="min-w-0 pb-4 text-left text-[14px] font-black leading-[15px] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:pb-0 sm:text-[1.75rem] sm:leading-none">
                     {eventName}
                   </h1>
                   <p className="max-w-[44%] shrink-0 text-right text-[9px] font-semibold leading-tight text-white/80 [text-shadow:0_1px_7px_rgba(0,0,0,0.55)] sm:max-w-none sm:pb-0.5 sm:text-[11px]">
