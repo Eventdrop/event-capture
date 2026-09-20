@@ -13,6 +13,7 @@ import {
   formatEventDisplayName,
   generateEventAccessCode,
   getGuestGalleryRoute,
+  getGuestUploadRoute,
   normalizeEventAccessCode,
   normalizeEventRecord,
   type NormalizedEvent,
@@ -213,6 +214,8 @@ export default function AdminPage() {
   const creatingDemoTemplate = adminSection === 'templates'
 
   const getEventShareUrl = (event: NormalizedEvent) =>
+    `${publicBaseUrl}${getGuestUploadRoute(event)}`
+  const getGalleryShareUrl = (event: NormalizedEvent) =>
     `${publicBaseUrl}${getGuestGalleryRoute(event)}`
   const getDemoShareUrl = (event: NormalizedEvent) =>
     event.demoSlug ? `${publicBaseUrl}/demo/${event.demoSlug}` : ''
@@ -2117,7 +2120,7 @@ export default function AdminPage() {
                     Upload
                   </Link>
                   <Link
-                    href={getEventShareUrl(selectedVisibleEvent)}
+                    href={getGalleryShareUrl(selectedVisibleEvent)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
@@ -2182,7 +2185,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() =>
                       copyToClipboard(
-                        getEventShareUrl(selectedVisibleEvent),
+                        getGalleryShareUrl(selectedVisibleEvent),
                         t.admin.galleryCopied
                       )
                     }
@@ -2823,7 +2826,7 @@ export default function AdminPage() {
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <Link
-                          href={getEventShareUrl(event)}
+                          href={getGalleryShareUrl(event)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
@@ -2834,7 +2837,7 @@ export default function AdminPage() {
                           type="button"
                           onClick={() =>
                             copyToClipboard(
-                              getEventShareUrl(event),
+                              getGalleryShareUrl(event),
                               t.admin.galleryCopied
                             )
                           }
@@ -3182,7 +3185,7 @@ export default function AdminPage() {
                     {t.admin.demoOpenUpload}
                   </Link>
                   <Link
-                    href={getEventShareUrl(createdDemoEvent)}
+                    href={getGalleryShareUrl(createdDemoEvent)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"

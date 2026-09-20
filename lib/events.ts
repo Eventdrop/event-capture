@@ -282,6 +282,16 @@ export function getEventGalleryRoute(identifier: string) {
   return `/event/${identifier}/gallery`
 }
 
+export function getGuestUploadRoute(
+  event: Pick<NormalizedEvent, 'id' | 'defaultLocale'>
+) {
+  const searchParams = new URLSearchParams({
+    lang: normalizeEventLocale(event.defaultLocale),
+  })
+
+  return `${getEventRoute(event.id)}?${searchParams.toString()}`
+}
+
 export function getGuestGalleryRoute(
   event: Pick<NormalizedEvent, 'id' | 'defaultLocale'>
 ) {
