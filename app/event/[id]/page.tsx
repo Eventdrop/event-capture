@@ -25,8 +25,8 @@ const BUCKET_NAME = 'event-uploads'
 const MAX_SELECTION_FILES = 30
 const PHOTO_MAX_BYTES = 20 * 1024 * 1024
 const PHOTO_COMPRESS_THRESHOLD_BYTES = 1.5 * 1024 * 1024
-const PHOTO_COMPRESS_MAX_DIMENSION = 2000
-const PHOTO_COMPRESS_QUALITY = 0.82
+const PHOTO_COMPRESS_MAX_DIMENSION = 3000
+const PHOTO_COMPRESS_QUALITY = 0.9
 const PHOTO_MAX_ASPECT_RATIO = 2.2
 const PHOTO_STRIP_MIN_ASPECT_RATIO = 2.4
 const PHOTO_STRIP_MAX_ASPECT_RATIO = 3.4
@@ -56,6 +56,16 @@ function formatEventDateForShell(value: string | null, locale: Locale) {
 function getCompressedPhotoName(fileName: string) {
   const baseName = fileName.replace(/\.[^.]+$/, '') || 'photo'
   return `${baseName}.jpg`
+}
+
+function isHeicPhoto(file: File) {
+  const lowerName = file.name.toLowerCase()
+  return (
+    lowerName.endsWith('.heic') ||
+    lowerName.endsWith('.heif') ||
+    file.type.includes('heic') ||
+    file.type.includes('heif')
+  )
 }
 
 function loadImageFromFile(file: File) {
@@ -106,16 +116,14 @@ async function isPhotoAspectRatioAllowed(file: File) {
   }
 }
 
-async function compressPhotoForUpload(file: File) {
+async function compressPhotoForUpload(file: File, forceProcessing = false) {
   const lowerName = file.name.toLowerCase()
   const canCompress =
-    file.type.startsWith('image/') &&
-    !lowerName.endsWith('.heic') &&
-    !lowerName.endsWith('.heif') &&
-    !lowerName.endsWith('.gif') &&
-    !file.type.includes('svg')
+    file.type === 'image/jpeg' ||
+    lowerName.endsWith('.jpg') ||
+    lowerName.endsWith('.jpeg')
 
-  if (!canCompress || file.size <= PHOTO_COMPRESS_THRESHOLD_BYTES) {
+  if (!canCompress || (!forceProcessing && file.size <= PHOTO_COMPRESS_THRESHOLD_BYTES)) {
     return file
   }
 
@@ -138,7 +146,9 @@ async function compressPhotoForUpload(file: File) {
       canvas.toBlob(resolve, 'image/jpeg', PHOTO_COMPRESS_QUALITY)
     })
 
-    if (!blob || blob.size >= file.size) {
+    const requiresResize = scale < 1
+
+    if (!blob || (blob.size >= file.size && !(forceProcessing && requiresResize))) {
       return file
     }
 
@@ -150,6 +160,25 @@ async function compressPhotoForUpload(file: File) {
     console.error('Photo compression failed, uploading original file', error)
     return file
   }
+}
+
+async function preparePhotoForUpload(file: File) {
+  if (!isHeicPhoto(file)) {
+    return compressPhotoForUpload(file)
+  }
+
+  const { heicTo } = await import('heic-to/next')
+  const jpegBlob = await heicTo({
+    blob: file,
+    type: 'image/jpeg',
+    quality: PHOTO_COMPRESS_QUALITY,
+  })
+  const jpegFile = new File([jpegBlob], getCompressedPhotoName(file.name), {
+    type: 'image/jpeg',
+    lastModified: file.lastModified,
+  })
+
+  return compressPhotoForUpload(jpegFile, true)
 }
 
 export default function Page() {
@@ -604,6 +633,7 @@ export default function Page() {
         : null
     let firstSuccessfulUploadId = ''
     let selectedGuestbookUploadId = ''
+    let heicConversionFailures = 0
 
     setUploading(true)
     setMessage(t.upload.uploadInProgress)
@@ -629,7 +659,17 @@ export default function Page() {
 
         setMessage(`${t.upload.uploadInProgress} ${file.name}`)
 
-        const uploadFile = await compressPhotoForUpload(file)
+        let uploadFile: File
+
+        try {
+          uploadFile = await preparePhotoForUpload(file)
+        } catch (error) {
+          if (!isHeicPhoto(file)) throw error
+
+          heicConversionFailures += 1
+          console.error('HEIC/HEIF conversion failed', error)
+          continue
+        }
         const now = new Date()
         const { fileName, storagePath } = buildStoragePath(uploadFile, now)
 
@@ -681,10 +721,16 @@ export default function Page() {
         })
       }
 
-      setMessage(t.upload.uploadComplete)
+      setMessage(
+        heicConversionFailures > 0
+          ? `${heicConversionFailures} ${t.upload.heicConversionFailed}`
+          : t.upload.uploadComplete
+      )
       resetGuestbookFields()
       resetSelection({ keepMessage: true })
-      window.location.assign(galleryUrl)
+      if (heicConversionFailures === 0) {
+        window.location.assign(galleryUrl)
+      }
     } catch (error) {
       console.error('Upload failed', error)
       setMessage(
@@ -765,7 +811,7 @@ export default function Page() {
               type="file"
               name="media"
               multiple
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
               onChange={handleFileChange}
               disabled={uploading || eventMissing}
               className="sr-only"

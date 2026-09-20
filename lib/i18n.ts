@@ -337,6 +337,7 @@ type TranslationTree = {
     guestbookPostError: string
     uploadEnvironmentError: string
     uploadFailedFallback: string
+    heicConversionFailed: string
     photoOnlyNotice: string
     guestbookHint: string
     guestbookCardTitle: string
@@ -853,6 +854,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       guestbookPostError: 'Anı defteri mesajı gönderilemedi.',
       uploadEnvironmentError: 'Yükleme ortamı tam olarak ayarlanmamış.',
       uploadFailedFallback: 'Yükleme başarısız oldu.',
+      heicConversionFailed: 'HEIC/HEIF fotoğrafı dönüştürülemedi; diğer fotoğraflar yüklenmeye devam etti.',
       photoOnlyNotice: 'Bu albüm şu anda sadece fotoğraf yüklemeleri içindir.',
       guestbookHint: '❤️ Fotoğraflarına anı defteri için bir mesaj da ekleyebilirsin.',
       guestbookCardTitle: 'Anı defteri için bir not bırak ❤️',
@@ -871,7 +873,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photoTooLarge: 'fotoğraf 20 MB sınırını aştı',
       photoBadRatio: 'çok uzun veya dar fotoğraf albüme eklenmedi',
       selectionLimit: 'bir kerede en fazla 30 fotoğraf seçilebilir',
-      chooseSupported: 'JPG, PNG veya WEBP',
+      chooseSupported: 'JPG, PNG, WEBP, HEIC veya HEIF',
       chooseStart: 'Başlamak için fotoğraf seç.',
       eventNotFound: 'Bu etkinlik bulunamadı. Linki veya QR kodu kontrol et.',
       eventNotReady: 'Bu etkinlik henüz yüklemeye hazır değil.',
@@ -1440,6 +1442,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       guestbookPostError: 'Gastenboekbericht kon niet worden geplaatst.',
       uploadEnvironmentError: 'De uploadomgeving is niet volledig ingesteld.',
       uploadFailedFallback: 'Uploaden is niet gelukt.',
+      heicConversionFailed: 'HEIC/HEIF-foto kon niet worden geconverteerd; de overige foto’s zijn verder geüpload.',
       photoOnlyNotice: 'Dit album is op dit moment alleen bedoeld voor foto-uploads.',
       guestbookHint: "❤️ Voeg bij je foto's ook een bericht toe aan het gastenboek.",
       guestbookCardTitle: 'Laat iets achter in het gastenboek ❤️',
@@ -1458,7 +1461,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photoTooLarge: 'foto boven limiet van 20 MB',
       photoBadRatio: 'te smalle of lange foto is niet aan het album toegevoegd',
       selectionLimit: 'je kunt maximaal 30 foto’s tegelijk selecteren',
-      chooseSupported: 'JPG, PNG of WEBP',
+      chooseSupported: 'JPG, PNG, WEBP, HEIC of HEIF',
       chooseStart: 'Kies een bestand om te beginnen.',
       eventNotFound: 'Dit evenement is niet gevonden. Controleer de link of QR code.',
       eventNotReady: 'Dit evenement is nog niet beschikbaar voor uploads.',
@@ -2027,6 +2030,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       guestbookPostError: 'Guestbook message could not be posted.',
       uploadEnvironmentError: 'The upload environment is not fully configured.',
       uploadFailedFallback: 'Upload failed.',
+      heicConversionFailed: 'The HEIC/HEIF photo could not be converted; the remaining photos continued uploading.',
       photoOnlyNotice: 'This album is currently for photo uploads only.',
       guestbookHint: '❤️ You can also add a message to the guestbook with your photos.',
       guestbookCardTitle: 'Leave something in the guestbook ❤️',
@@ -2045,7 +2049,7 @@ const baseTranslations: Record<'tr' | 'nl' | 'en', TranslationTree> = {
       photoTooLarge: 'photo exceeds the 20 MB limit',
       photoBadRatio: 'very narrow or long photo was not added to the album',
       selectionLimit: 'you can choose up to 30 photos at a time',
-      chooseSupported: 'JPG, PNG of WEBP',
+      chooseSupported: 'JPG, PNG, WEBP, HEIC or HEIF',
       chooseStart: 'Choose a photo to get started.',
       eventNotFound: 'This event could not be found. Check the link or QR code.',
       eventNotReady: 'This event is not ready for uploads yet.',
@@ -2368,6 +2372,7 @@ const germanTranslation: TranslationTree = {
     guestbookPostError: 'Gästebuchnachricht konnte nicht gesendet werden.',
     uploadEnvironmentError: 'Die Upload-Umgebung ist nicht vollständig eingerichtet.',
     uploadFailedFallback: 'Upload fehlgeschlagen.',
+    heicConversionFailed: 'Das HEIC/HEIF-Foto konnte nicht konvertiert werden; die übrigen Fotos wurden weiter hochgeladen.',
     photoOnlyNotice: 'Dieses Album akzeptiert derzeit nur Fotos.',
     guestbookHint: '❤️ Du kannst zu deinen Fotos auch eine Nachricht ins Gästebuch schreiben.',
     guestbookCardTitle: 'Hinterlasse etwas im Gästebuch ❤️',
@@ -2381,7 +2386,7 @@ const germanTranslation: TranslationTree = {
     photoTooLarge: 'Foto überschreitet das Limit von 20 MB',
     photoBadRatio: 'Sehr schmales oder langes Foto wurde nicht hinzugefügt',
     selectionLimit: 'Sie können bis zu 30 Fotos gleichzeitig auswählen',
-    chooseSupported: 'JPG, PNG of WEBP',
+    chooseSupported: 'JPG, PNG, WEBP, HEIC oder HEIF',
     chooseStart: 'Wählen Sie ein Foto, um zu beginnen.',
     eventNotFound: 'Dieses Event wurde nicht gefunden. Prüfen Sie den Link oder QR-Code.',
     eventNotReady: 'Dieses Event ist noch nicht für Uploads bereit.', uploadInProgress: 'Wird hochgeladen ...',
@@ -2601,6 +2606,7 @@ const frenchTranslation: TranslationTree = {
     guestbookPostError: "Le message du livre d’or n’a pas pu être publié.",
     uploadEnvironmentError: "L’environnement d’envoi n’est pas complètement configuré.",
     uploadFailedFallback: "L’envoi a échoué.",
+    heicConversionFailed: 'La photo HEIC/HEIF n’a pas pu être convertie ; les autres photos ont continué à être envoyées.',
     photoOnlyNotice: "Cet album accepte actuellement uniquement les photos.",
     guestbookHint: '❤️ Vous pouvez aussi ajouter un message au livre d’or avec vos photos.',
     guestbookCardTitle: 'Laissez un mot dans le livre d’or ❤️',
@@ -2613,7 +2619,7 @@ const frenchTranslation: TranslationTree = {
     filesSelected: 'fichiers sélectionnés', unsupportedIgnored: 'fichiers non pris en charge ignorés',
     photoTooLarge: 'la photo dépasse la limite de 20 Mo', photoBadRatio: "la photo très étroite ou très longue n’a pas été ajoutée",
     selectionLimit: "vous pouvez sélectionner jusqu’à 30 photos à la fois",
-    chooseSupported: 'JPG, PNG of WEBP', chooseStart: 'Choisissez une photo pour commencer.',
+    chooseSupported: 'JPG, PNG, WEBP, HEIC ou HEIF', chooseStart: 'Choisissez une photo pour commencer.',
     eventNotFound: "Cet événement est introuvable. Vérifiez le lien ou le QR code.",
     eventNotReady: "Cet événement n’est pas encore prêt à recevoir des photos.", uploadInProgress: 'Envoi en cours…',
     uploadComplete: 'Envoi terminé. Ouverture de la galerie…', uploadButton: "Ajouter à l’album partagé",
@@ -2764,15 +2770,140 @@ const marketingHomepage = {
     "photos": "Foto’s",
     "videos": "Video Messages",
     "guestbook": "Gastenboek",
-    "live": "Live TV",
+    "live": "Live Slideshow",
     "story": "Story Creator",
     "poster": "Memory Poster A3",
     "photoBody": "Van de eerste ontmoeting tot de laatste dans. Alle perspectieven bij elkaar.",
     "videoBody": "Een lieve wens, een grappig verhaal. Persoonlijker dan een foto.",
     "bookBody": "Woorden om te bewaren. Laat gasten hun mooiste herinnering achterlaten.",
-    "liveBody": "Laat de gedeelde momenten tijdens het event op een scherm verschijnen.",
+    "liveBody": "Foto’s van jullie gasten verschijnen tijdens het event op een scherm.",
     "storyBody": "Maak van jullie foto’s een story die je meteen wilt delen.",
     "posterBody": "Geef jullie herinneringen een plek aan de muur met een fotoposter.",
+    "packagesEyebrow": "PAKKETTEN",
+    "packagesTitle": "Kies wat past bij jullie event.",
+    "packagesIntro": "Begin met een gedeeld album en breid uit met gastenboek, ontwerpen, video en Live Slideshow.",
+    "packageMomentTitle": "Het Moment",
+    "packageMomentDescription": "Alle foto’s van jullie event op één plek.",
+    "packageMomentItems": ["QR-code voor een gedeeld album", "Foto’s uploaden, bekijken en downloaden", "Gepersonaliseerde albumcover"],
+    "packageStoryTitle": "Het Verhaal",
+    "packageStoryDescription": "Foto’s, lieve berichten en creatieve herinneringen samen.",
+    "packageStoryItems": ["Alles uit Het Moment", "Digitaal gastenboek", "Instagram Story Creator", "Memory Poster A3"],
+    "packageExperienceTitle": "De Beleving",
+    "packageExperienceDescription": "Beleef en herbeleef jullie event met video en Live Slideshow.",
+    "packageExperienceItems": ["Alles uit Het Verhaal", "Video Messages", "Live Slideshow", "Photobooth Memory"],
+    "packagePhotoboothNote": "Alleen beschikbaar en actief bij evenementen met een photobooth.",
+    "packagePhotoboothFootnote": "*Alleen beschikbaar bij evenementen met een photobooth.",
+    "packageRecommended": "Meest gekozen",
+    "packagePriceSuffix": "per evenement · incl. btw",
+    "packageCta": "Neem contact op",
+    "heroSteps": ["Scan de QR-code", "Deel je momenten", "Bekijk alles samen"],
+    "featurePages": {
+      "photos": {
+        "eyebrow": "FOTOALBUM VOOR IEDEREEN",
+        "heroTitle": "Alle foto’s van jullie event.",
+        "heroAccent": "Samen op één plek.",
+        "intro": "Gasten scannen de QR-code en voegen hun foto’s toe aan één gezamenlijk album. Iedereen kan de gedeelde momenten bekijken en downloaden.",
+        "packageLabel": "Alle pakketten",
+        "visualCaption": "Foto’s van alle gasten",
+        "badgeTitle": "Gedeeld album",
+        "badgeBody": "Scannen, uploaden en bewaren.",
+        "benefits": [
+          { "title": "Geen app nodig", "body": "Iedere gast kan via de QR-code meedoen." },
+          { "title": "Alles overzichtelijk", "body": "Foto’s bekijken, verzamelen en downloaden vanaf één plek." },
+          { "title": "Persoonlijke uitstraling", "body": "Het album sluit aan op jullie eventstijl." }
+        ]
+      },
+      "videoMessages": {
+        "eyebrow": "PERSOONLIJKE VIDEOBERICHTEN",
+        "heroTitle": "Videoboodschappen vol gevoel.",
+        "heroAccent": "Om terug te kijken.",
+        "intro": "Gasten uploaden een korte videoboodschap voor jullie. Zo blijven stemmen, gezichten en persoonlijke wensen ook na het event bewaard.",
+        "packageLabel": "De Beleving",
+        "visualCaption": "Korte video’s van gasten",
+        "badgeTitle": "Video Messages",
+        "badgeBody": "Persoonlijker dan een foto.",
+        "benefits": [
+          { "title": "Dichtbij en persoonlijk", "body": "Bewaar stemmen, gezichten en spontane momenten." },
+          { "title": "Mobiel opgenomen", "body": "Gasten nemen hun boodschap direct op met hun telefoon." },
+          { "title": "Veilig terugkijken", "body": "De video’s blijven onderdeel van het privé eventalbum." }
+        ]
+      },
+      "guestbook": {
+        "eyebrow": "GASTENBOEK",
+        "heroTitle": "Woorden die je wilt bewaren.",
+        "heroAccent": "Van iedereen samen.",
+        "intro": "Laat gasten een persoonlijk bericht achterlaten bij jullie event. Lees alle lieve woorden later rustig terug in het album.",
+        "packageLabel": "Het Verhaal & De Beleving",
+        "visualCaption": "Berichten bij jullie album",
+        "badgeTitle": "Digitaal gastenboek",
+        "badgeBody": "Lieve woorden voor later.",
+        "benefits": [
+          { "title": "Persoonlijke berichten", "body": "Gasten laten hun mooiste herinnering achter." },
+          { "title": "Met optionele foto", "body": "Een gekozen foto kan bij het bericht worden getoond." },
+          { "title": "Mooi om te bewaren", "body": "Perfect naast het album en de gedeelde foto’s." }
+        ]
+      },
+      "liveSlideshow": {
+        "eyebrow": "LIVE SLIDESHOW",
+        "heroTitle": "Jullie momenten op groot scherm.",
+        "heroAccent": "Terwijl het feest doorgaat.",
+        "intro": "Toon de gedeelde foto’s tijdens het event op een scherm. Zo genieten jullie samen van de momenten terwijl het feest nog bezig is.",
+        "packageLabel": "De Beleving",
+        "visualCaption": "Live foto’s op scherm",
+        "badgeTitle": "Live Slideshow",
+        "badgeBody": "Samen kijken tijdens het event.",
+        "benefits": [
+          { "title": "Meer sfeer in de zaal", "body": "Nieuwe foto’s worden onderdeel van de beleving." },
+          { "title": "Gasten doen mee", "body": "Iedere upload kan zichtbaar worden op het scherm." },
+          { "title": "Past bij elk event", "body": "Mooi voor bruiloften, feesten en bedrijfsevents." }
+        ]
+      },
+      "storyCreator": {
+        "eyebrow": "SOCIAL READY",
+        "heroTitle": "Van eventfoto naar Instagram Story.",
+        "heroAccent": "Klaar om te delen.",
+        "intro": "Kies 4 verticale of 8 horizontale foto’s uit jullie album en maak direct een persoonlijke Instagram Story.",
+        "packageLabel": "Het Verhaal & De Beleving",
+        "visualCaption": "Verticale story preview",
+        "badgeTitle": "Story Creator",
+        "badgeBody": "Gemaakt voor delen.",
+        "benefits": [
+          { "title": "4 verticale foto’s", "body": "Ideaal voor portretten en staande foto’s." },
+          { "title": "8 horizontale foto’s", "body": "Breng meer momenten samen in één Story." },
+          { "title": "Klaar om te delen", "body": "Download jullie Story direct in 9:16-formaat." }
+        ]
+      },
+      "photoboothMemory": {
+        "eyebrow": "PHOTOBOOTH MEMORY",
+        "heroTitle": "Jullie photoboothmomenten.",
+        "heroAccent": "Opnieuw beleefd.",
+        "intro": "Geef de photoboothmomenten van jullie event digitaal een plek om opnieuw te bekijken en te delen.",
+        "packageLabel": "De Beleving · alleen met photobooth",
+        "visualCaption": "Photobooth strips blijven heel",
+        "badgeTitle": "Photobooth Memory",
+        "badgeBody": "Voor events met photobooth.",
+        "benefits": [
+          { "title": "Voor 1 of 3 strips", "body": "Gebruik één centrale strip of drie strips met subtiele diepte." },
+          { "title": "Volledige strip zichtbaar", "body": "De photobooth strip blijft intact, zonder splitsing." },
+          { "title": "Gemaakt voor stories", "body": "De verticale compositie is klaar om te delen." }
+        ]
+      },
+      "memoryPoster": {
+        "eyebrow": "A3 HERINNERING",
+        "heroTitle": "Jullie mooiste foto’s.",
+        "heroAccent": "Samen op A3.",
+        "intro": "Kies favoriete foto’s uit het gezamenlijke album en maak er een persoonlijk A3-poster van. Een tastbare herinnering aan de dag.",
+        "packageLabel": "Het Verhaal & De Beleving",
+        "visualCaption": "A3 poster preview",
+        "badgeTitle": "Memory Poster A3",
+        "badgeBody": "Voor aan de muur.",
+        "benefits": [
+          { "title": "Voor eventfoto’s", "body": "Gebruik de mooiste gedeelde foto’s uit het album." },
+          { "title": "A3 compositie", "body": "Ontwerp een poster met meerdere herinneringen samen." },
+          { "title": "Los van Photobooth Memory", "body": "Memory Poster gebruikt eventfoto’s, geen photobooth strips." }
+        ]
+      }
+    },
     "personal": "Een persoonlijke boodschap",
     "miniQuote": "Deze dag krijgt een speciaal plekje in ons hart.",
     "bookExample": "Voorbeeld uit het gastenboek",
@@ -2872,15 +3003,140 @@ const marketingHomepage = {
     "photos": "Photos",
     "videos": "Video Messages",
     "guestbook": "Guestbook",
-    "live": "Live TV",
+    "live": "Live Slideshow",
     "story": "Story Creator",
     "poster": "Memory Poster A3",
     "photoBody": "From the first hello to the last dance. Every perspective together.",
     "videoBody": "A kind wish, a funny story. More personal than a photo.",
     "bookBody": "Words to keep. Let guests leave their favourite memories.",
-    "liveBody": "Show shared moments on a screen during your event.",
+    "liveBody": "Photos from your guests appear on a screen during the event.",
     "storyBody": "Turn your photos into a story you’ll want to share.",
     "posterBody": "Give your memories a place on the wall with a photo poster.",
+    "packagesEyebrow": "PACKAGES",
+    "packagesTitle": "Choose what fits your event.",
+    "packagesIntro": "Start with a shared album and add guestbook, designs, video and Live Slideshow when you need them.",
+    "packageMomentTitle": "The Moment",
+    "packageMomentDescription": "All photos from your event in one place.",
+    "packageMomentItems": ["QR code for a shared album", "Upload, view and download photos", "Personalized album cover"],
+    "packageStoryTitle": "The Story",
+    "packageStoryDescription": "Photos, kind messages and creative memories together.",
+    "packageStoryItems": ["Everything in The Moment", "Digital guestbook", "Instagram Story Creator", "Memory Poster A3"],
+    "packageExperienceTitle": "The Experience",
+    "packageExperienceDescription": "Experience and relive your event with video and Live Slideshow.",
+    "packageExperienceItems": ["Everything in The Story", "Video Messages", "Live Slideshow", "Photobooth Memory"],
+    "packagePhotoboothNote": "Only available and active for events with a photobooth.",
+    "packagePhotoboothFootnote": "*Only available for events with a photobooth.",
+    "packageRecommended": "Most chosen",
+    "packagePriceSuffix": "per event · VAT included",
+    "packageCta": "Get in touch",
+    "heroSteps": ["Scan the QR code", "Share your moments", "View everything together"],
+    "featurePages": {
+      "photos": {
+        "eyebrow": "PHOTO ALBUM FOR EVERYONE",
+        "heroTitle": "Every photo from your event.",
+        "heroAccent": "Together in one place.",
+        "intro": "Guests share their photos through one simple event page, creating a complete private album.",
+        "packageLabel": "All packages",
+        "visualCaption": "Photos from every guest",
+        "badgeTitle": "Shared album",
+        "badgeBody": "Scan, upload and keep.",
+        "benefits": [
+          { "title": "No app needed", "body": "Every guest can join through the QR code." },
+          { "title": "Everything organized", "body": "View, collect and download photos from one place." },
+          { "title": "Personal event style", "body": "The album matches the look of your event." }
+        ]
+      },
+      "videoMessages": {
+        "eyebrow": "PERSONAL VIDEO NOTES",
+        "heroTitle": "Video messages full of feeling.",
+        "heroAccent": "Ready to watch again.",
+        "intro": "Let guests record short wishes, stories and congratulations that you can revisit later.",
+        "packageLabel": "The Experience",
+        "visualCaption": "Short videos from guests",
+        "badgeTitle": "Video Messages",
+        "badgeBody": "More personal than a photo.",
+        "benefits": [
+          { "title": "Close and personal", "body": "Keep voices, faces and spontaneous moments." },
+          { "title": "Recorded on mobile", "body": "Guests record their message directly on their phone." },
+          { "title": "Private playback", "body": "The videos stay part of the private event album." }
+        ]
+      },
+      "guestbook": {
+        "eyebrow": "GUESTBOOK",
+        "heroTitle": "Words worth keeping.",
+        "heroAccent": "From everyone together.",
+        "intro": "Collect kind wishes, memories and messages from guests alongside the shared photos.",
+        "packageLabel": "The Story & The Experience",
+        "visualCaption": "Messages with your album",
+        "badgeTitle": "Digital guestbook",
+        "badgeBody": "Kind words for later.",
+        "benefits": [
+          { "title": "Personal messages", "body": "Guests leave their favourite memory." },
+          { "title": "Optional photo", "body": "A selected photo can be shown with the message." },
+          { "title": "Made to keep", "body": "A natural companion to the album and photos." }
+        ]
+      },
+      "liveSlideshow": {
+        "eyebrow": "LIVE SLIDESHOW",
+        "heroTitle": "Your moments on the big screen.",
+        "heroAccent": "While the party continues.",
+        "intro": "Photos from your guests appear on a screen during the event.",
+        "packageLabel": "The Experience",
+        "visualCaption": "Live photos on screen",
+        "badgeTitle": "Live Slideshow",
+        "badgeBody": "Watch together during the event.",
+        "benefits": [
+          { "title": "More atmosphere", "body": "New photos become part of the live experience." },
+          { "title": "Guests join in", "body": "Every upload can appear on the screen." },
+          { "title": "Fits every event", "body": "Great for weddings, parties and company events." }
+        ]
+      },
+      "storyCreator": {
+        "eyebrow": "SOCIAL READY",
+        "heroTitle": "From event photo to Instagram Story.",
+        "heroAccent": "Ready to share.",
+        "intro": "Choose 4 vertical or 8 horizontal photos from your album and instantly create a personal Instagram Story.",
+        "packageLabel": "The Story & The Experience",
+        "visualCaption": "Vertical story preview",
+        "badgeTitle": "Story Creator",
+        "badgeBody": "Made for sharing.",
+        "benefits": [
+          { "title": "4 vertical photos", "body": "Ideal for portraits and upright photos." },
+          { "title": "8 horizontal photos", "body": "Bring more moments together in one Story." },
+          { "title": "Ready to share", "body": "Download your Story directly in 9:16 format." }
+        ]
+      },
+      "photoboothMemory": {
+        "eyebrow": "PHOTOBOOTH MEMORY",
+        "heroTitle": "Your photobooth moments.",
+        "heroAccent": "Relived again.",
+        "intro": "Use finished photobooth strips as one complete vertical memory for stories and socials.",
+        "packageLabel": "The Experience · photobooth only",
+        "visualCaption": "Photobooth strips stay whole",
+        "badgeTitle": "Photobooth Memory",
+        "badgeBody": "For events with a photobooth.",
+        "benefits": [
+          { "title": "For 1 or 3 strips", "body": "Use one central strip or three strips with subtle depth." },
+          { "title": "Full strip visible", "body": "The photobooth strip stays intact without splitting." },
+          { "title": "Made for stories", "body": "The vertical composition is ready to share." }
+        ]
+      },
+      "memoryPoster": {
+        "eyebrow": "A3 MEMORY",
+        "heroTitle": "Your best photos.",
+        "heroAccent": "Together on A3.",
+        "intro": "Create an A3 poster composition with photos from your event album, ready to keep or print.",
+        "packageLabel": "The Story & The Experience",
+        "visualCaption": "A3 poster preview",
+        "badgeTitle": "Memory Poster A3",
+        "badgeBody": "For your wall.",
+        "benefits": [
+          { "title": "For event photos", "body": "Use the best shared photos from the album." },
+          { "title": "A3 composition", "body": "Design a poster with several memories together." },
+          { "title": "Separate from Photobooth Memory", "body": "Memory Poster uses event photos, not photobooth strips." }
+        ]
+      }
+    },
     "personal": "A personal message",
     "miniQuote": "This day will hold a special place in our hearts.",
     "bookExample": "Guestbook example",
@@ -2980,15 +3236,140 @@ const marketingHomepage = {
     "photos": "Fotos",
     "videos": "Videobotschaften",
     "guestbook": "Gästebuch",
-    "live": "Live TV",
+    "live": "Live Slideshow",
     "story": "Story Creator",
     "poster": "Memory Poster A3",
     "photoBody": "Vom ersten Hallo bis zum letzten Tanz. Alle Perspektiven vereint.",
     "videoBody": "Ein lieber Wunsch, eine lustige Geschichte. Persönlicher als ein Foto.",
     "bookBody": "Worte zum Aufbewahren. Gäste teilen ihre schönsten Erinnerungen.",
-    "liveBody": "Zeigt geteilte Momente während des Events auf einem Bildschirm.",
+    "liveBody": "Fotos eurer Gäste erscheinen während des Events auf einem Bildschirm.",
     "storyBody": "Macht aus euren Fotos eine Story zum Teilen.",
     "posterBody": "Gebt euren Erinnerungen mit einem Fotoposter einen Platz an der Wand.",
+    "packagesEyebrow": "PAKETE",
+    "packagesTitle": "Wählt, was zu eurem Event passt.",
+    "packagesIntro": "Startet mit einem gemeinsamen Album und erweitert es bei Bedarf um Gästebuch, Designs, Video und Live Slideshow.",
+    "packageMomentTitle": "Der Moment",
+    "packageMomentDescription": "Alle Fotos eures Events an einem Ort.",
+    "packageMomentItems": ["QR-Code für ein gemeinsames Album", "Fotos hochladen, ansehen und herunterladen", "Personalisierter Albumtitel"],
+    "packageStoryTitle": "Die Geschichte",
+    "packageStoryDescription": "Fotos, liebe Nachrichten und kreative Erinnerungen zusammen.",
+    "packageStoryItems": ["Alles aus Der Moment", "Digitales Gästebuch", "Instagram Story Creator", "Memory Poster A3"],
+    "packageExperienceTitle": "Das Erlebnis",
+    "packageExperienceDescription": "Erlebt euer Event mit Video und Live Slideshow immer wieder.",
+    "packageExperienceItems": ["Alles aus Die Geschichte", "Video Messages", "Live Slideshow", "Photobooth Memory"],
+    "packagePhotoboothNote": "Nur verfügbar und aktiv bei Events mit einer Photobooth.",
+    "packagePhotoboothFootnote": "*Nur verfügbar bei Veranstaltungen mit einer Photobooth.",
+    "packageRecommended": "Am häufigsten gewählt",
+    "packagePriceSuffix": "pro Veranstaltung · inkl. MwSt.",
+    "packageCta": "Kontakt aufnehmen",
+    "heroSteps": ["QR-Code scannen", "Momente teilen", "Alles gemeinsam ansehen"],
+    "featurePages": {
+      "photos": {
+        "eyebrow": "FOTOALBUM FÜR ALLE",
+        "heroTitle": "Alle Fotos eures Events.",
+        "heroAccent": "Gemeinsam an einem Ort.",
+        "intro": "Gäste teilen ihre Fotos über eine einfache Eventseite. So entsteht automatisch ein vollständiges privates Album.",
+        "packageLabel": "Alle Pakete",
+        "visualCaption": "Fotos von allen Gästen",
+        "badgeTitle": "Gemeinsames Album",
+        "badgeBody": "Scannen, hochladen und behalten.",
+        "benefits": [
+          { "title": "Keine App nötig", "body": "Alle Gäste können über den QR-Code mitmachen." },
+          { "title": "Alles übersichtlich", "body": "Fotos an einem Ort ansehen, sammeln und herunterladen." },
+          { "title": "Persönlicher Stil", "body": "Das Album passt zur Optik eures Events." }
+        ]
+      },
+      "videoMessages": {
+        "eyebrow": "PERSÖNLICHE VIDEOBOTSCHAFTEN",
+        "heroTitle": "Videobotschaften voller Gefühl.",
+        "heroAccent": "Zum Wiederanschauen.",
+        "intro": "Lasst Gäste kurze Wünsche, Geschichten und Glückwünsche aufnehmen, die ihr später erneut ansehen könnt.",
+        "packageLabel": "Das Erlebnis",
+        "visualCaption": "Kurze Videos von Gästen",
+        "badgeTitle": "Video Messages",
+        "badgeBody": "Persönlicher als ein Foto.",
+        "benefits": [
+          { "title": "Nah und persönlich", "body": "Bewahrt Stimmen, Gesichter und spontane Momente." },
+          { "title": "Direkt vom Handy", "body": "Gäste nehmen ihre Botschaft direkt mit dem Telefon auf." },
+          { "title": "Privat ansehen", "body": "Die Videos bleiben Teil des privaten Eventalbums." }
+        ]
+      },
+      "guestbook": {
+        "eyebrow": "GÄSTEBUCH",
+        "heroTitle": "Worte, die bleiben sollen.",
+        "heroAccent": "Von allen zusammen.",
+        "intro": "Sammelt liebe Wünsche, Erinnerungen und Nachrichten eurer Gäste neben den geteilten Fotos.",
+        "packageLabel": "Die Geschichte & Das Erlebnis",
+        "visualCaption": "Nachrichten zum Album",
+        "badgeTitle": "Digitales Gästebuch",
+        "badgeBody": "Liebe Worte für später.",
+        "benefits": [
+          { "title": "Persönliche Nachrichten", "body": "Gäste hinterlassen ihre schönste Erinnerung." },
+          { "title": "Optionales Foto", "body": "Ein ausgewähltes Foto kann mit der Nachricht angezeigt werden." },
+          { "title": "Zum Aufbewahren", "body": "Passt perfekt zum Album und den geteilten Fotos." }
+        ]
+      },
+      "liveSlideshow": {
+        "eyebrow": "LIVE SLIDESHOW",
+        "heroTitle": "Eure Momente auf großem Bildschirm.",
+        "heroAccent": "Während die Feier weitergeht.",
+        "intro": "Fotos eurer Gäste erscheinen während des Events auf einem Bildschirm.",
+        "packageLabel": "Das Erlebnis",
+        "visualCaption": "Live-Fotos auf dem Bildschirm",
+        "badgeTitle": "Live Slideshow",
+        "badgeBody": "Gemeinsam während des Events ansehen.",
+        "benefits": [
+          { "title": "Mehr Stimmung im Raum", "body": "Neue Fotos werden Teil des Live-Erlebnisses." },
+          { "title": "Gäste machen mit", "body": "Jeder Upload kann auf dem Bildschirm erscheinen." },
+          { "title": "Für jedes Event", "body": "Schön für Hochzeiten, Feiern und Firmenevents." }
+        ]
+      },
+      "storyCreator": {
+        "eyebrow": "SOCIAL READY",
+        "heroTitle": "Vom Eventfoto zur Instagram Story.",
+        "heroAccent": "Bereit zum Teilen.",
+        "intro": "Wählt 4 vertikale oder 8 horizontale Fotos aus eurem Album und erstellt direkt eine persönliche Instagram Story.",
+        "packageLabel": "Die Geschichte & Das Erlebnis",
+        "visualCaption": "Vertikale Story-Vorschau",
+        "badgeTitle": "Story Creator",
+        "badgeBody": "Gemacht zum Teilen.",
+        "benefits": [
+          { "title": "4 vertikale Fotos", "body": "Ideal für Porträts und Hochformatfotos." },
+          { "title": "8 horizontale Fotos", "body": "Bringt mehr Momente in einer Story zusammen." },
+          { "title": "Bereit zum Teilen", "body": "Ladet eure Story direkt im 9:16-Format herunter." }
+        ]
+      },
+      "photoboothMemory": {
+        "eyebrow": "PHOTOBOOTH MEMORY",
+        "heroTitle": "Eure Photobooth-Momente.",
+        "heroAccent": "Neu erlebt.",
+        "intro": "Verwendet fertige Photobooth-Strips als vollständige vertikale Erinnerung für Stories und Socials.",
+        "packageLabel": "Das Erlebnis · nur mit Photobooth",
+        "visualCaption": "Photobooth-Strips bleiben vollständig",
+        "badgeTitle": "Photobooth Memory",
+        "badgeBody": "Für Events mit Photobooth.",
+        "benefits": [
+          { "title": "Für 1 oder 3 Strips", "body": "Nutzt einen zentralen Strip oder drei Strips mit dezenter Tiefe." },
+          { "title": "Vollständiger Strip sichtbar", "body": "Der Photobooth-Strip bleibt intakt und wird nicht geteilt." },
+          { "title": "Für Stories gemacht", "body": "Die vertikale Komposition ist direkt teilbar." }
+        ]
+      },
+      "memoryPoster": {
+        "eyebrow": "A3 ERINNERUNG",
+        "heroTitle": "Eure schönsten Fotos.",
+        "heroAccent": "Gemeinsam auf A3.",
+        "intro": "Erstellt eine A3-Posterkomposition mit Fotos aus eurem Eventalbum.",
+        "packageLabel": "Die Geschichte & Das Erlebnis",
+        "visualCaption": "A3-Poster-Vorschau",
+        "badgeTitle": "Memory Poster A3",
+        "badgeBody": "Für die Wand.",
+        "benefits": [
+          { "title": "Für Eventfotos", "body": "Nutzt die schönsten geteilten Fotos aus dem Album." },
+          { "title": "A3-Komposition", "body": "Gestaltet ein Poster mit mehreren Erinnerungen zusammen." },
+          { "title": "Getrennt von Photobooth Memory", "body": "Memory Poster nutzt Eventfotos, keine Photobooth-Strips." }
+        ]
+      }
+    },
     "personal": "Eine persönliche Botschaft",
     "miniQuote": "Dieser Tag bekommt einen besonderen Platz in unserem Herzen.",
     "bookExample": "Gästebuchbeispiel",
@@ -3088,15 +3469,140 @@ const marketingHomepage = {
     "photos": "Photos",
     "videos": "Messages vidéo",
     "guestbook": "Livre d’or",
-    "live": "Live TV",
+    "live": "Live Slideshow",
     "story": "Story Creator",
     "poster": "Memory Poster A3",
     "photoBody": "Du premier sourire à la dernière danse. Tous les regards réunis.",
     "videoBody": "Un joli vœu, une anecdote drôle. Plus personnel qu’une photo.",
     "bookBody": "Des mots à garder. Vos invités racontent leurs plus beaux souvenirs.",
-    "liveBody": "Affichez les moments partagés sur un écran pendant l’événement.",
+    "liveBody": "Les photos de vos invités apparaissent sur un écran pendant l’événement.",
     "storyBody": "Transformez vos photos en une story à partager.",
     "posterBody": "Offrez une place sur vos murs à vos souvenirs avec un poster photo.",
+    "packagesEyebrow": "FORMULES",
+    "packagesTitle": "Choisissez ce qui convient à votre événement.",
+    "packagesIntro": "Commencez par un album partagé, puis ajoutez livre d’or, créations, vidéo et Live Slideshow selon vos besoins.",
+    "packageMomentTitle": "Le Moment",
+    "packageMomentDescription": "Toutes les photos de votre événement au même endroit.",
+    "packageMomentItems": ["QR code pour un album partagé", "Envoyer, consulter et télécharger les photos", "Couverture d’album personnalisée"],
+    "packageStoryTitle": "L’Histoire",
+    "packageStoryDescription": "Photos, messages touchants et souvenirs créatifs réunis.",
+    "packageStoryItems": ["Tout Le Moment", "Livre d’or numérique", "Instagram Story Creator", "Memory Poster A3"],
+    "packageExperienceTitle": "L’Expérience",
+    "packageExperienceDescription": "Vivez et revivez votre événement avec la vidéo et Live Slideshow.",
+    "packageExperienceItems": ["Tout L’Histoire", "Video Messages", "Live Slideshow", "Photobooth Memory"],
+    "packagePhotoboothNote": "Disponible et actif uniquement pour les événements avec photobooth.",
+    "packagePhotoboothFootnote": "*Disponible uniquement pour les événements avec photobooth.",
+    "packageRecommended": "Le plus choisi",
+    "packagePriceSuffix": "par événement · TVA incluse",
+    "packageCta": "Nous contacter",
+    "heroSteps": ["Scannez le QR code", "Partagez vos moments", "Regardez tout ensemble"],
+    "featurePages": {
+      "photos": {
+        "eyebrow": "ALBUM PHOTO POUR TOUS",
+        "heroTitle": "Toutes les photos de votre événement.",
+        "heroAccent": "Réunies au même endroit.",
+        "intro": "Vos invités partagent leurs photos via une page événement simple, pour créer un album privé complet.",
+        "packageLabel": "Toutes les formules",
+        "visualCaption": "Photos de tous les invités",
+        "badgeTitle": "Album partagé",
+        "badgeBody": "Scannez, envoyez, gardez.",
+        "benefits": [
+          { "title": "Sans application", "body": "Chaque invité participe grâce au QR code." },
+          { "title": "Tout est organisé", "body": "Consultez, réunissez et téléchargez les photos au même endroit." },
+          { "title": "Style personnalisé", "body": "L’album s’accorde à l’identité de votre événement." }
+        ]
+      },
+      "videoMessages": {
+        "eyebrow": "MESSAGES VIDÉO PERSONNELS",
+        "heroTitle": "Des messages vidéo pleins d’émotion.",
+        "heroAccent": "À revoir plus tard.",
+        "intro": "Vos invités enregistrent de courts vœux, histoires et félicitations que vous pourrez revoir.",
+        "packageLabel": "L’Expérience",
+        "visualCaption": "Courtes vidéos des invités",
+        "badgeTitle": "Video Messages",
+        "badgeBody": "Plus personnel qu’une photo.",
+        "benefits": [
+          { "title": "Proche et personnel", "body": "Gardez les voix, les visages et les moments spontanés." },
+          { "title": "Enregistré sur mobile", "body": "Les invités enregistrent leur message directement sur leur téléphone." },
+          { "title": "Lecture privée", "body": "Les vidéos restent dans l’album privé de l’événement." }
+        ]
+      },
+      "guestbook": {
+        "eyebrow": "LIVRE D’OR",
+        "heroTitle": "Des mots à conserver.",
+        "heroAccent": "De tout le monde.",
+        "intro": "Réunissez les vœux, souvenirs et messages de vos invités avec les photos partagées.",
+        "packageLabel": "L’Histoire & L’Expérience",
+        "visualCaption": "Messages dans votre album",
+        "badgeTitle": "Livre d’or numérique",
+        "badgeBody": "Des mots pour plus tard.",
+        "benefits": [
+          { "title": "Messages personnels", "body": "Les invités laissent leur plus beau souvenir." },
+          { "title": "Photo optionnelle", "body": "Une photo choisie peut accompagner le message." },
+          { "title": "À garder", "body": "Un complément naturel à l’album et aux photos." }
+        ]
+      },
+      "liveSlideshow": {
+        "eyebrow": "LIVE SLIDESHOW",
+        "heroTitle": "Vos moments sur grand écran.",
+        "heroAccent": "Pendant que la fête continue.",
+        "intro": "Les photos de vos invités apparaissent sur un écran pendant l’événement.",
+        "packageLabel": "L’Expérience",
+        "visualCaption": "Photos en direct sur écran",
+        "badgeTitle": "Live Slideshow",
+        "badgeBody": "À regarder ensemble pendant l’événement.",
+        "benefits": [
+          { "title": "Plus d’ambiance", "body": "Les nouvelles photos deviennent partie de l’expérience." },
+          { "title": "Les invités participent", "body": "Chaque envoi peut apparaître sur l’écran." },
+          { "title": "Pour tous les événements", "body": "Idéal pour mariages, fêtes et événements d’entreprise." }
+        ]
+      },
+      "storyCreator": {
+        "eyebrow": "PRÊT POUR LES RÉSEAUX",
+        "heroTitle": "De la photo événement à l’Instagram Story.",
+        "heroAccent": "Prête à partager.",
+        "intro": "Choisissez 4 photos verticales ou 8 photos horizontales dans votre album et créez directement une Instagram Story personnelle.",
+        "packageLabel": "L’Histoire & L’Expérience",
+        "visualCaption": "Aperçu de story verticale",
+        "badgeTitle": "Story Creator",
+        "badgeBody": "Pensé pour être partagé.",
+        "benefits": [
+          { "title": "4 photos verticales", "body": "Idéal pour les portraits et les photos en orientation verticale." },
+          { "title": "8 photos horizontales", "body": "Réunissez plus de moments dans une seule Story." },
+          { "title": "Prête à partager", "body": "Téléchargez votre Story directement au format 9:16." }
+        ]
+      },
+      "photoboothMemory": {
+        "eyebrow": "PHOTOBOOTH MEMORY",
+        "heroTitle": "Vos moments photobooth.",
+        "heroAccent": "À revivre.",
+        "intro": "Utilisez des strips photobooth finalisés comme souvenir vertical complet pour stories et réseaux sociaux.",
+        "packageLabel": "L’Expérience · photobooth uniquement",
+        "visualCaption": "Les strips photobooth restent entiers",
+        "badgeTitle": "Photobooth Memory",
+        "badgeBody": "Pour les événements avec photobooth.",
+        "benefits": [
+          { "title": "Pour 1 ou 3 strips", "body": "Utilisez un strip central ou trois strips avec une profondeur subtile." },
+          { "title": "Strip complet visible", "body": "Le strip photobooth reste intact, sans découpage." },
+          { "title": "Fait pour les stories", "body": "La composition verticale est prête à partager." }
+        ]
+      },
+      "memoryPoster": {
+        "eyebrow": "SOUVENIR A3",
+        "heroTitle": "Vos plus belles photos.",
+        "heroAccent": "Réunies en A3.",
+        "intro": "Créez une composition poster A3 avec les photos de votre album événement.",
+        "packageLabel": "L’Histoire & L’Expérience",
+        "visualCaption": "Aperçu poster A3",
+        "badgeTitle": "Memory Poster A3",
+        "badgeBody": "Pour vos murs.",
+        "benefits": [
+          { "title": "Pour les photos d’événement", "body": "Utilisez les plus belles photos partagées dans l’album." },
+          { "title": "Composition A3", "body": "Créez un poster avec plusieurs souvenirs réunis." },
+          { "title": "Séparé de Photobooth Memory", "body": "Memory Poster utilise des photos d’événement, pas des strips photobooth." }
+        ]
+      }
+    },
     "personal": "Un message personnel",
     "miniQuote": "Cette journée gardera une place spéciale dans nos cœurs.",
     "bookExample": "Exemple du livre d’or",
@@ -3196,15 +3702,140 @@ const marketingHomepage = {
     "photos": "Fotoğraflar",
     "videos": "Video mesajları",
     "guestbook": "Anı defteri",
-    "live": "Live TV",
+    "live": "Live Slideshow",
     "story": "Story Creator",
     "poster": "Memory Poster A3",
     "photoBody": "İlk karşılaşmadan son dansa. Her bakış açısı bir arada.",
     "videoBody": "Güzel bir dilek, komik bir hikâye. Fotoğraftan daha kişisel.",
     "bookBody": "Saklanacak sözler. Misafirleriniz en güzel anılarını bıraksın.",
-    "liveBody": "Paylaşılan anları etkinlik sırasında bir ekranda gösterin.",
+    "liveBody": "Misafirlerinizin fotoğrafları etkinlik sırasında bir ekranda görünür.",
     "storyBody": "Fotoğraflarınızı paylaşmak isteyeceğiniz bir hikâyeye dönüştürün.",
     "posterBody": "Fotoğraf posteriyle anılarınıza duvarınızda yer açın.",
+    "packagesEyebrow": "PAKETLER",
+    "packagesTitle": "Etkinliğinize uygun paketi seçin.",
+    "packagesIntro": "Ortak albümle başlayın; ihtiyaç olursa anı defteri, tasarımlar, video ve Live Slideshow ile genişletin.",
+    "packageMomentTitle": "An",
+    "packageMomentDescription": "Etkinliğinizin tüm fotoğrafları tek bir yerde.",
+    "packageMomentItems": ["Ortak albüm için QR kodu", "Fotoğraf yükleme, görüntüleme ve indirme", "Kişiselleştirilmiş albüm kapağı"],
+    "packageStoryTitle": "Hikâye",
+    "packageStoryDescription": "Fotoğraflar, güzel mesajlar ve yaratıcı hatıralar bir arada.",
+    "packageStoryItems": ["An paketindeki her şey", "Dijital anı defteri", "Instagram Story Creator", "Memory Poster A3"],
+    "packageExperienceTitle": "Deneyim",
+    "packageExperienceDescription": "Etkinliğinizi video ve Live Slideshow ile yaşayın, yeniden yaşayın.",
+    "packageExperienceItems": ["Hikâye paketindeki her şey", "Video Messages", "Live Slideshow", "Photobooth Memory"],
+    "packagePhotoboothNote": "Yalnızca photobooth bulunan etkinliklerde kullanılabilir ve aktiftir.",
+    "packagePhotoboothFootnote": "*Yalnızca photobooth bulunan etkinliklerde kullanılabilir.",
+    "packageRecommended": "En çok seçilen",
+    "packagePriceSuffix": "etkinlik başına · KDV dahil",
+    "packageCta": "İletişime geç",
+    "heroSteps": ["QR kodunu tara", "Anlarını paylaş", "Her şeyi birlikte izle"],
+    "featurePages": {
+      "photos": {
+        "eyebrow": "HERKES İÇİN FOTOĞRAF ALBÜMÜ",
+        "heroTitle": "Etkinliğinizin tüm fotoğrafları.",
+        "heroAccent": "Tek yerde birlikte.",
+        "intro": "Misafirler fotoğraflarını tek bir basit etkinlik sayfasından paylaşır; özel albüm kendiliğinden tamamlanır.",
+        "packageLabel": "Tüm paketler",
+        "visualCaption": "Tüm misafirlerden fotoğraflar",
+        "badgeTitle": "Ortak albüm",
+        "badgeBody": "Tara, yükle ve sakla.",
+        "benefits": [
+          { "title": "Uygulama gerekmez", "body": "Her misafir QR koduyla kolayca katılır." },
+          { "title": "Her şey düzenli", "body": "Fotoğrafları tek yerden görüntüleyin, toplayın ve indirin." },
+          { "title": "Kişisel etkinlik stili", "body": "Albüm etkinliğinizin görünümüne uyum sağlar." }
+        ]
+      },
+      "videoMessages": {
+        "eyebrow": "KİŞİSEL VİDEO MESAJLARI",
+        "heroTitle": "Duygu dolu video mesajları.",
+        "heroAccent": "Yeniden izlemek için.",
+        "intro": "Misafirlerinizin kısa dileklerini, hikâyelerini ve tebriklerini daha sonra yeniden izlemek üzere toplayın.",
+        "packageLabel": "Deneyim",
+        "visualCaption": "Misafirlerden kısa videolar",
+        "badgeTitle": "Video Messages",
+        "badgeBody": "Fotoğraftan daha kişisel.",
+        "benefits": [
+          { "title": "Yakın ve kişisel", "body": "Sesleri, yüzleri ve doğal anları saklayın." },
+          { "title": "Telefondan kaydedilir", "body": "Misafirler mesajlarını doğrudan telefonlarıyla kaydeder." },
+          { "title": "Özel izleme", "body": "Videolar özel etkinlik albümünün parçası olarak kalır." }
+        ]
+      },
+      "guestbook": {
+        "eyebrow": "ANI DEFTERİ",
+        "heroTitle": "Saklamak isteyeceğiniz sözler.",
+        "heroAccent": "Herkesten birlikte.",
+        "intro": "Misafirlerinizin güzel dileklerini, anılarını ve mesajlarını paylaşılan fotoğrafların yanında toplayın.",
+        "packageLabel": "Hikâye & Deneyim",
+        "visualCaption": "Albümle birlikte mesajlar",
+        "badgeTitle": "Dijital anı defteri",
+        "badgeBody": "Geleceğe güzel sözler.",
+        "benefits": [
+          { "title": "Kişisel mesajlar", "body": "Misafirler en güzel anılarını bırakır." },
+          { "title": "İsteğe bağlı fotoğraf", "body": "Seçilen bir fotoğraf mesajla birlikte gösterilebilir." },
+          { "title": "Saklamak için güzel", "body": "Albüm ve fotoğrafların doğal tamamlayıcısıdır." }
+        ]
+      },
+      "liveSlideshow": {
+        "eyebrow": "LIVE SLIDESHOW",
+        "heroTitle": "Anlarınız büyük ekranda.",
+        "heroAccent": "Kutlama devam ederken.",
+        "intro": "Misafirlerinizin fotoğrafları etkinlik sırasında bir ekranda görünür.",
+        "packageLabel": "Deneyim",
+        "visualCaption": "Ekranda canlı fotoğraflar",
+        "badgeTitle": "Live Slideshow",
+        "badgeBody": "Etkinlikte birlikte izleyin.",
+        "benefits": [
+          { "title": "Ortama daha fazla atmosfer", "body": "Yeni fotoğraflar etkinliğin canlı deneyimine katılır." },
+          { "title": "Misafirler katılır", "body": "Her yükleme ekranda görünebilir." },
+          { "title": "Her etkinliğe uygun", "body": "Düğünler, kutlamalar ve kurumsal etkinlikler için uygundur." }
+        ]
+      },
+      "storyCreator": {
+        "eyebrow": "SOSYAL MEDYAYA HAZIR",
+        "heroTitle": "Etkinlik fotoğrafından Instagram Story’ye.",
+        "heroAccent": "Paylaşmaya hazır.",
+        "intro": "Albümünüzden 4 dikey veya 8 yatay fotoğraf seçin ve hemen kişisel bir Instagram Story oluşturun.",
+        "packageLabel": "Hikâye & Deneyim",
+        "visualCaption": "Dikey hikâye önizlemesi",
+        "badgeTitle": "Story Creator",
+        "badgeBody": "Paylaşmak için tasarlandı.",
+        "benefits": [
+          { "title": "4 dikey fotoğraf", "body": "Portreler ve dikey fotoğraflar için idealdir." },
+          { "title": "8 yatay fotoğraf", "body": "Daha fazla anı tek bir Story’de birleştirin." },
+          { "title": "Paylaşmaya hazır", "body": "Story’nizi doğrudan 9:16 formatında indirin." }
+        ]
+      },
+      "photoboothMemory": {
+        "eyebrow": "PHOTOBOOTH MEMORY",
+        "heroTitle": "Photobooth anlarınız.",
+        "heroAccent": "Yeniden yaşansın.",
+        "intro": "Tamamlanmış photobooth şeritlerini hikâye ve sosyal paylaşımlar için tek bir dikey anıya dönüştürün.",
+        "packageLabel": "Deneyim · yalnızca photobooth ile",
+        "visualCaption": "Photobooth şeritleri bütün kalır",
+        "badgeTitle": "Photobooth Memory",
+        "badgeBody": "Photobooth bulunan etkinlikler için.",
+        "benefits": [
+          { "title": "1 veya 3 şerit için", "body": "Bir merkezi şerit ya da hafif derinlikli üç şerit kullanın." },
+          { "title": "Tam şerit görünür", "body": "Photobooth şeridi bölünmeden bütün kalır." },
+          { "title": "Hikâyeler için", "body": "Dikey kompozisyon paylaşmaya hazırdır." }
+        ]
+      },
+      "memoryPoster": {
+        "eyebrow": "A3 HATIRA",
+        "heroTitle": "En güzel fotoğraflarınız.",
+        "heroAccent": "A3 üzerinde birlikte.",
+        "intro": "Etkinlik albümünüzdeki fotoğraflarla saklamaya veya bastırmaya hazır bir A3 poster tasarımı oluşturun.",
+        "packageLabel": "Hikâye & Deneyim",
+        "visualCaption": "A3 poster önizlemesi",
+        "badgeTitle": "Memory Poster A3",
+        "badgeBody": "Duvarınız için.",
+        "benefits": [
+          { "title": "Etkinlik fotoğrafları için", "body": "Albümde paylaşılan en güzel fotoğrafları kullanın." },
+          { "title": "A3 kompozisyon", "body": "Birden çok anıyı tek posterde birleştirin." },
+          { "title": "Photobooth Memory’den ayrı", "body": "Memory Poster, photobooth şeritleri değil etkinlik fotoğrafları kullanır." }
+        ]
+      }
+    },
     "personal": "Kişisel bir mesaj",
     "miniQuote": "Bu gün kalbimizde özel bir yer edinecek.",
     "bookExample": "Anı defteri örneği",

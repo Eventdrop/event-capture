@@ -60,8 +60,8 @@ export function getFileExtension(file: File) {
 export function getMediaKind(file: File): MediaKind | null {
   const extension = getFileExtension(file)
 
-  if (extension === 'heic' || extension === 'heif') return null
-  if (file.type.includes('heic') || file.type.includes('heif')) return null
+  if (extension === 'heic' || extension === 'heif') return 'photo'
+  if (file.type.includes('heic') || file.type.includes('heif')) return 'photo'
   if (file.type.startsWith('image/')) return 'photo'
 
   if (IMAGE_EXTENSIONS.has(extension)) return 'photo'
