@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useLanguage } from '@/app/_components/language-provider'
 import { VideoMessageUpload } from '@/app/_components/video-message-upload'
 import { shareMedia } from '@/lib/share-media'
@@ -153,7 +153,12 @@ export function VideoMessageGallery({ identifier }: { identifier: string }) {
   const [revision, setRevision] = useState(0)
   const [result, setResult] = useState<{ videos: GalleryVideo[]; hasMore: boolean } | null>(null)
   const [error, setError] = useState(false)
-  const refresh = () => { setResult(null); setError(false); setRevision(value => value + 1) }
+  const refresh = useCallback(() => {
+    setResult(null)
+    setError(false)
+    setPage(0)
+    setRevision(value => value + 1)
+  }, [])
   const changePage = (next: number) => { setResult(null); setError(false); setPage(next) }
   useEffect(() => {
     const controller = new AbortController()
@@ -179,7 +184,7 @@ export function VideoMessageGallery({ identifier }: { identifier: string }) {
         <h2 className="text-xl font-black text-neutral-950">{t.gallery.videoMessagesTab}</h2>
         <button type="button" onClick={refresh} className="rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66]">{t.gallery.videoRefresh}</button>
       </div>
-      <VideoMessageUpload identifier={identifier} />
+      <VideoMessageUpload identifier={identifier} onSuccess={refresh} />
       {error ? <p role="alert" className="rounded-xl bg-white p-4 text-sm text-[#B91F32]">{t.gallery.videoGalleryError}</p>
         : !result ? <p role="status" className="p-4 text-sm text-[#6B7280]">{t.gallery.videoLoading}</p>
         : result.videos.length === 0 ? <p className="rounded-xl border border-neutral-200 bg-white p-4 text-sm text-[#6B7280]">{t.gallery.videoEmpty}</p>

@@ -7,7 +7,13 @@ import { createVideoMessageUpload, validateVideoMessage, type VideoMessageError,
 
 
 
-export function VideoMessageUpload({ identifier }: { identifier: string }) {
+export function VideoMessageUpload({
+  identifier,
+  onSuccess,
+}: {
+  identifier: string
+  onSuccess: () => void
+}) {
   const { locale } = useLanguage()
   const text = videoMessageUploadTranslations[locale]
   const [file, setFile] = useState<File | null>(null)
@@ -24,6 +30,7 @@ export function VideoMessageUpload({ identifier }: { identifier: string }) {
       if (next === 'success') {
         setFile(null)
         if (input.current) input.current.value = ''
+        onSuccess()
       }
     })
     uploader.current = controller
@@ -34,7 +41,7 @@ export function VideoMessageUpload({ identifier }: { identifier: string }) {
       window.removeEventListener('pagehide', leave)
       controller.cancel()
     }
-  }, [])
+  }, [onSuccess])
   const busy = state === 'checking' || state === 'uploading' || state === 'finalizing'
 
   return (
