@@ -9,6 +9,7 @@ import {
   hasEventAccess,
 } from '@/lib/event-access'
 import {
+  getEventRoute,
   isEventCodeEnabled,
   normalizeEventRecord,
 } from '@/lib/events'
@@ -37,15 +38,13 @@ export default async function JoinPage({
   const cookieStore = await cookies()
   const accessCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
 
-  if (eventRecord && hasEventAccess(accessCookie, id)) {
-    const recoveryParams = new URLSearchParams({ identifier: id })
-    const safeReturnTo = getSafeEventReturnToPath(returnTo || '', {
-      eventId: eventRecord.id,
-      eventSlug: eventRecord.slug,
-    })
-
-    if (safeReturnTo) recoveryParams.set('returnTo', safeReturnTo)
-    redirect(`/api/public-events/video-access?${recoveryParams.toString()}`)
+  if (hasEventAccess(accessCookie, id)) {
+    redirect(
+      getSafeEventReturnToPath(returnTo || '', {
+        eventId: eventRecord?.id || id,
+        eventSlug: eventRecord?.slug || id,
+      }) || getEventRoute(id)
+    )
   }
 
   return (

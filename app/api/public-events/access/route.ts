@@ -6,9 +6,9 @@ import {
   EVENT_ACCESS_COOKIE_NAME,
   getSafeEventReturnToPath,
   grantEventAccess,
-  hasEventAccess,
   isValidGuestEmail,
   normalizeEventAccessInput,
+  parseEventAccessCookie,
 } from '@/lib/event-access'
 import {
   getEventRoute,
@@ -19,7 +19,12 @@ import {
 import { logOperation } from '@/lib/ops-log'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { withRetry } from '@/lib/with-retry'
-import { createVideoAccessGrant, VIDEO_ACCESS_COOKIE_NAME, VIDEO_ACCESS_MAX_AGE } from '@/lib/video-access'
+import {
+  createVideoAccessGrant,
+  verifyVideoAccessGrant,
+  VIDEO_ACCESS_COOKIE_NAME,
+  VIDEO_ACCESS_MAX_AGE,
+} from '@/lib/video-access'
 
 export const runtime = 'nodejs'
 
@@ -77,17 +82,44 @@ export async function GET(request: Request) {
 
   const cookieStore = await cookies()
   const existingCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
-  const hasAccess = identifiers.some((identifier) =>
-    hasEventAccess(existingCookie, identifier)
+  const matchingGrant = parseEventAccessCookie(existingCookie).find((grant) =>
+    identifiers.some(
+      (identifier) => grant.eventId === identifier || grant.eventSlug === identifier
+    )
   )
+  const hasAccess = Boolean(matchingGrant)
 
-  return NextResponse.json(
+  const response = NextResponse.json(
     {
       ok: hasAccess,
       hasAccess,
     },
     { status: hasAccess ? 200 : 401 }
   )
+
+  if (matchingGrant) {
+    try {
+      const existingVideoGrant = cookieStore.get(VIDEO_ACCESS_COOKIE_NAME)?.value
+
+      if (!verifyVideoAccessGrant(existingVideoGrant, matchingGrant.eventId)) {
+        response.cookies.set(
+          VIDEO_ACCESS_COOKIE_NAME,
+          createVideoAccessGrant(matchingGrant.eventId),
+          {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            maxAge: VIDEO_ACCESS_MAX_AGE,
+          }
+        )
+      }
+    } catch {
+      console.error('Video access grant could not be recovered')
+    }
+  }
+
+  return response
 }
 
 async function persistGuestAccessLog(input: {
