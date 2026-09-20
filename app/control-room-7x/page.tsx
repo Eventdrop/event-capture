@@ -12,8 +12,7 @@ import {
   buildEventInsertPayload,
   formatEventDisplayName,
   generateEventAccessCode,
-  getEventGalleryRoute,
-  getEventRoute,
+  getGuestGalleryRoute,
   normalizeEventAccessCode,
   normalizeEventRecord,
   type NormalizedEvent,
@@ -213,11 +212,8 @@ export default function AdminPage() {
   const latestEvent = useMemo(() => customerEvents[0] || null, [customerEvents])
   const creatingDemoTemplate = adminSection === 'templates'
 
-  const getEventIdentifier = (event: NormalizedEvent) => event.id
   const getEventShareUrl = (event: NormalizedEvent) =>
-    `${publicBaseUrl}${getEventRoute(getEventIdentifier(event))}`
-  const getGalleryShareUrl = (event: NormalizedEvent) =>
-    `${publicBaseUrl}${getEventGalleryRoute(getEventIdentifier(event))}`
+    `${publicBaseUrl}${getGuestGalleryRoute(event)}`
   const getDemoShareUrl = (event: NormalizedEvent) =>
     event.demoSlug ? `${publicBaseUrl}/demo/${event.demoSlug}` : ''
   const getLiveIdentifier = (event: NormalizedEvent) =>
@@ -230,11 +226,6 @@ export default function AdminPage() {
     event.liveToken
       ? `/live/${encodeURIComponent(event.liveToken)}`
       : ''
-  const getPublicJoinPath = (event: NormalizedEvent) =>
-    getPublicPath(getEventRoute(getEventIdentifier(event)))
-  const getPublicGalleryPath = (event: NormalizedEvent) =>
-    getEventGalleryRoute(getEventIdentifier(event))
-
   const getSelectedGuestbookPdfTheme = (event: NormalizedEvent) =>
     eventControlsById[event.id]?.guestbookPdfTheme ?? event.guestbookPdfTheme
 
@@ -2118,7 +2109,7 @@ export default function AdminPage() {
 
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <Link
-                    href={getPublicJoinPath(selectedVisibleEvent)}
+                    href={getEventShareUrl(selectedVisibleEvent)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#F58220] px-3 py-2 text-xs font-semibold text-white hover:bg-[#DB6E12]"
@@ -2126,7 +2117,7 @@ export default function AdminPage() {
                     Upload
                   </Link>
                   <Link
-                    href={getPublicGalleryPath(selectedVisibleEvent)}
+                    href={getEventShareUrl(selectedVisibleEvent)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-3 py-2 text-xs font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
@@ -2191,7 +2182,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() =>
                       copyToClipboard(
-                        getGalleryShareUrl(selectedVisibleEvent),
+                        getEventShareUrl(selectedVisibleEvent),
                         t.admin.galleryCopied
                       )
                     }
@@ -2807,7 +2798,7 @@ export default function AdminPage() {
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <Link
-                          href={getPublicJoinPath(event)}
+                          href={getEventShareUrl(event)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-4 py-2 text-sm font-semibold text-white hover:bg-[#DB6E12]"
@@ -2832,7 +2823,7 @@ export default function AdminPage() {
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <Link
-                          href={getPublicGalleryPath(event)}
+                          href={getEventShareUrl(event)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"
@@ -2843,7 +2834,7 @@ export default function AdminPage() {
                           type="button"
                           onClick={() =>
                             copyToClipboard(
-                              getGalleryShareUrl(event),
+                              getEventShareUrl(event),
                               t.admin.galleryCopied
                             )
                           }
@@ -3183,7 +3174,7 @@ export default function AdminPage() {
                 ) : null}
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
-                    href={getPublicJoinPath(createdDemoEvent)}
+                    href={getEventShareUrl(createdDemoEvent)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-full bg-[#F58220] px-4 py-2 text-sm font-semibold text-white hover:bg-[#DB6E12]"
@@ -3191,7 +3182,7 @@ export default function AdminPage() {
                     {t.admin.demoOpenUpload}
                   </Link>
                   <Link
-                    href={getPublicGalleryPath(createdDemoEvent)}
+                    href={getEventShareUrl(createdDemoEvent)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-full bg-[#0F3D66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B2F4F]"

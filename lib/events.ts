@@ -282,6 +282,16 @@ export function getEventGalleryRoute(identifier: string) {
   return `/event/${identifier}/gallery`
 }
 
+export function getGuestGalleryRoute(
+  event: Pick<NormalizedEvent, 'id' | 'defaultLocale'>
+) {
+  const searchParams = new URLSearchParams({
+    lang: normalizeEventLocale(event.defaultLocale),
+  })
+
+  return `${getEventGalleryRoute(event.id)}?${searchParams.toString()}`
+}
+
 export function getEventJoinRoute(identifier: string) {
   return `/join/${identifier}`
 }
