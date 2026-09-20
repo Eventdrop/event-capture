@@ -36,6 +36,23 @@ function limitGuestMessage(value: string) {
   return value.slice(0, GUEST_MESSAGE_MAX_LENGTH)
 }
 
+function formatEventDateForShell(value: string | null, locale: Locale) {
+  if (!value) return ''
+
+  const dateParts = value.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  const date = dateParts
+    ? new Date(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3]))
+    : new Date(value)
+
+  if (Number.isNaN(date.getTime())) return value
+
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
+
 function getCompressedPhotoName(fileName: string) {
   const baseName = fileName.replace(/\.[^.]+$/, '') || 'photo'
   return `${baseName}.jpg`
@@ -149,6 +166,7 @@ export default function Page() {
   const [resolvedEventId, setResolvedEventId] = useState('')
   const [currentEvent, setCurrentEvent] = useState<NormalizedEvent | null>(null)
   const [eventName, setEventName] = useState(t.upload.defaultAlbumName)
+  const [photoCount, setPhotoCount] = useState(0)
   const [message, setMessage] = useState(t.upload.chooseStart)
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -238,6 +256,19 @@ export default function Page() {
       setEventName(normalizedEvent?.albumName || normalizedEvent?.name || t.upload.defaultAlbumName)
       setResolvedEventId(normalizedEvent?.id || '')
       setMessage(t.upload.intro)
+
+      if (normalizedEvent?.id) {
+        const { count, error: countError } = await supabase
+          .from('uploads')
+          .select('id', { count: 'exact', head: true })
+          .eq('event_id', normalizedEvent.id)
+
+        if (countError) {
+          console.error('Failed to load upload count', countError)
+        } else {
+          setPhotoCount(count || 0)
+        }
+      }
     }
 
     void loadEvent()
@@ -667,6 +698,11 @@ export default function Page() {
   const eventCoverStyle = currentEvent?.coverImageUrl
     ? { backgroundImage: `url(${currentEvent.coverImageUrl})` }
     : undefined
+  const eventDateLabel = formatEventDateForShell(currentEvent?.eventDate || null, locale)
+  const photoCountLabel = `${photoCount} ${t.gallery.photosTab.toLowerCase()}`
+  const eventMetaLabel = eventDateLabel
+    ? `${eventDateLabel} · ${photoCountLabel}`
+    : photoCountLabel
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAFAF8] text-[#161616]">
@@ -678,20 +714,22 @@ export default function Page() {
       <main className="relative flex-1 px-3 py-3 sm:px-6 sm:py-5">
         <section className="mx-auto w-full max-w-4xl">
           <div
-            className="relative h-40 w-full overflow-hidden rounded-[0.9rem] bg-[#E9EEF3] bg-cover bg-center sm:h-52"
+            className="relative h-[155px] overflow-hidden rounded-[13px] bg-[#f3f4f6] bg-cover bg-center sm:h-[290px]"
             style={eventCoverStyle}
           >
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/28 to-transparent px-4 pb-4 pt-14">
-              <h1 className="text-2xl font-bold leading-tight text-white drop-shadow-sm sm:text-3xl">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/72 via-black/34 to-transparent sm:h-auto sm:px-5 sm:pb-5 sm:pt-16" />
+            <div className="contents sm:absolute sm:inset-x-0 sm:bottom-0 sm:flex sm:flex-row sm:items-end sm:justify-between sm:gap-5 sm:px-5 sm:pb-5">
+              <h1 className="absolute bottom-[10px] left-3 min-w-0 max-w-[70%] text-left text-[12px] font-black leading-[13px] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.55)] sm:static sm:max-w-none sm:flex-1 sm:text-[1.75rem] sm:leading-none">
                 {eventName}
               </h1>
-              {currentEvent?.eventDate ? (
-                <p className="mt-1 text-xs font-semibold text-white/85 sm:text-sm">
-                  {currentEvent.eventDate}
-                </p>
-              ) : null}
+              <p className="hidden text-right font-semibold leading-tight text-white/80 [text-shadow:0_1px_7px_rgba(0,0,0,0.55)] sm:static sm:block sm:max-w-none sm:shrink-0 sm:pb-0.5 sm:text-[11px]">
+                {eventMetaLabel}
+              </p>
             </div>
           </div>
+          <p className="mt-1 whitespace-nowrap text-right text-[9px] font-medium leading-tight text-neutral-500 sm:hidden">
+            {eventMetaLabel}
+          </p>
 
           <div className="mt-3 w-full rounded-[1rem] border border-[#E3E7EC] bg-white p-4 shadow-[0_12px_34px_rgba(15,23,42,0.06)] sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
