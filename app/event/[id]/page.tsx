@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLanguage } from '@/app/_components/language-provider'
@@ -199,6 +199,10 @@ export default function Page() {
   const [message, setMessage] = useState(t.upload.chooseStart)
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [selectedUploadPhotoPreviews, setSelectedUploadPhotoPreviews] = useState<
+    Array<{ index: number; name: string; url: string }>
+  >([])
+  const preparedHeicFilesRef = useRef(new Map<File, Promise<File>>())
   const [eventMissing, setEventMissing] = useState(false)
   const [guidanceAccepted, setGuidanceAccepted] = useState(false)
   const [selectedGuestbookPhotoIndex, setSelectedGuestbookPhotoIndex] = useState(-1)
@@ -379,23 +383,65 @@ export default function Page() {
       photoCount,
     }
   }, [acceptedFiles])
-  const selectedUploadPhotoPreviews = useMemo(
-    () =>
-      acceptedFiles.map((file, index) => ({
-        index,
-        name: file.name,
-        url: URL.createObjectURL(file),
-      })),
-    [acceptedFiles]
-  )
-  const selectedFilePreviews = selectedUploadPhotoPreviews.slice(0, 8)
+  const getPreparedPhotoForUpload = useCallback((file: File) => {
+    if (!isHeicPhoto(file)) {
+      return preparePhotoForUpload(file)
+    }
 
-  useEffect(
-    () => () => {
-      selectedUploadPhotoPreviews.forEach((preview) => URL.revokeObjectURL(preview.url))
-    },
-    [selectedUploadPhotoPreviews]
-  )
+    const cachedFile = preparedHeicFilesRef.current.get(file)
+
+    if (cachedFile) return cachedFile
+
+    const preparedFile = preparePhotoForUpload(file)
+    preparedHeicFilesRef.current.set(file, preparedFile)
+    return preparedFile
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const objectUrls: string[] = []
+
+    const buildPreviews = async () => {
+      const previews: Array<{ index: number; name: string; url: string }> = []
+
+      for (const [index, file] of acceptedFiles.entries()) {
+        try {
+          const previewFile = isHeicPhoto(file)
+            ? await getPreparedPhotoForUpload(file)
+            : file
+
+          if (cancelled) break
+
+          const url = URL.createObjectURL(previewFile)
+
+          objectUrls.push(url)
+          previews.push({ index, name: previewFile.name, url })
+        } catch (error) {
+          console.error('Photo preview preparation failed', error)
+        }
+      }
+
+      if (!cancelled) {
+        setSelectedUploadPhotoPreviews(previews)
+      }
+    }
+
+    for (const file of preparedHeicFilesRef.current.keys()) {
+      if (!acceptedFiles.includes(file)) {
+        preparedHeicFilesRef.current.delete(file)
+      }
+    }
+
+    setSelectedUploadPhotoPreviews([])
+    void buildPreviews()
+
+    return () => {
+      cancelled = true
+      objectUrls.forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [acceptedFiles, getPreparedPhotoForUpload])
+
+  const selectedFilePreviews = selectedUploadPhotoPreviews.slice(0, 8)
 
   const handleKeepLink = async () => {
     const shareData = {
@@ -662,7 +708,7 @@ export default function Page() {
         let uploadFile: File
 
         try {
-          uploadFile = await preparePhotoForUpload(file)
+          uploadFile = await getPreparedPhotoForUpload(file)
         } catch (error) {
           if (!isHeicPhoto(file)) throw error
 
