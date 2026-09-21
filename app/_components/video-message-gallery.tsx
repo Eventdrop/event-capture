@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useLanguage } from '@/app/_components/language-provider'
 import { VideoMessageUpload } from '@/app/_components/video-message-upload'
 import { shareMedia } from '@/lib/share-media'
+import { recoverVideoAccess } from '@/lib/video-message-upload'
 
 type GalleryVideo = {
   id: string
@@ -165,9 +166,18 @@ export function VideoMessageGallery({ identifier }: { identifier: string }) {
     const controller = new AbortController()
     async function load() {
       try {
-        const response = await fetch(`/api/videos/list?identifier=${encodeURIComponent(identifier)}&offset=${page * 24}`, {
+        const request = () => fetch(`/api/videos/list?identifier=${encodeURIComponent(identifier)}&offset=${page * 24}`, {
           credentials: 'same-origin', cache: 'no-store', signal: controller.signal,
         })
+        let response = await request()
+
+        if (
+          (response.status === 401 || response.status === 403) &&
+          await recoverVideoAccess(identifier)
+        ) {
+          response = await request()
+        }
+
         const data = await response.json()
         if (!response.ok || !data?.ok || !Array.isArray(data.videos)) throw new Error('Gallery unavailable')
         if (!controller.signal.aborted) setResult(data)

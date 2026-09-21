@@ -61,6 +61,16 @@ export function validateVideoMessage(file: File): VideoMessageError | null {
   return null
 }
 
+export async function recoverVideoAccess(identifier: string) {
+  const params = new URLSearchParams({ identifier })
+  const response = await fetch(`/api/public-events/access?${params.toString()}`, {
+    credentials: 'same-origin',
+    cache: 'no-store',
+  })
+
+  return response.ok
+}
+
 // One controller per mounted card. The synchronous lock also protects clicks
 // arriving before React renders the disabled button.
 export function createVideoMessageUpload(
@@ -70,11 +80,26 @@ export function createVideoMessageUpload(
   let cancelled = false
   let uploadController: AbortController | null = null
 
-  async function post(action: string, body: object, keepalive = false) {
-    const response = await fetch(`/api/videos/${action}`, {
+  async function post(
+    action: string,
+    body: object,
+    keepalive = false,
+    recoveryIdentifier?: string,
+  ) {
+    const request = () => fetch(`/api/videos/${action}`, {
       method: 'POST', credentials: 'same-origin', keepalive,
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     })
+    let response = await request()
+
+    if (
+      recoveryIdentifier &&
+      (response.status === 401 || response.status === 403) &&
+      await recoverVideoAccess(recoveryIdentifier)
+    ) {
+      response = await request()
+    }
+
     const data = await response.json()
     if (!response.ok || data?.ok !== true) throw new Error('Video request failed')
     return data
@@ -113,7 +138,12 @@ export function createVideoMessageUpload(
         onState('uploading')
         if (!isSupportedVideoExtension(extension)) throw new Error('Invalid video extension')
         // Do not abort initiation: we need its videoId to cancel a created row.
-        const initiated = await post('initiate', { identifier, type: 'video_message', extension })
+        const initiated = await post(
+          'initiate',
+          { identifier, type: 'video_message', extension },
+          false,
+          identifier,
+        )
         if (typeof initiated.videoId === 'string') videoId = initiated.videoId
         if (!videoId || typeof initiated.signedUrl !== 'string') throw new Error('Invalid upload response')
         if (cancelled) throw new Error('Cancelled')
@@ -131,14 +161,14 @@ export function createVideoMessageUpload(
         // Let finalization finish even if the card unmounts; do not claim success
         // until the backend confirms ready. Failed/ambiguous responses can safely
         // attempt cancellation because that endpoint cannot delete ready videos.
-        const finalized = await post('finalize', { videoId })
+        const finalized = await post('finalize', { videoId }, false, identifier)
         if (finalized.status !== 'ready' || finalized.videoId !== videoId) {
           throw new Error('Finalization not confirmed')
         }
         onState('success')
       } catch {
         if (videoId) {
-          try { await post('cancel', { videoId }, true) } catch {
+          try { await post('cancel', { videoId }, true, identifier) } catch {
             // Best effort; initiation's stale cleanup remains the fallback.
           }
         }
