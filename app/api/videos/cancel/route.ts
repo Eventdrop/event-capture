@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { isEnabledVideoType } from '@/lib/video'
+import { getVideoStorageExtension } from '@/lib/video'
 import { VIDEO_ACCESS_COOKIE_NAME, verifyVideoAccessGrant } from '@/lib/video-access'
 
 export const runtime = 'nodejs'
@@ -74,8 +75,7 @@ export async function POST(request: Request) {
     }
 
     const prefix = `${grant.eventId}/${video.id}/original`
-    const extension = video.storage_path === `${prefix}.mp4` ? 'mp4'
-      : video.storage_path === `${prefix}.webm` ? 'webm' : null
+    const extension = getVideoStorageExtension(video.storage_path, prefix)
     if (!extension) return failure(422, 'Invalid video storage path.')
     const storagePath = `${prefix}.${extension}`
 

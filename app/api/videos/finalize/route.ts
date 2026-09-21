@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
-import { getVideoPolicy } from '@/lib/video'
+import { getVideoPolicy, getVideoStorageExtension, isSupportedVideoMimeType } from '@/lib/video'
 import { VIDEO_ACCESS_COOKIE_NAME, verifyVideoAccessGrant } from '@/lib/video-access'
 
 export const runtime = 'nodejs'
@@ -82,8 +82,7 @@ export async function POST(request: Request) {
 
     // Initiation stores the extension in storage_path; accept only its exact canonical paths.
     const prefix = `${grant.eventId}/${video.id}/original`
-    const extension = video.storage_path === `${prefix}.mp4` ? 'mp4'
-      : video.storage_path === `${prefix}.webm` ? 'webm' : null
+    const extension = getVideoStorageExtension(video.storage_path, prefix)
     if (!extension) return failure(422, 'Invalid video storage path.')
     const storagePath = `${prefix}.${extension}`
     const { data: object, error: objectError } = await supabase.storage.from(BUCKET)
@@ -101,7 +100,7 @@ export async function POST(request: Request) {
     const sizeBytes = object.size
     const mimeType = typeof object.contentType === 'string'
       ? object.contentType.split(';', 1)[0].trim().toLowerCase() : null
-    if (mimeType !== `video/${extension}`) {
+    if (!mimeType || !isSupportedVideoMimeType(extension, mimeType)) {
       return failure(422, 'Unsupported video MIME type.')
     }
     if (typeof sizeBytes !== 'number' || !Number.isSafeInteger(sizeBytes) || sizeBytes <= 0) {

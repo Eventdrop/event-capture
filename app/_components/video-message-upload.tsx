@@ -49,7 +49,7 @@ export function VideoMessageUpload({
       <h2 id="video-message-title" className="text-base font-bold text-[#161616]">{text.title}</h2>
       <p id="video-message-hint" className="mt-1 text-sm text-[#6B7280]">{text.hint}</p>
       <input
-        ref={input} id="video-message-file" type="file" accept=".mp4,.webm,video/mp4,video/webm"
+        ref={input} id="video-message-file" type="file" accept=".mp4,.webm,.mov,video/mp4,video/webm,video/quicktime,video/x-quicktime,video/mov"
         disabled={busy} aria-label={text.choose} aria-describedby="video-message-hint"
         className="sr-only"
         onChange={(event) => {

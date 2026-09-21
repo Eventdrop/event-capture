@@ -10,6 +10,7 @@ type GalleryVideo = {
   canDelete: boolean
   createdAt: string
   playbackUrl: string | null
+  extension: 'mp4' | 'webm' | 'mov' | null
 }
 
 export function VideoMessagePlayer({ video, refresh }: { video: GalleryVideo; refresh: () => void }) {
@@ -20,7 +21,7 @@ export function VideoMessagePlayer({ video, refresh }: { video: GalleryVideo; re
   const [status, setStatus] = useState('')
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null)
   const signedUrl = video.playbackUrl || ''
-  const downloadName = `eventdrop-video-${video.id}.mp4`
+  const downloadName = `eventdrop-video-${video.id}.${video.extension || 'mp4'}`
 
   const deleteVideo = async () => {
     if (deleting || !video.canDelete) return

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
-import { isEnabledVideoType } from '@/lib/video'
+import { isEnabledVideoType, isSupportedVideoExtension } from '@/lib/video'
 import { VIDEO_ACCESS_COOKIE_NAME, verifyVideoAccessGrant } from '@/lib/video-access'
 import { cleanupStaleVideoUploads } from '@/lib/video-cleanup'
 
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   if (type !== 'video_message' || !isEnabledVideoType(type)) {
     return failure(400, 'Video type is not enabled.')
   }
-  if (extension !== 'mp4' && extension !== 'webm') {
+  if (!isSupportedVideoExtension(extension)) {
     return failure(400, 'Unsupported video extension.')
   }
 

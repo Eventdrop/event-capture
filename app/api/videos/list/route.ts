@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import { VIDEO_ACCESS_COOKIE_NAME, verifyVideoAccessGrant } from '@/lib/video-access'
+import { getVideoStorageExtension } from '@/lib/video'
 
 export const runtime = 'nodejs'
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -51,13 +52,14 @@ export async function GET(request: Request) {
         canDelete: event.allow_guest_delete === true || video.uploader_session_id === grant.uploaderSessionId,
         createdAt: video.created_at,
         playbackUrl: null as string | null,
+        extension: null as 'mp4' | 'webm' | 'mov' | null,
       }
       // Only sign the canonical path of a server-loaded ready row. A bad/missing
       // object affects this card only, never the rest of the gallery.
       const prefix = `${grant.eventId}/${video.id}/original`
-      const extension = video.storage_path === `${prefix}.mp4` ? 'mp4'
-        : video.storage_path === `${prefix}.webm` ? 'webm' : null
+      const extension = getVideoStorageExtension(video.storage_path, prefix)
       if (!extension) return safe
+      safe.extension = extension
       try {
         const { data, error: signError } = await supabase.storage.from('event-videos')
           .createSignedUrl(`${prefix}.${extension}`, expiresIn)

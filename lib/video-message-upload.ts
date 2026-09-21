@@ -1,10 +1,19 @@
-import { videoPolicies } from '@/lib/video'
+import {
+  getCanonicalVideoMimeType,
+  isSupportedVideoExtension,
+  isSupportedVideoMimeType,
+  videoPolicies,
+} from '@/lib/video'
 
 export const MAX_DURATION_SECONDS = videoPolicies.video_message.maxDurationMs / 1000
 export type VideoMessageState = 'selecting' | 'checking' | 'uploading' | 'finalizing' | 'success' | 'error'
 export type VideoMessageError = 'type' | 'size' | 'empty' | 'duration' | 'metadata' | 'upload' | 'finalize' | 'cancelled'
 
-export function readVideoDuration(file: File, signal: AbortSignal): Promise<number> {
+export function readVideoDuration(
+  file: File,
+  signal: AbortSignal,
+  requireVideoTrack = false,
+): Promise<number> {
   return new Promise((resolve, reject) => {
     const video = document.createElement('video')
     const url = URL.createObjectURL(file)
@@ -26,7 +35,14 @@ export function readVideoDuration(file: File, signal: AbortSignal): Promise<numb
     const abort = () => finish()
     const timer = setTimeout(() => finish(), 15000)
     video.preload = 'metadata'
-    video.onloadedmetadata = () => finish(video.duration)
+    video.onloadedmetadata = () => {
+      if (requireVideoTrack && (video.videoWidth <= 0 || video.videoHeight <= 0)) {
+        finish()
+        return
+      }
+
+      finish(video.duration)
+    }
     video.onerror = () => finish()
     signal.addEventListener('abort', abort, { once: true })
     if (signal.aborted) finish()
@@ -37,7 +53,7 @@ export function readVideoDuration(file: File, signal: AbortSignal): Promise<numb
 export function validateVideoMessage(file: File): VideoMessageError | null {
   const extension = file.name.split('.').pop()?.toLowerCase()
   const mime = file.type.split(';', 1)[0].trim().toLowerCase()
-  if ((extension !== 'mp4' && extension !== 'webm') || (mime && mime !== `video/${extension}`)) {
+  if (!isSupportedVideoExtension(extension) || (mime && !isSupportedVideoMimeType(extension, mime))) {
     return 'type'
   }
   if (file.size > videoPolicies.video_message.maxSizeBytes) return 'size'
@@ -81,7 +97,13 @@ export function createVideoMessageUpload(
       onState('checking')
       try {
         uploadController = new AbortController()
-        const duration = await readVideoDuration(file, uploadController.signal)
+        const extension = file.name.split('.').pop()!.toLowerCase()
+        const mime = file.type.split(';', 1)[0].trim().toLowerCase()
+        const duration = await readVideoDuration(
+          file,
+          uploadController.signal,
+          extension === 'mov' && !mime,
+        )
         if (cancelled) throw new Error('Cancelled')
         if (duration > MAX_DURATION_SECONDS) {
           onState('error', 'duration')
@@ -89,7 +111,7 @@ export function createVideoMessageUpload(
         }
         phase = 'upload'
         onState('uploading')
-        const extension = file.name.split('.').pop()!.toLowerCase()
+        if (!isSupportedVideoExtension(extension)) throw new Error('Invalid video extension')
         // Do not abort initiation: we need its videoId to cancel a created row.
         const initiated = await post('initiate', { identifier, type: 'video_message', extension })
         if (typeof initiated.videoId === 'string') videoId = initiated.videoId
@@ -100,7 +122,7 @@ export function createVideoMessageUpload(
         // supplied by initiation; never construct a bucket/path or send cookies.
         const response = await fetch(initiated.signedUrl, {
           method: 'PUT', credentials: 'omit', signal: uploadController.signal,
-          headers: { 'Content-Type': `video/${extension}`, 'x-upsert': 'false' }, body: file,
+          headers: { 'Content-Type': getCanonicalVideoMimeType(extension), 'x-upsert': 'false' }, body: file,
         })
         if (!response.ok || cancelled) throw new Error('Upload failed')
         phase = 'finalize'

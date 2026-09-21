@@ -3927,10 +3927,10 @@ export const videoMessageUploadTranslations = {
     metadata: 'De videoduur kon niet worden gelezen. Kies een ander bestand.',
     checking: 'Videoduur controleren…',
 
-    title: 'Videoboodschap', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    title: 'Videoboodschap', hint: 'MP4 / WebM / MOV · max. 25 MB · max. 15 sec.',
     choose: 'Kies een video', send: 'Verstuur video', cancel: 'Annuleren',
     uploading: 'Video uploaden…', finalizing: 'Video afronden…', success: 'Je videoboodschap is opgeslagen.',
-    type: 'Kies een MP4- of WebM-video.', size: 'Deze video is groter dan 25 MiB.', empty: 'Dit bestand is leeg.',
+    type: 'Kies een MP4-, WebM- of MOV-video.', size: 'Deze video is groter dan 25 MiB.', empty: 'Dit bestand is leeg.',
     upload: 'Uploaden is niet gelukt. Probeer het opnieuw.', finalize: 'Opslaan kon niet worden bevestigd. Probeer het opnieuw.', cancelled: 'Upload geannuleerd.',
   },
   en: {
@@ -3938,10 +3938,10 @@ export const videoMessageUploadTranslations = {
     metadata: 'The video duration could not be read. Choose another file.',
     checking: 'Checking video duration…',
 
-    title: 'Video Message', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    title: 'Video Message', hint: 'MP4 / WebM / MOV · max. 25 MB · max. 15 sec.',
     choose: 'Choose a video', send: 'Upload video', cancel: 'Cancel',
     uploading: 'Uploading video…', finalizing: 'Finalizing video…', success: 'Your video message has been saved.',
-    type: 'Choose an MP4 or WebM video.', size: 'This video exceeds 25 MiB.', empty: 'This file is empty.',
+    type: 'Choose an MP4, WebM, or MOV video.', size: 'This video exceeds 25 MiB.', empty: 'This file is empty.',
     upload: 'Upload failed. Please try again.', finalize: 'Saving could not be confirmed. Please try again.', cancelled: 'Upload cancelled.',
   },
   de: {
@@ -3949,10 +3949,10 @@ export const videoMessageUploadTranslations = {
     metadata: 'Die Videodauer konnte nicht gelesen werden. Wähle eine andere Datei.',
     checking: 'Videodauer wird geprüft…',
 
-    title: 'Videobotschaft', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    title: 'Videobotschaft', hint: 'MP4 / WebM / MOV · max. 25 MB · max. 15 sec.',
     choose: 'Video auswählen', send: 'Video hochladen', cancel: 'Abbrechen',
     uploading: 'Video wird hochgeladen…', finalizing: 'Video wird gespeichert…', success: 'Deine Videobotschaft wurde gespeichert.',
-    type: 'Wähle ein MP4- oder WebM-Video.', size: 'Dieses Video ist größer als 25 MiB.', empty: 'Diese Datei ist leer.',
+    type: 'Wähle ein MP4-, WebM- oder MOV-Video.', size: 'Dieses Video ist größer als 25 MiB.', empty: 'Diese Datei ist leer.',
     upload: 'Upload fehlgeschlagen. Bitte erneut versuchen.', finalize: 'Speichern konnte nicht bestätigt werden. Bitte erneut versuchen.', cancelled: 'Upload abgebrochen.',
   },
   fr: {
@@ -3960,10 +3960,10 @@ export const videoMessageUploadTranslations = {
     metadata: 'Impossible de lire la durée. Choisissez un autre fichier.',
     checking: 'Vérification de la durée…',
 
-    title: 'Message vidéo', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    title: 'Message vidéo', hint: 'MP4 / WebM / MOV · max. 25 MB · max. 15 sec.',
     choose: 'Choisir une vidéo', send: 'Envoyer la vidéo', cancel: 'Annuler',
     uploading: 'Envoi de la vidéo…', finalizing: 'Enregistrement de la vidéo…', success: 'Votre message vidéo a été enregistré.',
-    type: 'Choisissez une vidéo MP4 ou WebM.', size: 'Cette vidéo dépasse 25 MiB.', empty: 'Ce fichier est vide.',
+    type: 'Choisissez une vidéo MP4, WebM ou MOV.', size: 'Cette vidéo dépasse 25 MiB.', empty: 'Ce fichier est vide.',
     upload: 'Échec de l’envoi. Veuillez réessayer.', finalize: 'L’enregistrement n’a pas pu être confirmé. Veuillez réessayer.', cancelled: 'Envoi annulé.',
   },
   tr: {
@@ -3971,10 +3971,10 @@ export const videoMessageUploadTranslations = {
     metadata: 'Video süresi okunamadı. Başka bir dosya seçin.',
     checking: 'Video süresi kontrol ediliyor…',
 
-    title: 'Video mesajı', hint: 'MP4 / WebM · max. 25 MB · max. 15 sec.',
+    title: 'Video mesajı', hint: 'MP4 / WebM / MOV · maks. 25 MB · maks. 15 sn.',
     choose: 'Video seç', send: 'Videoyu yükle', cancel: 'İptal',
     uploading: 'Video yükleniyor…', finalizing: 'Video kaydediliyor…', success: 'Video mesajınız kaydedildi.',
-    type: 'MP4 veya WebM video seçin.', size: 'Bu video 25 MiB sınırını aşıyor.', empty: 'Bu dosya boş.',
+    type: 'MP4, WebM veya MOV video seçin.', size: 'Bu video 25 MiB sınırını aşıyor.', empty: 'Bu dosya boş.',
     upload: 'Yükleme başarısız. Lütfen tekrar deneyin.', finalize: 'Kayıt doğrulanamadı. Lütfen tekrar deneyin.', cancelled: 'Yükleme iptal edildi.',
   },
 } satisfies Record<Locale, Record<string, string>>

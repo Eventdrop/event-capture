@@ -1,5 +1,6 @@
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 import type { VideoAccessGrant } from '@/lib/video-access'
+import { getVideoStorageExtension } from '@/lib/video'
 
 // Installed @supabase/storage-js StorageFileApi.createSignedUploadUrl documents
 // a fixed two-hour lifetime (the API exposes no expiresIn option).
@@ -78,8 +79,7 @@ export async function cleanupStaleVideoUploads(
     if (!claimed) continue
 
     const prefix = `${grant.eventId}/${video.id}/original`
-    const extension = video.storage_path === `${prefix}.mp4` ? 'mp4'
-      : video.storage_path === `${prefix}.webm` ? 'webm' : null
+    const extension = getVideoStorageExtension(video.storage_path, prefix)
     if (!extension) continue
 
     try {
