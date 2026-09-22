@@ -136,6 +136,8 @@ export default function AdminPage() {
   const [guestMessagesByEvent, setGuestMessagesByEvent] = useState<
     Record<string, GuestMessageEntry[]>
   >({})
+  const [downloadingGuestbookPdfEventId, setDownloadingGuestbookPdfEventId] =
+    useState('')
   const [downloadStatsByEvent, setDownloadStatsByEvent] = useState<
     Record<string, DownloadStatsEntry>
   >({})
@@ -955,6 +957,49 @@ export default function AdminPage() {
     link.click()
     link.remove()
     URL.revokeObjectURL(url)
+  }
+
+  const downloadGuestbookPdf = async (event: NormalizedEvent) => {
+    setDownloadingGuestbookPdfEventId(event.id)
+
+    try {
+      const response = await fetch(
+        `/api/admin/guestbook-pdf?eventId=${encodeURIComponent(event.id)}`,
+        {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        }
+      )
+
+      if (response.status === 401) {
+        setAuthenticated(false)
+        setStatusMessage(t.admin.loginPrompt)
+        return
+      }
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null
+        throw new Error(payload?.error || `${t.admin.downloadGuestbookPdf}: ${t.admin.loadError}`)
+      }
+
+      const blob = await response.blob()
+      const contentDisposition = response.headers.get('content-disposition') || ''
+      const fileName =
+        contentDisposition.match(/filename="([^"]+)"/i)?.[1] ||
+        `${getSafeEventName(event) || 'event'}-gastenboek.pdf`
+
+      downloadBlob(blob, fileName)
+    } catch (error) {
+      setStatusMessage(
+        error instanceof Error
+          ? error.message
+          : `${t.admin.downloadGuestbookPdf}: ${t.admin.loadError}`
+      )
+    } finally {
+      setDownloadingGuestbookPdfEventId('')
+    }
   }
 
   const downloadQrSvg = (event: NormalizedEvent) => {
@@ -2914,12 +2959,14 @@ export default function AdminPage() {
                       </button>
                       {getGuestbookPdfThemeConfig(event.guestbookPdfTheme).implemented ? (
                         guestMessagesByEvent[event.id]?.length ? (
-                          <a
-                            href={`/api/admin/guestbook-pdf?eventId=${encodeURIComponent(event.id)}`}
+                          <button
+                            type="button"
+                            onClick={() => void downloadGuestbookPdf(event)}
+                            disabled={downloadingGuestbookPdfEventId === event.id}
                             className="inline-flex items-center justify-center rounded-full border border-[#C8D3E5] bg-white px-4 py-2 text-sm font-semibold text-[#0F3D66] hover:bg-[#EDF4FB]"
                           >
                             {t.admin.downloadGuestbookPdf}
-                          </a>
+                          </button>
                         ) : (
                           <button
                             type="button"
