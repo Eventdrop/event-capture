@@ -1423,8 +1423,22 @@ async function buildGuestbookPdf(input: {
   } else {
     drawGuestbookPageHeader(document, theme)
   }
-  let entriesOnCurrentPage = 0
-
+  const continuationContentTop = document.y
+  const continuationContentBottom = useWeddingMessagePages
+    ? getWeddingMessageContentBottom(document)
+    : getPageContentBottom(document)
+  const continuationContentHeight = continuationContentBottom - continuationContentTop
+  const continuationBlockStart = continuationContentTop + continuationContentHeight * 0.16
+  const cardGap = useWeddingMessagePages
+    ? themeKey === 'wedding'
+      ? 11
+      : 8
+    : CARD_GAP
+  const preparedEntries: Array<{
+    cardHeight: number
+    entry: GuestbookEntry
+    photo: Buffer | null
+  }> = []
   const pendingEntries = [...input.entries]
   for (let entryIndex = 0; entryIndex < pendingEntries.length; entryIndex += 1) {
     let entry = pendingEntries[entryIndex]
@@ -1467,14 +1481,36 @@ async function buildGuestbookPdf(input: {
         ? estimateWeddingCardHeight(document, entry, photo)
         : estimateCardHeight(document, entry, photo)
 
-    if (
-      entriesOnCurrentPage > 0 &&
-      ((themeKey !== 'wedding' && entriesOnCurrentPage >= 6) ||
-        document.y + cardHeight >
-          (useWeddingMessagePages
-            ? getWeddingMessageContentBottom(document)
-            : getPageContentBottom(document)))
-    ) {
+    preparedEntries.push({ cardHeight, entry, photo })
+  }
+
+  const continuationPages: Array<typeof preparedEntries> = []
+  let currentPage: typeof preparedEntries = []
+  let currentPageHeight = 0
+
+  for (const preparedEntry of preparedEntries) {
+    const nextCardY =
+      continuationBlockStart + currentPageHeight + (currentPage.length > 0 ? cardGap : 0)
+    const pageIsFull =
+      currentPage.length > 0 &&
+      ((themeKey !== 'wedding' && currentPage.length >= 6) ||
+        nextCardY + preparedEntry.cardHeight > continuationContentBottom)
+
+    if (pageIsFull) {
+      continuationPages.push(currentPage)
+      currentPage = []
+      currentPageHeight = 0
+    }
+
+    if (currentPage.length > 0) currentPageHeight += cardGap
+    currentPage.push(preparedEntry)
+    currentPageHeight += preparedEntry.cardHeight
+  }
+
+  if (currentPage.length > 0) continuationPages.push(currentPage)
+
+  continuationPages.forEach((pageEntries, pageIndex) => {
+    if (pageIndex > 0) {
       if (useWeddingMessagePages && weddingAssets) {
         drawWeddingFooter(document)
       } else {
@@ -1486,28 +1522,30 @@ async function buildGuestbookPdf(input: {
       } else {
         drawGuestbookPageHeader(document, theme)
       }
-      entriesOnCurrentPage = 0
     }
 
-    if (useWeddingMessagePages) {
-      drawWeddingMessageCard({
-        document,
-        entry,
-        gap: themeKey === 'wedding' ? 11 : 8,
-        messageCard: themeConfig.messageCard,
-        photo,
-      })
-    } else {
-      drawMessageCard({
-        document,
-        entry,
-        messageCard: themeConfig.messageCard,
-        photo,
-        theme,
-      })
-    }
-    entriesOnCurrentPage += 1
-  }
+    document.y = continuationBlockStart
+
+    pageEntries.forEach(({ entry, photo }) => {
+      if (useWeddingMessagePages) {
+        drawWeddingMessageCard({
+          document,
+          entry,
+          gap: cardGap,
+          messageCard: themeConfig.messageCard,
+          photo,
+        })
+      } else {
+        drawMessageCard({
+          document,
+          entry,
+          messageCard: themeConfig.messageCard,
+          photo,
+          theme,
+        })
+      }
+    })
+  })
 
   if (useWeddingMessagePages && weddingAssets) {
     drawWeddingFooter(document)
