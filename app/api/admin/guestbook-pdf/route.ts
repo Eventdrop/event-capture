@@ -1428,7 +1428,7 @@ async function buildGuestbookPdf(input: {
     ? getWeddingMessageContentBottom(document)
     : getPageContentBottom(document)
   const continuationContentHeight = continuationContentBottom - continuationContentTop
-  const continuationBlockStart = continuationContentTop + continuationContentHeight * 0.16
+  const continuationBlockStart = continuationContentTop + continuationContentHeight * 0.11
   const cardGap = useWeddingMessagePages
     ? themeKey === 'wedding'
       ? 11
@@ -1493,7 +1493,7 @@ async function buildGuestbookPdf(input: {
       continuationBlockStart + currentPageHeight + (currentPage.length > 0 ? cardGap : 0)
     const pageIsFull =
       currentPage.length > 0 &&
-      ((themeKey !== 'wedding' && currentPage.length >= 6) ||
+      (currentPage.length >= 7 ||
         nextCardY + preparedEntry.cardHeight > continuationContentBottom)
 
     if (pageIsFull) {
