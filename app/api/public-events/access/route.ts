@@ -73,13 +73,6 @@ export async function GET(request: Request) {
     )
   }
 
-  if (await hasAdminSession()) {
-    return NextResponse.json({
-      ok: true,
-      hasAccess: true,
-    })
-  }
-
   const cookieStore = await cookies()
   const existingCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
   const matchingGrant = parseEventAccessCookie(existingCookie).find((grant) =>
@@ -87,6 +80,14 @@ export async function GET(request: Request) {
       (identifier) => grant.eventId === identifier || grant.eventSlug === identifier
     )
   )
+
+  if (!matchingGrant && await hasAdminSession()) {
+    return NextResponse.json({
+      ok: true,
+      hasAccess: true,
+    })
+  }
+
   const hasAccess = Boolean(matchingGrant)
 
   const response = NextResponse.json(
