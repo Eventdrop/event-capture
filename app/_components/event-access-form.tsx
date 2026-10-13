@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useLanguage } from '@/app/_components/language-provider'
+import { type Locale } from '@/lib/i18n'
 
 type AccessMessage = 'accessHint' | 'emailRequired' | 'codeRequired' | 'checkingAccess' | 'accessError' | 'accessGranted'
 
@@ -9,6 +10,8 @@ type EventAccessFormProps = {
   eventIdentifier?: string
   returnTo?: string
   compact?: boolean
+  defaultLocale?: Locale
+  initialLocale?: string | null
   requireCode?: boolean
 }
 
@@ -20,9 +23,11 @@ export function EventAccessForm({
   eventIdentifier = '',
   returnTo = '',
   compact = false,
+  defaultLocale = 'nl',
+  initialLocale = null,
   requireCode = true,
 }: EventAccessFormProps) {
-  const { t, locale } = useLanguage()
+  const { t, locale, resolveEventLocale } = useLanguage()
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [marketingConsent, setMarketingConsent] = useState(false)
@@ -30,6 +35,11 @@ export function EventAccessForm({
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [isPending, startTransition] = useTransition()
   const showMarketingConsent = Boolean(eventIdentifier)
+
+  useEffect(() => {
+    if (!eventIdentifier) return
+    resolveEventLocale(defaultLocale, initialLocale)
+  }, [defaultLocale, eventIdentifier, initialLocale, resolveEventLocale])
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

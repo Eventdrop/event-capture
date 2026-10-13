@@ -13,6 +13,7 @@ import {
   isEventCodeEnabled,
   normalizeEventRecord,
 } from '@/lib/events'
+import { locales, type Locale } from '@/lib/i18n'
 import { createAdminSupabaseClient } from '@/lib/supabase-admin'
 
 export default async function JoinPage({
@@ -34,6 +35,12 @@ export default async function JoinPage({
 
   const eventRecord = normalizeEventRecord(lookup.data)
   const requireCode = eventRecord ? isEventCodeEnabled(eventRecord) : false
+  const returnToLocale = returnTo
+    ? new URLSearchParams(returnTo.split('?')[1] || '').get('lang')
+    : null
+  const initialLocale = locales.includes(returnToLocale as Locale)
+    ? returnToLocale
+    : null
 
   const cookieStore = await cookies()
   const accessCookie = cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value
@@ -58,6 +65,8 @@ export default async function JoinPage({
               eventIdentifier={id}
               returnTo={returnTo || ''}
               requireCode={requireCode}
+              defaultLocale={eventRecord?.defaultLocale || 'nl'}
+              initialLocale={initialLocale}
             />
           </div>
         </section>

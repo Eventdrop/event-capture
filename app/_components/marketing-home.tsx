@@ -90,6 +90,66 @@ function ProductShowcase() {
   </div>
 }
 
+function PackagesSection() {
+  const h = useLanguage().t.marketing
+  const packages = [
+    {
+      title: h.packageMomentTitle,
+      description: h.packageMomentDescription,
+      price: '€49,90',
+      items: h.packageMomentItems,
+      featured: false,
+    },
+    {
+      title: h.packageStoryTitle,
+      description: h.packageStoryDescription,
+      price: '€69,90',
+      items: h.packageStoryItems,
+      featured: true,
+    },
+    {
+      title: h.packageExperienceTitle,
+      description: h.packageExperienceDescription,
+      price: '€89,90',
+      items: h.packageExperienceItems,
+      featured: false,
+    },
+  ] as const
+
+  return (
+    <section className={`${styles.container} ${styles.section} ${styles.packagesSection}`}>
+      <div className={styles.sectionHeading}>
+        <p className={styles.eyebrow}>{h.packagesEyebrow}</p>
+        <h2>{h.packagesTitle}</h2>
+        <p>{h.packagesIntro}</p>
+      </div>
+      <div className={styles.packagesGrid}>
+        {packages.map((item) => (
+          <article key={item.title} className={`${styles.packageCard} ${item.featured ? styles.packageCardFeatured : ''}`}>
+            <div>
+              {item.featured ? <span className={styles.packageRecommended}>{h.packageRecommended}</span> : null}
+              <p className={styles.packageKicker}>EventDrop Sharing</p>
+              <h3>{item.title}</h3>
+              <p className={styles.packagePrice}>{item.price}</p>
+              <p className={styles.packagePriceSuffix}>{h.packagePriceSuffix}</p>
+              <p className={styles.packageDescription}>{item.description}</p>
+            </div>
+            <ul>
+              {item.items.map((feature) => (
+                <li key={feature}>
+                  <Icon kind="check" />
+                  <span>{feature}{feature === 'Photobooth Memory' ? <small>{h.packagePhotoboothFootnote}</small> : null}</span>
+                </li>
+              ))}
+            </ul>
+            <a href={brand.website} className={item.featured ? styles.button : styles.packageCta}>{h.packageCta}</a>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function BottomQuickNav() {
   const h = useLanguage().t.marketing
   const items = [
@@ -99,6 +159,12 @@ function BottomQuickNav() {
     { label: h.eventQuickNav, href: '#jouw-event', icon: 'arrow', primary: true },
   ] as const
   return <nav className={styles.bottomQuickNav} aria-label={h.bottomQuickNavLabel}>{items.map((item) => <a key={item.label} href={item.href} className={item.primary ? styles.bottomQuickPrimary : undefined}><span className={styles.bottomQuickIcon}><Icon kind={item.icon} /></span><span className={styles.bottomQuickLabel}>{item.label}</span></a>)}</nav>
+}
+
+function HeroSteps() {
+  const h = useLanguage().t.marketing
+  const icons = ['qr', 'phone', 'screen'] as const
+  return <div className={styles.heroMiniSteps}>{h.heroSteps.map((step, index) => <span key={step}><Icon kind={icons[index]} />{step}</span>)}</div>
 }
 
 export default function Home() {
@@ -134,12 +200,13 @@ export default function Home() {
     <MarketingHeader />
     <MarketingMobileFeatureMenu />
     <main>
-      <section className={`${styles.container} ${styles.hero}`}>
-        <div className={styles.heroCopy}><p className={styles.eyebrow}><span /> {h.heroEyebrow}</p><h1>{h.heroTitle}<br /><em>{h.heroAccent}</em></h1><p className={styles.intro}>{h.intro}</p><div className={styles.heroActions}><MarketingEntryLink /><a href="#hoe-werkt-het" className={styles.textLink}>{h.watchHow} <span>↗</span></a></div><p className={styles.trust}><Icon kind="check" />{h.trust}</p></div><HeroVisual />
-      </section>
       <MarketingFeatureNavigation className={styles.desktopFeatureNav} />
-      <section className={`${styles.container} ${styles.section}`}><ProductShowcase /></section>
-      <section id="mogelijkheden" className={`${styles.container} ${styles.section}`}><div className={styles.sectionHeading}><p className={styles.eyebrow}>{h.featureEyebrow}</p><h2>{h.featureTitle}</h2><p>{h.featureIntro}</p></div><div className={styles.features}>{features.map(([icon, title, body, href], i) => <a key={title} href={href} className={styles.feature}><div className={styles.featureTop}><span className={styles.iconBox}><Icon kind={icon} /></span><span className={styles.featureNumber}>0{i + 1}</span></div><h3>{title}</h3><p>{body}</p><FeatureCardVisual index={i} title={title} /></a>)}</div></section>
+      <section className={`${styles.container} ${styles.hero}`}>
+        <div className={styles.heroCopy}><p className={styles.eyebrow}><span /> {h.heroEyebrow}</p><h1>{h.heroTitle}<br /><em>{h.heroAccent}</em></h1><p className={styles.intro}>{h.intro}</p><HeroSteps /><div className={styles.heroActions}><MarketingEntryLink /><a href="#hoe-werkt-het" className={styles.textLink}>{h.watchHow} <span>↗</span></a></div><p className={styles.trust}><Icon kind="check" />{h.trust}</p></div><HeroVisual />
+      </section>
+      <section className={`${styles.container} ${styles.section} ${styles.showcaseSection}`}><ProductShowcase /></section>
+      <section id="mogelijkheden" className={`${styles.container} ${styles.section} ${styles.featureSection}`}><div className={styles.sectionHeading}><p className={styles.eyebrow}>{h.featureEyebrow}</p><h2>{h.featureTitle}</h2><p>{h.featureIntro}</p></div><div className={styles.features}>{features.map(([icon, title, body, href], i) => <a key={title} href={href} className={styles.feature}><div className={styles.featureTop}><span className={styles.iconBox}><Icon kind={icon} /></span><h3>{title}</h3><span className={styles.featureNumber}>0{i + 1}</span></div><p>{body}</p><FeatureCardVisual index={i} title={title} /></a>)}</div></section>
+      <PackagesSection />
       <section className={styles.photoBand} aria-label={h.photoBandHeadline}><Image src="/marketing/home-feature-band.png" alt="" fill sizes="100vw" className={styles.photoBandImage} /><div className={styles.photoBandOverlay}><div className={styles.container}><h2>{h.photoBandHeadline}</h2><p>{h.photoBandBody}</p></div></div></section>
       <section id="hoe-werkt-het" className={styles.workflow}><div className={styles.container}><div className={styles.sectionHeading}><p className={styles.eyebrow}>{h.workflowEyebrow}</p><h2>{h.workflowTitle}</h2></div><ol className={styles.steps}>{[['qr', h.scan, h.scanBody], ['phone', h.upload, h.uploadBody], ['screen', h.share, h.shareBody], ['heart', h.relive, h.reliveBody]].map(([icon, title, body], i) => <li key={title}><div className={styles.stepIcon}><Icon kind={icon} /><span>0{i + 1}</span></div><h3>{title}</h3><p>{body}</p></li>)}</ol></div></section>
       <section id="voor-events" className={`${styles.container} ${styles.section} ${styles.useCases}`}><div className={styles.sectionHeading}><p className={styles.eyebrow}>{h.occasionsEyebrow}</p><h2>{h.occasionsTitle}</h2></div><div className={styles.occasions}>{[[h.weddings, h.weddingBody], [h.parties, h.partyBody], [h.corporate, h.corporateBody]].map(([title, body], i) => <article key={title}><Photo index={i} /><div><h3>{title}</h3><p>{body}</p></div></article>)}</div></section>

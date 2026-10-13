@@ -19,7 +19,7 @@ import {
   type NormalizedEvent,
 } from '@/lib/events'
 import { supabase } from '@/lib/supabase'
-import { locales, type Locale } from '@/lib/i18n'
+import { type Locale } from '@/lib/i18n'
 
 const BUCKET_NAME = 'event-uploads'
 const MAX_SELECTION_FILES = 30
@@ -182,7 +182,7 @@ async function preparePhotoForUpload(file: File) {
 }
 
 export default function Page() {
-  const { t, locale, setLocale } = useLanguage()
+  const { t, locale, resolveEventLocale } = useLanguage()
   const params = useParams()
   const eventIdentifier = params.id as string
   const consentStorageKey = useMemo(
@@ -218,16 +218,9 @@ export default function Page() {
     if (!currentEvent) return
     if (initializedLocaleForEventRef.current === eventIdentifier) return
 
-    const requestedLocale = new URLSearchParams(window.location.search).get('lang')
-
-    setLocale(
-      requestedLocale && locales.includes(requestedLocale as Locale)
-        ? requestedLocale as Locale
-        : currentEvent.defaultLocale,
-      { persist: false }
-    )
+    resolveEventLocale(currentEvent.defaultLocale)
     initializedLocaleForEventRef.current = eventIdentifier
-  }, [currentEvent, eventIdentifier, setLocale])
+  }, [currentEvent, eventIdentifier, resolveEventLocale])
 
 
   useEffect(() => {

@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function VideoMessagesPage() {
-  return <MarketingFeaturePage title="Video Messages" eyebrow="PERSOONLIJKE BERICHTEN" intro="Gasten delen korte wensen, verhalen en felicitaties die je later opnieuw kunt bekijken." benefits={['Persoonlijker dan foto’s', 'Eenvoudig via mobiel', 'Bewaren na het event']} visual="video" />
+  return <MarketingFeaturePage feature="videoMessages" />
 }

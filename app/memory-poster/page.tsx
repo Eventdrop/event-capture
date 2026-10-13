@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function MemoryPosterPage() {
-  return <MarketingFeaturePage title="Memory Poster" eyebrow="A3 HERINNERING" intro="Maak een A3 postercompositie met eventfoto’s uit jullie album. Los van Photobooth Memory, dat voor photobooth strips is." benefits={['Voor eventfoto’s', 'A3 postercompositie', 'Een herinnering voor aan de muur']} visual="poster" />
+  return <MarketingFeaturePage feature="memoryPoster" />
 }

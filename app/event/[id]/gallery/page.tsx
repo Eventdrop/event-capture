@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { LANGUAGE_STORAGE_KEY, useLanguage } from '@/app/_components/language-provider'
+import { useLanguage } from '@/app/_components/language-provider'
 import { VideoMessageGallery } from '@/app/_components/video-message-gallery'
 import { SiteFooter } from '@/app/_components/site-footer'
 import { getPublicMediaUrl } from '@/lib/app-url'
@@ -883,7 +883,7 @@ function drawPhotostripStory(
 }
 
 export default function Page() {
-  const { t, locale, setLocale } = useLanguage()
+  const { t, locale, resolveEventLocale, setLocale } = useLanguage()
   const params = useParams()
   const router = useRouter()
   const eventIdentifier = params.id as string
@@ -918,25 +918,9 @@ export default function Page() {
     if (!currentEvent) return
     if (initializedLocaleForEventRef.current === eventIdentifier) return
 
-    const requestedLocale = new URLSearchParams(window.location.search).get('lang')
-    let storedLocale: string | null = null
-
-    try {
-      storedLocale = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
-    } catch {
-      storedLocale = null
-    }
-
-    setLocale(
-      requestedLocale && locales.includes(requestedLocale as Locale)
-        ? requestedLocale as Locale
-        : storedLocale && locales.includes(storedLocale as Locale)
-          ? storedLocale as Locale
-        : currentEvent.defaultLocale,
-      { persist: false }
-    )
+    resolveEventLocale(currentEvent.defaultLocale)
     initializedLocaleForEventRef.current = eventIdentifier
-  }, [currentEvent, eventIdentifier, setLocale])
+  }, [currentEvent, eventIdentifier, resolveEventLocale])
 
   useEffect(() => {
     setStatusMessage(t.gallery.loading)

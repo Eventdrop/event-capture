@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function StoryCreatorPage() {
-  return <MarketingFeaturePage title="Story Creator" eyebrow="SOCIAL READY" intro="Maak van eventfoto’s een verticale story die direct geschikt is om te delen." benefits={['Verticale story layout', 'Snel deelbaar', 'Gebouwd uit eventfoto’s']} visual="story" />
+  return <MarketingFeaturePage feature="storyCreator" />
 }
